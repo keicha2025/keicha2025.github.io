@@ -567,7 +567,6 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
         btn.disabled = true;
 
         API.login(phone)
-        .then(res => res.json())
         .then(data => {
             const info = (data.success && data.data) ? data.data : null;
             if(info && info.name) {
