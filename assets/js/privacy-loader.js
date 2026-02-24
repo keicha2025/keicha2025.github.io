@@ -6,7 +6,7 @@
 window.addEventListener('load', () => {
 
     // --- 設定區 ---
-    
+
     // ★ [FIX] 設定您的網站 Base URL (GitHub 儲存庫名稱)
     // 如果您的網址是 keicha2025.github.io/keicha，這裡就是 ""
     const BASE_URL = "";
@@ -14,7 +14,7 @@ window.addEventListener('load', () => {
     // ★ [FIX] 指向您儲存庫中的 TSV 檔案
     // 瀏覽器會去抓取: /assets/data/privacy.tsv
     const privacy_tsv_url = BASE_URL + "/assets/data/privacy.tsv";
-    
+
     // --- 設定結束 ---
 
     // 抓取容器
@@ -25,7 +25,7 @@ window.addEventListener('load', () => {
     function fetchWithCacheBust(url) {
         // 加上時間戳記，避免瀏覽器讀到舊的快取檔案
         const cacheBustUrl = url + '?v=' + new Date().getTime();
-        
+
         return fetch(cacheBustUrl, {
             cache: 'no-store',
         }).then(res => {
@@ -38,10 +38,10 @@ window.addEventListener('load', () => {
     function parseTSV(text) {
         const lines = text.split(/\r?\n/);
         if (lines.length < 2) return [];
-        
+
         // 移除標頭中的 BOM 和引號
         let headers = lines[0].split('\t').map(h => h.trim().replace(/[\uFEFF"']/g, ''));
-        
+
         const data = [];
         for (let i = 1; i < lines.length; i++) {
             if (!lines[i].trim()) continue;
@@ -54,7 +54,7 @@ window.addEventListener('load', () => {
                     val = val.slice(1, -1);
                 }
                 // 將由 Excel/GSheet 造成的雙引號還原
-                val = val.replace(/""/g, '"'); 
+                val = val.replace(/""/g, '"');
                 item[key] = val;
             });
             data.push(item);
@@ -75,7 +75,7 @@ window.addEventListener('load', () => {
             if (!item.title && !item.content) return;
 
             const section = document.createElement('section');
-            
+
             // 建立標題 (h3)
             if (item.title) {
                 const h3 = document.createElement('h3');
@@ -88,6 +88,8 @@ window.addEventListener('load', () => {
                 const contentDiv = document.createElement('div');
                 // 處理換行：將 \n 轉為 <br> (如果檔案中是用 Alt+Enter 換行)
                 let htmlContent = item.content.replace(/\n/g, '<br>');
+                // [新增] 自動將 KEICHA 加上品牌字體樣式
+                htmlContent = htmlContent.replace(/KEICHA/g, '<span class="font-brand-text">KEICHA</span>');
                 contentDiv.innerHTML = htmlContent;
                 section.appendChild(contentDiv);
             }
@@ -104,7 +106,7 @@ window.addEventListener('load', () => {
             .catch(err => {
                 console.error(err);
                 loader.style.display = 'none';
-                container.innerHTML = `<p class="text-red-600 text-center">載入條款失敗。請確認 /assets/data/privacy.tsv 檔案是否存在。<br>(${err.message})</p>`;
+                container.innerHTML = `<p class="text-slate-600 text-center">載入條款失敗。請確認 /assets/data/privacy.tsv 檔案是否存在。<br>(${err.message})</p>`;
             });
     }
 });

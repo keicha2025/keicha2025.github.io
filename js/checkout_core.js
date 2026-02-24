@@ -28,27 +28,29 @@ async function handleQuickLogin() {
     btn.innerHTML = '驗證中...';
 
     try {
-        const res = await API.login(phone);
-        if (res.success) {
+        // 直接從 Firestore 查詢會員
+        const snapshot = await db.collection('members').where('phone', '==', phone).limit(1).get();
+        if (!snapshot.empty) {
+            const userData = snapshot.docs[0].data();
             // 登入成功，儲存到 LocalStorage
-            localStorage.setItem('keicha_v2_user', JSON.stringify(res.data));
+            localStorage.setItem('keicha_v2_user', JSON.stringify(userData));
             closeAllPanels();
-            
+
             // 如果是在 DIY 頁面，嘗試自動帶入
             const inputPhone = document.getElementById('input-phone');
             if (inputPhone) {
-                inputPhone.value = res.data.phone;
-                // 呼叫 DIY 頁面的填表函式 (如果存在)
+                inputPhone.value = userData.phone;
                 if (typeof fillFormWithData === 'function') {
-                    fillFormWithData(res.data);
+                    fillFormWithData(userData);
                 }
             }
-            alert("登入成功！");
+            alert("會員資料讀取成功！");
         } else {
-            alert("登入失敗：" + (res.msg || "未知錯誤"));
+            alert("查無此行動電話之會員資料。");
         }
     } catch (e) {
-        alert("系統錯誤");
+        console.error("Login Error:", e);
+        alert("系統讀取錯誤，請稍後再試。");
     } finally {
         btn.innerHTML = oldHtml;
     }

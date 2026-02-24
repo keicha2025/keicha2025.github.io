@@ -1,0 +1,3762 @@
+---
+layout: default
+title: KEICHA 管理後台
+---
+
+
+
+
+
+
+
+
+<!-- Supabase JS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+<!-- SheetJS for Excel Export/Import -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+
+<!-- KEICHA UI Dialog System -->
+<link rel="stylesheet" href="css/ui-dialog.css">
+<script src="js/ui-dialog.js"></script>
+
+<style>
+    /* 移除數字輸入框的上下箭頭 */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type=number] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+
+    /* 品牌色系 */
+    .brand-green {
+        color: #6ea44c;
+    }
+
+    .bg-brand-green {
+        background-color: #6ea44c;
+    }
+
+    /* 容器 */
+    .admin-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        padding-bottom: 100px;
+    }
+
+    /* 登入畫面 */
+    .login-screen {
+        min-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .login-card {
+        background: white;
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .login-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 100%;
+        padding: 14px 24px;
+        background: white;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .login-btn:hover {
+        border-color: #6ea44c;
+        background: #f9fafb;
+    }
+
+    /* 標籤頁 */
+    .tabs {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        margin-bottom: 24px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #e5e7eb;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tab {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 12px 20px;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #6b7280;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+    .tab .material-symbols-rounded {
+        font-size: 18px;
+    }
+
+    .tab:hover {
+        background: #f3f4f6;
+    }
+
+    .tab.active {
+        background: #6ea44c;
+        color: white;
+    }
+
+    /* 響應式按鈕文字處理 */
+    .btn-text,
+    .tab-text {
+        display: inline;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    /* 卡片樣式 */
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        margin-bottom: 16px;
+    }
+
+    .section-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 12px;
+    }
+
+    /* 輸入框 */
+    .admin-input,
+    .admin-textarea,
+    .admin-select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        outline: none;
+        transition: all 0.2s;
+        background-color: #fff;
+        color: #1f2937;
+    }
+
+    .admin-input:focus,
+    .admin-textarea:focus,
+    .admin-select:focus {
+        border-color: #6ea44c;
+        box-shadow: 0 0 0 3px rgba(110, 164, 76, 0.1);
+    }
+
+    /* 隱藏數字輸入框箭頭 */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type=number] {
+        -webkit-appearance: textfield;
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+
+    /* 批量編輯表格樣式 */
+    .batch-edit-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+
+    .batch-edit-table th,
+    .batch-edit-table td {
+        border: 1px solid #e5e7eb;
+        padding: 4px;
+        white-space: nowrap;
+    }
+
+    .batch-edit-table th {
+        background: #f9fafb;
+        font-weight: 600;
+        text-align: left;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .batch-edit-table input,
+    .batch-edit-table select {
+        width: 100%;
+        border: 1px solid transparent;
+        padding: 4px 8px;
+        background: transparent;
+        font-size: 0.85rem;
+        border-radius: 4px;
+    }
+
+    .batch-edit-table input:focus,
+    .batch-edit-table select:focus {
+        border-color: #6ea44c;
+        background: #fff;
+        outline: none;
+        box-shadow: inset 0 0 0 1px #6ea44c;
+    }
+
+    .batch-edit-table tr:hover {
+        background: #f8fafc;
+    }
+
+    .batch-row-id {
+        display: none;
+    }
+
+    .data-table-wrapper {
+        overflow-x: auto;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        background: #fff;
+    }
+
+    .font-brand-text {
+        font-family: 'Zen Maru Gothic', sans-serif;
+        font-weight: 700;
+    }
+
+    .admin-textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    /* 表單群組 */
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #374151;
+    }
+
+    /* 按鈕 */
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-primary {
+        background: #6ea44c;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #5d8d41;
+    }
+
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .btn-secondary:hover {
+        background: #e5e7eb;
+    }
+
+    .btn-danger {
+        background: #9ca3af;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #64748b;
+    }
+
+    /* 自定義 Checkbox 樣式 (品牌綠底 + 白色勾勾) */
+    input[type="checkbox"]:not(.toggle-checkbox) {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid #e5e7eb;
+        border-radius: 4px;
+        background: #fff;
+        cursor: pointer;
+        position: relative;
+        vertical-align: middle;
+        transition: all 0.2s;
+        margin-right: 6px;
+    }
+
+    input[type="checkbox"]:not(.toggle-checkbox):checked {
+        background-color: #6ea44c;
+        border-color: #6ea44c;
+    }
+
+    input[type="checkbox"]:not(.toggle-checkbox):checked::after {
+        content: 'check';
+        font-family: 'Material Symbols Rounded';
+        font-size: 14px;
+        color: #fff;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-weight: bold;
+    }
+
+    /* 資料表格 */
+    .data-table {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid #f1f5f9;
+        border-radius: 12px;
+        background: #fff;
+    }
+
+    .data-table table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+        /* 確保在收機版會觸發滑桿 */
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+        white-space: nowrap;
+        /* 一律不換行 */
+    }
+
+    .data-table th {
+        background: #f9fafb;
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: #4b5563;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .data-table td {
+        font-size: 0.95rem;
+    }
+
+    .data-table tr:hover {
+        background: #f9fafb;
+    }
+
+    /* 狀態標籤 */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .status-badge.pending {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .status-badge.confirmed {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .status-badge.cancelled {
+        background: #f3f4f6;
+        color: #9ca3af;
+    }
+
+    .status-badge.completed {
+        background: rgba(110, 164, 76, 0.15);
+        color: #6ea44c;
+    }
+
+    /* Toggle 開關 */
+    .toggle-wrapper {
+        position: relative;
+        flex-shrink: 0;
+        width: 52px;
+        height: 28px;
+    }
+
+    .toggle-checkbox {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-label {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background-color: #e5e7eb;
+        border-radius: 9999px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .toggle-circle {
+        width: 24px;
+        height: 24px;
+        background-color: white;
+        border-radius: 50%;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        transition: transform 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .toggle-checkbox:checked+.toggle-label {
+        background-color: #6ea44c;
+    }
+
+    .toggle-checkbox:checked+.toggle-label .toggle-circle {
+        transform: translateX(24px);
+    }
+
+    /* 載入動畫 */
+    .loader {
+        border: 3px solid #f3f4f6;
+        border-top: 3px solid #6ea44c;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 40px auto;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .modal.active {
+        display: flex;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 16px;
+        max-width: 600px;
+        width: 100%;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 1px solid #e5e7eb;
+        flex-shrink: 0;
+    }
+
+    .modal-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #6b7280;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+    }
+
+    .modal-close:hover {
+        background: #f3f4f6;
+    }
+
+    .modal-body {
+        padding: 24px;
+        overflow-y: auto;
+        flex: 1;
+        max-height: calc(90vh - 140px);
+    }
+
+    .modal-footer {
+        display: flex;
+        gap: 12px;
+        padding: 16px 24px;
+        border-top: 1px solid #e5e7eb;
+        flex-shrink: 0;
+        background: #fafafa;
+    }
+
+    .modal-footer .btn {
+        flex: 1;
+    }
+
+    /* 空狀態 */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #9ca3af;
+    }
+
+    .empty-state .material-symbols-rounded {
+        font-size: 64px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    /* 頂部操作列 */
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: nowrap;
+        gap: 12px;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid #6ea44c;
+    }
+
+    /* 響應式 */
+    @media (max-width: 768px) {
+        .admin-container {
+            padding: 12px;
+        }
+
+        .card {
+            padding: 16px;
+        }
+
+        .tabs {
+            gap: 4px;
+        }
+
+        .tab {
+            padding: 10px 14px;
+            font-size: 0.9rem;
+        }
+
+        /* 手機版隱藏按鈕文字，僅顯示圖示 */
+        .tab-text,
+        .btn-text,
+        .logout-text {
+            display: none;
+        }
+
+        .tab .material-symbols-rounded,
+        .btn .material-symbols-rounded {
+            margin: 0 !important;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 8px;
+            font-size: 0.85rem;
+        }
+
+        .modal-content {
+            max-width: 95%;
+            margin: 10px;
+        }
+
+        /* 詳情網格在手機版改為單欄，防止變形 */
+        .modal-body [style*="display: grid"] {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+        }
+
+        /* 頂部操作列針對手機優化 */
+        .top-bar h1 {
+            font-size: 1.1rem !important;
+        }
+
+        /* 隱藏登出文字 */
+        .logout-text {
+            display: none;
+        }
+
+        /* 表格優化：手機版不再隱藏欄位，改用滑桿查看全部 */
+        .data-table table {
+            min-width: 800px !important;
+        }
+
+        .data-table td {
+            vertical-align: middle;
+            padding: 10px 8px !important;
+        }
+
+        /* 響應式卡片標題 - 維持單橫排 */
+        .card-header-flex {
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 8px;
+        }
+
+        .modal-content {
+            max-width: 98% !important;
+            margin: 0 !important;
+        }
+
+        .modal-body {
+            padding: 16px !important;
+        }
+    }
+</style>
+
+<div class="admin-container">
+    <!-- 登入畫面 -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <div style="margin-bottom: 32px;">
+
+                <h1 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; margin-bottom: 8px;"><span
+                        class="font-brand-text">KEICHA</span> 管理後台</h1>
+                <p style="color: #6b7280; font-size: 0.95rem;">請使用授權的 Google 帳號登入</p>
+            </div>
+            <button class="login-btn" onclick="handleGoogleLogin()">
+                <!-- [EXCEPTION] Google Logo is the ONLY allowed multi-color element in this project -->
+                <svg width="20" height="20" viewBox="0 0 24 24">
+                    <path fill="#4285F4"
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path fill="#34A853"
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path fill="#FBBC05"
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                    <path fill="#EA4335"
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                </svg>
+                使用 Google 登入
+            </button>
+        </div>
+    </div>
+
+    <!-- 主介面 -->
+    <div id="mainApp" style="display: none;">
+        <!-- 頂部操作列 -->
+        <div class="top-bar">
+            <h1 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; margin: 0;">
+                <span class="brand-green font-brand-text">KEICHA</span> 管理後台
+            </h1>
+            <div class="user-info">
+                <img id="userAvatar" class="user-avatar" src="" alt="User">
+                <button class="btn btn-secondary" onclick="handleLogout()" title="登出" style="padding: 10px;">
+                    <span class="material-symbols-rounded" style="font-size: 20px;">logout</span>
+                    <span class="logout-text">登出</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 標籤頁 -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('orders')">
+                <span class="material-symbols-rounded">package_2</span>
+                <span class="tab-text">訂單</span>
+            </button>
+            <button class="tab" onclick="switchTab('denwa')">
+                <span class="material-symbols-rounded">call</span>
+                <span class="tab-text">預約</span>
+            </button>
+            <button class="tab" onclick="switchTab('products')">
+                <span class="material-symbols-rounded">local_cafe</span>
+                <span class="tab-text">抹茶</span>
+            </button>
+            <button class="tab" onclick="switchTab('plans')">
+                <span class="material-symbols-rounded">payments</span>
+                <span class="tab-text">方案</span>
+            </button>
+            <button class="tab" onclick="switchTab('shipping')">
+                <span class="material-symbols-rounded">local_shipping</span>
+                <span class="tab-text">運費</span>
+            </button>
+            <button class="tab" onclick="switchTab('config')">
+                <span class="material-symbols-rounded">settings</span>
+                <span class="tab-text">快速結帳</span>
+            </button>
+        </div>
+
+        <!-- 訂單管理 -->
+        <div id="tab-orders" class="tab-content active">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">訂單列表</h2>
+                    <button class="btn btn-secondary" onclick="loadOrders()" title="刷新">
+                        <span class="material-symbols-rounded" style="font-size: 18px;">refresh</span>
+                    </button>
+                </div>
+                <div id="ordersContent" class="data-table">
+                    <div class="loader"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 預約管理 -->
+        <div id="tab-denwa" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">預約列表</h2>
+                    <button class="btn btn-secondary" onclick="loadDenwaOrders()" title="刷新">
+                        <span class="material-symbols-rounded" style="font-size: 18px;">refresh</span>
+                    </button>
+                </div>
+                <div id="denwaContent" class="data-table">
+                    <div class="loader"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 抹茶商品 (品牌優先) -->
+        <div id="tab-products" class="tab-content">
+            <!-- 品牌總覽層 -->
+            <div id="productsLayerBrands" class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">
+                        <span class="material-symbols-rounded brand-green"
+                            style="vertical-align: middle;">storefront</span>
+                        品牌總覽
+                    </h2>
+                    <div style="display: flex; gap: 8px; flex-wrap: nowrap;">
+                        <input type="file" id="globalExcelImportFile" style="display: none;" accept=".xlsx, .xls"
+                            onchange="handleGlobalExcelImport(this)">
+                        <button class="btn btn-secondary" onclick="exportAllProductsToExcel()" title="匯出">
+                            <span class="material-symbols-rounded" style="font-size: 18px;">download</span>
+                        </button>
+                        <button class="btn btn-secondary"
+                            onclick="document.getElementById('globalExcelImportFile').click()" title="匯入">
+                            <span class="material-symbols-rounded" style="font-size: 18px;">upload</span>
+                        </button>
+                        <button class="btn btn-primary" onclick="showBrandModal()" title="新增">
+                            <span class="material-symbols-rounded" style="font-size: 18px;">add</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="brandsGrid"
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+                    <div class="loader"></div>
+                </div>
+            </div>
+
+            <!-- 商品列表層 (隱藏直到選擇品牌) -->
+            <div id="productsLayerItems" class="card" style="display: none;">
+                <div class="card-header-flex"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <button class="btn btn-secondary" onclick="showBrandsLayer()">
+                            <span class="material-symbols-rounded" style="font-size: 18px;">arrow_back</span>
+                            <span class="btn-text">返回</span>
+                        </button>
+                        <h2 id="productsTitle" style="margin: 0; font-size: 1.25rem; font-weight: 700;">商品列表</h2>
+                    </div>
+                    <div id="productActionsNormal"
+                        style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                        <input type="file" id="excelImportFile" style="display: none;" accept=".xlsx, .xls"
+                            onchange="handleExcelImport(this)">
+                        <button class="btn btn-secondary" onclick="exportProductsToExcel()" title="匯出">
+                            <span class="material-symbols-rounded" style="font-size: 18px;">download</span>
+                        </button>
+                        <button class="btn btn-secondary" onclick="document.getElementById('excelImportFile').click()"
+                            title="匯入">
+                            <span class="material-symbols-rounded" style="font-size: 18px;">upload</span>
+                        </button>
+                        <button class="btn btn-secondary" onclick="toggleBatchEdit(true)">
+                            <span class="material-symbols-rounded" style="font-size: 18px;">grid_on</span>
+                            <span class="btn-text">批量編輯</span>
+                        </button>
+                        <button class="btn btn-primary" onclick="showProductModal()" title="新增">
+                            <span class="material-symbols-rounded" style="font-size: 18px;">add</span>
+                        </button>
+                    </div>
+                    <div id="productActionsBatch" style="display: none; gap: 12px; align-items: center;">
+                        <button class="btn btn-secondary" onclick="toggleBatchEdit(false)">
+                            <span class="btn-text">取消</span>
+                        </button>
+                        <button class="btn btn-primary" onclick="saveBatchProducts()">
+                            <span class="material-symbols-rounded" style="font-size: 18px;">save</span>
+                            <span class="btn-text">儲存</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="productsContent" class="data-table-wrapper">
+                    <div class="loader"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 方案設定 -->
+        <div id="tab-plans" class="tab-content">
+            <div class="card">
+                <div class="card-header-flex"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">方案列表</h2>
+                    <button class="btn btn-primary" onclick="showPlanModal()" title="新增">
+                        <span class="material-symbols-rounded" style="font-size: 18px;">add</span>
+                    </button>
+                </div>
+                <div id="plansContent">
+                    <div class="loader"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 運費規則 -->
+        <div id="tab-shipping" class="tab-content">
+            <div class="card">
+                <div class="card-header-flex"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">運費規則</h2>
+                    <button class="btn btn-primary" onclick="showShippingModal()" title="新增">
+                        <span class="material-symbols-rounded" style="font-size: 18px;">add</span>
+                    </button>
+                </div>
+                <div id="shippingContent">
+                    <div class="loader"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快速結帳 -->
+        <div id="tab-config" class="tab-content">
+            <div class="card">
+                <div class="card-header-flex"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">快速結帳設定</h2>
+                    <button class="btn btn-primary" onclick="showConfigModal()" title="新增">
+                        <span class="material-symbols-rounded" style="font-size: 18px;">add</span>
+                    </button>
+                </div>
+                <div id="configContent">
+                    <div class="loader"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 通用編輯 Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modalTitle">編輯</h3>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer" id="modalFooter"></div>
+    </div>
+</div>
+
+<!-- Firebase SDK (v9 compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="/js/api.js"></script>
+
+<script>
+    // Firebase 初始化
+    const firebaseConfig = {
+        apiKey: "AIzaSyBF50fJPE-QL3yV4KaVIWzDmDPFRAkpwT4",
+        authDomain: "keicha-membership-system.firebaseapp.com",
+        projectId: "keicha-membership-system",
+        storageBucket: "keicha-membership-system.firebasestorage.app",
+        messagingSenderId: "941650156322",
+        appId: "1:941650156322:web:5c7473aeaa184e0b94637b",
+        measurementId: "G-H3CT3S2LDE"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    const ALLOWED_ADMINS = ['wj209ing@gmail.com'];
+    let currentUser = null;
+    let isBatchEditing = false;
+    let currentBrandProducts = [];
+    let priceSortDirection = 'asc'; // 'asc' or 'desc'
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', async () => {
+        // 監聽 Firebase 認證狀態變化
+        auth.onAuthStateChanged(async (user) => {
+            console.log('Firebase Auth user:', user);
+
+            if (user) {
+                const email = user.email;
+
+                // 檢查是否為授權管理員
+                if (!ALLOWED_ADMINS.includes(email)) {
+                    KUI.alert('您沒有管理權限，只允許：' + ALLOWED_ADMINS.join(', '));
+                    await handleLogout();
+                    return;
+                }
+
+                currentUser = user;
+                showMainApp();
+            } else {
+                showLoginScreen();
+            }
+        });
+    });
+
+    // Firebase 登入
+    async function handleGoogleLogin() {
+        try {
+            await auth.signInWithPopup(provider);
+        } catch (error) {
+            console.error('Login error:', error);
+            KUI.alert('登入失敗：' + error.message);
+        }
+    }
+
+    // 登出
+    async function handleLogout() {
+        try {
+            await auth.signOut();
+            currentUser = null;
+            showLoginScreen();
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    }
+
+    // 顯示登入畫面
+    function showLoginScreen() {
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('mainApp').style.display = 'none';
+    }
+
+    // 顯示主介面
+    function showMainApp() {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+
+        // 設定用戶顯示資訊
+        if (currentUser.photoURL) {
+            document.getElementById('userAvatar').src = currentUser.photoURL;
+        } else {
+            // 預設頭像
+            document.getElementById('userAvatar').src = 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
+        }
+
+        // 載入初始資料
+        loadOrders();
+    }
+
+    // 切換標籤頁
+    function switchTab(tabName) {
+        // 更新標籤樣式
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        event.target.classList.add('active');
+
+        // 更新內容顯示
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+
+        // 載入對應資料
+        switch (tabName) {
+            case 'orders':
+                loadOrders();
+                break;
+            case 'denwa':
+                loadDenwaOrders();
+                break;
+            case 'products':
+                loadBrandsGrid();
+                break;
+            case 'plans':
+                loadPlans();
+                break;
+            case 'shipping':
+                loadShippingRules();
+                break;
+            case 'config':
+                loadFastConfig();
+                break;
+        }
+    }
+
+    // 將 Firestore Timestamp 或日期物件格式化為 YYYY/MM/DD HH:MM
+    function formatFullDateTime(ts) {
+        if (!ts) return 'N/A';
+        let d;
+        if (ts.seconds) { // Firestore Timestamp
+            d = new Date(ts.seconds * 1000);
+        } else if (ts.toDate && typeof ts.toDate === 'function') {
+            d = ts.toDate();
+        } else {
+            d = new Date(ts);
+        }
+        if (isNaN(d.getTime())) return 'N/A';
+        const Y = d.getFullYear();
+        const M = (d.getMonth() + 1).toString().padStart(2, '0');
+        const D = d.getDate().toString().padStart(2, '0');
+        const H = d.getHours().toString().padStart(2, '0');
+        const min = d.getMinutes().toString().padStart(2, '0');
+        return `${Y}/${M}/${D} ${H}:${min}`;
+    }
+
+    // ========== 訂單管理 (Firebase 版) ==========
+    async function loadOrders() {
+        const container = document.getElementById('ordersContent');
+        container.innerHTML = '<div class="loader"></div>';
+
+        try {
+            // 從 Firestore 讀取訂單 (按建立時間降序)
+            const snapshot = await db.collection('orders')
+                .orderBy('created_at', 'desc')
+                .limit(50)
+                .get();
+
+            if (snapshot.empty) {
+                container.innerHTML = '<div class="empty-state"><span class="material-symbols-rounded">shopping_bag</span><p>目前尚無訂單</p></div>';
+                return;
+            }
+
+            let html = `
+                <div class="data-table orders-table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="padding: 12px 15px;">編號</th>
+                            <th style="padding: 12px 15px;">LINE</th>
+                            <th style="padding: 12px 15px;">總計</th>
+                            <th style="padding: 12px 15px; text-align: center;">狀態</th>
+                            <th style="padding: 12px 15px;">日期</th>
+                            <th style="padding: 12px 15px; text-align: right;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            snapshot.forEach(doc => {
+                const order = { id: doc.id, ...doc.data() };
+                const date = order.created_at?.toDate ? order.created_at.toDate() : new Date(order.created_at);
+                const dateStr = date.toLocaleString('zh-TW', { hour12: false });
+
+                // 狀態樣式
+                let statusClass = 'pending';
+                if (order.status === '已完成' || order.status === '已出貨') statusClass = 'confirmed';
+                if (order.status === '已取消') statusClass = 'cancelled';
+
+                html += `
+                    <tr>
+                        <td style="padding: 12px 15px; white-space: nowrap;"><span style="font-size: 0.9rem; font-weight: 700; color: #334155;">${(order.order_id && order.order_id !== 'N/A') ? order.order_id : order.id}</span></td>
+                        <td style="padding: 12px 15px;"><div style="white-space: nowrap;">${order.line_name || '-'}</div></td>
+                        <td style="padding: 12px 15px; white-space: nowrap; font-weight: 700; color: #111827;">$${order.total || 0}</td>
+                        <td style="padding: 12px 15px; white-space: nowrap; text-align: center;"><span class="status-badge ${statusClass}">${order.status || '待處理'}</span></td>
+                        <td style="padding: 12px 15px; white-space: nowrap; font-size: 0.85rem; color: #6b7280;">${dateStr.split(' ')[0]}</td>
+                        <td style="padding: 12px 15px; white-space: nowrap;">
+                            <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" title="詳情" onclick='viewOrderDetails(${JSON.stringify(order).replace(/'/g, "&apos;")})'>
+                                    <span class="material-symbols-rounded" style="font-size: 18px;">info</span>
+                                </button>
+                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" title="編輯" onclick='editOrder(${JSON.stringify(order).replace(/'/g, "&apos;")})'>
+                                    <span class="material-symbols-rounded" style="font-size: 18px;">edit</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        } catch (error) {
+            console.error('Load orders error:', error);
+            container.innerHTML = `<p style="color: #64748b;">載入失敗：${error.message}</p>`;
+        }
+    }
+
+    function editOrder(order) {
+        const bodyHtml = `
+            <div class="form-group">
+                <label class="form-label">訂單狀態</label>
+                <select id="orderStatus" class="admin-select">
+                    <option value="待確認" ${order.status === '待確認' ? 'selected' : ''}>待確認</option>
+                    <option value="已確認" ${order.status === '已確認' ? 'selected' : ''}>已確認</option>
+                    <option value="處理中" ${order.status === '處理中' ? 'selected' : ''}>處理中</option>
+                    <option value="已出貨" ${order.status === '已出貨' ? 'selected' : ''}>已出貨</option>
+                    <option value="已完成" ${order.status === '已完成' ? 'selected' : ''}>已完成</option>
+                    <option value="已取消" ${order.status === '已取消' ? 'selected' : ''}>已取消</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">賣家備註</label>
+                <textarea id="sellerNote" class="admin-textarea">${order.seller_note || ''}</textarea>
+            </div>
+        `;
+        const footerHtml = `
+            <button class="btn btn-secondary" onclick="deleteOrder('${order.id}')">刪除</button>
+            <button class="btn btn-primary" onclick="saveOrder('${order.id}')">儲存</button>
+        `;
+        openModal(`編輯訂單 ${(order.order_id && order.order_id !== 'N/A') ? order.order_id : order.id}`, bodyHtml, footerHtml);
+    }
+
+    async function saveOrder(orderId) {
+        try {
+            const newStatus = document.getElementById('orderStatus').value;
+            const newReply = document.getElementById('sellerNote').value;
+
+            // 獲取舊資料以判斷是否需要發送回覆通知
+            const doc = await db.collection('orders').doc(orderId).get();
+            const oldData = doc.data();
+
+            const updates = {
+                status: newStatus,
+                seller_note: newReply,
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await db.collection('orders').doc(orderId).update(updates);
+
+            // 如果回覆內容有變動且不為空，觸發郵件通知
+            if (newReply && newReply !== (oldData.seller_note || '')) {
+                if (window.API && window.API.sendNotification) {
+                    window.API.sendNotification('matcha_reply', {
+                        ...oldData,
+                        order_id: orderId,
+                        seller_note: newReply
+                    }).catch(e => console.error('[GAS] Notify error:', e));
+                }
+            }
+
+            KUI.alert('訂單已更新');
+            closeModal();
+            loadOrders();
+        } catch (error) {
+            KUI.alert('更新失敗：' + error.message);
+        }
+    }
+
+    function viewOrderDetails(order) {
+        const bodyHtml = `
+            <div style="display: flex; flex-direction: column; gap: 16px; font-size: 0.9rem;">
+                <div style="background: #f8fafc; padding: 12px; border-radius: 8px;">
+                    <div style="font-weight: bold; margin-bottom: 4px; color: #6ea44c;">訂單編號</div>
+                    <div style="font-family: monospace; font-weight: bold;">${order.id}</div>
+                    <div style="font-weight: bold; margin-bottom: 4px; color: #64748b; margin-top: 8px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">下單時間 (Created At)</div>
+                    <div style="color: #475569;">${formatFullDateTime(order.created_at)}</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                        <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">客戶姓名</div>
+                        <div>${order.name || '未填寫'}</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">LINE 名稱</div>
+                        <div>${order.line_name || order.line || '未填寫'}</div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                        <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">電話</div>
+                        <div>${order.phone || '未填寫'}</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">信箱</div>
+                        <div style="word-break: break-all;">${order.email || '未填寫'}</div>
+                    </div>
+                </div>
+                <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 0;">
+                <div>
+                    <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">物流方式 / 地址店號</div>
+                    <div style="font-weight: bold;">${order.logistics_type || order.logistics || '未填寫'}</div>
+                    <div style="background: #f8fafc; padding: 8px; border-radius: 4px; margin-top: 4px;">${order.store_id || order.store || order.shipping_address || '-'}</div>
+                    ${order.store_note ? `<div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">備註：${order.store_note}</div>` : ''}
+                </div>
+                <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 0;">
+                <div>
+                    <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">商品清單</div>
+                    <div style="background: #fff; border: 1px solid #f1f5f9; padding: 10px; border-radius: 6px; white-space: pre-wrap; font-family: monospace; font-size: 0.85rem;">${order.items_text || '無清單資料'}</div>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px; background: #fdfdfd; padding: 12px; border-radius: 8px; border: 1px solid #f1f5f9;">
+                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 200px;">
+                        <span style="color: #64748b;">小計</span>
+                        <span>NT$ ${(order.subtotal || 0).toLocaleString()}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 200px;">
+                        <span style="color: #64748b;">運費</span>
+                        <span>NT$ ${(order.shipping_fee || order.shipping || 0).toLocaleString()}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 200px; font-weight: bold; border-top: 1px solid #f1f5f9; margin-top: 4px; padding-top: 4px; color: #6ea44c; font-size: 1.1rem;">
+                        <span>總計</span>
+                        <span>NT$ ${(order.total || 0).toLocaleString()}</span>
+                    </div>
+                </div>
+                ${order.note ? `
+                <div>
+                    <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">客戶備註</div>
+                    <div style="background: #fff; border: 1px solid #f1f5f9; padding: 10px; border-radius: 6px; white-space: pre-wrap;">${order.note}</div>
+                </div>` : ''}
+                ${order.seller_note ? `
+                <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                    <div style="font-weight: bold; color: #4b5563; margin-bottom: 4px;">賣家備註 (回覆)</div>
+                    <div style="white-space: pre-wrap;">${order.seller_note}</div>
+                </div>` : ''}
+            </div>
+        `;
+        openModal(`訂單詳情`, bodyHtml, `<button class="btn btn-primary" onclick="closeModal()">關閉</button>`);
+    }
+
+    async function deleteOrder(orderId) {
+        if (!(await KUI.confirm('確定要刪除這筆訂單嗎？此操作無法復原。'))) return;
+        try {
+            await db.collection('orders').doc(orderId).delete();
+            closeModal();
+            KUI.alert('訂單已刪除');
+            loadOrders();
+        } catch (error) {
+            KUI.alert('刪除失敗：' + error.message);
+        }
+    }
+
+    // ========== 預約管理 (Firebase 版) ==========
+    async function loadDenwaOrders() {
+        const container = document.getElementById('denwaContent');
+        container.innerHTML = '<div class="loader"></div>';
+
+        try {
+            const snapshot = await db.collection('denwa_orders')
+                .orderBy('created_at', 'desc')
+                .get();
+
+            if (snapshot.empty) {
+                container.innerHTML = '<div class="empty-state"><span class="material-symbols-rounded">inbox</span><p>尚無預約資料</p></div>';
+                return;
+            }
+
+            let html = `
+                <div class="data-table denwa-table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>編號</th>
+                            <th>LINE 名稱</th>
+                            <th>商家</th>
+                            <th>預約日期</th>
+                            <th>狀態</th>
+                            <th style="text-align: right;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            snapshot.forEach(doc => {
+                const order = { id: doc.id, ...doc.data() };
+                const statusClass = order.status === '已完成' ? 'completed' : (order.status === '已確認' ? 'confirmed' : 'pending');
+
+                // [新增] 格式化日期與時間，處理可能的 ISO 字串或 Date 物件
+                const formatDT = (val, isTime = false) => {
+                    if (!val) return '';
+                    if (typeof val === 'string' && val.includes('T')) {
+                        const d = new Date(val);
+                        if (isNaN(d.getTime())) return val;
+                        return isTime ?
+                            d.getUTCHours().toString().padStart(2, '0') + ':' + d.getUTCMinutes().toString().padStart(2, '0') :
+                            d.getUTCFullYear() + '-' + (d.getUTCMonth() + 1).toString().padStart(2, '0') + '-' + d.getUTCDate().toString().padStart(2, '0');
+                    }
+                    return val;
+                };
+
+                const dateDisplay = formatDT(order.service_date);
+                const timeDisplay = formatDT(order.service_time, true);
+
+                html += `
+                    <tr>
+                        <td><span style="font-size: 0.75rem; color: #9ca3af;">${(order.order_id && order.order_id !== 'N/A') ? order.order_id : order.id}</span></td>
+                        <td><div style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${order.line_name || order.line || order.line_id || '-'}</div></td>
+                        <td>${order.merchant_name || '未填寫'}</td>
+                        <td style="white-space: nowrap;">
+                            <div style="font-size: 0.85rem; white-space: nowrap;">${dateDisplay}</div>
+                            <div style="font-size: 0.75rem; color: #6b7280; white-space: nowrap;">${timeDisplay}</div>
+                        </td>
+                        <td style="width: 1px; white-space: nowrap;"><span class="status-badge ${statusClass}">${order.status || '待處理'}</span></td>
+                        <td style="width: 1px; white-space: nowrap;">
+                            <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" title="詳情" onclick='viewDenwaDetails(${JSON.stringify(order).replace(/'/g, "&apos;")})'>
+                                    <span class="material-symbols-rounded" style="font-size: 18px;">info</span>
+                                </button>
+                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" title="編輯" onclick='editDenwa(${JSON.stringify(order).replace(/'/g, "&apos;")})'>
+                                    <span class="material-symbols-rounded" style="font-size: 18px;">edit</span>
+                                </button>
+                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px; color: #6ea44c;" title="結案" onclick='closeDenwaCase(${JSON.stringify(order).replace(/'/g, "&apos;")})'>
+                                    <span class="material-symbols-rounded" style="font-size: 18px;">assignment_turned_in</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        } catch (error) {
+            console.error('Load denwa orders error:', error);
+            container.innerHTML = `<p style="color: #64748b;">載入失敗：${error.message}</p>`;
+        }
+    }
+
+    async function deleteDenwa(orderId) {
+        if (!(await KUI.confirm('確定要刪除這筆預約嗎？此操作無法復原。'))) return;
+        try {
+            await db.collection('denwa_orders').doc(orderId).delete();
+            closeModal();
+            KUI.alert('預約已刪除');
+            loadDenwaOrders();
+        } catch (error) {
+            KUI.alert('刪除失敗：' + error.message);
+        }
+    }
+
+    function viewDenwaDetails(order) {
+        const formatDT = (val, isTime = false) => {
+            if (!val) return '未提供';
+            if (typeof val === 'string' && val.includes('T')) {
+                const d = new Date(val);
+                if (isNaN(d.getTime())) return val;
+                return isTime ?
+                    d.getUTCHours().toString().padStart(2, '0') + ':' + d.getUTCMinutes().toString().padStart(2, '0') :
+                    d.getUTCFullYear() + '-' + (d.getUTCMonth() + 1).toString().padStart(2, '0') + '-' + d.getUTCDate().toString().padStart(2, '0');
+            }
+            return val;
+        };
+
+        const bodyHtml = `
+            <div style="display: flex; flex-direction: column; gap: 16px; font-size: 0.9rem;">
+                <div style="background: #f8fafc; padding: 12px; border-radius: 8px;">
+                    <div style="font-weight: bold; margin-bottom: 4px; color: #6ea44c;">訂單編號</div>
+                    <div style="font-family: monospace; font-weight: bold;">${(order.order_id && order.order_id !== 'N/A') ? order.order_id : order.id}</div>
+                    <div style="font-weight: bold; margin-bottom: 4px; color: #64748b; margin-top: 8px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">接收時間 (Created At)</div>
+                    <div style="color: #475569;">${formatFullDateTime(order.created_at)}</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                        <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">客戶姓名</div>
+                        <div>${order.customer_name || '未填寫'}</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">LINE 名稱</div>
+                        <div>${order.line_name || order.line || order.line_id || '未填寫'}</div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                        <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">信箱</div>
+                        <div style="word-break: break-all;">${order.email || '未填寫'}</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">電話</div>
+                        <div>${order.phone || '未填寫'}</div>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">預約方案</div>
+                    <div class="status-badge" style="background: #e1f2d5; color: #4b7134;">${order.plan_name || order.payment_plan || '未選擇'}</div>
+                </div>
+                <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 0;">
+                <div>
+                    <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">預約商家</div>
+                    <div style="font-size: 1rem; font-weight: bold;">${order.merchant_name || '未填寫'}</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                        <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">預約日期</div>
+                        <div>${formatDT(order.service_date)}</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">預約時間</div>
+                        <div>${formatDT(order.service_time, true)}</div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                        <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">預約姓名 (英文)</div>
+                        <div>${order.booking_name || '未填寫'}</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">預約人數</div>
+                        <div>
+                            ${(() => {
+                const adults = parseInt(order.adult_count || order.adults) || 0;
+                const children = parseInt(order.child_count || order.children) || 0;
+                const total = parseInt(order.total_count || order.total_ppl) || (adults + children);
+                return children > 0
+                    ? `${adults} 大 / ${children} 小 (共 ${total} 人)`
+                    : `${total} 人`;
+            })()}
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">在日資訊</div>
+                    <div>${order.contact_in_japan || order.japan_contact || '無'}</div>
+                </div>
+                <div>
+                    <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">備註</div>
+                    <div style="background: #fff; border: 1px solid #f1f5f9; padding: 10px; border-radius: 6px; white-space: pre-wrap;">${order.note || '無'}</div>
+                </div>
+                <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 0;">
+                <div>
+                    <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">公開回覆</div>
+                    <div style="background: #fff; border: 1px solid #f1f5f9; padding: 10px; border-radius: 6px; white-space: pre-wrap; color: #334155;">${order.public_reply || '(尚未回覆)'}</div>
+                </div>
+            </div>
+        `;
+        const footerHtml = `
+            <button class="btn btn-secondary" onclick="closeModal()">關閉</button>
+            <button class="btn btn-primary" onclick='editDenwa(${JSON.stringify(order).replace(/'/g, "&apos;")})'>編輯</button>
+        `;
+        openModal(`預約詳情：${order.merchant_name}`, bodyHtml, footerHtml);
+    }
+
+    function editDenwa(order) {
+        const bodyHtml = `
+            <div class="form-group">
+                <label class="form-label">預約狀態</label>
+                <select id="denwaStatus" class="admin-select">
+                    <option value="待確認" ${order.status === '待確認' ? 'selected' : ''}>待確認</option>
+                    <option value="已確認" ${order.status === '已確認' ? 'selected' : ''}>已確認</option>
+                    <option value="已完成" ${order.status === '已完成' ? 'selected' : ''}>已完成</option>
+                    <option value="已取消" ${order.status === '已取消' ? 'selected' : ''}>已取消</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">公開回覆</label>
+                <textarea id="publicReply" class="admin-textarea">${order.public_reply || ''}</textarea>
+            </div>
+        `;
+        const footerHtml = `
+            <button class="btn btn-secondary" onclick="deleteDenwa('${order.id}')">刪除</button>
+            <button class="btn btn-primary" onclick="saveDenwa('${order.id}')">儲存</button>
+        `;
+        openModal(`編輯預約 ${(order.order_id && order.order_id !== 'N/A') ? order.order_id : order.id}`, bodyHtml, footerHtml);
+    }
+
+    async function saveDenwa(orderId) {
+        try {
+            const newStatus = document.getElementById('denwaStatus').value;
+            const newReply = document.getElementById('publicReply').value;
+
+            // 獲取舊資料以判斷是否需要發送回覆通知
+            const doc = await db.collection('denwa_orders').doc(orderId).get();
+            const oldData = doc.data();
+
+            const updates = {
+                status: newStatus,
+                public_reply: newReply,
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await db.collection('denwa_orders').doc(orderId).update(updates);
+
+            // 如果回覆內容有變動且不為空，觸發郵件通知
+            if (newReply && newReply !== (oldData.public_reply || '')) {
+                if (window.API && window.API.sendNotification) {
+                    window.API.sendNotification('denwa_reply', {
+                        ...oldData,
+                        id: orderId,
+                        public_reply: newReply
+                    }).catch(e => console.error('[GAS] Notify error:', e));
+                }
+            }
+
+            KUI.alert('預約已更新');
+            closeModal();
+            loadDenwaOrders();
+        } catch (error) {
+            KUI.alert('更新失敗：' + error.message);
+        }
+    }
+    // ========== 電話代撥結案功能 ==========
+    let closeCaseRows = [];
+
+    function closeDenwaCase(order) {
+        const formatDT = (val, isTime = false) => {
+            if (!val) return '';
+            if (typeof val === 'string' && val.includes('T')) {
+                const d = new Date(val);
+                if (isNaN(d.getTime())) return val;
+                return isTime ?
+                    d.getUTCHours().toString().padStart(2, '0') + ':' + d.getUTCMinutes().toString().padStart(2, '0') :
+                    d.getUTCFullYear() + '-' + (d.getUTCMonth() + 1).toString().padStart(2, '0') + '-' + d.getUTCDate().toString().padStart(2, '0');
+            }
+            return val;
+        };
+
+        // 計算人數
+        const adults = parseInt(order.adult_count || order.adults) || 0;
+        const children = parseInt(order.child_count || order.children) || 0;
+        const total = parseInt(order.total_count || order.total_ppl) || (adults + children);
+        const peopleDisplay = children > 0 ? `${adults}大${children}小 (共${total}人)` : `${total} 人`;
+
+        // 初始化表格列（移除預約方案）
+        closeCaseRows = [
+            { label: '訂單編號', value: (order.order_id && order.order_id !== 'N/A') ? order.order_id : order.id },
+            { label: '預約商家', value: order.merchant_name || '' },
+            { label: '預約時間', value: `${formatDT(order.service_date)} ${formatDT(order.service_time, true)}` },
+            { label: '預約英文姓名', value: order.booking_name || '' },
+            { label: '預約人數', value: peopleDisplay },
+            { label: '聯絡電話', value: order.phone || '' },
+            { label: '備註', value: order.note || '' },
+            { label: '在日資訊', value: order.contact_in_japan || order.japan_contact || '' }
+        ];
+
+        const orderId = order.id;
+        const orderDisplayId = (order.order_id && order.order_id !== 'N/A') ? order.order_id : order.id;
+
+        const bodyHtml = `
+            <div style="display: flex; flex-direction: column; gap: 16px; font-size: 0.9rem;">
+                <!-- 郵件主旨 -->
+                <div class="form-group">
+                    <label class="form-label">郵件主旨</label>
+                    <input type="text" id="ccSubject" class="admin-input" value="電話代撥結果通知">
+                </div>
+
+                <!-- 開頭問候語 -->
+                <div class="form-group">
+                    <label class="form-label">開頭問候語</label>
+                    <textarea id="ccIntro" class="admin-textarea" rows="3">您好：
+您的電話代撥訂單已完成，以下是您的預約明細：</textarea>
+                </div>
+
+                <!-- 預約資料表格 -->
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>預約資料表格</span>
+                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;" onclick="addCloseCaseRow()">
+                            <span class="material-symbols-rounded" style="font-size: 14px; vertical-align: middle;">add</span> 新增列
+                        </button>
+                    </label>
+                    <div id="ccTableEditor" style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+                    </div>
+                </div>
+
+                <!-- 備註欄位 -->
+                <div class="form-group">
+                    <label class="form-label">備註（選填，會顯示在信件中）</label>
+                    <textarea id="ccNote" class="admin-textarea" rows="2" placeholder="例如：已與店家確認保留位置"></textarea>
+                </div>
+
+                <!-- 需補款 -->
+                <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <input type="checkbox" id="ccNeedPayment" onchange="togglePaymentOutro()">
+                        <label class="form-label" style="margin: 0; font-weight: 700; color: #6ea44c;">需補款</label>
+                    </div>
+                    <p style="font-size: 0.75rem; color: #94a3b8; margin: 0;">勾選後，結尾訊息將帶入補款提示，並自動顯示「前往付款」按鈕。</p>
+                </div>
+
+                <!-- 結尾訊息 -->
+                <div class="form-group">
+                    <label class="form-label">結尾訊息</label>
+                    <textarea id="ccOutro" class="admin-textarea" rows="4">如有疑問，請透過 LINE 官方帳號與我們聯繫。
+期待下次能再為您處理日本的大小事。</textarea>
+                </div>
+
+                <!-- 按鈕設定 -->
+                <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px;">
+                    <label class="form-label" style="margin-bottom: 8px;">按鈕設定</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                <input type="checkbox" id="ccBtn1Show" checked>
+                                <label style="font-size: 0.8rem; font-weight: 600;">加入好友</label>
+                            </div>
+                            <input type="text" id="ccBtn1Text" class="admin-input" value="加入好友" placeholder="按鈕文字" style="margin-bottom: 4px;">
+                            <input type="text" id="ccBtn1Link" class="admin-input" value="https://lin.ee/QJU5mUO" placeholder="連結網址">
+                        </div>
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                <input type="checkbox" id="ccBtn2Show">
+                                <label style="font-size: 0.8rem; font-weight: 600;">前往付款</label>
+                            </div>
+                            <input type="text" id="ccBtn2Text" class="admin-input" value="前往付款" placeholder="按鈕文字" style="margin-bottom: 4px;">
+                            <input type="text" id="ccBtn2Link" class="admin-input" value="https://pcpay.tw/NF4vv" placeholder="連結網址">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const footerHtml = `
+            <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+            <button class="btn btn-primary" onclick="sendCloseCase('${orderId}', '${orderDisplayId}')">
+                <span class="material-symbols-rounded" style="font-size: 18px; vertical-align: middle;">send</span>
+                發送
+            </button>
+        `;
+
+        openModal(`結案通知：${orderDisplayId}`, bodyHtml, footerHtml);
+
+        // Modal 開啟後渲染表格
+        setTimeout(() => renderCloseCaseTable(), 50);
+    }
+
+    function renderCloseCaseTable() {
+        const container = document.getElementById('ccTableEditor');
+        if (!container) return;
+        let html = '';
+        closeCaseRows.forEach((row, idx) => {
+            html += `
+                <div style="display: flex; border-bottom: 1px solid #f1f5f9; align-items: stretch;">
+                    <input type="text" value="${(row.label || '').replace(/"/g, '&quot;')}" onchange="updateCloseCaseRow(${idx}, 'label', this.value)"
+                        style="width: 35%; padding: 8px 10px; border: none; border-right: 1px solid #f1f5f9; font-size: 0.8rem; color: #64748b; background: #f8fafc; outline: none;">
+                    <input type="text" value="${(row.value || '').replace(/"/g, '&quot;')}" onchange="updateCloseCaseRow(${idx}, 'value', this.value)"
+                        style="flex: 1; padding: 8px 10px; border: none; font-size: 0.85rem; font-weight: 600; color: #334155; outline: none;">
+                    <button onclick="removeCloseCaseRow(${idx})" style="padding: 0 8px; border: none; background: none; color: #9ca3af; cursor: pointer; font-size: 18px;" title="刪除此列">
+                        <span class="material-symbols-rounded" style="font-size: 16px;">close</span>
+                    </button>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function addCloseCaseRow() {
+        closeCaseRows.push({ label: '', value: '' });
+        renderCloseCaseTable();
+    }
+
+    function removeCloseCaseRow(idx) {
+        closeCaseRows.splice(idx, 1);
+        renderCloseCaseTable();
+    }
+
+    function updateCloseCaseRow(idx, field, value) {
+        if (closeCaseRows[idx]) closeCaseRows[idx][field] = value;
+    }
+
+    // 需補款 toggle 邏輯
+    function togglePaymentOutro() {
+        const checked = document.getElementById('ccNeedPayment').checked;
+        const outro = document.getElementById('ccOutro');
+        const btn2 = document.getElementById('ccBtn2Show');
+
+        if (checked) {
+            // 在結尾訊息前面加入補款提示
+            const paymentText = '請於下方連結完成「補款及尾款」支付，謝謝您的配合。\n';
+            if (!outro.value.includes('補款及尾款')) {
+                outro.value = paymentText + outro.value;
+            }
+            btn2.checked = true;
+        } else {
+            // 移除補款提示
+            outro.value = outro.value.replace(/請於下方連結完成「補款及尾款」支付，謝謝您的配合。\n?/g, '');
+            btn2.checked = false;
+        }
+    }
+
+    // 產生信件 HTML
+    function generateCloseCaseEmailHTML(subject, intro, rows, note, outro, btn1, btn2) {
+        const introHtml = intro.replace(/\n/g, '<br>');
+        const outroHtml = outro.replace(/\n/g, '<br>');
+        const noteHtml = note ? `
+            <div style="background-color: #ffffff; border: 1px solid #6ea44c; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                <div style="font-weight: bold; color: #6ea44c; margin-bottom: 10px;">備註：</div>
+                <div style="white-space: pre-wrap;">${note}</div>
+            </div>` : '';
+
+        const tableRowsHtml = rows.map(r => `
+            <tr>
+                <th style="text-align: left; padding: 10px; background: #f8fafc; color: #64748b; border-bottom: 1px solid #eee; width: 35%; font-weight: normal;">${r.label}</th>
+                <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold; color: #334155;">${r.value || '--'}</td>
+            </tr>`).join('');
+
+        let buttonsHtml = '';
+        if (btn1.show || btn2.show) {
+            const btns = [];
+            if (btn1.show) btns.push(`<a href="${btn1.link}" target="_blank" style="display: block; text-align: center; padding: 12px; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 14px; background: #6ea44c; color: #ffffff;">${btn1.text}</a>`);
+            if (btn2.show) btns.push(`<a href="${btn2.link}" target="_blank" style="display: block; text-align: center; padding: 12px; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 14px; border: 2px solid #6ea44c; color: #6ea44c;">${btn2.text}</a>`);
+            buttonsHtml = `<div style="margin: 30px 0;">${btns.join('<div style="height: 12px;"></div>')}</div>`;
+        }
+
+        return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:0;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;line-height:1.8;color:#334155;background-color:#ffffff}.tbl{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:13px}</style></head><body style="margin:0;padding:0;background:#ffffff"><div style="width:100%;max-width:600px;margin:0 auto;background:#fff"><div style="padding:20px"><div style="border-bottom:2px solid #6ea44c;padding-bottom:12px;margin-bottom:25px"><h2 style="color:#6ea44c;margin:0;font-size:20px">${subject}</h2></div><div style="margin-bottom:25px;font-size:15px;color:#334155">${introHtml}</div><table class="tbl">${tableRowsHtml}</table>${noteHtml}<div style="margin:25px 0;font-size:15px;color:#334155">${outroHtml}</div>${buttonsHtml}<div style="border-top:1px solid #eee;padding-top:30px;text-align:center"><p style="font-size:11px;color:#94a3b8;margin:0">若有疑問請聯絡 LINE 官方帳號</p><p style="font-size:11px;color:#94a3b8;margin:4px 0 20px;font-weight:bold">@366qwylw</p><img src="https://keicha2025.github.io/keicha/images/KEICHA_logotype.png" alt="KEICHA" width="120" style="display:block;margin:10px auto;border:0"><p style="font-size:9px;color:#cbd5e1;margin-top:15px;letter-spacing:3px">© 2025 KEICHA ALL RIGHTS RESERVED.</p></div></div></div></body></html>`;
+    }
+
+    // 產生管理員版信件 HTML
+    function generateAdminCloseCaseHTML(orderDisplayId, rows) {
+        const tableRowsHtml = rows.map(r => `
+            <tr>
+                <th style="text-align: left; padding: 10px; background: #f8fafc; color: #64748b; border-bottom: 1px solid #eee; width: 35%; font-weight: normal;">${r.label}</th>
+                <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold; color: #334155;">${r.value || '--'}</td>
+            </tr>`).join('');
+
+        return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:0;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;line-height:1.8;color:#334155;background-color:#ffffff}.tbl{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:13px}</style></head><body style="margin:0;padding:0;background:#ffffff"><div style="width:100%;max-width:600px;margin:0 auto;background:#fff"><div style="padding:20px"><div style="border-bottom:2px solid #6ea44c;padding-bottom:12px;margin-bottom:25px"><h2 style="color:#6ea44c;margin:0;font-size:20px">電話代撥結案</h2></div><div style="margin-bottom:25px;font-size:15px;color:#334155">電話代撥訂單 <strong style="color:#6ea44c;">${orderDisplayId}</strong> 已完成：</div><table class="tbl">${tableRowsHtml}</table><div style="border-top:1px solid #eee;padding-top:30px;text-align:center"><img src="https://keicha2025.github.io/keicha/images/KEICHA_logotype.png" alt="KEICHA" width="120" style="display:block;margin:10px auto;border:0"><p style="font-size:9px;color:#cbd5e1;margin-top:15px;letter-spacing:3px">© 2025 KEICHA ALL RIGHTS RESERVED.</p></div></div></div></body></html>`;
+    }
+
+    // 發送結案信件
+    async function sendCloseCase(orderId, orderDisplayId) {
+        try {
+            const subject = document.getElementById('ccSubject').value;
+            const intro = document.getElementById('ccIntro').value;
+            const note = document.getElementById('ccNote').value;
+            const outro = document.getElementById('ccOutro').value;
+
+            const btn1 = {
+                show: document.getElementById('ccBtn1Show').checked,
+                text: document.getElementById('ccBtn1Text').value,
+                link: document.getElementById('ccBtn1Link').value
+            };
+            const btn2 = {
+                show: document.getElementById('ccBtn2Show').checked,
+                text: document.getElementById('ccBtn2Text').value,
+                link: document.getElementById('ccBtn2Link').value
+            };
+
+            // 從原始資料取得客戶 email
+            const doc = await db.collection('denwa_orders').doc(orderId).get();
+            const orderData = doc.data();
+            const email = orderData.email;
+
+            if (!email || !email.includes('@')) {
+                KUI.alert('此訂單無有效客戶 Email，無法發送結案信件。\n\n訂單 email 值: ' + JSON.stringify(email));
+                return;
+            }
+
+            openModal('發送中...', '<div class="loader"></div><p style="text-align: center; color: #6b7280;">正在發送結案通知信件至 ' + email + '...</p>', '');
+
+            // 產生客戶版 HTML
+            const htmlBody = generateCloseCaseEmailHTML(subject, intro, closeCaseRows, note, outro, btn1, btn2);
+            // 產生管理員版 HTML
+            const adminHtmlBody = generateAdminCloseCaseHTML(orderDisplayId, closeCaseRows);
+
+            const payload = {
+                email: email,
+                subject: subject,
+                htmlBody: htmlBody,
+                adminSubject: `KEICHA 電話代撥結案 - ${orderDisplayId}`,
+                adminHtmlBody: adminHtmlBody
+            };
+
+            console.log('[結案] 準備發送，收件人:', email, '訂單:', orderDisplayId);
+
+            // 取得 Firebase ID Token 用於後端身分驗證
+            const user = firebase.auth().currentUser;
+            const idToken = user ? await user.getIdToken() : null;
+
+            // 呼叫 GAS 發送
+            const result = await window.API.sendNotification('denwa_close_case', payload, idToken);
+            console.log('[結案] GAS 回應:', result);
+
+            if (result && result.success) {
+                // 更新 Firestore 狀態為已完成
+                await db.collection('denwa_orders').doc(orderId).update({
+                    status: '已完成',
+                    updated_at: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                KUI.alert('信件已發送，裝態已更新為「已完成」\n\n收件人: ' + email);
+                closeModal();
+                loadDenwaOrders();
+            } else {
+                const errMsg = result ? (result.error || result.message || JSON.stringify(result)) : '無回應';
+                KUI.alert('發送失敗: ' + errMsg);
+                // 恢復之前的 modal 內容讓使用者可以修改再試
+                openModal(`結案通知：${orderDisplayId}`, bodyHtml, footerHtml);
+            }
+        } catch (error) {
+            console.error('[結案] 發生錯誤:', error);
+            KUI.alert('發生異常錯誤：' + error.message);
+            openModal(`結案通知：${orderDisplayId}`, bodyHtml, footerHtml);
+        }
+    }
+
+    // ========== 商品管理 (品牌優先 UI) ==========
+    let currentBrand = null; // 當前選中的品牌
+    let allBrands = []; // 品牌快取
+
+    // 顯示品牌總覽層
+    function showBrandsLayer() {
+        document.getElementById('productsLayerBrands').style.display = 'block';
+        document.getElementById('productsLayerItems').style.display = 'none';
+        currentBrand = null;
+    }
+
+    // 載入品牌卡片 (Firebase 版)
+    async function loadBrandsGrid() {
+        const container = document.getElementById('brandsGrid');
+        container.innerHTML = '<div class="loader"></div>';
+
+        // 確保顯示品牌層
+        showBrandsLayer();
+
+        try {
+            // Firestore 不支援像 SQL 的 count join，我們先拿品牌
+            const brandSnapshot = await db.collection('matcha_brands')
+                .where('hidden', '==', false)
+                .get();
+
+            if (brandSnapshot.empty) {
+                container.innerHTML = '<div class="empty-state"><span class="material-symbols-rounded">sell</span><p>尚無品牌資料</p></div>';
+                return;
+            }
+
+            allBrands = brandSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            // 記憶體排序：避免 Composite Index 需求
+            allBrands.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+
+            let html = '';
+
+            // 處理每個品牌
+            for (const brand of allBrands) {
+
+                // 異步取得該品牌的商品數量
+                const productCountSnapshot = await db.collection('matcha_products')
+                    .where('brand_id', '==', brand.id)
+                    .get();
+                const productCount = productCountSnapshot.size;
+
+                // 支援多種啟用狀態字串 (active, available, ON)
+                const isActive = (brand.status === 'active' || brand.status === 'available' || brand.status === 'ON');
+                const statusText = isActive ? '啟用中' : '已停用';
+                const statusClass = isActive ? 'confirmed' : 'pending';
+
+                html += `
+                    <div class="brand-card" onclick="selectBrand('${brand.id}', '${brand.name}')" style="
+                        background: white;
+                        border: 2px solid #e5e7eb;
+                        border-radius: 12px;
+                        padding: 20px;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    " onmouseover="this.style.borderColor='#6ea44c'; this.style.transform='translateY(-2px)';"
+                       onmouseout="this.style.borderColor='#e5e7eb'; this.style.transform='translateY(0)';">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                            <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #1f2937;">${brand.name}</h3>
+                            <span class="status-badge ${statusClass}" style="font-size: 0.75rem;">${statusText}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.9rem; color: #6ea44c; font-weight: 600;">
+                                <span class="material-symbols-rounded" style="font-size: 16px; vertical-align: middle;">inventory_2</span>
+                                ${productCount} 件商品
+                            </span>
+                            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;"
+                                    onclick="event.stopPropagation(); editBrand(${JSON.stringify(brand).replace(/"/g, '&quot;')})">
+                                設定
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        } catch (error) {
+            console.error('Load brands error:', error);
+            container.innerHTML = `<p style="color: #64748b;">載入失敗：${error.message}</p>`;
+        }
+    }
+
+    // 選擇品牌，顯示其商品
+    async function selectBrand(brandId, brandName) {
+        currentBrand = { id: brandId, name: brandName };
+
+        document.getElementById('productsLayerBrands').style.display = 'none';
+        document.getElementById('productsLayerItems').style.display = 'block';
+        document.getElementById('productsTitle').textContent = brandName;
+
+        await loadProductsByBrand(brandId);
+    }
+
+    // 載入指定品牌的商品 (Firebase 版)
+    async function loadProductsByBrand(brandId) {
+        const container = document.getElementById('productsContent');
+        container.innerHTML = '<div class="loader"></div>';
+
+        try {
+            const snapshot = await db.collection('matcha_products')
+                .where('brand_id', '==', brandId)
+                .get();
+
+            if (snapshot.empty) {
+                container.innerHTML = '<div class="empty-state"><span class="material-symbols-rounded">inventory_2</span><p>此品牌尚無商品</p></div>';
+                currentBrandProducts = [];
+                return;
+            }
+
+            currentBrandProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            // 記憶體排序
+            currentBrandProducts.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+
+            renderProducts();
+        } catch (error) {
+            console.error('Load products error:', error);
+            container.innerHTML = `<p style="color: #64748b; padding: 20px;">載入失敗：${error.message}</p>`;
+        }
+    }
+
+    // 渲染商品列表 (切換一般列表與批量編輯表格)
+    // 排序功能
+    function sortProductsByPrice() {
+        priceSortDirection = priceSortDirection === 'asc' ? 'desc' : 'asc';
+        currentBrandProducts.sort((a, b) => {
+            const priceA = parseInt(a.price) || 0;
+            const priceB = parseInt(b.price) || 0;
+            return priceSortDirection === 'asc' ? priceA - priceB : priceB - priceA;
+        });
+        renderProducts();
+    }
+
+    // 移動商品位置
+    function moveProduct(index, direction) {
+        if (direction === 'up' && index > 0) {
+            [currentBrandProducts[index], currentBrandProducts[index - 1]] = [currentBrandProducts[index - 1], currentBrandProducts[index]];
+        } else if (direction === 'down' && index < currentBrandProducts.length - 1) {
+            [currentBrandProducts[index], currentBrandProducts[index + 1]] = [currentBrandProducts[index + 1], currentBrandProducts[index]];
+        }
+        renderProducts();
+    }
+
+    // 渲染商品列表 (切換一般列表與批量編輯表格)
+    function renderProducts() {
+        const container = document.getElementById('productsContent');
+
+        if (isBatchEditing) {
+            let html = `
+                <div class="data-table">
+                <table class="batch-edit-table" id="batchTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 200px;">名稱</th>
+                            <th style="width: 120px;">規格</th>
+                            <th style="width: 90px; cursor: pointer; color: #6ea44c;" onclick="sortProductsByPrice()">
+                                售價 ${priceSortDirection === 'asc' ? '↑' : '↓'}
+                            </th>
+                            <th style="width: 90px;">售價 (多)</th>
+                            <th style="width: 70px;">庫存</th>
+                            <th style="width: 70px;">限購</th>
+                            <th style="width: 100px;">狀態</th>
+                            <th style="width: 120px;">標籤</th>
+                            <th style="width: 50px;">隱藏</th>
+                            <th style="width: 80px; text-align: center;">排序</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            currentBrandProducts.forEach((item, index) => {
+                html += `
+                    <tr data-id="${item.id}">
+                        <td><input type="text" class="batch-input" data-field="name" value="${item.name || ''}"></td>
+                        <td><input type="text" class="batch-input" data-field="spec" value="${item.spec || ''}"></td>
+                        <td><input type="number" class="batch-input" data-field="price" value="${item.price || 0}"></td>
+                        <td><input type="number" class="batch-input" data-field="price_multi" value="${item.price_multi || ''}"></td>
+                        <td><input type="number" class="batch-input" data-field="stock" value="${item.stock || 0}"></td>
+                        <td><input type="number" class="batch-input" data-field="max_limit" value="${item.max_limit || ''}"></td>
+                        <td>
+                            <select class="batch-input" data-field="status">
+                                <option value="available" ${item.status === 'available' ? 'selected' : ''}>供應中</option>
+                                <option value="out-of-stock" ${item.status === 'out-of-stock' ? 'selected' : ''}>缺貨中</option>
+                                <option value="discontinued" ${item.status === 'discontinued' ? 'selected' : ''}>已停產</option>
+                            </select>
+                        </td>
+                        <td><input type="text" class="batch-input" data-field="tag" value="${item.tag || ''}"></td>
+                        <td style="text-align: center;"><input type="checkbox" class="batch-input" data-field="hidden" ${item.hidden ? 'checked' : ''}></td>
+                        <td style="text-align: center; display: flex; justify-content: center; gap: 4px; border: none; padding: 6px 0;">
+                            <button class="btn btn-secondary" style="padding: 2px; min-width: 28px;" onclick="moveProduct(${index}, 'up')" ${index === 0 ? 'disabled' : ''}>
+                                <span class="material-symbols-rounded" style="font-size: 18px;">expand_less</span>
+                            </button>
+                            <button class="btn btn-secondary" style="padding: 2px; min-width: 28px;" onclick="moveProduct(${index}, 'down')" ${index === currentBrandProducts.length - 1 ? 'disabled' : ''}>
+                                <span class="material-symbols-rounded" style="font-size: 18px;">expand_more</span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        } else {
+            let html = `
+                <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>商品名稱</th>
+                            <th>規格</th>
+                            <th>售價</th>
+                            <th>庫存</th>
+                            <th>狀態</th>
+                            <th>隱藏</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            currentBrandProducts.forEach(item => {
+                let statusText = '供應中';
+                let statusClass = 'confirmed';
+
+                if (item.status === 'out-of-stock') { statusText = '缺貨中'; statusClass = 'pending'; }
+                else if (item.status === 'discontinued') { statusText = '已停收'; statusClass = 'cancelled'; }
+
+                const hiddenIcon = item.hidden ? 'visibility_off' : 'visibility';
+                const opacityStyle = item.hidden ? 'opacity: 0.5; background: #f9fafb;' : '';
+                html += `
+                    <tr style="${opacityStyle}">
+                        <td><strong>${item.name}</strong></td>
+                        <td>${item.spec || '-'}</td>
+                        <td>NT$ ${item.price}</td>
+                        <td>${item.stock}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td><span class="material-symbols-rounded" style="color: ${item.hidden ? '#64748b' : '#6b7280'}; font-size: 18px;">${hiddenIcon}</span></td>
+                        <td>
+                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" onclick='editProduct(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
+                                <span class="material-symbols-rounded" style="font-size: 18px; vertical-align: middle;">edit</span>
+                                <span class="btn-text">編輯</span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+    }
+
+    // 切換批量編輯模式
+    function toggleBatchEdit(enable) {
+        isBatchEditing = enable;
+        document.getElementById('productActionsNormal').style.display = enable ? 'none' : 'flex';
+        document.getElementById('productActionsBatch').style.display = enable ? 'flex' : 'none';
+        renderProducts();
+    }
+
+    // 儲存批量編輯結果
+    async function saveBatchProducts() {
+        const rows = document.querySelectorAll('#batchTable tbody tr');
+        const batch = db.batch();
+        let changedCount = 0;
+
+        try {
+            rows.forEach((row, index) => {
+                const id = row.getAttribute('data-id');
+                const inputs = row.querySelectorAll('.batch-input');
+                const updates = {
+                    display_order: index, // 按當前介面呈現的順序記憶
+                    updated_at: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                inputs.forEach(input => {
+                    const field = input.getAttribute('data-field');
+                    if (!field) return;
+
+                    let value;
+                    if (input.type === 'checkbox') {
+                        value = input.checked;
+                    } else if (input.type === 'number') {
+                        value = input.value === '' ? null : parseInt(input.value);
+                    } else {
+                        value = input.value;
+                    }
+                    updates[field] = value;
+                });
+
+                const docRef = db.collection('matcha_products').doc(id);
+                batch.set(docRef, updates, { merge: true }); // Use set with merge to update existing fields and add new ones
+                changedCount++;
+            });
+
+            if (changedCount > 0) {
+                await batch.commit();
+                KUI.alert(`成功更新 ${changedCount} 項商品`);
+            }
+
+            toggleBatchEdit(false);
+            if (currentBrand) {
+                loadProductsByBrand(currentBrand.id);
+            }
+        } catch (error) {
+            console.error('Batch update error:', error);
+            KUI.alert('儲存失敗：' + error.message);
+        }
+    }
+
+    // ========== Excel 匯出匯入功能 ==========
+
+    // 匯出當前品牌的 Excel (使用 ExcelJS 支援鎖定)
+    async function exportProductsToExcel() {
+        if (!currentBrand) return;
+
+        openModal('準備中...', '<div class="loader"></div><p style="text-align: center; color: #6b7280;">正在產生報表並設定保護規則...</p>', '');
+
+        try {
+            const workbook = new ExcelJS.Workbook();
+            const sheet = workbook.addWorksheet('Products');
+
+            // 定義欄位結構與鎖定狀態
+            sheet.columns = [
+                { header: '商品ID (勿動)', key: 'id', width: 25 },
+                { header: '商品名稱', key: 'name', width: 30 },
+                { header: '規格', key: 'spec', width: 20 },
+                { header: '售價', key: 'price', width: 10 },
+                { header: '售價 (多入組)', key: 'price_multi', width: 15 },
+                { header: '庫存', key: 'stock', width: 10 },
+                { header: '限購數量', key: 'max_limit', width: 15 },
+                { header: '狀態 (available/out-of-stock/discontinued)', key: 'status', width: 40 },
+                { header: '標籤', key: 'tag', width: 20 },
+                { header: '是否隱藏 (TRUE/FALSE)', key: 'hidden', width: 20 },
+                { header: '排序數字', key: 'display_order', width: 10 }
+            ];
+
+            // 填充資料
+            currentBrandProducts.forEach(item => {
+                sheet.addRow({
+                    id: item.id,
+                    name: item.name,
+                    spec: item.spec || '',
+                    price: item.price || 0,
+                    price_multi: item.price_multi || '',
+                    stock: item.stock || 0,
+                    max_limit: item.max_limit || '',
+                    status: item.status || 'available',
+                    tag: item.tag || '',
+                    hidden: item.hidden ? 'TRUE' : 'FALSE',
+                    display_order: item.display_order || 0
+                });
+            });
+
+            // --- 設定保護與鎖定邏輯 ---
+            // 預設將所有儲存格設為「不鎖定」
+            sheet.eachRow((row, rowNumber) => {
+                row.eachCell((cell) => {
+                    cell.protection = { locked: false };
+                });
+            });
+
+            // 鎖定 ID 欄位 (第一欄) 並加上網底提示
+            sheet.getColumn(1).eachCell((cell, rowNumber) => {
+                cell.protection = { locked: true };
+                if (rowNumber > 1) { // 略過標題
+                    cell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: 'FFF1F5F9' } // 輕量灰網底
+                    };
+                }
+            });
+
+            // 開啟工作表保護 (無密碼，僅提供鎖定提示)
+            await sheet.protect('', {
+                selectLockedCells: true,
+                selectUnlockedCells: true,
+                formatCells: true,
+                formatColumns: true,
+                formatRows: true,
+                insertRows: true,
+                insertColumns: false,
+                deleteRows: true,
+                deleteColumns: false
+            });
+
+            // 匯出檔案
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `KEICHA_${currentBrand.name}_商品清單_${new Date().toLocaleDateString()}.xlsx`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            closeModal();
+        } catch (error) {
+            console.error('Export error:', error);
+            KUI.alert('匯出失敗：' + error.message);
+            closeModal();
+        }
+    }
+
+    // 處理 Excel 匯入檔案觸發
+    function handleExcelImport(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+            if (jsonData.length === 0) {
+                KUI.alert('Excel 檔中沒有有效的資料');
+                return;
+            }
+
+            // 彈窗確認匯入模式
+            processImportData(jsonData);
+        };
+        reader.readAsArrayBuffer(file);
+        input.value = ''; // 清空以利下次選擇同檔案
+    }
+
+    // 處理匯入資料與模式選擇
+    function processImportData(data) {
+        const count = data.length;
+        const bodyHtml = `
+            <div style="margin-bottom: 20px;">
+                <p style="color: #4b5563; margin-bottom: 12px;">偵測到 <strong>${count}</strong> 筆商品資料。請選擇匯入模式：</p>
+
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                        <input type="radio" name="importMode" value="overwrite" checked style="margin-top: 4px;">
+                        <div>
+                            <div style="font-weight: 700; color: #1f2937;">覆蓋/更新模式 (Overwrite)</div>
+                            <div style="font-size: 0.85rem; color: #6b7280;">若 ID 相符會更新既有商品；若無 ID 或 ID 不符則視為新商品新增。</div>
+                        </div>
+                    </label>
+                    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                        <input type="radio" name="importMode" value="append" style="margin-top: 4px;">
+                        <div>
+                            <div style="font-weight: 700; color: #1f2937;">並存/全新模式 (Append)</div>
+                            <div style="font-size: 0.85rem; color: #6b7280;">忽略 ID，將所有項目視為「新商品」新增。</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        `;
+
+        openModal('匯入 Excel 商品', bodyHtml, `
+            <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+            <button class="btn btn-primary" onclick='executeImport(${JSON.stringify(data).replace(/'/g, "&apos;")})'>確定匯入</button>
+        `);
+    }
+
+    // 執行匯入
+    async function executeImport(data) {
+        const mode = document.querySelector('input[name="importMode"]:checked').value;
+        const batch = db.batch();
+        let added = 0;
+        let updated = 0;
+
+        try {
+            openModal('匯入中...', '<div class="loader"></div><p style="text-align: center; color: #6b7280;">正在同步至資料庫，請稍候...</p>', '');
+
+            data.forEach((row, index) => {
+                const productId = row['商品ID (勿動)'];
+                const productData = {
+                    brand_id: currentBrand.id,
+                    name: row['商品名稱'],
+                    spec: row['規格'] || '',
+                    price: parseInt(row['售價']) || 0,
+                    price_multi: row['售價 (多入組)'] ? parseInt(row['售價 (多入組)']) : null,
+                    stock: parseInt(row['庫存']) || 0,
+                    max_limit: row['限購數量'] ? parseInt(row['限購數量']) : null,
+                    status: row['狀態 (available/out-of-stock/discontinued)'] || 'available',
+                    tag: row['標籤'] || '',
+                    hidden: String(row['是否隱藏 (TRUE/FALSE)']).toUpperCase() === 'TRUE',
+                    display_order: parseInt(row['排序數字']) || (currentBrandProducts.length + index),
+                    updated_at: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                // ID 處理邏輯
+                if (mode === 'overwrite' && productId && productId.trim() !== '') {
+                    // 更新模式
+                    const docRef = db.collection('matcha_products').doc(productId);
+                    batch.set(docRef, productData, { merge: true });
+                    updated++;
+                } else {
+                    // 全新匯入模式
+                    const docRef = db.collection('matcha_products').doc();
+                    productData.created_at = firebase.firestore.FieldValue.serverTimestamp();
+                    batch.set(docRef, productData);
+                    added++;
+                }
+            });
+
+            await batch.commit();
+            KUI.alert(`匯入完成！新增: ${added}, 更新: ${updated}`);
+            closeModal();
+            loadProductsByBrand(currentBrand.id);
+        } catch (error) {
+            console.error('Import error:', error);
+            KUI.alert('匯入失敗：' + error.message);
+            closeModal();
+        }
+    }
+
+    // ========== 全域 Excel 匯出匯入功能 ==========
+
+    // 全域匯出 (使用 ExcelJS 支援欄位鎖定)
+    async function exportAllProductsToExcel() {
+        openModal('準備中...', '<div class="loader"></div><p style="text-align: center; color: #6b7280;">正在收集所有品牌與商品資料，並進行安全鎖定...</p>', '');
+        try {
+            // 抓取所有品牌以利 ID 轉換名稱
+            const brandSnap = await db.collection('matcha_brands').get();
+            const brandMap = {};
+            brandSnap.forEach(doc => brandMap[doc.id] = doc.data().name);
+
+            // 抓取所有商品
+            const productSnap = await db.collection('matcha_products').get();
+
+            const workbook = new ExcelJS.Workbook();
+            const sheet = workbook.addWorksheet('AllProducts');
+
+            // 定義欄位結構與鎖定狀態
+            sheet.columns = [
+                { header: '品牌ID (勿動)', key: 'brand_id', width: 20 },
+                { header: '品牌名稱 (參考)', key: 'brand_name', width: 25 },
+                { header: '商品ID (勿動)', key: 'id', width: 20 },
+                { header: '商品名稱', key: 'name', width: 30 },
+                { header: '規格', key: 'spec', width: 20 },
+                { header: '售價', key: 'price', width: 10 },
+                { header: '售價 (多入組)', key: 'price_multi', width: 15 },
+                { header: '庫存', key: 'stock', width: 10 },
+                { header: '限購數量', key: 'max_limit', width: 15 },
+                { header: '狀態 (available/out-of-stock/discontinued)', key: 'status', width: 40 },
+                { header: '標籤', key: 'tag', width: 20 },
+                { header: '是否隱藏 (TRUE/FALSE)', key: 'hidden', width: 20 },
+                { header: '排序數字', key: 'display_order', width: 10 }
+            ];
+
+            // 填充資料
+            productSnap.forEach(doc => {
+                const item = doc.data();
+                sheet.addRow({
+                    brand_id: item.brand_id,
+                    brand_name: brandMap[item.brand_id] || '未定',
+                    id: doc.id,
+                    name: item.name,
+                    spec: item.spec || '',
+                    price: item.price || 0,
+                    price_multi: item.price_multi || '',
+                    stock: item.stock || 0,
+                    max_limit: item.max_limit || '',
+                    status: item.status || 'available',
+                    tag: item.tag || '',
+                    hidden: item.hidden ? 'TRUE' : 'FALSE',
+                    display_order: item.display_order || 0
+                });
+            });
+
+            // --- 保護邏輯 ---
+            sheet.eachRow((row, rowNumber) => {
+                row.eachCell((cell) => {
+                    cell.protection = { locked: false }; // 先全部解除
+                });
+            });
+
+            // 鎖定「品牌ID」(1) 與 「商品ID」(3) 欄位
+            [1, 3].forEach(colIndex => {
+                sheet.getColumn(colIndex).eachCell((cell, rowNumber) => {
+                    cell.protection = { locked: true };
+                    if (rowNumber > 1) {
+                        cell.fill = {
+                            type: 'pattern',
+                            pattern: 'solid',
+                            fgColor: { argb: 'FFF1F5F9' }
+                        };
+                    }
+                });
+            });
+
+            await sheet.protect('', {
+                selectLockedCells: true,
+                selectUnlockedCells: true,
+                formatCells: true,
+                insertRows: true,
+                deleteRows: true
+            });
+
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `KEICHA_全品牌商品清單_${new Date().toLocaleDateString()}.xlsx`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            closeModal();
+        } catch (error) {
+            console.error('Global export error:', error);
+            KUI.alert('匯出失敗：' + error.message);
+            closeModal();
+        }
+    }
+
+    // 處理全域 Excel 匯入檔案觸發
+    function handleGlobalExcelImport(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+            if (jsonData.length === 0) {
+                KUI.alert('Excel 檔中沒有有效的資料');
+                return;
+            }
+            processGlobalImportData(jsonData);
+        };
+        reader.readAsArrayBuffer(file);
+        input.value = '';
+    }
+
+    // 處理全域匯入資料與模式選擇
+    function processGlobalImportData(data) {
+        const count = data.length;
+        const bodyHtml = `
+            <div style="margin-bottom: 20px;">
+                <p style="color: #4b5563; margin-bottom: 12px; font-size: 0.95rem;">
+                    偵測到來自 <strong>多個品牌</strong> 的 <strong>${count}</strong> 筆商品資料。<br>
+                    系統將依據 Excel 中的「品牌ID」進行歸類。
+                </p>
+
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                        <input type="radio" name="globalImportMode" value="overwrite" checked style="margin-top: 4px;">
+                        <div>
+                            <div style="font-weight: 700; color: #1f2937;">全域覆蓋模式 (Global Overwrite)</div>
+                            <div style="font-size: 0.85rem; color: #6b7280;">若「商品ID」相符則更新內容；若 ID 不符或不提供則視為新商品。</div>
+                        </div>
+                    </label>
+                    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                        <input type="radio" name="globalImportMode" value="append" style="margin-top: 4px;">
+                        <div>
+                            <div style="font-weight: 700; color: #1f2937;">全新並存模式 (Global Append)</div>
+                            <div style="font-size: 0.85rem; color: #6b7280;">不論現有 ID，所有 Excel 項目均視為新商品新增（會產生重複品項）。</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        `;
+
+        openModal('全域匯入商品', bodyHtml, `
+            <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+            <button class="btn btn-primary" onclick='executeGlobalImport(${JSON.stringify(data).replace(/'/g, "&apos;")})'>開始全域匯入</button>
+        `);
+    }
+
+    // 執行全域匯入
+    async function executeGlobalImport(data) {
+        const mode = document.querySelector('input[name="globalImportMode"]:checked').value;
+        const batchSize = 500;
+        let processed = 0;
+        let added = 0;
+        let updated = 0;
+        let brandsCreated = 0;
+
+        try {
+            openModal('準備中...', '<div class="loader"></div><p style="text-align: center; color: #6b7280;">正在比對現有品牌資料...</p>', '');
+
+            // 1. 先抓取所有現有品牌，建立對照表，避免重複建立
+            const brandSnap = await db.collection('matcha_brands').get();
+            const existingBrands = new Set();
+            brandSnap.forEach(doc => existingBrands.add(doc.id));
+
+            openModal('匯入中...', '<div class="loader"></div><p id="importProgress" style="text-align: center; color: #6b7280;">正在同步全品牌資料，請稍候...</p>', '');
+            const progressEl = document.getElementById('importProgress');
+
+            // 2. 依照 Batch 限制進行批次處理
+            for (let i = 0; i < data.length; i += batchSize) {
+                const chunk = data.slice(i, i + batchSize);
+                const batch = db.batch();
+
+                for (let j = 0; j < chunk.length; j++) {
+                    const row = chunk[j];
+                    // 優先使用 ID，若無 ID 則使用名稱作為 ID (這是資料庫的核心設計)
+                    let brandId = row['品牌ID (勿動)'] || row['品牌名稱 (參考)'];
+                    if (!brandId) continue;
+
+                    brandId = String(brandId).trim();
+
+                    // 如果是新的品牌，自動在資料庫建立品牌文件
+                    if (!existingBrands.has(brandId)) {
+                        const brandRef = db.collection('matcha_brands').doc(brandId);
+                        batch.set(brandRef, {
+                            name: brandId,
+                            status: 'active',
+                            hidden: false,
+                            display_order: 99, // 新增品牌預設排在後面
+                            created_at: firebase.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+                        existingBrands.add(brandId); // 加入存取清單，後續循環不再重複建立
+                        brandsCreated++;
+                    }
+
+                    const productId = row['商品ID (勿動)'];
+                    const productData = {
+                        brand_id: brandId,
+                        name: row['商品名稱'],
+                        spec: row['規格'] || '',
+                        price: parseInt(row['售價']) || 0,
+                        price_multi: row['售價 (多入組)'] ? parseInt(row['售價 (多入組)']) : null,
+                        stock: parseInt(row['庫存']) || 0,
+                        max_limit: row['限購數量'] ? parseInt(row['限購數量']) : null,
+                        status: row['狀態 (available/out-of-stock/discontinued)'] || 'available',
+                        tag: row['標籤'] || '',
+                        hidden: String(row['是否隱藏 (TRUE/FALSE)']).toUpperCase() === 'TRUE',
+                        display_order: parseInt(row['排序數字']) || (i + j),
+                        updated_at: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+
+                    if (mode === 'overwrite' && productId && String(productId).trim() !== '') {
+                        const docRef = db.collection('matcha_products').doc(String(productId).trim());
+                        batch.set(docRef, productData, { merge: true });
+                        updated++;
+                    } else {
+                        const docRef = db.collection('matcha_products').doc();
+                        productData.created_at = firebase.firestore.FieldValue.serverTimestamp();
+                        batch.set(docRef, productData);
+                        added++;
+                    }
+                    processed++;
+                }
+
+                if (progressEl) progressEl.innerText = `正在處理第 ${Math.min(i + batchSize, data.length)} 筆資料 (共 ${data.length} 筆)...`;
+                await batch.commit();
+            }
+
+            KUI.alert(`全域匯入完成！\n成功處理: ${processed} 筆資料\n新增商品: ${added}\n更新商品: ${updated}\n自動建立品牌: ${brandsCreated}`);
+            closeModal();
+            loadBrandsGrid();
+        } catch (error) {
+            console.error('Global import error:', error);
+            KUI.alert('匯入失敗：' + error.message);
+            closeModal();
+        }
+    }
+
+    function editProduct(product) {
+        const bodyHtml = `
+            <div class="form-group">
+                <label class="form-label">商品名稱</label>
+                <input type="text" id="productName" class="admin-input" value="${product.name}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">規格</label>
+                <input type="text" id="productSpec" class="admin-input" value="${product.spec || ''}">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-group">
+                    <label class="form-label">售價 (NT$)</label>
+                    <input type="number" id="productPrice" class="admin-input" value="${product.price}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">多件優惠價</label>
+                    <input type="number" id="productPriceMulti" class="admin-input" value="${product.price_multi || ''}" placeholder="選填">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-group">
+                    <label class="form-label">庫存</label>
+                    <input type="number" id="productStock" class="admin-input" value="${product.stock}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">限購數量</label>
+                    <input type="number" id="productMaxLimit" class="admin-input" value="${product.max_limit || ''}" placeholder="選填">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">狀態</label>
+                <select id="productStatus" class="admin-select">
+                    <option value="in-stock" ${product.status === 'in-stock' ? 'selected' : ''}>上架中</option>
+                    <option value="out-of-stock" ${product.status === 'out-of-stock' ? 'selected' : ''}>已下架</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">商品備註</label>
+                <input type="text" id="productNote" class="admin-input" value="${product.note || ''}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">標籤</label>
+                <input type="text" id="productTag" class="admin-input" value="${product.tag || ''}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">商品圖片連結 (Image URL)</label>
+                <input type="text" id="productImageUrl" class="admin-input" value="${product.image_url || ''}" placeholder="https://...">
+            </div>
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label class="form-label" style="margin-bottom: 0;">隱藏商品</label>
+                    <div class="toggle-wrapper">
+                        <input type="checkbox" id="productHidden" class="toggle-checkbox" ${product.hidden ? 'checked' : ''}>
+                        <label for="productHidden" class="toggle-label">
+                            <div class="toggle-circle"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        `;
+        const footerHtml = `
+            <button class="btn btn-secondary" onclick="deleteProduct('${product.id}')">刪除</button>
+            <button class="btn btn-primary" onclick="saveProduct('${product.id}')">儲存</button>
+        `;
+        openModal(`編輯商品：${product.name}`, bodyHtml, footerHtml);
+    }
+
+    async function saveProduct(productId) {
+        try {
+            const updateData = {
+                name: document.getElementById('productName').value,
+                spec: document.getElementById('productSpec').value,
+                price: parseInt(document.getElementById('productPrice').value),
+                price_multi: parseInt(document.getElementById('productPriceMulti').value) || null,
+                stock: parseInt(document.getElementById('productStock').value),
+                max_limit: parseInt(document.getElementById('productMaxLimit').value) || null,
+                status: document.getElementById('productStatus').value,
+                note: document.getElementById('productNote').value,
+                tag: document.getElementById('productTag').value,
+                image_url: document.getElementById('productImageUrl').value,
+                hidden: document.getElementById('productHidden').checked,
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await db.collection('matcha_products').doc(productId).update(updateData);
+
+            KUI.alert('更新成功');
+            closeModal();
+            if (currentBrand) {
+                loadProductsByBrand(currentBrand.id);
+            }
+        } catch (error) {
+            KUI.alert('更新失敗：' + error.message);
+        }
+    }
+
+    async function deleteProduct(productId) {
+        if (!(await KUI.confirm('確定要刪除這筆商品嗎？此操作無法復原。'))) return;
+        try {
+            await db.collection('matcha_products').doc(productId).delete();
+            closeModal();
+            KUI.alert('商品已刪除');
+            if (currentBrand) {
+                loadProductsByBrand(currentBrand.id);
+            }
+        } catch (error) {
+            KUI.alert('刪除失敗：' + error.message);
+        }
+    }
+
+    function showProductModal() {
+        if (!currentBrand) {
+            KUI.alert('請先選擇品牌');
+            return;
+        }
+        const bodyHtml = `
+            <div class="form-group">
+                <label class="form-label">商品名稱</label>
+                <input type="text" id="newProductName" class="admin-input" placeholder="請輸入商品名稱">
+            </div>
+            <div class="form-group">
+                <label class="form-label">規格</label>
+                <input type="text" id="newProductSpec" class="admin-input">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-group">
+                    <label class="form-label">售價 (NT$)</label>
+                    <input type="number" id="newProductPrice" class="admin-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">庫存</label>
+                    <input type="number" id="newProductStock" class="admin-input" value="99">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">多件優惠價</label>
+                    <input type="number" id="newProductPriceMulti" class="admin-input" placeholder="選填">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-group">
+                    <label class="form-label">限購數量</label>
+                    <input type="number" id="newProductMaxLimit" class="admin-input" placeholder="選填">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">商品狀態</label>
+                    <select id="newProductStatus" class="admin-select">
+                        <option value="in-stock">上架中</option>
+                        <option value="out-of-stock">已下架</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">商品圖片連結</label>
+                <input type="text" id="newProductImageUrl" class="admin-input" placeholder="https://...">
+            </div>
+        `;
+        const footerHtml = `
+            <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+            <button class="btn btn-primary" onclick="createProduct()">新增</button>
+        `;
+        openModal(`新增商品至 ${currentBrand.name}`, bodyHtml, footerHtml);
+    }
+
+    async function createProduct() {
+        try {
+            const newProduct = {
+                brand_id: currentBrand.id,
+                name: document.getElementById('newProductName').value,
+                spec: document.getElementById('newProductSpec').value,
+                price: parseInt(document.getElementById('newProductPrice').value) || 0,
+                price_multi: parseInt(document.getElementById('newProductPriceMulti').value) || null,
+                stock: parseInt(document.getElementById('newProductStock').value) || 99,
+                max_limit: parseInt(document.getElementById('newProductMaxLimit').value) || null,
+                status: document.getElementById('newProductStatus').value,
+                image_url: document.getElementById('newProductImageUrl').value,
+                hidden: false,
+                display_order: 0,
+                created_at: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await db.collection('matcha_products').add(newProduct);
+
+            KUI.alert('新增成功');
+            closeModal();
+            loadProductsByBrand(currentBrand.id);
+        } catch (error) {
+            KUI.alert('新增失敗：' + error.message);
+        }
+    }
+
+    // ========== 品牌管理 (編輯/新增) ==========
+    function editBrand(brand) {
+        const bodyHtml = `
+            <div class="form-group">
+                <label class="form-label">品牌名稱</label>
+                <input type="text" id="brandName" class="admin-input" value="${brand.name}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">狀態</label>
+                <select id="brandStatus" class="admin-select">
+                    <option value="active" ${brand.status === 'active' ? 'selected' : ''}>啟用中</option>
+                    <option value="inactive" ${brand.status === 'inactive' ? 'selected' : ''}>已停用</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label class="form-label" style="margin-bottom: 0;">隱藏品牌</label>
+                    <div class="toggle-wrapper">
+                        <input type="checkbox" id="brandHidden" class="toggle-checkbox" ${brand.hidden ? 'checked' : ''}>
+                        <label for="brandHidden" class="toggle-label">
+                            <div class="toggle-circle"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">顯示順序</label>
+                <input type="number" id="brandOrder" class="admin-input" value="${brand.display_order || 0}">
+            </div>
+        `;
+        const footerHtml = `
+            <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+            <button class="btn btn-primary" onclick="saveBrand('${brand.id}')">儲存</button>
+        `;
+        openModal(`編輯品牌：${brand.name}`, bodyHtml, footerHtml);
+    }
+
+    async function saveBrand(brandId) {
+        try {
+            const updateData = {
+                name: document.getElementById('brandName').value,
+                status: document.getElementById('brandStatus').value,
+                hidden: document.getElementById('brandHidden').checked,
+                display_order: parseInt(document.getElementById('brandOrder').value) || 0,
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await db.collection('matcha_brands').doc(brandId).update(updateData);
+
+            KUI.alert('品牌已更新');
+            closeModal();
+            loadBrandsGrid();
+        } catch (error) {
+            KUI.alert('更新失敗：' + error.message);
+        }
+    }
+
+    function showBrandModal() {
+        const bodyHtml = `
+            <div class="form-group">
+                <label class="form-label">品牌名稱</label>
+                <input type="text" id="newBrandName" class="admin-input">
+            </div>
+        `;
+        const footerHtml = `
+            <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+            <button class="btn btn-primary" onclick="createBrand()">新增</button>
+        `;
+        openModal('新增品牌', bodyHtml, footerHtml);
+    }
+
+    async function createBrand() {
+        const name = document.getElementById('newBrandName').value.trim();
+        if (!name) { KUI.alert('請填寫品牌名稱'); return; }
+
+        try {
+            const newBrand = {
+                name: name,
+                status: 'active',
+                hidden: false,
+                display_order: 0,
+                created_at: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await db.collection('matcha_brands').doc(name).set(newBrand);
+
+            KUI.alert('品牌新增成功');
+            closeModal();
+            loadBrandsGrid();
+        } catch (error) {
+            KUI.alert('新增失敗：' + error.message);
+        }
+    }
+
+    // ========== 方案管理 (Firebase 版) ==========
+    async function loadPlans() {
+        const container = document.getElementById('plansContent');
+        container.innerHTML = '<div class="loader"></div>';
+
+        try {
+            const snapshot = await db.collection('denwa_plans')
+                .orderBy('display_order', 'asc')
+                .get();
+
+            if (snapshot.empty) {
+                container.innerHTML = '<div class="empty-state"><span class="material-symbols-rounded">payments</span><p>尚無方案資料</p></div>';
+                return;
+            }
+
+            let html = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+            `;
+            const plans = [];
+            snapshot.forEach(doc => plans.push({ id: doc.id, ...doc.data() }));
+
+            // [優化] 排序邏輯：啟用中優先，再按排序權重
+            plans.sort((a, b) => {
+                if (a.status === 'ON' && b.status !== 'ON') return -1;
+                if (a.status !== 'ON' && b.status === 'ON') return 1;
+                return (a.display_order || 99) - (b.display_order || 99);
+            });
+
+            plans.forEach(plan => {
+                const statusText = plan.status === 'ON' ? '啟用中' : '已停用';
+                const statusClass = plan.status === 'ON' ? 'confirmed' : 'pending';
+                html += `
+                    <div class="card" style="margin-bottom: 0; border: 1px solid #e5e7eb; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div class="card-header-flex" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700;">${plan.name}</h3>
+                                    <p style="margin: 4px 0 0 0; font-size: 0.8rem; color: #9ca3af; text-transform: uppercase;">排序: ${plan.display_order}</p>
+                                </div>
+                                <span class="status-badge ${statusClass}">${statusText}</span>
+                            </div>
+                            <p style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #6ea44c;">NT$ ${plan.price}</p>
+                            <p style="margin: 8px 0 16px 0; font-size: 0.9rem; color: #6b7280; line-height: 1.5;">${plan.desc || '無描述'}</p>
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-top: auto;">
+                            <button class="btn btn-secondary" style="flex: 1; padding: 8px; font-size: 0.85rem;" onclick='editPlan(${JSON.stringify(plan).replace(/'/g, "&apos;")})'>
+                                <span class="material-symbols-rounded" style="font-size: 18px; vertical-align: middle;">edit</span>
+                                <span class="btn-text">編輯</span>
+                            </button>
+                            ${plan.link ? `
+                            <a href="${plan.link}" target="_blank" class="btn btn-secondary" style="display: flex; align-items: center; justify-content: center; width: 40px; padding: 0;">
+                                <span class="material-symbols-rounded" style="font-size: 18px;">link</span>
+                            </a>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        } catch (error) {
+            console.error('Load plans error:', error);
+            container.innerHTML = `<p style="color: #64748b;">載入失敗：${error.message}</p>`;
+        }
+    }
+
+    function editPlan(plan) {
+        const bodyHtml = `
+            <div class="form-group">
+                <label class="form-label">方案名稱</label>
+                <input type="text" id="planName" class="admin-input" value="${plan.name}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">價格 (NT$)</label>
+                <input type="number" id="planPrice" class="admin-input" value="${plan.price}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">說明</label>
+                <textarea id="planDescription" class="admin-textarea">${plan.desc || ''}</textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">狀態</label>
+                <select id="planStatus" class="admin-select">
+                    <option value="ON" ${plan.status === 'ON' ? 'selected' : ''}>啟用中</option>
+                    <option value="OFF" ${plan.status === 'OFF' ? 'selected' : ''}>已停用</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">付款連結</label>
+                <input type="text" id="planPaymentLink" class="admin-input" value="${plan.link || ''}" placeholder="https://...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">顯示順序 (越小越靠前)</label>
+                <input type="number" id="planOrder" class="admin-input" value="${plan.display_order || 99}">
+            </div>
+        `;
+        const footerHtml = `
+            <button class="btn btn-secondary" onclick="deletePlan('${plan.id}')">刪除</button>
+            <button class="btn btn-primary" onclick="savePlan('${plan.id}')">儲存</button>
+        `;
+        openModal(`編輯方案：${plan.name}`, bodyHtml, footerHtml);
+    }
+
+    async function savePlan(planId) {
+        try {
+            const updates = {
+                name: document.getElementById('planName').value,
+                price: parseInt(document.getElementById('planPrice').value),
+                desc: document.getElementById('planDescription').value,
+                status: document.getElementById('planStatus').value,
+                link: document.getElementById('planPaymentLink').value,
+                display_order: parseInt(document.getElementById('planOrder').value) || 99,
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await db.collection('denwa_plans').doc(planId).update(updates);
+
+            KUI.alert('方案已更新');
+            closeModal();
+            loadPlans();
+        } catch (error) {
+            KUI.alert('更新失敗：' + error.message);
+        }
+    }
+
+    async function deletePlan(planId) {
+        if (!(await KUI.confirm('確定要刪除此預約方案嗎？此操作無法復原。'))) return;
+        try {
+            await db.collection('denwa_plans').doc(planId).delete();
+            closeModal();
+            KUI.alert('方案已刪除');
+            loadPlans();
+        } catch (error) {
+            KUI.alert('刪除失敗：' + error.message);
+        }
+    }
+
+    function showPlanModal() {
+        const bodyHtml = `
+            <div class="form-group">
+                <label class="form-label">方案名稱</label>
+                <input type="text" id="newPlanName" class="admin-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">價格 (NT$)</label>
+                <input type="number" id="newPlanPrice" class="admin-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">說明</label>
+                <textarea id="newPlanDescription" class="admin-textarea" placeholder="方案說明..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">顯示順序</label>
+                <input type="number" id="newPlanOrder" class="admin-input">
+            </div>
+        `;
+        const footerHtml = `
+            <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+            <button class="btn btn-primary" onclick="createPlan()">新增</button>
+        `;
+        openModal('新增方案', bodyHtml, footerHtml);
+    }
+
+    async function createPlan() {
+        try {
+            const newPlan = {
+                name: document.getElementById('newPlanName').value,
+                price: parseInt(document.getElementById('newPlanPrice').value) || 0,
+                desc: document.getElementById('newPlanDescription').value,
+                status: 'ON',
+                display_order: parseInt(document.getElementById('newPlanOrder').value) || 99,
+                created_at: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await db.collection('denwa_plans').add(newPlan);
+
+            KUI.alert('方案已新增');
+            closeModal();
+            loadPlans();
+        } catch (error) {
+            KUI.alert('新增失敗：' + error.message);
+        }
+    }
+
+    // ========== 運費規則 (Firebase 版) ==========
+    async function loadShippingRules() {
+        const container = document.getElementById('shippingContent');
+        container.innerHTML = '<div class="loader"></div>';
+
+        try {
+            const snapshot = await db.collection('shipping_rules')
+                .orderBy('category', 'asc')
+                .get();
+
+            if (snapshot.empty) {
+                container.innerHTML = '<div class="empty-state"><span class="material-symbols-rounded">local_shipping</span><p>尚無運費規則</p></div>';
+                return;
+            }
+
+            let html = `
+                <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>運送方式</th>
+                            <th>分類</th>
+                            <th>基本運費</th>
+                            <th>階梯運費 (滿額 / 運費)</th>
+                            <th>查詢連結</th>
+                            <th style="text-align: right;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            snapshot.forEach(doc => {
+                const rule = { id: doc.id, ...doc.data() };
+
+                // 處理分類顯示
+                const categories = Array.isArray(rule.category)
+                    ? rule.category.map(c => c.split('.')[0]).join(', ')
+                    : (rule.category || '未設定');
+
+                // 處理階梯運費顯示
+                let tiersInfo = [];
+                if (rule.t1) tiersInfo.push(`滿 ${rule.t1} -> ${rule.f1 > 0 ? `$${rule.f1}` : '免運'}`);
+                if (rule.t2) tiersInfo.push(`滿 ${rule.t2} -> ${rule.f2 > 0 ? `$${rule.f2}` : '免運'}`);
+                if (rule.t3) tiersInfo.push(`滿 ${rule.t3} -> ${rule.f3 > 0 ? `$${rule.f3}` : '免運'}`);
+                const tiersText = tiersInfo.length > 0 ? tiersInfo.join(' | ') : '-';
+
+                // 處理連結顯示
+                const linkText = rule.tracking_link
+                    ? `<a href="${rule.tracking_link}" target="_blank" style="color: #6ea44c; text-decoration: none;"><span class="material-symbols-rounded" style="font-size: 18px; vertical-align: middle;">link</span></a>`
+                    : '-';
+
+                html += `
+                    <tr>
+                        <td><strong>${rule.method}</strong></td>
+                        <td><span style="font-size: 0.8rem; color: #64748b; background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">${categories}</span></td>
+                        <td style="font-weight: 700;">NT$ ${Number(rule.base) || 0}</td>
+                        <td style="font-size: 0.9rem; color: #4b5563;">${tiersText}</td>
+                        <td style="text-align: center;">${linkText}</td>
+                        <td>
+                            <div style="display: flex; justify-content: flex-end;">
+                                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" onclick='editShipping(${JSON.stringify(rule).replace(/'/g, "&apos;")})'>
+                                    <span class="material-symbols-rounded" style="font-size: 18px; vertical-align: middle;">edit</span>
+                                    <span class="btn-text">編輯</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        } catch (error) {
+            console.error('Load shipping rules error:', error);
+            container.innerHTML = `<p style="color: #64748b;">載入失敗：${error.message}</p>`;
+        }
+    }
+
+    function editShipping(rule) {
+        const bodyHtml = `
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label class="form-label">適用分類 (可多選)</label>
+                <div style="display: flex; gap: 16px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e5e7eb;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.9rem;">
+                        <input type="checkbox" name="shippingCategory" value="maccha-store.html" ${Array.isArray(rule.category) && rule.category.includes('maccha-store.html') ? 'checked' : (rule.category === 'maccha-store.html' ? 'checked' : '')}> maccha-store.html
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.9rem;">
+                        <input type="checkbox" name="shippingCategory" value="diy.html" ${Array.isArray(rule.category) && rule.category.includes('diy.html') ? 'checked' : (rule.category === 'diy.html' ? 'checked' : '')}> diy.html
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">運送方式</label>
+                <select id="shippingMethod" class="admin-select">
+                    <option value="7-11 店到店" ${rule.method === '7-11 店到店' ? 'selected' : ''}>7-11 店到店</option>
+                    <option value="全家 店到店" ${rule.method === '全家 店到店' ? 'selected' : ''}>全家 店到店</option>
+                    <option value="宅配到府" ${rule.method === '宅配到府' ? 'selected' : ''}>宅配到府</option>
+                    <option value="其他" ${!['7-11 店到店', '全家 店到店', '宅配到府'].includes(rule.method) ? 'selected' : ''}>其他</option>
+                </select>
+            </div>
+            ${!rule.method.includes('宅配') ? `
+            <div class="form-group">
+                <label class="form-label">超商查詢代碼連結 (選填)</label>
+                <input type="text" id="shippingTrackingLink" class="admin-input" value="${rule.tracking_link || ''}">
+            </div>
+            ` : '<input type="hidden" id="shippingTrackingLink" value="">'}
+            <div class="form-group">
+                <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>基本運費</span>
+                    <span style="font-size: 0.75rem; color: #9ca3af;">(NT$)</span>
+                </label>
+                <input type="number" id="shippingBase" class="admin-input" value="${rule.base || 0}" style="font-weight: 700;">
+            </div>
+            <div class="section-title" style="margin-top: 20px;">階梯運費設定</div>
+            <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 16px;">當購買金額達到門檻時，適用對應的運費</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-group">
+                    <label class="form-label">第一階門檻 (NT$)</label>
+                    <input type="number" id="shippingT1" class="admin-input" value="${rule.t1 || ''}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">第一階運費</label>
+                    <input type="number" id="shippingF1" class="admin-input" value="${rule.f1 || ''}">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-group">
+                    <label class="form-label">第二階門檻 (NT$)</label>
+                    <input type="number" id="shippingT2" class="admin-input" value="${rule.t2 || ''}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">第二階運費</label>
+                    <input type="number" id="shippingF2" class="admin-input" value="${rule.f2 || ''}">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-group">
+                    <label class="form-label">第三階門檻 (免運)</label>
+                    <input type="number" id="shippingT3" class="admin-input" value="${rule.t3 || ''}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">第三階運費</label>
+                    <input type="number" id="shippingF3" class="admin-input" value="${rule.f3 || ''}">
+                </div>
+            </div>
+        `;
+        const footerHtml = `
+            <button class="btn btn-secondary" onclick="deleteShipping('${rule.id}')">刪除</button>
+            <button class="btn btn-primary" onclick="saveShipping('${rule.id}')">儲存</button>
+        `;
+        openModal(`編輯運費：${rule.method}`, bodyHtml, footerHtml);
+    }
+
+    async function saveShipping(ruleId) {
+        try {
+            const categories = Array.from(document.querySelectorAll('input[name="shippingCategory"]:checked')).map(el => el.value);
+            if (categories.length === 0) { KUI.alert('請至少選擇一個分類'); return; }
+
+            const updates = {
+                category: categories,
+                method: document.getElementById('shippingMethod').value,
+                base: parseInt(document.getElementById('shippingBase').value) || 0,
+                t1: parseInt(document.getElementById('shippingT1').value) || null,
+                f1: parseInt(document.getElementById('shippingF1').value) || null,
+                t2: parseInt(document.getElementById('shippingT2').value) || null,
+                f2: parseInt(document.getElementById('shippingF2').value) || null,
+                t3: parseInt(document.getElementById('shippingT3').value) || null,
+                f3: parseInt(document.getElementById('shippingF3').value) || null,
+                tracking_link: document.getElementById('shippingTrackingLink').value || null,
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await db.collection('shipping_rules').doc(ruleId).update(updates);
+
+            KUI.alert('規則已更新');
+            closeModal();
+            loadShippingRules();
+        } catch (error) {
+            KUI.alert('更新失敗：' + error.message);
+        }
+    }
+
+    async function deleteShipping(ruleId) {
+        if (!(await KUI.confirm('確定要刪除此運費規則嗎？'))) return;
+        try {
+            await db.collection('shipping_rules').doc(ruleId).delete();
+            closeModal();
+            KUI.alert('規則已刪除');
+            loadShippingRules();
+        } catch (error) {
+            KUI.alert('刪除失敗：' + error.message);
+        }
+    }
+
+    function showShippingModal() {
+        const bodyHtml = `
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label class="form-label">適用分類 (可多選)</label>
+                <div style="display: flex; gap: 16px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e5e7eb;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.9rem;">
+                        <input type="checkbox" name="newShippingCategory" value="maccha-store.html" checked> maccha-store.html
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.9rem;">
+                        <input type="checkbox" name="newShippingCategory" value="diy.html"> diy.html
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">運送方式</label>
+                <select id="newShippingMethod" class="admin-select">
+                    <option value="7-11 店到店">7-11 店到店</option>
+                    <option value="全家 店到店">全家 店到店</option>
+                    <option value="宅配到府">宅配到府</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">超商查詢代碼連結 (選填)</label>
+                <input type="text" id="newShippingTrackingLink" class="admin-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">基本運費 (NT$)</label>
+                <input type="number" id="newShippingBase" class="admin-input">
+            </div>
+        `;
+        const footerHtml = `
+            <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+            <button class="btn btn-primary" onclick="createShipping()">新增</button>
+        `;
+        openModal('新增運費規則', bodyHtml, footerHtml);
+    }
+
+    async function createShipping() {
+        try {
+            const categories = Array.from(document.querySelectorAll('input[name="newShippingCategory"]:checked')).map(el => el.value);
+            if (categories.length === 0) { KUI.alert('請至少選擇一個分類'); return; }
+
+            const newRule = {
+                category: categories,
+                method: document.getElementById('newShippingMethod').value,
+                base: parseInt(document.getElementById('newShippingBase').value) || 0,
+                tracking_link: document.getElementById('newShippingTrackingLink').value || null,
+                created_at: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await db.collection('shipping_rules').add(newRule);
+
+            KUI.alert('新增成功');
+            closeModal();
+            loadShippingRules();
+        } catch (error) {
+            KUI.alert('新增失敗：' + error.message);
+        }
+    }
+
+    // ========== 快速結帳設定 (Firebase 版) ==========
+    async function loadFastConfig() {
+        const container = document.getElementById('configContent');
+        container.innerHTML = '<div class="loader"></div>';
+
+        try {
+            const doc = await db.collection('fast_checkout_config').doc('default').get();
+            const data = doc.exists ? doc.data() : {};
+
+
+            container.innerHTML = `
+                <!-- 賣場核心設定 -->
+                <div class="card" style="margin-bottom: 20px; border: 1px solid #e5e7eb; padding: 24px;">
+                    <div class="section-title" style="font-size: 0.85rem; font-weight: 700; color: #9ca3af; text-transform: uppercase; margin-bottom: 1rem;">賣場核心設定</div>
+                    
+                    <div class="card-header-flex" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #f3f4f6;">
+                        <div>
+                            <label class="form-label" style="font-size: 1rem; font-weight: 700; color: #1f2937; margin-bottom: 4px;">賣場狀態開關</label>
+                            <p style="font-size: 0.75rem; color: #9ca3af; margin: 0;">開啟後顧客可下單，關閉則顯示維護中</p>
+                        </div>
+                        <div class="toggle-wrapper" style="width: 52px; height: 28px;">
+                            <input type="checkbox" id="status_toggle" class="toggle-checkbox" ${data.status === '開啟' ? 'checked' : ''}>
+                            <label for="status_toggle" class="toggle-label" style="padding: 0; width: 100%; height: 100%;">
+                                <div class="toggle-circle" style="top: 2px; left: 2px;"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">商品內容文字</label>
+                        <textarea id="items_text" rows="4" class="admin-textarea" placeholder="輸入商品名稱與規格...">${data.items_text || ''}</textarea>
+                        <p style="font-size: 0.75rem; color: #9ca3af; mt: 8px;">此欄位將直接顯示於前台，支援換行。</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">商品總金額</label>
+                        <input type="number" id="amount" class="admin-input" style="font-family: monospace; font-weight: 700; font-size: 1.1rem;" value="${data.amount || 0}">
+                    </div>
+                </div>
+
+                <!-- 物流管道開關 -->
+                <div class="card" style="margin-bottom: 20px; border: 1px solid #e5e7eb; padding: 24px;">
+                    <div class="section-title" style="font-size: 0.85rem; font-weight: 700; color: #9ca3af; text-transform: uppercase; margin-bottom: 1rem;">物流管道開關</div>
+                    <div style="display: flex; flex-direction: column; gap: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span class="material-symbols-rounded" style="color: #9ca3af;">local_shipping</span>
+                                <span style="font-weight: 700; color: #4b5563;">7-11 店到店</span>
+                            </div>
+                            <div class="toggle-wrapper" style="width: 52px; height: 28px;">
+                                <input type="checkbox" id="enable_711" class="toggle-checkbox" ${data.enable_711 ? 'checked' : ''}>
+                                <label for="enable_711" class="toggle-label">
+                                    <div class="toggle-circle"></div>
+                                </label>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span class="material-symbols-rounded" style="color: #9ca3af;">store</span>
+                                <span style="font-weight: 700; color: #4b5563;">全家 店到店</span>
+                            </div>
+                            <div class="toggle-wrapper" style="width: 52px; height: 28px;">
+                                <input type="checkbox" id="enable_fami" class="toggle-checkbox" ${data.enable_fami ? 'checked' : ''}>
+                                <label for="enable_fami" class="toggle-label">
+                                    <div class="toggle-circle"></div>
+                                </label>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span class="material-symbols-rounded" style="color: #9ca3af;">home</span>
+                                <span style="font-weight: 700; color: #4b5563;">宅配到府</span>
+                            </div>
+                            <div class="toggle-wrapper" style="width: 52px; height: 28px;">
+                                <input type="checkbox" id="enable_home" class="toggle-checkbox" ${data.enable_home ? 'checked' : ''}>
+                                <label for="enable_home" class="toggle-label">
+                                    <div class="toggle-circle"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 運費規則設定 -->
+                <div class="card" style="margin-bottom: 20px; border: 1px solid #e5e7eb; padding: 24px;">
+                    <div class="section-title" style="font-size: 0.85rem; font-weight: 700; color: #9ca3af; text-transform: uppercase; margin-bottom: 1rem;">運費規則設定</div>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #f3f4f6;">
+                        <span style="font-weight: 700; color: #6ea44c; display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-rounded">loyalty</span> 免運活動
+                        </span>
+                        <div class="toggle-wrapper" style="width: 52px; height: 28px;">
+                            <input type="checkbox" id="is_free_shipping" class="toggle-checkbox" onchange="toggleFeeInputs()" ${data.is_free_shipping ? 'checked' : ''}>
+                            <label for="is_free_shipping" class="toggle-label">
+                                <div class="toggle-circle"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <span style="font-weight: 700; color: #4b5563; font-size: 0.9rem;">啟用「統一運費」</span>
+                        <div class="toggle-wrapper" style="width: 52px; height: 28px;">
+                            <input type="checkbox" id="use_uniform_fee" class="toggle-checkbox" onchange="toggleFeeInputs()" ${data.use_uniform_fee ? 'checked' : ''}>
+                            <label for="use_uniform_fee" class="toggle-label">
+                                <div class="toggle-circle"></div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 32px;">
+                        <input type="number" id="uniform_fee" class="admin-input" style="font-weight: 700;" placeholder="統一運費金額" value="${data.uniform_fee || 0}">
+                    </div>
+
+                    <div id="individual-fees" style="display: flex; flex-direction: column; gap: 16px; transition: opacity 0.3s;">
+                        <div style="display: grid; grid-template-columns: 1fr 2fr; align-items: center; gap: 16px;">
+                            <span style="font-weight: 700; color: #9ca3af; font-size: 0.85rem; text-transform: uppercase;">7-11</span>
+                            <input type="number" id="fee_711" class="admin-input" style="text-align: right;" value="${data.fee_711 || 60}">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 2fr; align-items: center; gap: 16px;">
+                            <span style="font-weight: 700; color: #9ca3af; font-size: 0.85rem; text-transform: uppercase;">全家</span>
+                            <input type="number" id="fee_fami" class="admin-input" style="text-align: right;" value="${data.fee_fami || 60}">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 2fr; align-items: center; gap: 16px;">
+                            <span style="font-weight: 700; color: #9ca3af; font-size: 0.85rem; text-transform: uppercase;">宅配</span>
+                            <input type="number" id="fee_home" class="admin-input" style="text-align: right;" value="${data.fee_home || 120}">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 32px;">
+                    <button class="btn btn-primary" style="width: 100%; height: 56px; font-size: 1.1rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(110, 164, 76, 0.2);" onclick="saveFastConfig()">
+                        <span class="material-symbols-rounded">save</span>
+                        <span class="btn-text">儲存</span>
+                    </button>
+                </div>
+            `;
+
+            // 初始化運費狀態
+            toggleFeeInputs();
+        } catch (error) {
+            console.error('Load config error:', error);
+            container.innerHTML = `<p style="color: #64748b;">載入失敗：${error.message}</p>`;
+        }
+    }
+
+    async function saveFastConfig() {
+        try {
+            const updates = {
+                status: document.getElementById('status_toggle').checked ? '開啟' : '關閉',
+                items_text: document.getElementById('items_text').value,
+                amount: parseInt(document.getElementById('amount').value) || 0,
+                enable_711: document.getElementById('enable_711').checked,
+                enable_fami: document.getElementById('enable_fami').checked,
+                enable_home: document.getElementById('enable_home').checked,
+                is_free_shipping: document.getElementById('is_free_shipping').checked,
+                use_uniform_fee: document.getElementById('use_uniform_fee').checked,
+                uniform_fee: parseInt(document.getElementById('uniform_fee').value) || 0,
+                fee_711: parseInt(document.getElementById('fee_711').value) || 0,
+                fee_fami: parseInt(document.getElementById('fee_fami').value) || 0,
+                fee_home: parseInt(document.getElementById('fee_home').value) || 0,
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await db.collection('fast_checkout_config').doc('default').set(updates, { merge: true });
+
+            KUI.alert('設定已儲存');
+            loadFastConfig();
+        } catch (error) {
+            KUI.alert('儲存失敗：' + error.message);
+        }
+    }
+
+    function toggleFeeInputs() {
+        const isFreeToggle = document.getElementById('is_free_shipping');
+        const useUniformToggle = document.getElementById('use_uniform_fee');
+        if (!isFreeToggle || !useUniformToggle) return;
+
+        const isFree = isFreeToggle.checked;
+        const useUniform = useUniformToggle.checked;
+        const uniformInput = document.getElementById('uniform_fee');
+        const individualFees = document.getElementById('individual-fees');
+
+        if (isFree) {
+            uniformInput.disabled = true;
+            uniformInput.style.opacity = '0.5';
+            individualFees.style.opacity = '0.5';
+            individualFees.querySelectorAll('input').forEach(i => i.disabled = true);
+        } else {
+            uniformInput.disabled = !useUniform;
+            uniformInput.style.opacity = useUniform ? '1' : '0.5';
+            individualFees.style.opacity = useUniform ? '0.5' : '1';
+            individualFees.querySelectorAll('input').forEach(i => i.disabled = useUniform);
+        }
+    }
+
+    // Modal 控制
+    function openModal(title, bodyHtml, footerHtml) {
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalBody').innerHTML = bodyHtml;
+        document.getElementById('modalFooter').innerHTML = footerHtml || '';
+        document.getElementById('editModal').classList.add('active');
+    }
+
+    function closeModal() {
+        // 移除 Header 中的刪除圖示
+        const delBtn = document.querySelector('.delete-icon-btn');
+        if (delBtn) delBtn.remove();
+        document.getElementById('editModal').classList.remove('active');
+    }
+
+    // 點擊 Modal 外部關閉
+    document.getElementById('editModal').addEventListener('click', (e) => {
+        if (e.target.id === 'editModal') {
+            closeModal();
+        }
+    });
+</script>
+
+<!-- 頁尾 (模組化) -->
+<!-- 
+  注意: 
+  1. 圖片路徑已改為 /images/...
+  2. 連結路徑已改為 /admin.html 
+-->
+<footer id="notice" class="bg-gray-800 text-gray-300 py-16 scroll-mt-20">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+
+            <!-- 服務連結 -->
+            <div>
+                <h4 class="text-lg font-semibold text-white mb-4">服務項目</h4>
+                <ul class="space-y-3">
+                    <li><a href="/maccha.html"
+                            class="text-gray-400 hover:text-white hover:underline transition-colors">抹茶代購狀況</a></li>
+                    <li><a href="/denwa.html"
+                            class="text-gray-400 hover:text-white hover:underline transition-colors">電話代撥服務</a></li>
+                    <li><a href="/jyoukyou.html"
+                            class="text-gray-400 hover:text-white hover:underline transition-colors">訂單查詢</a></li>
+                </ul>
+            </div>
+
+            <!-- 付款方式 -->
+            <div>
+                <h4 class="text-lg font-semibold text-white mb-4">付款與下單</h4>
+                <ul class="space-y-3">
+                    <li>
+                        <a href="/user-guide.html"
+                            class="text-gray-400 hover:text-white hover:underline transition-colors">
+                            訂購方式說明
+                        </a>
+                    </li>
+                    <li><a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer"
+                            class="text-gray-400 hover:text-white hover:underline transition-colors">線上刷卡支付</a></li>
+                    <li>
+                        <a href="/diy" class="text-gray-400 hover:text-white hover:underline transition-colors">
+                            貨到付款下單
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 購買須知 (★ 偵測到您修改過的格式) -->
+            <div>
+                <h4 class="text-lg font-semibold text-white mb-4">購買須知</h4>
+                <ul class="space-y-3 text-sm">
+                    <li class="text-gray-400">
+                        <span class="font-medium text-gray-200">出貨時間：</span>
+                        預購商品下單後約15~20天內出貨。
+                    </li>
+                    <li class="text-gray-400">
+                        <span class="font-medium text-gray-200">客製訂購：</span>
+                        歡迎聯繫訂購其他抹茶品項。
+                    </li>
+                    <li class="text-gray-400">
+                        <span class="font-medium text-gray-200">退換政策：</span>
+                        預購商品不適用猶豫期，恕不接受取消或退貨。
+                    </li>
+                    <li class="text-gray-400">
+                        <span class="font-medium text-gray-200">付款方式：</span>
+                        代購採 7-11 貨到付款；代撥服務採線上刷卡。
+                    </li>
+                    <li class="text-gray-400">
+                        <a href="/privacy.html" class="font-medium text-gray-200 hover:text-white hover:underline">
+                            隱私權條款
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 聯絡資訊 -->
+            <div>
+                <h4 class="text-lg font-semibold text-white mb-4">聯絡資訊</h4>
+                <ul class="space-y-3 text-gray-400">
+                    <li>
+                        <span class="font-medium text-gray-200">Email:</span><br>
+                        <a href="mailto:keicha.nihoncha@gmail.com"
+                            class="hover:text-white hover:underline">keicha.nihoncha@gmail.com</a>
+                    </li>
+                    <li>
+                        <span class="font-medium text-gray-200">LINE ID:</span><br>
+                        @366qwylw
+                    </li>
+                    <li class="mt-4">
+                        <img src="https://qr-official.line.me/gs/M_366qwylw_BW.png?oat_content=qr" alt="加入 LINE 官方帳號"
+                            class="w-24 h-24 rounded-lg">
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+        <!-- ★ 偵測到您修改過的 2025 年版權 -->
+        <div class="text-center text-gray-500 mt-12 pt-8 border-t border-gray-700 text-sm">
+            <span>&copy; 2025 <span class="font-brand-text">KEICHA</span>. All Rights Reserved.</span>
+        </div>
+    </div>
+
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- 1. 導覽列邏輯 (手機選單) ---
+        const menuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (menuButton && mobileMenu) {
+            menuButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const currentState = mobileMenu.getAttribute('data-state');
+                if (currentState === 'closed') {
+                    mobileMenu.setAttribute('data-state', 'open');
+                } else {
+                    mobileMenu.setAttribute('data-state', 'closed');
+                }
+            });
+        }
+
+        // --- 2. 導覽列邏輯 (電腦版 "HOME" 下拉選單) ---
+        const dropdownButton = document.getElementById('desktop-dropdown-button');
+        const dropdownMenu = document.getElementById('desktop-dropdown-menu');
+
+        if (dropdownButton && dropdownMenu) {
+            dropdownButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const currentState = dropdownMenu.getAttribute('data-state');
+                if (currentState === 'closed') {
+                    dropdownMenu.setAttribute('data-state', 'open');
+                } else {
+                    dropdownMenu.setAttribute('data-state', 'closed');
+                }
+            });
+            dropdownMenu.addEventListener('click', () => {
+                dropdownMenu.setAttribute('data-state', 'closed');
+            });
+        }
+
+        // --- 3. 全域點擊監聽 (用來關閉選單) ---
+        window.addEventListener('click', () => {
+            if (dropdownMenu) {
+                dropdownMenu.setAttribute('data-state', 'closed');
+            }
+            if (mobileMenu && mobileMenu.getAttribute('data-state') === 'open') {
+                mobileMenu.setAttribute('data-state', 'closed');
+            }
+        });
+
+        if (mobileMenu) {
+            mobileMenu.addEventListener('click', (event) => event.stopPropagation());
+        }
+
+        // --- 4. Web Share API 邏輯 ---
+        const desktopShareButton = document.getElementById('desktop-share-button');
+        const mobileShareButtonFixed = document.getElementById('mobile-share-button-fixed');
+
+        const shareTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content') || document.title;
+        const shareText = document.querySelector('meta[property="og:description"]')?.getAttribute('content') || '查看 KEICHA 的服務';
+        const shareUrl = document.querySelector('meta[property="og:url"]')?.getAttribute('content') || window.location.href;
+
+        const shareData = {
+            title: shareTitle,
+            text: shareText,
+            url: shareUrl
+        };
+
+        if (navigator.share) {
+            const showShareButton = (button) => {
+                if (button) {
+                    button.classList.remove('hidden');
+                    button.addEventListener('click', async (event) => {
+                        event.stopPropagation();
+                        try {
+                            await navigator.share(shareData);
+                            console.log('網站分享成功');
+                        } catch (err) {
+                            console.error('分享失敗: ', err);
+                        }
+                    });
+                }
+            };
+            showShareButton(desktopShareButton);
+            showShareButton(mobileShareButtonFixed);
+        } else {
+            console.log('此瀏覽器不支援 Web Share API');
+        }
+
+    });
+</script>
+
+
+
+</body>
+
+</html>

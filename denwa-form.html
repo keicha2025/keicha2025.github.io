@@ -4,118 +4,241 @@ title: 電話代撥預約申請 | KEICHA 服務
 description: 線上填寫代撥需求，我們將為您聯繫日本店家。
 ---
 
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+<!-- Firebase SDK (v9 compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
+
+<script>
+    // Firebase 設定
+    const firebaseConfig = {
+        apiKey: "AIzaSyBF50fJPE-QL3yV4KaVIWzDmDPFRAkpwT4",
+        authDomain: "keicha-membership-system.firebaseapp.com",
+        projectId: "keicha-membership-system",
+        storageBucket: "keicha-membership-system.firebasestorage.app",
+        messagingSenderId: "941650156322",
+        appId: "1:941650156322:web:5c7473aeaa184e0b94637b"
+    };
+
+    // 初始化 Firebase (若尚未初始化)
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+
+    // 【最穩定初始化順序】1. 激活 App Check -> 2. 獲取 Firestore 實例
+    try {
+        const appCheck = firebase.appCheck();
+        appCheck.activate('6LcPa3UsAAAAAHJ-z9C3N9cqen3AYC8HxEQODoTM', true);
+        window.firebaseAppCheckActive = true;
+        console.log('[AppCheck] 🛡️ 服務已啟動');
+    } catch (e) {
+        console.warn('[AppCheck] 啟動中或已在執行:', e.message);
+    }
+
+    // 在激活後才生成的 db 實例會自動帶上 App Check 攔截器
+    const db = firebase.firestore();
+</script>
+<script src="{{ '/js/api.js' | relative_url }}"></script>
+
 
 <style>
     /* 基礎表單樣式 */
     .form-input {
-        width: 100%; padding: 0.75rem;
-        border: 1px solid #e2e8f0; border-radius: 0.5rem;
-        background-color: #f8fafc; transition: all 0.2s;
-        font-size: 16px; 
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        background-color: #f8fafc;
+        transition: all 0.2s;
+        font-size: 16px;
     }
+
     .form-input:focus {
-        background-color: #fff; border-color: #6ea44c; outline: none;
+        background-color: #fff;
+        border-color: #6ea44c;
+        outline: none;
         box-shadow: 0 0 0 3px rgba(110, 164, 76, 0.1);
     }
+
     .form-label {
-        display: block; font-weight: 600; color: #475569; margin-bottom: 0.5rem;
+        display: block;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.5rem;
     }
+
     .section-title {
-        font-size: 1.125rem; font-weight: 700; color: #1e293b;
-        border-left: 4px solid #6ea44c; padding-left: 1rem;
-        margin-bottom: 1.5rem; margin-top: 2rem;
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #1e293b;
+        border-left: 4px solid #6ea44c;
+        padding-left: 1rem;
+        margin-bottom: 1.5rem;
+        margin-top: 2rem;
     }
-    
+
     /* 人數計數器 */
     .counter-wrapper {
-        display: flex; align-items: center; justify-content: space-between;
-        background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
         padding: 0.25rem;
-        width: 140px; 
+        width: 140px;
     }
+
     .counter-btn {
-        width: 36px; height: 36px;
-        background: white; border: 1px solid #cbd5e1; border-radius: 6px;
-        color: #6ea44c; font-weight: bold; font-size: 1.25rem;
-        display: flex; align-items: center; justify-content: center;
-        cursor: pointer; user-select: none;
-        flex-shrink: 0; 
+        width: 36px;
+        height: 36px;
+        background: white;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        color: #6ea44c;
+        font-weight: bold;
+        font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        user-select: none;
+        flex-shrink: 0;
         transition: background 0.1s;
     }
-    .counter-btn:active { background: #f1f5f9; }
-    .counter-value {
-        width: 48px; text-align: center; background: transparent; border: none;
-        font-weight: bold; color: #334155; font-size: 1.1rem;
-        padding: 0; margin: 0;
+
+    .counter-btn:active {
+        background: #f1f5f9;
     }
-    
+
+    .counter-value {
+        width: 48px;
+        text-align: center;
+        background: transparent;
+        border: none;
+        font-weight: bold;
+        color: #334155;
+        font-size: 1.1rem;
+        padding: 0;
+        margin: 0;
+    }
+
     /* === 自定義 Radio Button 樣式 === */
     .custom-radio {
         appearance: none;
         -webkit-appearance: none;
-        width: 1.25rem; height: 1.25rem;
+        width: 1.25rem;
+        height: 1.25rem;
         border-radius: 50%;
         background-color: white;
-        border: 2px solid #cbd5e1; /* 未選取時：灰色邊框 */
+        border: 2px solid #cbd5e1;
+        /* 未選取時：灰色邊框 */
         cursor: pointer;
         flex-shrink: 0;
         transition: all 0.2s ease;
     }
+
     .custom-radio:checked {
-        border-color: white; /* 選取時：白色外框 */
+        border-color: white;
+        /* 選取時：白色外框 */
         /* 選取時：中間品牌色圓點 (利用漸層模擬) */
         background-image: radial-gradient(circle, #6ea44c 45%, transparent 50%);
     }
 
     /* 骨架屏 */
     .skeleton {
-        height: 80px; background: #e2e8f0; border-radius: 0.75rem;
-        margin-bottom: 1rem; animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        height: 80px;
+        background: #e2e8f0;
+        border-radius: 0.75rem;
+        margin-bottom: 1rem;
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: .5;
+        }
+    }
 
     /* Loading Overlay */
     #loading-overlay {
-        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(255,255,255,0.8); z-index: 9999;
-        align-items: center; justify-content: center; flex-direction: column;
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
     }
-    .spinner {
-        border: 4px solid #f3f3f3; border-top: 4px solid #6ea44c;
-        border-radius: 50%; width: 40px; height: 40px;
-        animation: spin 1s linear infinite; margin-bottom: 10px;
-    }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    
-    .content-safe-area { padding-bottom: 120px; }
 
-    .material-symbols-outlined {
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #6ea44c;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 10px;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .content-safe-area {
+        padding-bottom: 120px;
+    }
+
+    .material-symbols-rounded {
         vertical-align: middle;
         /* 確保 icon 大小一致 */
-        font-size: 18px !important; 
+        font-size: 18px !important;
+    }
+
+    .font-brand-text {
+        font-family: "Zen Maru Gothic", sans-serif;
+        font-weight: 700;
     }
 </style>
 
 <div class="container mx-auto max-w-2xl px-4 py-8 content-safe-area">
-    
+
     <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-slate-800 mb-2">電話代撥預約</h1>
+        <h1 class="text-3xl font-bold text-slate-800 mb-2"><span class="font-brand-text text-slate-800">KEICHA</span>
+            電話代撥預約</h1>
         <p class="text-slate-500">免登入・快速填寫・Email確認</p>
     </div>
 
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <div class="text-slate-600 font-bold">正在處理您的預約...</div>
+        <div class="text-slate-600 font-bold"><span class="font-brand-text">KEICHA</span> 正在處理您的預約...</div>
     </div>
 
     <form id="booking-form" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
-        
+
         <h3 class="section-title mt-0">聯絡人資訊</h3>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
-                <label class="form-label" for="customerName">您的中文姓名 <span class="text-red-500">*</span></label>
+                <label class="form-label" for="customerName">您的中文姓名 <span class="text-slate-500">*</span></label>
                 <input type="text" id="customerName" name="customerName" class="form-input" required>
             </div>
             <div>
@@ -125,31 +248,32 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
         </div>
 
         <div class="mb-6">
-            <label class="form-label" for="email">電子郵件 (接收確認信) <span class="text-red-500">*</span></label>
+            <label class="form-label" for="email">電子郵件 (接收確認信) <span class="text-slate-500">*</span></label>
             <input type="email" id="email" name="email" class="form-input" placeholder="example@email.com" required>
         </div>
 
         <div class="mb-6">
-            <label class="form-label" for="phone">聯絡電話 <span class="text-red-500">*</span></label>
+            <label class="form-label" for="phone">聯絡電話 <span class="text-slate-500">*</span></label>
             <input type="tel" id="phone" name="phone" class="form-input" required>
         </div>
 
         <h3 class="section-title">代撥需求內容</h3>
 
         <div class="mb-6">
-            <label class="form-label" for="shopName">預約餐廳/店家名稱 <span class="text-red-500">*</span></label>
+            <label class="form-label" for="shopName">預約餐廳/店家名稱 <span class="text-slate-500">*</span></label>
             <input type="text" id="shopName" name="shopName" class="form-input" placeholder="例如：叙叙苑 晴空塔店" required>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
-                <label class="form-label" for="serviceDate">預約日期 <span class="text-red-500">*</span></label>
+                <label class="form-label" for="serviceDate">預約日期 <span class="text-slate-500">*</span></label>
                 <input type="date" id="serviceDate" name="serviceDate" class="form-input" required>
             </div>
             <div>
-                <label class="form-label" for="serviceTime">預約時間 <span class="text-red-500">*</span></label>
-                <select id="serviceTime" name="serviceTime" class="form-input appearance-none bg-white cursor-pointer" required>
-                    </select>
+                <label class="form-label" for="serviceTime">預約時間 <span class="text-slate-500">*</span></label>
+                <select id="serviceTime" name="serviceTime" class="form-input appearance-none bg-white cursor-pointer"
+                    required>
+                </select>
             </div>
         </div>
 
@@ -183,17 +307,19 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
 
         <div id="child-details-section" class="mb-6 p-4 rounded-xl border border-[#6ea44c]/30 bg-[#6ea44c]/10 hidden">
             <label class="form-label text-[#5d8c40]" for="childDetails">
-                小孩詳細資訊 (年齡 / 是否用餐) <span class="text-red-500">*</span>
+                小孩詳細資訊 (年齡 / 是否用餐) <span class="text-slate-500">*</span>
             </label>
-            <textarea id="childDetails" class="form-input border-[#6ea44c]/30 focus:border-[#6ea44c] focus:ring-[#6ea44c]/20" rows="2" placeholder="例如：一位3歲(需兒童椅)、一位5歲(不用餐)"></textarea>
+            <textarea id="childDetails"
+                class="form-input border-[#6ea44c]/30 focus:border-[#6ea44c] focus:ring-[#6ea44c]/20" rows="2"
+                placeholder="例如：一位3歲(需兒童椅)、一位5歲(不用餐)"></textarea>
             <p class="text-xs text-slate-500 mt-2 flex items-center">
-                <span class="material-symbols-outlined mr-1">info</span>
+                <span class="material-symbols-rounded mr-1">info</span>
                 請務必告知店家小孩年齡與是否佔位/用餐。
             </p>
         </div>
 
         <div class="mb-6">
-            <label class="form-label" for="bookingName">訂位登記姓名 (英文) <span class="text-red-500">*</span></label>
+            <label class="form-label" for="bookingName">訂位登記姓名 (英文) <span class="text-slate-500">*</span></label>
             <input type="text" id="bookingName" name="bookingName" class="form-input" placeholder="與護照相同之英文拼音" required>
         </div>
 
@@ -206,13 +332,13 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
             <label class="form-label" for="japanContact">在日聯絡資訊 (選填)</label>
             <input type="text" id="japanContact" name="japanContact" class="form-input" placeholder="">
             <div class="flex items-center mt-2 text-xs text-slate-500">
-                <span class="material-symbols-outlined mr-1 flex-shrink-0 text-slate-400">info</span>
+                <span class="material-symbols-rounded mr-1 flex-shrink-0 text-slate-400">info</span>
                 <span>部分店家需要日本聯絡電話才能接受預約，如有預定入住的飯店名稱與電話等在日聯絡方式，請填寫於此。</span>
             </div>
         </div>
 
         <h3 class="section-title">選擇方案</h3>
-        
+
         <div id="plan-container" class="grid grid-cols-1 gap-4 mb-8">
             <div class="skeleton"></div>
             <div class="skeleton"></div>
@@ -223,7 +349,8 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
     </form>
 </div>
 
-<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 h-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-50">
+<div
+    class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 h-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-50">
     <div class="container mx-auto max-w-2xl h-full px-6 flex items-center justify-between">
         <div class="flex flex-col justify-center">
             <span class="text-xs text-slate-500 leading-tight">預估費用</span>
@@ -231,16 +358,17 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
                 TWD <span id="price-display">--</span>
             </div>
         </div>
-        
-        <button type="button" onclick="submitForm()" class="bg-[#6ea44c] hover:bg-[#5d8c40] text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0">
-            確認送出
+
+        <button type="button" onclick="submitForm()"
+            class="bg-[#6ea44c] hover:bg-[#5d8c40] text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0">
+            <span class="btn-text">送出</span>
         </button>
     </div>
 </div>
 
-<script src="js/api.js"></script>
+
 <script>
-    
+
     let currentPlans = [];
     let currentPrice = 0;
 
@@ -256,14 +384,14 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
 
     function initTimeSelect() {
         const select = document.getElementById('serviceTime');
-        const interval = 30; 
-        
+        const interval = 30;
+
         for (let hour = 0; hour < 24; hour++) {
             for (let min = 0; min < 60; min += interval) {
                 const hStr = hour.toString().padStart(2, '0');
                 const mStr = min.toString().padStart(2, '0');
                 const timeStr = `${hStr}:${mStr}`;
-                
+
                 const option = document.createElement('option');
                 option.value = timeStr;
                 option.textContent = timeStr;
@@ -275,31 +403,43 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
 
     function fetchPlans() {
         const container = document.getElementById('plan-container');
-        
-        API.fetchDenwaPlans()
-        .then(plans => {
-            currentPlans = plans;
-            renderPlans(plans);
-        })
-        .catch(err => {
-            console.error(err);
-            container.innerHTML = '<p class="text-red-500">載入方案失敗，請重新整理頁面。</p>';
-        });
+
+        db.collection('denwa_plans')
+            .get()
+            .then(snapshot => {
+                const plans = snapshot.docs
+                    .map(doc => ({ id: doc.id, ...doc.data() }))
+                    .filter(p => p.status === 'ON'); // 改在前端過濾，徹底排除索引與載入問題
+
+                if (plans.length === 0) {
+                    container.innerHTML = '<p class="text-slate-500 text-center py-4">目前尚無開放的方案。</p>';
+                    return;
+                }
+
+                // 在記憶體中排序
+                plans.sort((a, b) => (Number(a.display_order) || 99) - (Number(b.display_order) || 99));
+                currentPlans = plans;
+                renderPlans(plans);
+            })
+            .catch(err => {
+                console.error("Fetch plans error:", err);
+                container.innerHTML = `<p class="text-slate-500">載入失敗: ${err.message}</p>`;
+            });
     }
 
     function renderPlans(plans) {
         const container = document.getElementById('plan-container');
-        container.innerHTML = ''; 
+        container.innerHTML = '';
 
         plans.forEach((plan, index) => {
             const isChecked = index === 0 ? 'checked' : '';
-            
+
             // HTML 結構修改重點：
             // 1. input type="radio" 使用 class="custom-radio" 來套用新 CSS
             // 2. 說明文字外層增加 <div class="pr-4"> 容器 (透明容器)
             // 3. 說明文字 span 增加 text-justify 與左右對齊樣式
             // 4. 金額區域增加 shrink-0 確保不被推擠
-            
+
             const html = `
             <label class="relative flex items-center p-4 border rounded-xl cursor-pointer hover:bg-slate-50 transition-colors border-slate-200 has-[:checked]:border-[#6ea44c] has-[:checked]:bg-[#6ea44c]/10">
                 
@@ -307,7 +447,7 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
                        data-link="${plan.link}" 
                        class="custom-radio" 
                        ${isChecked} 
-                       onchange="updatePrice(${plan.price})">
+                       onchange="updatePrice(${Number(plan.price) || 0})">
                 
                 <div class="ml-4 flex-1 pr-4"> <span class="block text-slate-800 font-bold mb-1">${plan.name}</span>
                     <div class="w-full">
@@ -321,7 +461,7 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
             </label>
             `;
             container.insertAdjacentHTML('beforeend', html);
-            
+
             if (index === 0) updatePrice(plan.price);
         });
     }
@@ -336,7 +476,7 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
         let val = parseInt(input.value) || 0;
         val += delta;
         if (val < 0) val = 0;
-        if (id === 'adultCount' && val < 1) val = 1; 
+        if (id === 'adultCount' && val < 1) val = 1;
         input.value = val;
         calculateTotal();
     }
@@ -345,13 +485,13 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
         const adult = parseInt(document.getElementById('adultCount').value) || 0;
         const child = parseInt(document.getElementById('childCount').value) || 0;
         const total = adult + child;
-        
+
         document.getElementById('totalCount').value = total;
         document.getElementById('totalCountDisplay').innerText = total;
 
         const childSection = document.getElementById('child-details-section');
         const childDetailsInput = document.getElementById('childDetails');
-        
+
         if (child > 0) {
             childSection.classList.remove('hidden');
             childDetailsInput.required = true;
@@ -362,15 +502,17 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
         }
     }
 
-    function submitForm() {
+    async function submitForm() {
         const form = document.getElementById('booking-form');
-        
+
         if (!form.checkValidity()) {
             form.reportValidity();
             return;
         }
 
-        document.getElementById('loading-overlay').style.display = 'flex';
+        try {
+            await generateDenwaOrderId(); // 這裡原本有日誌
+        } catch (e) { }
 
         const formData = new FormData(form);
         const noteInput = document.getElementById('note');
@@ -387,35 +529,136 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
         const selectedPlan = document.querySelector('input[name="paymentPlan"]:checked');
         const paymentLink = selectedPlan ? selectedPlan.getAttribute('data-link') : '';
 
-        API.submitDenwaBooking(formData)
-        .then(data => {
-            if (data.result === 'success') {
-                const displayData = {
-                    orderId: data.order_id,
-                    customerName: formData.get('customerName'),
-                    lineName: formData.get('lineName'),
-                    email: formData.get('email'),
-                    phone: formData.get('phone'),
-                    shopName: formData.get('shopName'),
-                    dateTime: `${formData.get('serviceDate')} ${formData.get('serviceTime')}`,
-                    people: `大人 ${formData.get('adultCount')} / 小孩 ${formData.get('childCount')} (共 ${formData.get('totalCount')} 人)`,
-                    bookingName: formData.get('bookingName'),
-                    planName: formData.get('paymentPlan'),
-                    note: finalNote,
-                    paymentLink: paymentLink
-                };
-                
-                sessionStorage.setItem('orderResult', JSON.stringify(displayData));
-                window.location.href = `form-result.html`;
-            } else {
-                alert('預約失敗：' + data.message);
-                document.getElementById('loading-overlay').style.display = 'none';
+        const payload = {
+            customer_name: formData.get('customerName'),
+            line_name: formData.get('lineName'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            merchant_name: formData.get('shopName'),
+            service_date: formData.get('serviceDate'),
+            service_time: formData.get('serviceTime'),
+            adult_count: parseInt(formData.get('adultCount')),
+            child_count: parseInt(formData.get('childCount')),
+            total_count: parseInt(formData.get('totalCount')),
+            booking_name: formData.get('bookingName'),
+            plan_name: formData.get('paymentPlan'),
+            contact_in_japan: formData.get('japanContact') || '',
+            note: finalNote,
+            status: '待處理',
+            created_at: firebase.firestore.FieldValue.serverTimestamp(),
+            updated_at: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        // 產生 DENWA-YYMMDD流水號 格式的訂單編號（使用 Transaction 確保與 diy.html 邏輯一致）
+        async function generateDenwaOrderId() {
+            const now = new Date();
+            const yy = String(now.getFullYear()).slice(-2);
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            const datePrefix = `DENWA-${yy}${mm}${dd}`;
+            const counterRef = db.collection('order_counters').doc(datePrefix);
+
+            return await db.runTransaction(async (transaction) => {
+                const counterDoc = await transaction.get(counterRef);
+                let nextNum = 1;
+                if (counterDoc.exists) {
+                    nextNum = (counterDoc.data().count || 0) + 1;
+                }
+                transaction.set(counterRef, { count: nextNum }, { merge: true });
+                return `${datePrefix}${String(nextNum).padStart(2, '0')}`;
+            });
+        }
+
+        document.getElementById('loading-overlay').style.display = 'flex';
+
+        try {
+            const orderId = await generateDenwaOrderId();
+            payload.order_id = orderId;
+            payload.source_token = 'keicha_2025_web_auth'; // 基礎安全金鑰
+
+            const docRef = await db.collection('denwa_orders').add(payload);
+
+            // 清除草稿
+            localStorage.removeItem('denwa_draft');
+
+            // 觸發郵件通知
+            if (window.API && window.API.sendNotification) {
+                window.API.sendNotification('new_denwa_order', {
+                    ...payload,
+                    order_id: orderId,
+                    payment_link: paymentLink
+                }).catch(e => console.error('[GAS] Notification error:', e));
             }
-        })
-        .catch(error => {
+
+            const displayData = {
+                orderId: orderId,
+                shopName: payload.merchant_name,
+                dateTime: `${payload.service_date} ${payload.service_time}`,
+                bookingName: payload.booking_name,
+                people: `大人 ${payload.adult_count} / 小孩 ${payload.child_count} (共 ${payload.total_count} 人)`,
+                phone: payload.phone,
+                planName: payload.plan_name,
+                customerName: payload.customer_name,
+                lineName: payload.line_name,
+                note: payload.note,
+                japanContact: payload.contact_in_japan,
+                paymentLink: paymentLink
+            };
+
+            sessionStorage.setItem('orderResult', JSON.stringify(displayData));
+            window.location.href = `form-result.html`;
+        } catch (error) {
             console.error('Error:', error);
-            alert('發生錯誤，請檢查網路連線。');
+            alert('發生錯誤，請檢查網路連線：' + error.message);
             document.getElementById('loading-overlay').style.display = 'none';
-        });
+        }
     }
+
+    // --- 自動儲存功能 ---
+    function saveDraft() {
+        const form = document.getElementById('booking-form');
+        const draft = {
+            customerName: form.customerName.value,
+            lineName: form.lineName.value,
+            email: form.email.value,
+            phone: form.phone.value,
+            shopName: form.shopName.value,
+            serviceDate: form.serviceDate.value,
+            serviceTime: form.serviceTime.value,
+            adultCount: form.adultCount.value,
+            childCount: form.childCount.value,
+            childDetails: document.getElementById('childDetails').value,
+            bookingName: form.bookingName.value,
+            note: document.getElementById('note').value,
+            japanContact: form.japanContact.value
+        };
+        localStorage.setItem('denwa_draft', JSON.stringify(draft));
+    }
+
+    function loadDraft() {
+        const saved = localStorage.getItem('denwa_draft');
+        if (!saved) return;
+        const draft = JSON.parse(saved);
+        const form = document.getElementById('booking-form');
+
+        if (draft.customerName) form.customerName.value = draft.customerName;
+        if (draft.lineName) form.lineName.value = draft.lineName;
+        if (draft.email) form.email.value = draft.email;
+        if (draft.phone) form.phone.value = draft.phone;
+        if (draft.shopName) form.shopName.value = draft.shopName;
+        if (draft.serviceDate) form.serviceDate.value = draft.serviceDate;
+        if (draft.serviceTime) form.serviceTime.value = draft.serviceTime;
+        if (draft.adultCount) form.adultCount.value = draft.adultCount;
+        if (draft.childCount) form.childCount.value = draft.childCount;
+        if (draft.childDetails) document.getElementById('childDetails').value = draft.childDetails;
+        if (draft.bookingName) form.bookingName.value = draft.bookingName;
+        if (draft.note) document.getElementById('note').value = draft.note;
+        if (draft.japanContact) form.japanContact.value = draft.japanContact;
+
+        calculateTotal(); // 重新計算總人數
+    }
+
+    // 監聽所有輸入欄位
+    document.getElementById('booking-form').addEventListener('input', saveDraft);
+    window.addEventListener('load', loadDraft);
 </script>

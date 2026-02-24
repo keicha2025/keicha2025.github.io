@@ -7,16 +7,50 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
+<link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
 
-<script src="https://cdn.tailwindcss.com"></script>
+
+
+<!-- Firebase SDK (v9 compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBF50fJPE-QL3yV4KaVIWzDmDPFRAkpwT4",
+        authDomain: "keicha-membership-system.firebaseapp.com",
+        projectId: "keicha-membership-system",
+        storageBucket: "keicha-membership-system.firebasestorage.app",
+        messagingSenderId: "941650156322",
+        appId: "1:941650156322:web:5c7473aeaa184e0b94637b"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // 初始化 App Check
+    const appCheck = firebase.appCheck();
+    appCheck.activate('6LcPa3UsAAAAAHJ-z9C3N9cqen3AYC8HxEQODoTM', true);
+
+    const db = firebase.firestore();
+</script>
+
+<!-- KEICHA UI Dialog System -->
+<link rel="stylesheet" href="css/ui-dialog.css">
+<script src="js/ui-dialog.js"></script>
+<script src="js/api.js"></script>
+
 <script>
     tailwind.config = {
         theme: {
             extend: {
                 colors: {
                     brand: '#6ea44c',
+                    brandGreen: '#6ea44c',
                     brandLight: '#ebf1e9',
                     brandDark: '#5d8d41',
                     brandBg: 'rgba(110,164,76,0.1)',
@@ -35,77 +69,211 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
 </script>
 
 <style>
-    :root { --font-brand: "Zen Maru Gothic", sans-serif; }
+    :root {
+        --font-brand: "Zen Maru Gothic", sans-serif;
+    }
+
     /* 修正 body 為 wrapper，避免影響全站樣式 */
-    .shop-wrapper { font-family: "Noto Sans TC", sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom: 100px; background-color: #ffffff; overflow-x: hidden; position: relative; }
-    .font-brand-text { font-family: var(--font-brand); font-weight: 700; }
-    .loader { border: 2px solid #f3f3f3; border-top: 2px solid #6ea44c; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    
+    .shop-wrapper {
+        font-family: "Noto Sans TC", sans-serif;
+        -webkit-tap-highlight-color: transparent;
+        padding-bottom: 100px;
+        background-color: #ffffff;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    .font-brand-text {
+        font-family: var(--font-brand);
+        font-weight: 700;
+    }
+
+    .loader {
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #6ea44c;
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
     /* Side Panel 樣式保留，Z-index 設高以覆蓋全站 Header */
-    .side-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 100%; max-width: 420px; background: white; z-index: 200; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: var(--shadow-panel); display: flex; flex-direction: column; }
-    .side-panel.open { transform: translateX(0) !important; }
-    
-    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 150; opacity: 0; visibility: hidden; transition: opacity 0.3s; backdrop-filter: blur(2px); }
-    .overlay.open { opacity: 1; visibility: visible; }
-    
-    .input-ui { width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; transition: all 0.2s ease; background-color: #f8fafc; color: #334155; }
-    .input-ui:focus { border-color: #6ea44c; background-color: white; ring: 1px solid #6ea44c; }
-    .input-ui::placeholder { color: #94a3b8; }
-    
-    .logistics-card { border: 1px solid #e2e8f0; border-radius: 12px; transition: all 0.2s ease; background: white; overflow: hidden; position: relative; }
-    .logistics-card.active { border-color: #6ea44c; background-color: #fcfdfc; box-shadow: 0 0 0 1px #6ea44c inset; }
-    .logistics-card:active { transform: scale(0.99); }
-    
-    .btn-query-store { background-color: white; color: #6ea44c; border: 1px solid #6ea44c; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 13px; transition: background 0.2s; text-decoration: none; white-space: nowrap; }
-    .btn-query-store:hover { background-color: #e8f5e9; }
-    
-    .panel-footer { background: white; padding: 16px 20px; border-top: 1px solid #f1f5f9; box-shadow: var(--shadow-sticky); z-index: 20; padding-bottom: calc(env(safe-area-inset-bottom) + 24px); }
-    
-    .card-img-group { width: 100px; height: 100px; flex-shrink: 0; border-radius: 12px; overflow: hidden; background-color: #f9fafb; }
-    @media (min-width: 768px) { .card-img-group { width: 100%; height: auto; aspect-ratio: 1/1; } }
+    .side-panel {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        max-width: 420px;
+        background: white;
+        z-index: 200;
+        transform: translateX(100%);
+        transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        box-shadow: var(--shadow-panel);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .side-panel.open {
+        transform: translateX(0) !important;
+    }
+
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 150;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s;
+        backdrop-filter: blur(2px);
+    }
+
+    .overlay.open {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .input-ui {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 15px;
+        outline: none;
+        transition: all 0.2s ease;
+        background-color: #f8fafc;
+        color: #334155;
+    }
+
+    .input-ui:focus {
+        border-color: #6ea44c;
+        background-color: white;
+        ring: 1px solid #6ea44c;
+    }
+
+    .input-ui::placeholder {
+        color: #94a3b8;
+    }
+
+    .logistics-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        transition: all 0.2s ease;
+        background: white;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .logistics-card.active {
+        border-color: #6ea44c;
+        background-color: #fcfdfc;
+        box-shadow: 0 0 0 1px #6ea44c inset;
+    }
+
+    .logistics-card:active {
+        transform: scale(0.99);
+    }
+
+    .btn-query-store {
+        background-color: white;
+        color: #6ea44c;
+        border: 1px solid #6ea44c;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 13px;
+        transition: background 0.2s;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .btn-query-store:hover {
+        background-color: #e8f5e9;
+    }
+
+    .panel-footer {
+        background: white;
+        padding: 16px 20px;
+        border-top: 1px solid #f1f5f9;
+        box-shadow: var(--shadow-sticky);
+        z-index: 20;
+        padding-bottom: calc(env(safe-area-inset-bottom) + 24px);
+    }
+
+    .card-img-group {
+        width: 100px;
+        height: 100px;
+        flex-shrink: 0;
+        border-radius: 12px;
+        overflow: hidden;
+        background-color: #f9fafb;
+    }
+
+    @media (min-width: 768px) {
+        .card-img-group {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1/1;
+        }
+    }
 </style>
 
 <div class="shop-wrapper text-gray-800">
 
     <div id="overlay" class="overlay" onclick="closeAllPanels()"></div>
 
-<div class="relative bg-white border-b border-gray-100 shadow-sm mb-6">
-  <div class="container mx-auto px-4 max-w-5xl py-4 flex justify-between items-center">
-    
-    <!-- 左側區塊：商店名稱 + 促銷文案 -->
-    <div class="flex flex-col">
-      <h1 class="text-xl font-bold tracking-tight text-brand flex items-center gap-2">
-        <span class="font-brand-text text-2xl">抹茶代購網路商店</span>
-      </h1>
-      
-      <!-- 促銷文案段落 -->
-      <h2 class="text-sm font-semibold text-gray-800 flex items-center gap-2 mt-1">
-        同品牌任選兩件，享優惠價
-      </h2>
+    <div class="relative bg-white border-b border-gray-100 shadow-sm mb-6">
+        <div class="container mx-auto px-4 max-w-5xl py-4 flex justify-between items-center">
+
+            <!-- 左側區塊：商店名稱 + 促銷文案 -->
+            <div class="flex flex-col">
+                <h1 class="text-xl font-bold tracking-tight text-brand flex items-center gap-2">
+                    <span class="font-brand-text text-2xl">抹茶代購網路商店</span>
+                </h1>
+
+                <!-- 促銷文案段落 -->
+                <h2 class="text-sm font-semibold text-gray-800 flex items-center gap-2 mt-1">
+                    同品牌任選兩件，享優惠價
+                </h2>
+            </div>
+
+            <!-- 右側購物清單按鈕 -->
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="openCart()"
+                    class="flex items-center gap-2 px-3 py-2 text-brand hover:bg-brandLight rounded-full transition cursor-pointer relative">
+
+                    <!-- 購物袋 ICON -->
+                    <span class="material-symbols-rounded text-2xl pointer-events-none">shopping_bag</span>
+
+                    <!-- 文字：手機隱藏，桌面顯示 -->
+                    <span class="font-medium hidden sm:inline">購物清單</span>
+
+                    <!-- 數量徽章 -->
+                    <span id="header-cart-badge"
+                        class="absolute -top-1 -right-1 bg-brand text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full hidden pointer-events-none">
+                        0
+                    </span>
+                </button>
+            </div>
+
+        </div>
     </div>
-    
-    <!-- 右側購物清單按鈕 -->
-    <div class="flex items-center gap-2">
-      <button type="button" onclick="openCart()" 
-              class="flex items-center gap-2 px-3 py-2 text-brand hover:bg-brandLight rounded-full transition cursor-pointer relative">
-        
-        <!-- 購物袋 ICON -->
-        <span class="material-symbols-rounded text-2xl pointer-events-none">shopping_bag</span>
-        
-        <!-- 文字：手機隱藏，桌面顯示 -->
-        <span class="font-medium hidden sm:inline">購物清單</span>
-        
-        <!-- 數量徽章 -->
-        <span id="header-cart-badge" 
-              class="absolute -top-1 -right-1 bg-brand text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full hidden pointer-events-none">
-          0
-        </span>
-      </button>
-    </div>
-    
-  </div>
-</div>
 
     <section class="py-4 bg-white">
         <div class="container mx-auto px-4 max-w-5xl">
@@ -131,7 +299,8 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                     <span class="material-symbols-rounded text-brand">list_alt</span>
                     購物清單
                 </div>
-                <button onclick="closeAllPanels()" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition cursor-pointer">
+                <button onclick="closeAllPanels()"
+                    class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition cursor-pointer">
                     <span class="material-symbols-rounded text-2xl pointer-events-none">close</span>
                 </button>
             </div>
@@ -140,11 +309,15 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                 <div class="space-y-4">
                     <div class="flex justify-between items-center px-1">
                         <span class="text-gray-500 font-medium text-sm">商品小計</span>
-                        <span class="text-xl font-bold text-brand font-mono">NT$ <span id="cart-subtotal">0</span></span>
+                        <span class="text-xl font-bold text-brand font-mono">NT$ <span
+                                id="cart-subtotal">0</span></span>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
-                        <button onclick="closeAllPanels()" class="col-span-1 bg-white text-gray-500 border border-gray-200 font-bold py-3.5 rounded-xl hover:bg-gray-50 transition flex justify-center items-center gap-2">繼續選購</button>
-                        <button onclick="openCheckout()" class="col-span-1 bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand/20 hover:bg-brandDark active:scale-[0.98] transition flex justify-center items-center gap-2">前往結帳 <span class="material-symbols-rounded text-sm">arrow_forward</span></button>
+                        <button onclick="closeAllPanels()"
+                            class="col-span-1 bg-white text-gray-500 border border-gray-200 font-bold py-3.5 rounded-xl hover:bg-gray-50 transition flex justify-center items-center gap-2">繼續選購</button>
+                        <button onclick="openCheckout()"
+                            class="col-span-1 bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand/20 hover:bg-brandDark active:scale-[0.98] transition flex justify-center items-center gap-2">前往結帳
+                            <span class="material-symbols-rounded text-sm">arrow_forward</span></button>
                     </div>
                 </div>
             </div>
@@ -157,90 +330,75 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                 <h3 class="font-bold flex items-center gap-2 text-lg text-gray-800">
                     <span class="material-symbols-rounded text-brand">shopping_cart_checkout</span> 結帳確認
                 </h3>
-                <button onclick="closeAllPanels()" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition"><span class="material-symbols-rounded">close</span></button>
+                <button onclick="closeAllPanels()"
+                    class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition"><span
+                        class="material-symbols-rounded">close</span></button>
             </div>
 
-            <form id="order-form" onsubmit="return false;" class="flex-1 overflow-y-auto bg-white pb-40"> 
+            <form id="order-form" onsubmit="return false;" class="flex-1 overflow-y-auto bg-white pb-40">
                 <div class="p-5 space-y-8">
-                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-4">
-                        <div class="bg-white rounded-xl border border-brandBg overflow-hidden">
-                            <ul id="checkout-readonly-list" class="divide-y divide-brandBg bg-[rgba(110,164,76,0.05)]"></ul>
-                        </div>
+                    <div>
+                        <ul id="checkout-readonly-list" class="space-y-3">
+                        </ul>
                     </div>
 
                     <section class="border-b border-gray-100 pb-6">
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2"><span class="w-1 h-4 bg-brand rounded-full"></span> 訂購人資訊</h4>
+                        <h4
+                            class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-brand rounded-full"></span> 訂購人資訊
+                        </h4>
                         <div class="mb-4">
-                            <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">手機號碼 <span class="text-brand">*</span> (輸入後按箭頭帶入資料)</label>
+                            <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">手機號碼 <span
+                                    class="text-brand">*</span> (輸入後按箭頭帶入資料)</label>
                             <div class="flex gap-2 relative">
-                                <input type="tel" id="input-phone" class="input-ui font-bold text-lg tracking-wider" placeholder="09xxxxxxxx" maxlength="10" inputmode="tel">
-                                <button type="button" onclick="lookupPhoneData(this)" class="bg-brand text-white w-14 rounded-xl flex items-center justify-center hover:bg-brandDark transition disabled:opacity-50 shrink-0 shadow-sm shadow-brand/20"><span class="material-symbols-rounded">arrow_forward</span></button>
+                                <input type="tel" id="input-phone" class="input-ui font-bold text-lg tracking-wider"
+                                    placeholder="09xxxxxxxx" maxlength="10" inputmode="tel">
+                                <button type="button" onclick="lookupPhoneData(this)"
+                                    class="bg-brand text-white w-14 rounded-xl flex items-center justify-center hover:bg-brandDark transition disabled:opacity-50 shrink-0 shadow-sm shadow-brand/20"><span
+                                        class="material-symbols-rounded">arrow_forward</span></button>
                             </div>
-                            <p id="phone-msg" class="text-xs mt-2 pl-1 h-4 font-medium transition-colors duration-300"></p>
+                            <p id="phone-msg" class="text-xs mt-2 pl-1 h-4 font-medium transition-colors duration-300">
+                            </p>
                         </div>
                         <div id="member-fields" class="space-y-4 transition-all duration-300">
-                            <div><label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">收件人全名 <span class="text-brand">*</span></label><input type="text" id="input-name" required class="input-ui" placeholder="請輸入真實姓名"></div>
-                            <div><label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">電子信箱 <span class="text-brand">*</span></label><input type="email" id="input-email" required class="input-ui" placeholder="接收訂單通知"></div>
-                            <div><label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">LINE 顯示名稱</label><input type="text" id="input-line" class="input-ui" placeholder="方便聯絡 (選填)"></div>
+                            <div><label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">收件人全名 <span
+                                        class="text-brand">*</span></label><input type="text" id="input-name" required
+                                    class="input-ui" placeholder="請輸入真實姓名"></div>
+                            <div><label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">電子信箱 <span
+                                        class="text-brand">*</span></label><input type="email" id="input-email" required
+                                    class="input-ui" placeholder="接收訂單通知"></div>
+                            <div><label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">LINE
+                                    顯示名稱</label><input type="text" id="input-line" class="input-ui"
+                                    placeholder="方便聯絡 (選填)"></div>
                         </div>
                     </section>
 
                     <section>
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2"><span class="w-1 h-4 bg-brand rounded-full"></span> 配送方式</h4>
-                        <div class="space-y-3">
-                            <select id="input-logistics" class="hidden"><option value="7-11">7-11</option><option value="全家">全家</option><option value="郵寄/宅配">宅配</option></select>
-                            
-                            <div class="logistics-card cursor-pointer group" onclick="selectLogistics('7-11', this)">
-                                <div class="p-4 flex justify-between items-center">
-                                    <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-brandLight flex items-center justify-center text-brand"><span class="material-symbols-rounded">local_shipping</span></div><div class="font-bold text-gray-800 text-sm">7-11 店到店</div></div>
-                                    <span class="text-brand font-bold text-sm logistics-price" data-type="7-11">...</span>
-                                </div>
-                                <div class="logistics-detail hidden border-t border-brand/20 bg-brandLight/20 p-4 space-y-3" onclick="event.stopPropagation()">
-                                    <div class="flex gap-2">
-                                        <input type="tel" class="input-ui flex-1 text-center font-mono tracking-widest" placeholder="輸入6碼店號" maxlength="6" inputmode="numeric" id="store-id-711" oninput="syncStoreInput()">
-                                        <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="btn-query-store"><span class="material-symbols-rounded text-base">map</span> 查詢</a>
-                                    </div>
-                                    <input type="text" class="input-ui text-sm" placeholder="門市名稱 / 備註" id="store-name-711" oninput="syncStoreInput()">
-                                </div>
+                        <h4
+                            class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-brand rounded-full"></span> 配送方式
+                        </h4>
+                        <div id="logistics-container" class="space-y-3">
+                            <!-- 由 JavaScript 動態生成 -->
+                            <div class="py-10 text-center text-gray-400 text-sm">
+                                <div class="loader mb-2"></div>
+                                <p>正在載入配送方式...</p>
                             </div>
-
-                            <div class="logistics-card cursor-pointer group" onclick="selectLogistics('全家', this)">
-                                <div class="p-4 flex justify-between items-center">
-                                    <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-brandLight flex items-center justify-center text-brand"><span class="material-symbols-rounded">store</span></div><div class="font-bold text-gray-800 text-sm">全家 店到店</div></div>
-                                    <span class="text-brand font-bold text-sm logistics-price" data-type="全家">...</span>
-                                </div>
-                                <div class="logistics-detail hidden border-t border-brand/20 bg-brandLight/20 p-4 space-y-3" onclick="event.stopPropagation()">
-                                    <div class="flex gap-2">
-                                        <input type="tel" class="input-ui flex-1 text-center font-mono tracking-widest" placeholder="輸入6碼店號" maxlength="6" inputmode="numeric" id="store-id-fami" oninput="syncStoreInput()">
-                                        <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="btn-query-store"><span class="material-symbols-rounded text-base">map</span> 查詢</a>
-                                    </div>
-                                    <input type="text" class="input-ui text-sm" placeholder="門市名稱 / 備註" id="store-name-fami" oninput="syncStoreInput()">
-                                </div>
-                            </div>
-
-                            <div class="logistics-card cursor-pointer group" onclick="selectLogistics('郵寄/宅配', this)">
-                                <div class="p-4 flex justify-between items-center">
-                                    <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-brandLight flex items-center justify-center text-brand"><span class="material-symbols-rounded">local_shipping</span></div><div class="font-bold text-gray-800 text-sm">宅配到府</div></div>
-                                    <span class="text-brand font-bold text-sm logistics-price" data-type="宅配">...</span>
-                                </div>
-                                <div class="logistics-detail hidden border-t border-brand/20 bg-brandLight/20 p-4" onclick="event.stopPropagation()">
-                                    <textarea id="store-addr" class="input-ui text-sm min-h-[80px]" placeholder="請輸入完整收件地址 (含郵遞區號)" oninput="syncStoreInput()"></textarea>
-                                </div>
-                            </div>
-                            
-                            <input type="hidden" name="store" id="input-store">
-                            <input type="hidden" name="store_note" id="input-store-note">
                         </div>
+
+                        <input type="hidden" name="store" id="input-store">
+                        <input type="hidden" name="store_note" id="input-store-note">
                     </section>
 
                     <section class="space-y-4">
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2"><span class="w-1 h-4 bg-brand rounded-full"></span> 其他</h4>
+                        <h4
+                            class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-brand rounded-full"></span> 其他
+                        </h4>
                         <textarea id="input-note" class="input-ui min-h-[80px]" placeholder="訂單備註 (選填)..."></textarea>
-                        <label class="flex items-center gap-3 p-4 bg-gray-50 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-100 transition">
-                            <div class="relative flex items-center">
-                                <input type="checkbox" id="join-member" class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-gray-300 checked:bg-brand checked:border-brand transition-all" checked>
-                                <span class="material-symbols-rounded absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none text-base left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">check</span>
-                            </div>
+                        <label
+                            class="flex items-center gap-3 p-4 bg-gray-50 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-100 transition">
+                            <input type="checkbox" id="join-member" checked>
                             <span class="text-sm text-gray-600 font-medium">更新並儲存會員資料 (下次自動帶入)</span>
                         </label>
                     </section>
@@ -253,10 +411,12 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                         <div class="text-xs text-gray-400 font-medium" id="footer-logistics-name">尚未選擇物流</div>
                         <div class="text-right flex items-baseline gap-2">
                             <span class="text-xs text-gray-400">總金額</span>
-                            <span class="text-2xl font-bold text-brand font-mono">NT$ <span id="modal-total">0</span></span>
+                            <span class="text-2xl font-bold text-brand font-mono">NT$ <span
+                                    id="modal-total">0</span></span>
                         </div>
                     </div>
-                    <button onclick="submitOrder(this)" class="w-full bg-brand text-white font-bold py-4 rounded-xl text-lg shadow-lg shadow-brand/20 hover:bg-brandDark active:scale-[0.98] transition flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                    <button onclick="submitOrder(this)"
+                        class="w-full bg-brand text-white font-bold py-4 rounded-xl text-lg shadow-lg shadow-brand/20 hover:bg-brandDark active:scale-[0.98] transition flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
                         <span class="material-symbols-rounded">verified</span> 確認送出訂單
                     </button>
                 </div>
@@ -266,43 +426,116 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
 
 </div>
 
-<script src="js/api.js"></script>
+
 <script>
-    const BASE_REPO_URL = "assets/images/"; 
+    const BASE_REPO_URL = "assets/images/";
 
     let allProducts = [];
     let cart = [];
+    try {
+        const _sc = localStorage.getItem('keicha_cart');
+        if (_sc) cart = JSON.parse(_sc) || [];
+    } catch (e) { }
+    let brandList = []; // [修正] 全域定義，供 renderProductCards 使用
     let shippingFee = 0;
     let shippingRules = [];
     let selectedLogisticsType = '';
     let tempQtyMap = {};
     let cachedMemberData = null;
 
-    // --- 核心運費計算 (修正版：僅使用 category='抹茶' + 嚴格階梯計算) ---
+    // --- LocalStorage 持久化 ---
+    function saveCheckoutForm() {
+        if (cart.length === 0) return;
+        const formData = {
+            phone: document.getElementById('input-phone').value,
+            name: document.getElementById('input-name').value,
+            email: document.getElementById('input-email').value,
+            line: document.getElementById('input-line').value,
+            note: document.getElementById('input-note').value,
+            logisticsType: selectedLogisticsType,
+            store: document.getElementById('input-store').value,
+            storeNote: document.getElementById('input-store-note').value,
+            logistics: {}
+        };
+        // Dynamically save all logistics inputs
+        document.querySelectorAll('.logistics-card').forEach(card => {
+            const method = card.dataset.method;
+            const entry = {};
+            const storeId = document.getElementById(`store-id-${method}`);
+            const storeName = document.getElementById(`store-name-${method}`);
+            const storeAddr = document.getElementById(`store-addr-${method}`);
+            const storeNote = document.getElementById(`store-note-${method}`);
+            if (storeId) entry.storeId = storeId.value;
+            if (storeName) entry.storeName = storeName.value;
+            if (storeAddr) entry.storeAddr = storeAddr.value;
+            if (storeNote) entry.storeNote = storeNote.value;
+            formData.logistics[method] = entry;
+        });
+        localStorage.setItem('keicha_checkout_form', JSON.stringify(formData));
+    }
+
+    function loadCheckoutForm() {
+        try {
+            const saved = JSON.parse(localStorage.getItem('keicha_checkout_form'));
+            if (!saved) return;
+
+            if (saved.phone) document.getElementById('input-phone').value = saved.phone;
+            if (saved.name) document.getElementById('input-name').value = saved.name;
+            if (saved.email) document.getElementById('input-email').value = saved.email;
+            if (saved.line) document.getElementById('input-line').value = saved.line;
+            if (saved.note) document.getElementById('input-note').value = saved.note;
+
+            // Restore dynamic logistics inputs
+            if (saved.logistics) {
+                Object.entries(saved.logistics).forEach(([method, entry]) => {
+                    if (entry.storeId) { const el = document.getElementById(`store-id-${method}`); if (el) el.value = entry.storeId; }
+                    if (entry.storeName) { const el = document.getElementById(`store-name-${method}`); if (el) el.value = entry.storeName; }
+                    if (entry.storeAddr) { const el = document.getElementById(`store-addr-${method}`); if (el) el.value = entry.storeAddr; }
+                    if (entry.storeNote) { const el = document.getElementById(`store-note-${method}`); if (el) el.value = entry.storeNote; }
+                });
+            }
+
+            if (saved.logisticsType) {
+                const target = document.querySelector(`.logistics-card[data-method="${saved.logisticsType}"]`);
+                if (target) selectLogistics(saved.logisticsType, target);
+            }
+        } catch (e) { }
+    }
+
+    // --- 核心運費計算 (修正：加入分類過濾與模糊關鍵字匹配)
     function calcShip(selectedLogistics, subtotal) {
-        // 1. 資料來源檢查
         if (!shippingRules || shippingRules.length === 0) return 0;
-        
-        // 2. 規則選擇：category 為 '抹茶' 且 selectedLogistics 包含 rule.method
-        const rule = shippingRules.find(r => 
-            r.category === '抹茶' && 
-            selectedLogistics.includes(r.method)
-        );
 
-        // 若無對應規則，依要求不使用 fallback，直接回傳 0
-        if (!rule) return 0;
+        // 1. 先過濾出屬於本頁面的規則 (maccha-store.html)
+        const myRules = shippingRules.filter(r => {
+            if (!r.category) return false;
+            if (Array.isArray(r.category)) return r.category.includes('maccha-store.html');
+            return r.category === 'maccha-store.html' || r.category.includes('maccha');
+        });
 
-        // 3. 運費計算流程 (Base -> T3 -> T2 -> T1)
-        let fee = Number(rule.base);
-        
-        if (rule.t3 && subtotal >= Number(rule.t3)) {
-            fee = Number(rule.f3);
-        } else if (rule.t2 && subtotal >= Number(rule.t2)) {
-            fee = Number(rule.f2);
-        } else if (rule.t1 && subtotal >= Number(rule.t1)) {
-            fee = Number(rule.f1);
+        // 2. 從中尋找匹配的物流方式
+        const rule = myRules.find(r => {
+            if (!r.method) return false;
+            const m = r.method; // 資料庫中的名稱 (如: 宅配到府)
+            const s = selectedLogistics; // 傳入的名稱 (如: 郵寄/宅配)
+
+            // 只要兩者之間有核心關鍵字重疊即可 (7-11, 全家, 宅配)
+            if (s.includes('7-11') && m.includes('7-11')) return true;
+            if (s.includes('全家') && m.includes('全家')) return true;
+            if (s.includes('宅配') && m.includes('宅配')) return true;
+
+            return m.includes(s) || s.includes(m);
+        });
+
+        if (!rule) {
+            console.warn(`[Shipping] No rule found for ${selectedLogistics} in category maccha-store.html`);
+            return 0;
         }
-        
+
+        let fee = Number(rule.base) || 0;
+        if (rule.t3 && subtotal >= Number(rule.t3)) fee = Number(rule.f3) || 0;
+        else if (rule.t2 && subtotal >= Number(rule.t2)) fee = Number(rule.f2) || 0;
+        else if (rule.t1 && subtotal >= Number(rule.t1)) fee = Number(rule.f1) || 0;
         return fee;
     }
 
@@ -310,7 +543,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
     function openPanel(id) {
         const el = document.getElementById(id);
         const overlay = document.getElementById('overlay');
-        if(el && overlay) {
+        if (el && overlay) {
             overlay.classList.add('open');
             el.classList.add('open');
         }
@@ -327,18 +560,22 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
     }
 
     function openCheckout() {
-        if (cart.length === 0) { alert('請先加入商品'); return; }
-        
-        document.querySelectorAll('.logistics-card').forEach(c => {
-            c.classList.remove('active');
-            c.querySelector('.logistics-detail').classList.add('hidden');
-        });
-        document.getElementById('input-store').value = '';
-        document.getElementById('input-store-note').value = '';
-        document.getElementById('footer-logistics-name').innerText = '尚未選擇物流';
-        selectedLogisticsType = '';
+        if (cart.length === 0) { KUI.alert('請先加入商品'); return; }
 
-        // Update shipping fee display logic
+        loadCheckoutForm();
+
+        if (!selectedLogisticsType) {
+            document.querySelectorAll('.logistics-card').forEach(c => {
+                c.classList.remove('active');
+                c.querySelector('.logistics-detail').classList.add('hidden');
+            });
+            document.getElementById('input-store').value = '';
+            document.getElementById('input-store-note').value = '';
+            document.getElementById('footer-logistics-name').innerText = '尚未選擇物流';
+        }
+
+        // Update shipping fee & render dynamic cards
+        renderLogistics();
         updateShippingFee();
 
         if (cachedMemberData) {
@@ -350,28 +587,108 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
         openPanel('checkout-panel');
     }
 
+    // --- UI 更新：動態生成物流卡片 ---
+    function renderLogistics() {
+        const container = document.getElementById('logistics-container');
+        if (!container) return;
+
+        // 1. 過濾出屬於本頁面的規則
+        const myRules = shippingRules.filter(r => {
+            if (!r.category) return false;
+            if (Array.isArray(r.category)) return r.category.includes('maccha-store.html');
+            return r.category === 'maccha-store.html' || r.category.includes('maccha');
+        });
+
+        if (myRules.length === 0) {
+            container.innerHTML = `<div class="p-4 text-center text-gray-400 text-sm">暫無適用的配送方式</div>`;
+            return;
+        }
+
+        const subtotal = calculateSubtotal();
+        let html = '';
+
+        myRules.forEach(rule => {
+            const method = rule.method || '未命名物流';
+            const fee = calcShip(method, subtotal);
+            const is711 = method.includes('7-11');
+            const isFami = method.includes('全家');
+            const isHome = method.includes('宅配') || method.includes('郵寄');
+
+            let icon = 'local_shipping';
+            if (is711 || isFami) icon = 'store';
+
+            let detailHtml = '';
+            if (is711 || isFami) {
+                const queryLink = is711 ? 'https://www.ibon.com.tw/mobile/retail_inquiry.aspx' : 'https://www.family.com.tw/marketing/inquiry.aspx';
+                detailHtml = `
+                    <div class="flex gap-2">
+                        <input type="tel" class="input-ui flex-1 text-center font-mono tracking-widest"
+                            placeholder="輸入6碼店號" maxlength="6" inputmode="numeric" id="store-id-${method}"
+                            oninput="syncStoreInput()">
+                        <a href="${queryLink}" target="_blank" class="btn-query-store">
+                            <span class="material-symbols-rounded text-base">map</span> 查詢
+                        </a>
+                    </div>
+                    <input type="text" class="input-ui text-sm" placeholder="門市名稱 / 備註"
+                        id="store-name-${method}" oninput="syncStoreInput()">
+                `;
+            } else if (isHome) {
+                detailHtml = `
+                    <textarea id="store-addr-${method}" class="input-ui text-sm min-h-[80px]"
+                        placeholder="請輸入完整收件地址 (含郵遞區號)" oninput="syncStoreInput()"></textarea>
+                `;
+            } else {
+                detailHtml = `
+                    <input type="text" class="input-ui text-sm" placeholder="備註資訊"
+                        id="store-note-${method}" oninput="syncStoreInput()">
+                `;
+            }
+
+            html += `
+                <div class="logistics-card cursor-pointer group" data-method="${method}" onclick="selectLogistics('${method}', this)">
+                    <div class="p-4 flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-brandLight flex items-center justify-center text-brand">
+                                <span class="material-symbols-rounded">${icon}</span>
+                            </div>
+                            <div class="font-bold text-gray-800 text-sm">${method}</div>
+                        </div>
+                        <span class="text-brand font-bold text-sm logistics-price">運費 $${fee}</span>
+                    </div>
+                    <div class="logistics-detail hidden border-t border-brand/20 bg-brandLight/20 p-4 space-y-3"
+                        onclick="event.stopPropagation()">
+                        ${detailHtml}
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+
+        // 恢復之前的選擇狀態 (如有)
+        if (selectedLogisticsType) {
+            const target = container.querySelector(`.logistics-card[data-method="${selectedLogisticsType}"]`);
+            if (target) selectLogistics(selectedLogisticsType, target);
+        }
+    }
+
     // --- UI 更新：更新卡片上的價格 & 底部總結 ---
     function updateShippingFee() {
         const subtotal = calculateSubtotal();
-        
-        // 1. 遍歷所有物流卡片，依據目前小計更新「預覽運費」
-        // 注意：這裡傳入的 type (如 '7-11', '郵寄/宅配') 會被 calcShip 用來對應規則
-        ['7-11', '全家', '郵寄/宅配'].forEach(type => {
-            const fee = calcShip(type, subtotal);
-            // 這裡的 data-type 對應 HTML 上的設定 ('7-11', '全家', '宅配')
-            // 由於 '郵寄/宅配' 在 HTML data-type 是 '宅配'，需做對應
-            let uiType = type;
-            if(type === '郵寄/宅配') uiType = '宅配';
+        const container = document.getElementById('logistics-container');
+        if (!container) return;
 
-            const el = document.querySelector(`.logistics-price[data-type="${uiType}"]`);
-            if (el) {
-                el.innerText = `運費 $${fee}`;
-            }
+        // 更新所有動態生成的卡片價格
+        container.querySelectorAll('.logistics-card').forEach(card => {
+            const method = card.dataset.method;
+            const fee = calcShip(method, subtotal);
+            const priceEl = card.querySelector('.logistics-price');
+            if (priceEl) priceEl.innerText = `運費 $${fee}`;
         });
 
-        // 2. 處理「已選擇」的物流狀態 (底部欄位)
+        // 處理「已選擇」的物流狀態 (底部欄位)
         const uiMethod = selectedLogisticsType;
-        
+
         if (uiMethod) {
             const finalFee = calcShip(uiMethod, subtotal);
             shippingFee = finalFee;
@@ -386,36 +703,37 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
     }
 
     // --- Cart Logic ---
-    function addToCart(productId, name, price, priceMulti, stock, maxLimit) {
+    function addToCart(productId, name, price, priceMulti, stock, maxLimit, brandName) {
         const productData = allProducts.find(p => p.key === productId) || {};
-        const brandKey = productData.brand_key || 'default';
+        const brandKey = productData.brand_id || 'default';
         const spec = productData.spec || '';
 
         const qtyToAdd = tempQtyMap[productId] || 1;
         const existingItem = cart.find(item => item.productId === productId);
-        
-        let currentCartQty = existingItem ? existingItem.qty : 0;
-        if (currentCartQty + qtyToAdd > stock) { alert("抱歉，庫存不足！"); return; }
-        if (maxLimit && currentCartQty + qtyToAdd > maxLimit) { alert(`此商品每人限購 ${maxLimit} 件`); return; }
 
-        if (existingItem) { 
-            existingItem.qty += qtyToAdd; 
-        } else { 
-            cart.push({ 
-                productId: productId, 
-                brand_key: brandKey, 
-                name: name, 
+        let currentCartQty = existingItem ? existingItem.qty : 0;
+        if (currentCartQty + qtyToAdd > stock) { KUI.alert("抱歉，庫存不足！"); return; }
+        if (maxLimit && currentCartQty + qtyToAdd > maxLimit) { KUI.alert(`${name} 每筆訂單限購 ${maxLimit} 件`); return; }
+
+        if (existingItem) {
+            existingItem.qty += qtyToAdd;
+        } else {
+            cart.push({
+                productId: productId,
+                brand_key: brandKey,
+                name: name,
+                brandName: brandName,
                 spec: spec,
-                price: price, 
-                price_multi: priceMulti, 
-                qty: qtyToAdd, 
+                price: price,
+                price_multi: priceMulti,
+                qty: qtyToAdd,
                 stock: stock,
                 img: productData.img
-            }); 
+            });
         }
         tempQtyMap[productId] = 1;
         const qtyDisplay = document.getElementById(`iq-${productId}`);
-        if(qtyDisplay) qtyDisplay.innerText = 1;
+        if (qtyDisplay) qtyDisplay.innerText = 1;
         if (navigator.vibrate) navigator.vibrate(50);
         renderCartItems();
         openCart();
@@ -435,18 +753,22 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
         let subtotal = 0;
         cart.forEach(item => {
             let k = item.brand_key || 'default';
-            let useDiscount = brandCounts[k] > 1;
-            let finalPrice = useDiscount ? item.price_multi : item.price;
+            // Also need to adjust calculateSubtotal to only count discount if it is valid. 
+            // the previous loop applies it individually but it's simpler to just let it fallback correctly.
+            // But if it isn't lower, we shouldn't use it anyway.
+            let itemHasDiscount = brandCounts[k] > 1 && item.price_multi && item.price_multi < item.price;
+            let finalPrice = itemHasDiscount ? item.price_multi : item.price;
             subtotal += finalPrice * item.qty;
         });
         return subtotal;
     }
 
     function renderCartItems() {
+        localStorage.setItem('keicha_cart', JSON.stringify(cart));
         const container = document.getElementById('cart-items-wrapper');
         const subtotalEl = document.getElementById('cart-subtotal');
         container.innerHTML = '';
-        
+
         if (cart.length === 0) {
             container.innerHTML = `<div class="flex flex-col items-center justify-center h-64 text-gray-300 gap-3"><span class="material-symbols-rounded text-5xl">shopping_basket</span><p class="text-sm font-medium">購物車是空的</p></div>`;
             subtotalEl.innerText = '0';
@@ -458,19 +780,26 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
         const groupedCart = {};
         cart.forEach(item => {
             let k = item.brand_key || 'default';
-            if(!groupedCart[k]) groupedCart[k] = [];
+            if (!groupedCart[k]) groupedCart[k] = [];
             groupedCart[k].push(item);
         });
 
         for (const [brandKey, items] of Object.entries(groupedCart)) {
-            const isDiscountActive = brandCounts[brandKey] > 1;
-            if(isDiscountActive) {
-                container.innerHTML += `<div class="bg-brandLight text-brandDark text-xs font-bold px-4 py-2 flex items-center gap-1"><span class="material-symbols-rounded text-sm">verified</span>已套用同品牌多件優惠</div>`;
-            }
+            // Check if brand is eligible for discount
+            const brandMeetsQtyRequirement = brandCounts[brandKey] > 1;
+            // Ensure at least one item actually has a valid multi-price to apply that is lower than regular price
+            const brandHasValidDiscount = items.some(item => item.price_multi && item.price_multi < item.price);
+
+            const isDiscountActive = brandMeetsQtyRequirement && brandHasValidDiscount;
+
+            // Remove full width banner to place small badge inline next to price instead
+
             items.forEach((item) => {
                 const mainIndex = cart.indexOf(item);
-                const unitPrice = isDiscountActive ? item.price_multi : item.price;
-                const isMultiPriceApplied = isDiscountActive && (item.price !== item.price_multi);
+                // The item MUST have a valid multi-price to apply it
+                const itemHasDiscount = isDiscountActive && item.price_multi && item.price_multi < item.price;
+                const unitPrice = itemHasDiscount ? item.price_multi : item.price;
+                const isMultiPriceApplied = itemHasDiscount;
                 let imgHtml = '';
                 if (item.img) {
                     const src = item.img.startsWith('http') ? item.img : BASE_REPO_URL + item.img;
@@ -483,9 +812,12 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                             <div class="pr-6">
                                 <div class="font-bold text-gray-800 text-sm leading-tight line-clamp-2">${item.name}</div>
                                 ${item.spec ? `<div class="text-[10px] text-gray-400 mt-0.5">${item.spec}</div>` : ''}
-                                <div class="text-xs text-gray-400 mt-1 font-mono">
-                                    ${isMultiPriceApplied ? `<span class="line-through text-gray-300 mr-1">$${item.price}</span>` : ''}
-                                    <span class="${isMultiPriceApplied ? 'text-brand font-bold' : ''}">$${unitPrice}</span>
+                                <div class="text-xs mt-1.5 flex items-center gap-1.5 flex-wrap">
+                                    ${isMultiPriceApplied ? `
+                                        <span class="line-through text-gray-300 font-mono">$${item.price}</span>
+                                        <div class="bg-brandLight text-brandDark text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 whitespace-nowrap relative top-[-1px]"><span class="material-symbols-rounded" style="font-size: 11px;">verified</span>多件優惠</div>
+                                    ` : ''}
+                                    <span class="${isMultiPriceApplied ? 'text-brand font-bold' : 'text-gray-400'} font-mono leading-none">$${unitPrice}</span>
                                 </div>
                             </div>
                             <div class="flex justify-between items-end mt-2">
@@ -512,40 +844,56 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
         if (!cart[index]) return;
         const item = cart[index];
         const newQty = item.qty + delta;
-        if (delta > 0 && item.stock && newQty > item.stock) { alert('庫存不足'); return; }
-        if (newQty < 1) return;
+        if (delta > 0 && item.stock && newQty > item.stock) { KUI.alert('庫存不足'); return; }
+        if (newQty < 1) {
+            removeFromCart(index);
+            return;
+        }
         item.qty = newQty;
         renderCartItems();
-        if (document.getElementById('checkout-panel').classList.contains('open')) { 
-            updateCheckoutReadonlyList(); 
-            updateShippingFee(); 
+        if (document.getElementById('checkout-panel').classList.contains('open')) {
+            updateCheckoutReadonlyList();
+            updateShippingFee();
         }
     }
 
-    function removeFromCart(index) {
-        if (!confirm('確定要移除此商品嗎？')) return;
+    async function removeFromCart(index) {
+        if (!(await KUI.confirm('確定要移除此商品嗎？'))) return;
         cart.splice(index, 1);
         renderCartItems();
-        if (document.getElementById('checkout-panel').classList.contains('open')) { 
+        if (document.getElementById('checkout-panel').classList.contains('open')) {
             updateCheckoutReadonlyList();
-            updateShippingFee(); 
+            updateShippingFee();
         }
     }
 
     function updateCheckoutReadonlyList() {
-         const listEl = document.getElementById('checkout-readonly-list');
-         listEl.innerHTML = '';
-         cart.forEach(item => {
-             listEl.innerHTML += `
-                <li class="px-4 py-3 text-sm text-brandDark font-medium flex items-start gap-2">
-                    <span class="material-symbols-rounded text-brand text-base mt-0.5">check_circle</span>
-                    <span>
-                        ${item.brand_key}｜${item.name} 
-                        ${item.spec ? `<span class="text-xs bg-brandLight px-1 rounded ml-1">${item.spec}</span>` : ''}
-                        <span class="text-xs text-gray-500 ml-1">x${item.qty}</span>
-                    </span>
+        const listEl = document.getElementById('checkout-readonly-list');
+        listEl.innerHTML = '';
+        const brandCounts = getBrandCounts();
+
+        cart.forEach((item, idx) => {
+            let k = item.brand_key || 'default';
+            let itemHasDiscount = brandCounts[k] > 1 && item.price_multi && item.price_multi < item.price;
+            let unitPrice = itemHasDiscount ? item.price_multi : item.price;
+
+            listEl.innerHTML += `
+                <li class="p-4 flex items-start gap-3 bg-white shadow-sm border border-gray-100 rounded-xl mb-3 last:mb-0 transition hover:shadow-md">
+                    <div class="flex-1 min-w-0 pr-2">
+                        <div class="font-bold text-gray-800 text-sm leading-tight mb-1 flex flex-wrap items-center gap-1.5">
+                            ${item.brandName || 'KEICHA'}｜${item.name}
+                            ${item.spec ? `<span class="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-[10px] whitespace-nowrap border border-gray-200">${item.spec}</span>` : ''}
+                        </div>
+                        <div class="flex items-center gap-2 mt-1.5">
+                            <span class="text-xs font-mono text-gray-500">$${unitPrice} × ${item.qty}</span>
+                            ${itemHasDiscount ? `<div class="bg-brandLight text-brandDark text-[9px] font-bold px-1 rounded flex items-center gap-0.5 whitespace-nowrap"><span class="material-symbols-rounded block" style="font-size: 10px;">verified</span>多件優惠</div>` : ''}
+                        </div>
+                    </div>
+                    <div class="text-right shrink-0">
+                        <div class="font-bold text-gray-800 text-[15px] font-mono">$${unitPrice * item.qty}</div>
+                    </div>
                 </li>`;
-         });
+        });
     }
 
     // --- Checkout & Validation Logic ---
@@ -557,81 +905,126 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
 
         if (!regex.test(phone)) {
             msg.innerText = "格式錯誤，請輸入 09 開頭的 10 碼手機號碼";
-            msg.className = "text-xs mt-2 pl-1 h-4 font-medium text-red-500";
+            msg.className = "text-xs mt-2 pl-1 h-4 font-medium text-slate-500";
             input.focus();
             return;
         }
-        
+
         msg.innerText = "查詢中...";
         msg.className = "text-xs mt-2 pl-1 h-4 font-medium text-gray-400";
         btn.disabled = true;
 
-        API.login(phone)
-        .then(data => {
-            const info = (data.success && data.data) ? data.data : null;
-            if(info && info.name) {
-                msg.innerText = `歡迎回來，${info.name}`;
-                msg.className = "text-xs mt-2 pl-1 h-4 font-bold text-brand";
-                
-                document.getElementById('input-name').value = info.name || '';
-                document.getElementById('input-email').value = info.email || '';
-                document.getElementById('input-line').value = info.line_name || '';
-                
-                cachedMemberData = info;
-                autoFillLogistics(info);
-            } else {
-                msg.innerText = "新朋友您好，請填寫下方程式資料";
-                msg.className = "text-xs mt-2 pl-1 h-4 font-medium text-gray-500";
-                cachedMemberData = null;
-            }
-        })
-        .catch(() => { msg.innerText = "連線失敗，請稍後再試"; })
-        .finally(() => { btn.disabled = false; });
+        db.collection('members').where('phone', '==', phone).limit(1).get()
+            .then(snapshot => {
+                if (!snapshot.empty) {
+                    const info = snapshot.docs[0].data();
+                    msg.innerText = `歡迎回來，${info.name}`;
+                    msg.className = "text-xs mt-2 pl-1 h-4 font-bold text-brand";
+
+                    document.getElementById('input-name').value = info.name || '';
+                    document.getElementById('input-email').value = info.email || '';
+                    document.getElementById('input-line').value = info.line_name || '';
+
+                    cachedMemberData = info;
+                    autoFillLogistics(info);
+                } else {
+                    msg.innerText = "新朋友您好，請填寫下方資料";
+                    msg.className = "text-xs mt-2 pl-1 h-4 font-medium text-gray-500";
+                    cachedMemberData = null;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                msg.innerText = "連線失敗，請稍後再試";
+            })
+            .finally(() => { btn.disabled = false; });
     }
 
     function autoFillLogistics(info) {
-        if(!info) return;
-        if(info.store_711) document.getElementById('store-id-711').value = info.store_711;
-        if(info.store_711_note) document.getElementById('store-name-711').value = info.store_711_note;
-        
-        if(info.store_fami) document.getElementById('store-id-fami').value = info.store_fami;
-        if(info.store_fami_note) document.getElementById('store-name-fami').value = info.store_fami_note;
-        
-        if(info.shipping_address) document.getElementById('store-addr').value = info.shipping_address;
+        if (!info) return;
+        // 動態尋找匹配的輸入框並填入
+        const container = document.getElementById('logistics-container');
+        if (!container) return;
+
+        container.querySelectorAll('.logistics-card').forEach(card => {
+            const method = card.dataset.method;
+            if (method.includes('7-11') && info.store_711) {
+                const idEl = document.getElementById(`store-id-${method}`);
+                const nameEl = document.getElementById(`store-name-${method}`);
+                if (idEl) idEl.value = info.store_711;
+                if (nameEl) nameEl.value = info.store_711_note || '';
+            } else if (method.includes('全家') && info.store_fami) {
+                const idEl = document.getElementById(`store-id-${method}`);
+                const nameEl = document.getElementById(`store-name-${method}`);
+                if (idEl) idEl.value = info.store_fami;
+                if (nameEl) nameEl.value = info.store_fami_note || '';
+            } else if ((method.includes('宅配') || method.includes('郵寄')) && info.shipping_address) {
+                const addrEl = document.getElementById(`store-addr-${method}`);
+                if (addrEl) addrEl.value = info.shipping_address;
+            }
+        });
     }
 
     function selectLogistics(type, cardEl) {
+        selectedLogisticsType = type;
         document.querySelectorAll('.logistics-card').forEach(el => {
             el.classList.remove('active');
-            el.querySelector('.logistics-detail').classList.add('hidden');
+            const detail = el.querySelector('.logistics-detail');
+            if (detail) detail.classList.add('hidden');
         });
         cardEl.classList.add('active');
-        cardEl.querySelector('.logistics-detail').classList.remove('hidden');
+        const cardDetail = cardEl.querySelector('.logistics-detail');
+        if (cardDetail) cardDetail.classList.remove('hidden');
 
-        const select = document.getElementById('input-logistics');
-        select.value = type;
-        selectedLogisticsType = type;
-        
         updateShippingFee();
         syncStoreInput();
+        saveCheckoutForm();
     }
 
     function syncStoreInput() {
-        let storeId = '';
-        let storeName = '';
+        if (!selectedLogisticsType) return;
+        const method = selectedLogisticsType;
+        const is711 = method.includes('7-11');
+        const isFami = method.includes('全家');
+        const isHome = method.includes('宅配') || method.includes('郵寄');
 
-        if (selectedLogisticsType === '7-11') {
-            storeId = document.getElementById('store-id-711').value.trim();
-            storeName = document.getElementById('store-name-711').value.trim();
-        } else if (selectedLogisticsType === '全家') {
-            storeId = document.getElementById('store-id-fami').value.trim();
-            storeName = document.getElementById('store-name-fami').value.trim();
-        } else if (selectedLogisticsType && selectedLogisticsType.includes('宅配')) {
-            storeId = document.getElementById('store-addr').value.trim(); 
+        let storeVal = '';
+        let noteVal = '';
+
+        if (is711 || isFami) {
+            storeVal = document.getElementById(`store-id-${method}`)?.value || '';
+            noteVal = document.getElementById(`store-name-${method}`)?.value || '';
+        } else if (isHome) {
+            storeVal = '宅配到府';
+            noteVal = document.getElementById(`store-addr-${method}`)?.value || '';
+        } else {
+            // 自定義物流顯示備註
+            storeVal = method;
+            noteVal = document.getElementById(`store-note-${method}`)?.value || '';
         }
 
-        document.getElementById('input-store').value = storeId;
-        document.getElementById('input-store-note').value = storeName;
+        document.getElementById('input-store').value = storeVal;
+        document.getElementById('input-store-note').value = noteVal;
+    }
+    // --- 產生訂單編號 (Option 1) ---
+    async function generateOrderId(prefixChar) {
+        const now = new Date();
+        const yy = String(now.getFullYear()).slice(-2);
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const datePrefix = `${prefixChar}${yy}${mm}${dd}`;
+
+        const counterRef = db.collection('order_counters').doc(datePrefix);
+
+        return await db.runTransaction(async (transaction) => {
+            const counterDoc = await transaction.get(counterRef);
+            let nextNum = 1;
+            if (counterDoc.exists) {
+                nextNum = (counterDoc.data().count || 0) + 1;
+            }
+            transaction.set(counterRef, { count: nextNum }, { merge: true });
+            return `${datePrefix}${String(nextNum).padStart(2, '0')}`;
+        });
     }
 
     // --- 送出訂單 (含嚴格驗證) ---
@@ -642,7 +1035,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
         const email = document.getElementById('input-email').value.trim();
         const line = document.getElementById('input-line').value.trim();
         const note = document.getElementById('input-note').value.trim();
-        
+
         // 物流相關
         const type = selectedLogisticsType; // 從全域變數拿比較穩
         const store = document.getElementById('input-store').value.trim();
@@ -651,37 +1044,34 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
 
         // 2. 基礎驗證
         if (!/^09\d{8}$/.test(phone)) {
-            alert("請輸入正確的手機號碼 (09開頭共10碼)");
+            KUI.alert("請輸入正確的手機號碼 (09開頭共10碼)");
             document.getElementById('input-phone').focus();
             return;
         }
-        if (!name) { alert("請填寫收件人姓名"); document.getElementById('input-name').focus(); return; }
-        if (!email) { alert("請填寫電子信箱"); document.getElementById('input-email').focus(); return; }
-        
+        if (!name) { KUI.alert("請填寫收件人姓名"); document.getElementById('input-name').focus(); return; }
+        if (!email) { KUI.alert("請填寫電子信箱"); document.getElementById('input-email').focus(); return; }
+
         if (!type) {
-            alert("請選擇物流方式");
-            document.getElementById('input-logistics').parentElement.scrollIntoView({behavior: 'smooth'});
+            KUI.alert("請選擇物流方式");
+            document.getElementById('logistics-container')?.scrollIntoView({ behavior: 'smooth' });
             return;
         }
 
         // 3. 店號/地址 嚴格驗證
-        if (type === '7-11') {
-            if(!/^\d{6}$/.test(store)) {
-                alert("請輸入正確的 7-11 「6碼純數字」店號");
-                document.getElementById('store-id-711').focus();
+        if (type.includes('7-11') || type.includes('全家')) {
+            if (!/^\d{6}$/.test(store)) {
+                KUI.alert(`請輸入正確的 ${type} 「6碼純數字」店號`);
+                document.getElementById(`store-id-${type}`)?.focus();
                 return;
             }
-        } else if (type === '全家') {
-            if(!/^\d{6}$/.test(store)) {
-                alert("請輸入正確的全家 「6碼純數字」店號");
-                document.getElementById('store-id-fami').focus();
-                return;
-            }
-        } else if (type.includes('宅配')) {
-            if(!store) {
-                alert("請填寫宅配地址");
-                document.getElementById('store-addr').focus();
-                return;
+        } else if (type.includes('宅配') || type.includes('郵寄')) {
+            if (!store || store === '宅配到府') {
+                const addr = document.getElementById(`store-addr-${type}`)?.value?.trim();
+                if (!addr) {
+                    KUI.alert("請填寫宅配地址");
+                    document.getElementById(`store-addr-${type}`)?.focus();
+                    return;
+                }
             }
         }
 
@@ -693,9 +1083,13 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
         // 送出前再算一次運費確保正確，payload 將使用此變數
         const finalShip = calcShip(type, subtotal);
 
+        const brandCounts = getBrandCounts();
         // 組合商品字串
         const itemsStr = cart.map(item => {
-            return `${item.brand_key}｜${item.name}${item.spec ? '｜'+item.spec : ''} x${item.qty} ($${item.qty>1 && item.price_multi ? item.price_multi : item.price})`;
+            let k = item.brand_key || 'default';
+            let itemHasDiscount = brandCounts[k] > 1 && item.price_multi && item.price_multi < item.price;
+            let finalP = itemHasDiscount ? item.price_multi : item.price;
+            return `${item.brandName || item.brand_key}｜${item.name}${item.spec ? '｜' + item.spec : ''} x${item.qty} ($${finalP})`;
         }).join('\n');
 
         // 組合物流字串： "物流方式 店名備註"
@@ -703,90 +1097,163 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
 
         const payload = {
             action: "checkout",
-            phone: phone, 
-            name: name, 
+            phone: phone,
+            name: name,
             email: email,
             line_name: line,
             logistics: logisticsStr, // 組合後的字串
             store: store,            // 純店號/地址
             store_note: storeNote,   // 純備註
             items: itemsStr,
-            subtotal: subtotal, 
+            subtotal: subtotal,
             shipping: finalShip,     // 使用 calcShip 算出的結果 (唯一修改重點)
             date: new Date().toISOString(),
             product_note: note,
             join_member: isMemberCheck
         };
 
-        API.checkout(payload)
-        .then(data => {
-            if(data.success) {
-                alert(`訂單建立成功！\n編號：${data.orderId}`);
+        const firestorePayload = {
+            phone: phone,
+            name: name,
+            email: email,
+            line_name: line,
+            logistics_type: type,
+            store_id: store,
+            store_note: storeNote,
+            shipping_address: type.includes('宅配') ? store : null,
+            items_text: itemsStr,
+            items: cart.map(item => {
+                let k = item.brand_key || 'default';
+                let itemHasDiscount = brandCounts[k] > 1 && item.price_multi && item.price_multi < item.price;
+                let finalP = itemHasDiscount ? item.price_multi : item.price;
+                return {
+                    id: item.productId,
+                    name: item.name,
+                    spec: item.spec || "",
+                    price: finalP,
+                    qty: item.qty
+                };
+            }),
+            subtotal: subtotal,
+            shipping_fee: finalShip,
+            total: subtotal + finalShip,
+            note: note,
+            status: '待處理',
+            payment_method: 'cod',
+            source_token: 'keicha_2025_web_auth',
+            created_at: firebase.firestore.FieldValue.serverTimestamp(),
+            updated_at: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        generateOrderId('M').then(newOrderId => {
+            return db.collection('orders').doc(newOrderId).set(firestorePayload)
+                .then(() => newOrderId);
+        })
+            .then(async orderId => {
+                // [新] 儲存會員資料
+                if (isMemberCheck) {
+                    const memberData = {
+                        phone: phone, name: name, email: email, line_name: line,
+                        source_token: 'keicha_2025_web_auth',
+                        updated_at: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    if (type === '7-11') { memberData.store_711 = store; memberData.store_711_note = storeNote; }
+                    else if (type === '全家') { memberData.store_fami = store; memberData.store_fami_note = storeNote; }
+                    else if (type.includes('宅配')) { memberData.shipping_address = store; }
+
+                    try {
+                        const memberSnap = await db.collection('members').where('phone', '==', phone).limit(1).get();
+                        if (!memberSnap.empty) {
+                            await db.collection('members').doc(memberSnap.docs[0].id).update(memberData);
+                        } else {
+                            memberData.created_at = firebase.firestore.FieldValue.serverTimestamp();
+                            await db.collection('members').add(memberData);
+                        }
+                    } catch (e) {
+                        console.error("Member save failed:", e);
+                    }
+                }
+
+                // [新] 觸發郵件通知 (Firebase API)
+                if (window.API && window.API.sendNotification) {
+                    window.API.sendNotification('new_matcha_order', {
+                        ...firestorePayload,
+                        order_id: orderId
+                    }).catch(e => console.error('[GAS] Notification error:', e));
+                }
+
+                KUI.alert(`訂單建立成功！\n編號：${orderId}`);
+                localStorage.removeItem('keicha_cart');
+                localStorage.removeItem('keicha_checkout_form');
                 cart = [];
-                updateCartQty(0, 0); 
-                document.getElementById('cart-items-wrapper').innerHTML = ''; 
+                updateCartQty(0, 0); // Trigger refresh
+                document.getElementById('cart-items-wrapper').innerHTML = '';
                 document.getElementById('header-cart-badge').classList.add('hidden');
                 closeAllPanels();
-            } else {
-                alert("建立失敗：" + data.msg);
-            }
-        })
-        .catch((err) => {
-            console.error(err);
-            alert("系統連線錯誤，請稍後再試");
-        })
-        .finally(() => {
-            btn.disabled = false;
-            btn.innerHTML = '<span class="material-symbols-rounded">verified</span> 確認送出訂單';
-        });
+            })
+            .catch((err) => {
+                console.error(err);
+                KUI.alert("系統連線錯誤，請稍後再試：" + err.message);
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-symbols-rounded">verified</span> 確認送出訂單';
+            });
     }
 
     function adjQty(productId, change) {
-         if (!tempQtyMap[productId]) tempQtyMap[productId] = 1;
-         let newQty = tempQtyMap[productId] + change;
-         if (newQty < 1) newQty = 1; 
-         tempQtyMap[productId] = newQty;
-         const qtyDisplay = document.getElementById(`iq-${productId}`);
-         if (qtyDisplay) { qtyDisplay.innerText = newQty; }
+        if (!tempQtyMap[productId]) tempQtyMap[productId] = 1;
+        let newQty = tempQtyMap[productId] + change;
+        if (newQty < 1) newQty = 1;
+        tempQtyMap[productId] = newQty;
+        const qtyDisplay = document.getElementById(`iq-${productId}`);
+        if (qtyDisplay) { qtyDisplay.innerText = newQty; }
     }
 
     window.addEventListener('load', () => {
-         const loader = document.getElementById('status-loader');
-         
-         // 並行請求：ORDER_API_URL 抓取運費規則 (必須)，DISPLAY_API_URL 抓取商品 (維持原狀)
-         Promise.all([
-             API.fetchSystemData(),
-             API.fetchMatchaData()
-         ])
-            .then(([rulesData, displayData]) => {
-                // 1. 處理運費規則 (完整保存，來自 ORDER_API_URL)
-                if (rulesData.shipping_rules) {
-                    shippingRules = rulesData.shipping_rules;
-                }
+        const orderForm = document.getElementById('order-form');
+        if (orderForm) {
+            orderForm.addEventListener('input', saveCheckoutForm);
+        }
+        if (cart.length > 0) {
+            renderCartItems(); // 恢復購物車 UI
+        }
 
-                // 2. 處理商品資料 (維持原狀)
-                if(displayData.error) throw new Error(displayData.error);
-                
-                allProducts = (displayData.products || []).map(p => {
-                    p.key = p.brand_key + '_' + p.name; 
+        const loader = document.getElementById('status-loader');
+
+        Promise.all([
+            db.collection('shipping_rules').get(),
+            db.collection('matcha_brands').orderBy('display_order', 'asc').get(),
+            db.collection('matcha_products').get()
+        ])
+            .then(([shipSnap, brandSnap, prodSnap]) => {
+                // 1. Shipping Rules
+                shippingRules = shipSnap.docs.map(doc => doc.data());
+
+                // 2. Brands
+                brandList = brandSnap.docs.map(doc => ({ key: doc.id, ...doc.data() }));
+
+                // 3. Products
+                allProducts = prodSnap.docs.map(doc => {
+                    const p = doc.data();
+                    p.id = doc.id;
+                    p.key = p.brand_id + '_' + p.name;
                     return p;
                 });
 
-                renderStatusOverview(displayData.brands);
-                renderProductSections(displayData.brands);
-                displayData.brands.forEach(brand => {
-                    renderProductCards(brand.key, allProducts.filter(p => p.brand_key === brand.key));
+                renderStatusOverview(brandList);
+                renderProductSections(brandList);
+                brandList.forEach(brand => {
+                    renderProductCards(brand.key, allProducts.filter(p => p.brand_id === brand.key && !p.hidden));
                 });
-                
-                // 初始化運費顯示
-                updateShippingFee();
 
+                updateShippingFee();
                 loader.style.display = 'none';
             })
             .catch(err => {
                 console.error(err);
                 const container = document.getElementById('status-grid-container');
-                if(container) container.innerHTML = `<p class="text-center text-red-500 w-full col-span-2">資料載入失敗</p>`;
+                if (container) container.innerHTML = `<p class="text-center text-slate-500 w-full col-span-2">資料載入失敗</p>`;
                 loader.style.display = 'none';
             });
     });
@@ -801,7 +1268,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
             const rawStatus = (brand.status || '').toLowerCase().trim();
             let statusText = brand.status || '未定';
             let statusClass = 'bg-gray-200 text-gray-600';
-            if (['available', 'open', '开团', '開團', '接收訂單中', '收單中', '可供訂購', '可訂購'].includes(rawStatus)) {
+            if (['active', 'available', 'open', '开团', '開團', '接收訂單中', '收單中', '可供訂購', '可訂購'].includes(rawStatus)) {
                 statusText = '可訂購'; statusClass = 'bg-brand text-white';
             } else { statusText = '缺貨中'; }
             container.innerHTML += `
@@ -837,15 +1304,17 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
             const price = Number(product.price) || 0;
             const priceMulti = Number(product.price_multi) || 0;
             const status = product.status || '';
-            const note = product.note || '';       
-            const tag = product.tag || '';          
-            const spec = product.spec || '';       
-            const imgPath = String(product.img || ''); 
+            const note = product.note || '';
+            const tag = product.tag || '';
+            const spec = product.spec || '';
+            const imgPath = String(product.image_url || product.img || '');
             let isStockZero = false;
             if (product.stock !== "" && product.stock !== undefined) { if (Number(product.stock) <= 0) isStockZero = true; }
             const isSoldOut = isStockZero || status.includes('完售');
             const hasImage = imgPath !== '';
             const hasMultiPrice = (priceMulti > 0 && priceMulti < price);
+            const maxLimit = Number(product.max_limit) || 0;
+
             let imgHTML = '';
             if (hasImage) {
                 const src = imgPath.startsWith('http') ? imgPath : BASE_REPO_URL + imgPath;
@@ -855,19 +1324,25 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                     </div>`;
             }
             let badgeHTML = '';
-            if (tag) { badgeHTML = `<span class="absolute top-3 right-3 bg-brand text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">${tag}</span>`; } 
+            if (tag) { badgeHTML = `<span class="absolute top-3 right-3 bg-brand text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">${tag}</span>`; }
             else if (isSoldOut) { badgeHTML = `<span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">缺貨</span>`; }
+
             let priceHTML = '';
             if (hasMultiPrice) {
                 priceHTML = `<div class="flex flex-col items-end w-full"><span class="text-xs text-gray-400">單件 $${price}</span><span class="text-brand font-bold text-lg font-mono">2件起 $${priceMulti}</span></div>`;
             } else {
                 priceHTML = `<div class="w-full text-right"><span class="text-brand font-bold text-lg font-mono">NT$ ${price}</span></div>`;
             }
+
+            // [移除] 限購標籤 (由使用者要求隱藏)
+            let limitLabel = '';
+
             const btnClass = isSoldOut ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand text-white transition active:scale-95 hover:bg-brandDark shadow-md shadow-brand/10';
-            const clickEvent = isSoldOut ? '' : `onclick="addToCart('${productId}', '${name}', ${price}, ${priceMulti}, ${product.stock}, ${product.max_limit})"`;
+            const clickEvent = isSoldOut ? '' : `onclick="addToCart('${productId}', '${name}', ${price}, ${priceMulti}, ${product.stock}, ${maxLimit}, '${brandList.find(b => b.key === brandKey)?.name || 'KEICHA'}')"`;
             const btnText = isSoldOut ? '完售' : '加入購物車';
             const qtyDisable = isSoldOut ? 'disabled opacity-50' : '';
             const topRowClass = `flex gap-4 md:contents ${hasImage ? 'items-center' : ''}`;
+
             grid.innerHTML += `
                 <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col mobile-product-card transition hover:shadow-lg group relative">
                     ${badgeHTML}
@@ -877,7 +1352,8 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                             <h4 class="font-bold text-gray-800 text-xl leading-tight line-clamp-1 flex items-baseline">
                                 ${name}${spec ? `<span class="ml-2 text-gray-400 text-xs font-normal whitespace-nowrap">${spec}</span>` : ''}
                             </h4>
-                            ${ note ? `<p class="text-gray-400 text-[11px] leading-relaxed line-clamp-2 min-h-[1.5em]">${note}</p>` : '' }
+                            ${note ? `<p class="text-gray-400 text-[11px] leading-relaxed line-clamp-2 min-h-[1.5em]">${note}</p>` : ''}
+                            ${limitLabel}
                             <div class="mt-auto">${priceHTML}</div>
                         </div>
                     </div>

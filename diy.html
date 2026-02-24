@@ -3,65 +3,160 @@ layout: default
 title: KEICHA 網路商店
 ---
 
+
+<!-- Firebase SDK (v9 compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBF50fJPE-QL3yV4KaVIWzDmDPFRAkpwT4",
+        authDomain: "keicha-membership-system.firebaseapp.com",
+        projectId: "keicha-membership-system",
+        storageBucket: "keicha-membership-system.firebasestorage.app",
+        messagingSenderId: "941650156322",
+        appId: "1:941650156322:web:5c7473aeaa184e0b94637b"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // 初始化 App Check
+    const appCheck = firebase.appCheck();
+    appCheck.activate('6LcPa3UsAAAAAHJ-z9C3N9cqen3AYC8HxEQODoTM', true);
+
+    const db = firebase.firestore();
+</script>
+
+<!-- KEICHA UI Dialog System -->
+<link rel="stylesheet" href="css/ui-dialog.css">
+<script src="js/ui-dialog.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
 
 <style>
     /* [UI設定] 移除數字輸入框箭頭 */
-    input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-    input[type=number] { -moz-appearance: textfield; }
-
-    .brand-green { color: #6ea44c; }
-    .bg-brand-green { background-color: #6ea44c; }
-    .border-brand-green { border-color: #6ea44c; }
-    
-    .overlay {
-        position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 190;
-        opacity: 0; visibility: hidden; transition: opacity 0.3s; backdrop-filter: blur(4px);
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
     }
-    .overlay.open { opacity: 1; visibility: visible; }
 
-    .animate-spin-custom { animation: spin 1s linear infinite; }
-    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    .brand-green {
+        color: #6ea44c;
+    }
+
+    .bg-brand-green {
+        background-color: #6ea44c;
+    }
+
+    .border-brand-green {
+        border-color: #6ea44c;
+    }
+
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 190;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s;
+        backdrop-filter: blur(4px);
+    }
+
+    .overlay.open {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .animate-spin-custom {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
 
     /* 輸入框樣式 */
     .diy-input {
-        width: 100%; padding: 12px; 
-        border: 1px solid #e5e7eb; border-radius: 12px; 
-        font-size: 0.95rem; outline: none; transition: all 0.2s;
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        outline: none;
+        transition: all 0.2s;
         background-color: #fff;
     }
-    .diy-input:focus { border-color: #6ea44c; ring: 1px solid #6ea44c; box-shadow: 0 0 0 3px rgba(110, 164, 76, 0.1); }
-    
+
+    .diy-input:focus {
+        border-color: #6ea44c;
+        ring: 1px solid #6ea44c;
+        box-shadow: 0 0 0 3px rgba(110, 164, 76, 0.1);
+    }
+
     /* 強調區塊 */
-    .section-card { background: white; padding: 24px; border-radius: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 24px; }
-    
+    .section-card {
+        background: white;
+        padding: 24px;
+        border-radius: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        margin-bottom: 24px;
+    }
+
     /* 物流選項卡片 */
     .logistics-card {
-        border: 2px solid #f3f4f6; border-radius: 16px; padding: 16px;
-        cursor: pointer; transition: all 0.2s; position: relative;
+        border: 2px solid #f3f4f6;
+        border-radius: 16px;
+        padding: 16px;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
     }
-    .logistics-card:hover { border-color: #e5e7eb; }
-    .logistics-card.active { border-color: #6ea44c; background-color: #f9fdf7; }
-    
+
+    .logistics-card:hover {
+        border-color: #e5e7eb;
+    }
+
+    .logistics-card.active {
+        border-color: #6ea44c;
+        background-color: #f9fdf7;
+    }
+
     /* 按鈕鎖定狀態樣式 */
     .btn-loading {
-        background-color: #9ca3af !important; /* 變灰 */
+        background-color: #9ca3af !important;
+        /* 變灰 */
         border-color: #9ca3af !important;
         cursor: not-allowed !important;
         color: white !important;
     }
-    
+
     /* 統一樣式按鈕 (白底綠框) */
     .btn-outline-green {
         background-color: white;
         color: #6ea44c;
         border: 1px solid #6ea44c;
         padding: 8px 16px;
-        border-radius: 0.75rem; /* rounded-xl */
-        font-size: 0.75rem;     /* text-xs */
-        font-weight: 700;       /* font-bold */
+        border-radius: 0.75rem;
+        /* rounded-xl */
+        font-size: 0.75rem;
+        /* text-xs */
+        font-weight: 700;
+        /* font-bold */
         display: flex;
         align-items: center;
         justify-content: center;
@@ -71,20 +166,29 @@ title: KEICHA 網路商店
         transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
         transition-duration: 150ms;
     }
-    .btn-outline-green:hover { background-color: #f9fafb; }
-    .btn-outline-green:active { transform: scale(0.95); }
+
+    .btn-outline-green:hover {
+        background-color: #f9fafb;
+    }
+
+    .btn-outline-green:active {
+        transform: scale(0.95);
+    }
 
     /* iOS 底部安全區域適配 & 底部欄位優化 */
     .safe-area-pb {
         padding-bottom: env(safe-area-inset-bottom, 20px);
     }
+
     @supports not (padding-bottom: env(safe-area-inset-bottom)) {
-        .safe-area-pb { padding-bottom: 12px; }
+        .safe-area-pb {
+            padding-bottom: 12px;
+        }
     }
 </style>
 
 <div class="bg-gray-50 min-h-screen pb-32">
-    
+
     <div class="container mx-auto px-4 max-w-2xl pt-10 pb-6">
         <h1 class="text-2xl font-bold tracking-tight text-gray-800 flex items-center gap-2">
             <span class="material-symbols-rounded text-[#6ea44c]">edit_note</span> 自填單結帳
@@ -97,9 +201,11 @@ title: KEICHA 網路商店
     <main class="container mx-auto px-4 max-w-2xl">
 
         <section class="section-card">
-            <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">您的手機號碼 <span class="text-red-500">*</span></label>
+            <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">您的手機號碼 <span
+                    class="text-slate-500">*</span></label>
             <div class="flex gap-3">
-                <input type="tel" id="input-phone" class="diy-input text-lg font-bold font-mono tracking-wide" placeholder="09xxxxxxxx" maxlength="10">
+                <input type="tel" id="input-phone" class="diy-input text-lg font-bold font-mono tracking-wide"
+                    placeholder="09xxxxxxxx" maxlength="10">
                 <button onclick="lookupPhoneData(this)" id="btn-lookup" class="btn-outline-green">
                     會員自動帶入
                 </button>
@@ -112,93 +218,57 @@ title: KEICHA 網路商店
 
         <section class="section-card space-y-6">
             <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">商品內容 <span class="text-red-500">*</span></label>
+                <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">商品內容 <span
+                        class="text-slate-500">*</span></label>
                 <textarea id="input-items" rows="4" class="diy-input resize-none" placeholder="請一次填寫所有商品"></textarea>
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">訂單總金額 <span class="text-red-500">*</span></label>
-                <div class="flex items-center gap-3 bg-gray-50 rounded-xl px-4 border border-gray-200 focus-within:border-[#6ea44c] focus-within:ring-1 ring-[#6ea44c]">
+                <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">訂單總金額 <span
+                        class="text-slate-500">*</span></label>
+                <div
+                    class="flex items-center gap-3 bg-gray-50 rounded-xl px-4 border border-gray-200 focus-within:border-[#6ea44c] focus-within:ring-1 ring-[#6ea44c]">
                     <span class="text-gray-400 font-bold">NT$</span>
-                    <input type="number" inputmode="numeric" pattern="[0-9]*" id="input-amount" class="w-full bg-transparent py-3 text-2xl font-bold text-gray-800 outline-none placeholder-gray-300" placeholder="0" oninput="updatePageSummary()">
+                    <input type="number" inputmode="numeric" pattern="[0-9]*" id="input-amount"
+                        class="w-full bg-transparent py-3 text-2xl font-bold text-gray-800 outline-none placeholder-gray-300"
+                        placeholder="0" oninput="updatePageSummary()">
                 </div>
             </div>
         </section>
 
         <section class="section-card space-y-4">
-            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2">收件人資訊</h2>
-            
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2">收件人資訊
+            </h2>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="text-[10px] font-bold text-gray-400 mb-1 block">真實姓名 <span class="text-red-500">*</span></label>
+                    <label class="text-[10px] font-bold text-gray-400 mb-1 block">真實姓名 <span
+                            class="text-slate-500">*</span></label>
                     <input type="text" id="input-name" class="diy-input" placeholder="請輸入姓名">
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-gray-400 mb-1 block">電子信箱 <span class="text-red-500">*</span></label>
+                    <label class="text-[10px] font-bold text-gray-400 mb-1 block">電子信箱 <span
+                            class="text-slate-500">*</span></label>
                     <input type="email" id="input-email" class="diy-input" placeholder="接收訂單通知">
                 </div>
             </div>
-            
+
             <div>
-                 <label class="text-[10px] font-bold text-gray-400 mb-1 block">LINE 顯示名稱 <span class="text-red-500">*</span></label>
-                 <input type="text" id="input-line" class="diy-input" placeholder="方便我們聯絡您">
+                <label class="text-[10px] font-bold text-gray-400 mb-1 block">LINE 顯示名稱 <span
+                        class="text-slate-500">*</span></label>
+                <input type="text" id="input-line" class="diy-input" placeholder="方便我們聯絡您">
             </div>
         </section>
 
         <section class="section-card space-y-4">
-            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2">物流方式</h2>
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2">物流方式
+            </h2>
 
-            <div class="logistics-card flex flex-col gap-3" id="card-711" onclick="selectLogistics('711')">
-                <div class="flex items-center justify-between pointer-events-none">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-rounded text-gray-400 icon-active text-2xl">local_shipping</span>
-                        <span class="font-bold text-gray-700">7-11 店到店</span>
-                    </div>
-                    <div id="price-preview-7-11" class="text-xs font-bold text-gray-400"></div>
-                </div>
-                
-                <div id="detail-711" class="hidden space-y-3 pt-3 border-t border-gray-100/50 mt-1" onclick="event.stopPropagation()">
-                    <div class="flex gap-2">
-                        <input type="text" id="store-711" class="diy-input flex-1" placeholder="請輸入6碼店號" maxlength="6">
-                        <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="btn-outline-green">
-                            查詢店號
-                        </a>
-                    </div>
-                    <input type="text" id="store-note-711" class="diy-input" placeholder="店名備註 (例如: 科慶門市)">
-                </div>
-            </div>
-
-            <div class="logistics-card flex flex-col gap-3" id="card-fami" onclick="selectLogistics('fami')">
-                <div class="flex items-center justify-between pointer-events-none">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-rounded text-gray-400 icon-active text-2xl">store</span>
-                        <span class="font-bold text-gray-700">全家 店到店</span>
-                    </div>
-                    <div id="price-preview-fami" class="text-xs font-bold text-gray-400"></div>
-                </div>
-                
-                <div id="detail-fami" class="hidden space-y-3 pt-3 border-t border-gray-100/50 mt-1" onclick="event.stopPropagation()">
-                    <div class="flex gap-2">
-                        <input type="text" id="store-fami" class="diy-input flex-1" placeholder="請輸入6碼店號" maxlength="6">
-                        <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="btn-outline-green">
-                            查詢店號
-                        </a>
-                    </div>
-                    <input type="text" id="store-note-fami" class="diy-input" placeholder="店名備註 (例如: 全家慶中店)">
-                </div>
-            </div>
-
-            <div class="logistics-card flex flex-col gap-3" id="card-addr" onclick="selectLogistics('addr')">
-                <div class="flex items-center justify-between pointer-events-none">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-rounded text-gray-400 icon-active text-2xl">home</span>
-                        <span class="font-bold text-gray-700">宅配到府</span>
-                    </div>
-                    <div id="price-preview-addr" class="text-xs font-bold text-gray-400"></div>
-                </div>
-                
-                <div id="detail-addr" class="hidden pt-3 border-t border-gray-100/50 mt-1" onclick="event.stopPropagation()">
-                    <textarea id="store-addr" class="diy-input" rows="2" placeholder="請輸入完整收件地址"></textarea>
+            <div id="logistics-container" class="space-y-4">
+                <!-- 由 JavaScript 動態生成 -->
+                <div class="p-8 text-center text-gray-400 text-sm">
+                    <div class="loader mb-2"></div>
+                    <p>正在載入配送方式...</p>
                 </div>
             </div>
         </section>
@@ -206,10 +276,13 @@ title: KEICHA 網路商店
         <section class="section-card">
             <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">訂單備註</label>
             <textarea id="input-note" class="diy-input" rows="2" placeholder="如有其他需求請填寫..."></textarea>
-            
-            <div class="mt-6 p-4 bg-white rounded-xl border border-gray-200 shadow-sm hover:border-[#6ea44c] transition duration-200">
+
+            <div
+                class="mt-6 p-4 bg-white rounded-xl border border-gray-200 shadow-sm hover:border-[#6ea44c] transition duration-200">
                 <label class="flex items-center gap-3 cursor-pointer select-none">
-                    <input type="checkbox" id="join-member-check" class="w-5 h-5 text-[#6ea44c] rounded border-gray-300 focus:ring-[#6ea44c] checked:bg-[#6ea44c]" checked>
+                    <input type="checkbox" id="join-member-check"
+                        class="w-5 h-5 text-[#6ea44c] rounded border-gray-300 focus:ring-[#6ea44c] checked:bg-[#6ea44c]"
+                        checked>
                     <span class="text-xs text-gray-600 font-bold leading-relaxed">
                         確認儲存/更新收件資料，下次可使用「會員自動帶入」
                     </span>
@@ -219,19 +292,23 @@ title: KEICHA 網路商店
 
     </main>
 
-<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 h-20 px-6 flex items-center shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-40 safe-area-pb">
-    <div class="container mx-auto max-w-2xl flex items-center justify-between gap-3">
-            
+    <div
+        class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 h-20 px-6 flex items-center shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-40 safe-area-pb">
+        <div class="container mx-auto max-w-2xl flex items-center justify-between gap-3">
+
             <div class="flex flex-col justify-center flex-1 min-w-0">
-                <div id="summary-info-text" class="text-[11px] font-bold text-gray-400 whitespace-nowrap truncate leading-tight">
+                <div id="summary-info-text"
+                    class="text-[11px] font-bold text-gray-400 whitespace-nowrap truncate leading-tight">
                     總金額 (含運)｜尚未選擇物流
                 </div>
-                <div id="summary-total" class="text-2xl font-bold brand-green font-mono leading-none mt-0.5 whitespace-nowrap">
+                <div id="summary-total"
+                    class="text-2xl font-bold brand-green font-mono leading-none mt-0.5 whitespace-nowrap">
                     NT$ 0
                 </div>
             </div>
 
-            <button onclick="submitOrder(this)" id="btn-submit" class="h-12 bg-[#6ea44c] text-white px-6 rounded-xl font-bold shadow-lg shadow-green-900/10 active:scale-95 hover:bg-[#5d8d41] transition-all flex items-center justify-center gap-1.5 shrink-0">
+            <button onclick="submitOrder(this)" id="btn-submit"
+                class="h-12 bg-[#6ea44c] text-white px-6 rounded-xl font-bold shadow-lg shadow-green-900/10 active:scale-95 hover:bg-[#5d8d41] transition-all flex items-center justify-center gap-1.5 shrink-0">
                 <span>送出<span class="hidden sm:inline">訂單</span></span>
                 <span class="material-symbols-rounded text-lg">arrow_forward</span>
             </button>
@@ -249,17 +326,13 @@ title: KEICHA 網路商店
     let shippingRules = [];
 
     document.addEventListener('DOMContentLoaded', async () => {
-        // 1. 初始化 (載入運費規則)
+        // 1. 初始化 (從 Firestore 載入運費規則)
         try {
-            const data = await API.fetchSystemData();
-            if (data && data.shipping_rules) {
-                shippingRules = data.shipping_rules.map(r => ({
-                    ...r,
-                    method: (r.method && r.method.toString().includes('2025-')) ? '7-11' : r.method
-                }));
-            }
+            const shipSnap = await db.collection('shipping_rules').get();
+            shippingRules = shipSnap.docs.map(doc => doc.data());
+            renderLogistics(); // 動態生成配送
         } catch (e) { console.error("Rules Error:", e); }
-        
+
         // 2. LocalStorage 自動填入
         const savedUser = localStorage.getItem('keicha_v2_user');
         if (savedUser) {
@@ -268,6 +341,27 @@ title: KEICHA 網路商店
             fillFormWithData(u);
         }
     });
+
+    // --- 產生訂單編號 (Option 1) ---
+    async function generateOrderId(prefixChar) {
+        const now = new Date();
+        const yy = String(now.getFullYear()).slice(-2);
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const datePrefix = `${prefixChar}${yy}${mm}${dd}`;
+
+        const counterRef = db.collection('order_counters').doc(datePrefix);
+
+        return await db.runTransaction(async (transaction) => {
+            const counterDoc = await transaction.get(counterRef);
+            let nextNum = 1;
+            if (counterDoc.exists) {
+                nextNum = (counterDoc.data().count || 0) + 1;
+            }
+            transaction.set(counterRef, { count: nextNum }, { merge: true });
+            return `${datePrefix}${String(nextNum).padStart(2, '0')}`;
+        });
+    }
 
     // --- 按鈕狀態控制 (Loading & Lock) ---
     function setBtnLoading(btn, isLoading, text) {
@@ -286,21 +380,19 @@ title: KEICHA 網路商店
     // --- 核心功能 1: 電話查資料 (會員自動帶入) ---
     async function lookupPhoneData(btn) {
         const phone = document.getElementById('input-phone').value.trim();
-        if(!/^09\d{8}$/.test(phone)) return alert("請輸入正確的 09 開頭 10 碼電話");
-        
+        if (!/^09\d{8}$/.test(phone)) { KUI.alert('請輸入正確的 09 開頭 10 碼電話'); return; }
+
         document.getElementById('join-member-check').checked = true;
-        setBtnLoading(btn, true, "查詢中...");
+        setBtnLoading(btn, true, '查詢中...');
 
         try {
-            const res = await API.login(phone);
-            if(res.success && !res.isNew) {
-                fillFormWithData(res.data);
-                document.getElementById('input-items').focus();
-            } else {
-                document.getElementById('input-items').focus();
+            const snapshot = await db.collection('members').where('phone', '==', phone).limit(1).get();
+            if (!snapshot.empty) {
+                fillFormWithData(snapshot.docs[0].data());
             }
-        } catch(e) {
-            alert("連線錯誤");
+            document.getElementById('input-items').focus();
+        } catch (e) {
+            KUI.alert('連線錯誤');
         } finally {
             setBtnLoading(btn, false);
         }
@@ -309,89 +401,170 @@ title: KEICHA 網路商店
     function fillFormWithData(u) {
         setVal('input-name', u.name);
         setVal('input-email', u.email);
-        setVal('store-711', u.store_711);
-        setVal('store-note-711', u.store_711_note);
-        setVal('store-fami', u.store_fami);
-        setVal('store-note-fami', u.store_fami_note);
-        setVal('store-addr', u.shipping_address);
-    }
+        setVal('input-line', u.line_name || u.line_id);
 
-    // --- 核心功能 2: 物流切換 ---
-    function selectLogistics(type) {
-        currentMethod = type;
-        
-        ['711', 'fami', 'addr'].forEach(t => {
-            const card = document.getElementById(`card-${t}`);
-            const detail = document.getElementById(`detail-${t}`);
-            const icon = card.querySelector('.material-symbols-rounded');
-            
-            if (t === type) {
-                card.classList.add('active');
-                detail.classList.remove('hidden');
-                icon.classList.add('text-[#6ea44c]'); icon.classList.remove('text-gray-400');
-            } else {
-                card.classList.remove('active');
-                detail.classList.add('hidden');
-                icon.classList.remove('text-[#6ea44c]'); icon.classList.add('text-gray-400');
+        const container = document.getElementById('logistics-container');
+        if (!container) return;
+
+        container.querySelectorAll('.logistics-card').forEach(card => {
+            const method = card.dataset.method;
+            if (method.includes('7-11') && u.store_711) {
+                const idEl = document.getElementById(`store-id-${method}`);
+                const nameEl = document.getElementById(`store-note-${method}`);
+                if (idEl) idEl.value = u.store_711;
+                if (nameEl) nameEl.value = u.store_711_note || '';
+            } else if (method.includes('全家') && u.store_fami) {
+                const idEl = document.getElementById(`store-id-${method}`);
+                const nameEl = document.getElementById(`store-note-${method}`);
+                if (idEl) idEl.value = u.store_fami;
+                if (nameEl) nameEl.value = u.store_fami_note || '';
+            } else if ((method.includes('宅配') || method.includes('郵寄')) && u.shipping_address) {
+                const addrEl = document.getElementById(`store-addr-${method}`);
+                if (addrEl) addrEl.value = u.shipping_address;
             }
         });
-
         updatePageSummary();
     }
 
-    // --- 核心功能 3: 計算與總計 ---
+    // --- 核心功能 2: 更新頁面總計與運費預覽 ---
     function updatePageSummary() {
         const val = document.getElementById('input-amount').value;
         const subtotal = parseInt(val) || 0;
         let ship = 0;
 
-        // 1. 更新各選項內的「預覽價格」 (金額 > 0 才顯示)
-        if (subtotal > 0 && shippingRules.length > 0) {
-            setText('price-preview-7-11', `運費 $${calcShip('7-11', subtotal)}`);
-            setText('price-preview-fami', `運費 $${calcShip('全家', subtotal)}`);
-            setText('price-preview-addr', `運費 $${calcShip('宅配', subtotal)}`);
-        } else {
-            setText('price-preview-7-11', '');
-            setText('price-preview-fami', '');
-            setText('price-preview-addr', '');
+        // 1. 更新所有卡片上的價格預覽
+        const container = document.getElementById('logistics-container');
+        if (container) {
+            container.querySelectorAll('.logistics-card').forEach(card => {
+                const method = card.dataset.method;
+                const fee = calcShip(method, subtotal);
+                const priceEl = card.querySelector('.logistics-price');
+                if (priceEl) priceEl.innerText = `運費 $${fee}`;
+            });
         }
 
         // 2. 準備底部資訊列文字
-        let infoText = "總金額 (含運)"; 
-
+        let infoText = "總金額 (含運)";
         if (currentMethod) {
-            const methodMap = { '711': '7-11', 'fami': '全家', 'addr': '宅配' };
-            const mName = methodMap[currentMethod];
-            
-            if (subtotal > 0) {
-                ship = calcShip(mName, subtotal);
-                infoText = `總金額 (含運)｜${mName} 運費 +${ship}`;
-            } else {
-                infoText = "總金額 (含運)｜請填寫金額以計算運費";
-                ship = 0;
-            }
+            ship = calcShip(currentMethod, subtotal);
+            infoText = `總金額 (含運)｜${currentMethod} 運費 +${ship}`;
         } else {
             infoText = "總金額 (含運)｜尚未選擇物流";
         }
 
         const infoEl = document.getElementById('summary-info-text');
-        if(infoEl) infoEl.innerText = infoText;
+        if (infoEl) infoEl.innerText = infoText;
 
         const total = subtotal + ship;
         document.getElementById('summary-total').innerText = `NT$ ${total.toLocaleString()}`;
+        saveDraft(); // 任何變更都存草稿
     }
 
-    // 【重要】運費計算函式 (先前可能被刪除，現已補回)
+    // --- UI 更新：動態生成物流卡片 ---
+    function renderLogistics() {
+        const container = document.getElementById('logistics-container');
+        if (!container) return;
+
+        // 過濾出屬於 diy.html 的規則
+        const myRules = shippingRules.filter(r => {
+            if (!r.category) return false;
+            const cats = Array.isArray(r.category) ? r.category : [r.category];
+            return cats.includes('diy.html') || cats.includes('自填單');
+        });
+
+        if (myRules.length === 0) {
+            container.innerHTML = `<div class="p-8 text-center text-gray-400 text-sm">暫無適用的配送方式</div>`;
+            return;
+        }
+
+        const subtotal = parseInt(document.getElementById('input-amount').value) || 0;
+        let html = '';
+
+        myRules.forEach(rule => {
+            const method = rule.method || '未命名物流';
+            const fee = calcShip(method, subtotal);
+            const is711 = method.includes('7-11');
+            const isFami = method.includes('全家');
+            const isHome = method.includes('宅配') || method.includes('郵寄');
+
+            let icon = 'local_shipping';
+            if (is711 || isFami) icon = 'store';
+            if (isHome) icon = 'home';
+
+            let detailHtml = '';
+            if (is711 || isFami) {
+                const queryLink = r => r.tracking_link || (is711 ? 'https://www.ibon.com.tw/mobile/retail_inquiry.aspx' : 'https://www.family.com.tw/marketing/inquiry.aspx');
+                detailHtml = `
+                    <div class="flex gap-2">
+                        <input type="text" id="store-id-${method}" class="diy-input flex-1" placeholder="輸入6碼店號" maxlength="6" inputmode="numeric" oninput="updatePageSummary()">
+                        <a href="${queryLink(rule)}" target="_blank" class="btn-outline-green">查詢</a>
+                    </div>
+                    <input type="text" id="store-note-${method}" class="diy-input" placeholder="店名備註" oninput="updatePageSummary()">
+                `;
+            } else if (isHome) {
+                detailHtml = `
+                    <textarea id="store-addr-${method}" class="diy-input" rows="2" placeholder="請輸入完整收件地址" oninput="updatePageSummary()"></textarea>
+                `;
+            } else {
+                detailHtml = `
+                    <input type="text" id="store-note-${method}" class="diy-input" placeholder="備註資訊" oninput="updatePageSummary()">
+                `;
+            }
+
+            html += `
+                <div class="logistics-card flex flex-col gap-3 group" data-method="${method}" id="card-${method}" onclick="selectLogistics('${method}')">
+                    <div class="flex items-center justify-between pointer-events-none">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-rounded text-gray-400 icon-active text-2xl">${icon}</span>
+                            <span class="font-bold text-gray-700">${method}</span>
+                        </div>
+                        <div class="logistics-price text-xs font-bold text-gray-400">運費 $${fee}</div>
+                    </div>
+                    <div id="detail-${method}" class="hidden space-y-3 pt-3 border-t border-gray-100/50 mt-1" onclick="event.stopPropagation()">
+                        ${detailHtml}
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+        if (currentMethod) selectLogistics(currentMethod);
+        loadDraft();
+    }
+
+    function selectLogistics(method) {
+        currentMethod = method;
+        document.querySelectorAll('.logistics-card').forEach(el => {
+            el.classList.remove('active');
+            const det = el.querySelector('[id^="detail-"]');
+            if (det) det.classList.add('hidden');
+            const icon = el.querySelector('.material-symbols-rounded');
+            if (icon) { icon.classList.remove('text-[#6ea44c]'); icon.classList.add('text-gray-400'); }
+        });
+
+        const target = document.getElementById(`card-${method}`);
+        if (target) {
+            target.classList.add('active');
+            const targetDetail = document.getElementById(`detail-${method}`);
+            if (targetDetail) targetDetail.classList.remove('hidden');
+            const icon = target.querySelector('.material-symbols-rounded');
+            if (icon) { icon.classList.add('text-[#6ea44c]'); icon.classList.remove('text-gray-400'); }
+        }
+        updatePageSummary();
+    }
+
     function calcShip(method, amount) {
         if (!shippingRules || shippingRules.length === 0) return 0;
-        let rule = shippingRules.find(r => r.method == method && r.category == '自填單');
-        if (!rule) rule = shippingRules.find(r => r.method == method && (r.category == 'default' || r.category == '一般'));
+        const rule = shippingRules.find(r => {
+            if (!r.method) return false;
+            return r.method.includes(method) || method.includes(r.method);
+        });
         if (!rule) return 0;
 
-        let fee = parseFloat(rule.base) || 0;
-        if (rule.t3 && amount >= parseFloat(rule.t3)) fee = parseFloat(rule.f3);
-        else if (rule.t2 && amount >= parseFloat(rule.t2)) fee = parseFloat(rule.f2);
-        else if (rule.t1 && amount >= parseFloat(rule.t1)) fee = parseFloat(rule.f1);
+        let fee = Number(rule.base) || 0;
+        if (rule.t3 && amount >= Number(rule.t3)) fee = Number(rule.f3) || 0;
+        else if (rule.t2 && amount >= Number(rule.t2)) fee = Number(rule.f2) || 0;
+        else if (rule.t1 && amount >= Number(rule.t1)) fee = Number(rule.f1) || 0;
         return fee;
     }
 
@@ -406,101 +579,146 @@ title: KEICHA 網路商店
         const note = getVal('input-note');
         const isSave = document.getElementById('join-member-check').checked;
 
-        if(!phone || !/^09\d{8}$/.test(phone)) return alert("請輸入正確的手機號碼");
-        if(!items) return alert("請填寫商品內容");
-        if(amount <= 0) return alert("請填寫金額");
-        if(!name) return alert("請填寫姓名");
-        if(!email) return alert("請填寫 Email");
-        if(!line) return alert("請填寫 LINE 名稱");
-        if(!currentMethod) return alert("請選擇物流方式");
+        if (!phone || !/^09\d{8}$/.test(phone)) return KUI.alert("請輸入正確的手機號碼");
+        if (!items) return KUI.alert("請填寫商品內容");
+        if (amount <= 0) return KUI.alert("請填寫金額");
+        if (!name) return KUI.alert("請填寫姓名");
+        if (!email) return KUI.alert("請填寫 Email");
+        if (!line) return KUI.alert("請填寫 LINE 名稱");
+        if (!currentMethod) return KUI.alert("請選擇物流方式");
 
-        // 店號驗證
-        let storeData = "";
+        // 解析物流資料
+        let storeId = "";
         let storeNote = "";
-        let logisticsRaw = "";
-        
-        if (currentMethod === '711') {
-            storeData = getVal('store-711');
-            storeNote = getVal('store-note-711');
-            if(!/^\d{6}$/.test(storeData)) return alert("請輸入正確的 7-11 「6碼純數字」店號");
-            logisticsRaw = '7-11';
-        } else if (currentMethod === 'fami') {
-            storeData = getVal('store-fami');
-            storeNote = getVal('store-note-fami');
-            if(!/^\d{6}$/.test(storeData)) return alert("請輸入正確的全家 「6碼純數字」店號");
-            logisticsRaw = '全家';
+        const m = currentMethod;
+
+        if (m.includes('7-11') || m.includes('全家')) {
+            storeId = getVal(`store-id-${m}`);
+            storeNote = getVal(`store-note-${m}`);
+            if (!/^\d{6}$/.test(storeId)) return KUI.alert("請輸入正確的「6碼純數字」店號");
+        } else if (m.includes('宅配') || m.includes('郵寄')) {
+            storeId = "宅配到府";
+            storeNote = getVal(`store-addr-${m}`);
+            if (!storeNote) return KUI.alert("請填寫宅配收件地址");
         } else {
-            storeData = getVal('store-addr');
-            if(!storeData) return alert("請填寫宅配地址");
-            logisticsRaw = '宅配';
+            storeId = "自定義物流";
+            storeNote = getVal(`store-note-${m}`);
         }
 
-        const ship = calcShip(logisticsRaw, amount);
-
-        // 合併物流名稱 (給 Orders 表用)
-        let logisticsDisplay = logisticsRaw;
-        if (storeNote) {
-            logisticsDisplay = `${logisticsRaw} ${storeNote}`;
-        }
-
+        const ship = calcShip(m, amount);
         setBtnLoading(btn, true, "處理中...");
 
-        const payload = {
-            name: name,
-            phone: phone,
-            email: email,
-            line_name: line,
-            store: storeData,
-            store_note: storeNote, 
-            items: items,
-            subtotal: amount,
-            shipping: ship,
-            date: new Date().toLocaleString('zh-TW'),
-            note: note,
-            logistics: logisticsDisplay, 
-            join_member: isSave
+        const firestorePayload = {
+            name, phone, email, line_name: line,
+            store_id: storeId, store_note: storeNote,
+            shipping_address: (m.includes('宅配') || m.includes('郵寄')) ? storeNote : null,
+            items_text: items,
+            items: [{ name: 'DIY自填項目', price: amount, qty: 1 }],
+            subtotal: amount, shipping_fee: ship, total: amount + ship,
+            note, logistics_type: m, payment_method: 'cod', status: '待處理',
+            source_token: 'keicha_2025_web_auth',
+            created_at: firebase.firestore.FieldValue.serverTimestamp(),
+            updated_at: firebase.firestore.FieldValue.serverTimestamp()
         };
-        
+
         try {
-            const res = await API.checkout(payload);
-            if(res.success) {
-                if (isSave) {
-                    let localData = {};
-                    const oldData = localStorage.getItem('keicha_v2_user');
-                    if (oldData) localData = JSON.parse(oldData);
+            const newOrderId = await generateOrderId('D');
+            await db.collection('orders').doc(newOrderId).set(firestorePayload);
 
-                    localData.phone = phone;
-                    localData.name = name;
-                    localData.email = email;
+            if (isSave) {
+                const memberData = {
+                    phone, name, email,
+                    source_token: 'keicha_2025_web_auth',
+                    updated_at: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                if (m.includes('7-11')) { memberData.store_711 = storeId; memberData.store_711_note = storeNote; }
+                else if (m.includes('全家')) { memberData.store_fami = storeId; memberData.store_fami_note = storeNote; }
+                else if (m.includes('宅配') || m.includes('郵寄')) { memberData.shipping_address = storeNote; }
 
-                    if (currentMethod === '711') {
-                        localData.store_711 = storeData;
-                        localData.store_711_note = storeNote;
-                    } else if (currentMethod === 'fami') {
-                        localData.store_fami = storeData;
-                        localData.store_fami_note = storeNote;
-                    } else if (currentMethod === 'addr') {
-                        localData.shipping_address = storeData;
-                    }
-
-                    localStorage.setItem('keicha_v2_user', JSON.stringify(localData));
-                }
-                
-alert("訂單已成功送出！");
-// 導向確認
-window.location.href = "fast-diy-result.html";
-            } else {
-                alert("送出失敗：" + res.msg);
+                const memberSnap = await db.collection('members').where('phone', '==', phone).limit(1).get();
+                if (!memberSnap.empty) { await db.collection('members').doc(memberSnap.docs[0].id).update(memberData); }
+                else { memberData.created_at = firebase.firestore.FieldValue.serverTimestamp(); await db.collection('members').add(memberData); }
             }
-        } catch(e) {
+
+            if (window.API && window.API.sendNotification) {
+                window.API.sendNotification('new_matcha_order', { ...firestorePayload, order_id: newOrderId }).catch(e => console.error(e));
+            }
+
+            localStorage.removeItem('diy_draft');
+            KUI.alert("訂單已成功送出！");
+            window.location.href = "fast-diy-result.html";
+        } catch (e) {
             console.error(e);
-            alert("系統忙碌中，請稍後再試");
+            KUI.alert("送出失敗：" + e.message);
         } finally {
             setBtnLoading(btn, false);
         }
     }
 
+    // --- 自動儲存功能 ---
+    function saveDraft() {
+        const draft = {
+            phone: getVal('input-phone'),
+            items: getVal('input-items'),
+            amount: getVal('input-amount'),
+            name: getVal('input-name'),
+            email: getVal('input-email'),
+            line: getVal('input-line'),
+            note: getVal('input-note'),
+            method: currentMethod
+        };
+        // 儲存動態輸入內容
+        if (currentMethod) {
+            const m = currentMethod;
+            if (m.includes('7-11') || m.includes('全家')) {
+                draft.storeId = getVal(`store-id-${m}`);
+                draft.storeNote = getVal(`store-note-${m}`);
+            } else if (m.includes('宅配') || m.includes('郵寄')) {
+                draft.storeAddr = getVal(`store-addr-${m}`);
+            } else {
+                draft.storeNote = getVal(`store-note-${m}`);
+            }
+        }
+        localStorage.setItem('diy_draft', JSON.stringify(draft));
+    }
+
+    function loadDraft() {
+        const saved = localStorage.getItem('diy_draft');
+        if (!saved) return;
+        const draft = JSON.parse(saved);
+
+        setVal('input-phone', draft.phone);
+        setVal('input-items', draft.items);
+        setVal('input-amount', draft.amount);
+        setVal('input-name', draft.name);
+        setVal('input-email', draft.email);
+        setVal('input-line', draft.line);
+        setVal('input-note', draft.note);
+
+        if (draft.method) {
+            currentMethod = draft.method;
+            selectLogistics(draft.method);
+            const m = draft.method;
+            if (m.includes('7-11') || m.includes('全家')) {
+                setVal(`store-id-${m}`, draft.storeId);
+                setVal(`store-note-${m}`, draft.storeNote);
+            } else if (m.includes('宅配') || m.includes('郵寄')) {
+                setVal(`store-addr-${m}`, draft.storeAddr);
+            } else {
+                setVal(`store-note-${m}`, draft.storeNote);
+            }
+        }
+        updatePageSummary();
+    }
+
+    // 監聽
+    document.addEventListener('input', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            saveDraft();
+        }
+    });
+
     function getVal(id) { return document.getElementById(id)?.value.trim() || ''; }
-    function setVal(id, v) { const el = document.getElementById(id); if(el) el.value = v || ''; }
-    function setText(id, t) { const el = document.getElementById(id); if(el) el.innerText = t || ''; }
+    function setVal(id, v) { const el = document.getElementById(id); if (el) el.value = v || ''; }
+    function setText(id, t) { const el = document.getElementById(id); if (el) el.innerText = t || ''; }
 </script>

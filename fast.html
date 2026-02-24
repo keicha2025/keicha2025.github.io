@@ -3,72 +3,187 @@ layout: default
 title: KEICHA 快速結帳
 ---
 
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+<meta charset="UTF-8">
+
+<!-- Firebase SDK (v9 compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBF50fJPE-QL3yV4KaVIWzDmDPFRAkpwT4",
+        authDomain: "keicha-membership-system.firebaseapp.com",
+        projectId: "keicha-membership-system",
+        storageBucket: "keicha-membership-system.firebasestorage.app",
+        messagingSenderId: "941650156322",
+        appId: "1:941650156322:web:5c7473aeaa184e0b94637b"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // 初始化 App Check
+    const appCheck = firebase.appCheck();
+    appCheck.activate('6LcPa3UsAAAAAHJ-z9C3N9cqen3AYC8HxEQODoTM', true);
+
+    const db = firebase.firestore();
+</script>
 
 <style>
     /* [UI設定] 基礎樣式繼承自 DIY */
-    input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-    input[type=number] { -moz-appearance: textfield; }
-
-    .brand-green { color: #6ea44c; }
-    .bg-brand-green { background-color: #6ea44c; }
-    .border-brand-green { border-color: #6ea44c; }
-    
-    .overlay {
-        position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 190;
-        opacity: 0; visibility: hidden; transition: opacity 0.3s; backdrop-filter: blur(4px);
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
     }
-    .overlay.open { opacity: 1; visibility: visible; }
 
-    .animate-spin-custom { animation: spin 1s linear infinite; }
-    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    .brand-green {
+        color: #6ea44c;
+    }
+
+    .bg-brand-green {
+        background-color: #6ea44c;
+    }
+
+    .border-brand-green {
+        border-color: #6ea44c;
+    }
+
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 190;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s;
+        backdrop-filter: blur(4px);
+    }
+
+    .overlay.open {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .animate-spin-custom {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
 
     /* 輸入框樣式 */
     .diy-input {
-        width: 100%; padding: 12px; 
-        border: 1px solid #e5e7eb; border-radius: 12px; 
-        font-size: 0.95rem; outline: none; transition: all 0.2s;
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        outline: none;
+        transition: all 0.2s;
         background-color: #fff;
     }
-    .diy-input:focus { border-color: #6ea44c; ring: 1px solid #6ea44c; box-shadow: 0 0 0 3px rgba(110, 164, 76, 0.1); }
-    
+
+    .diy-input:focus {
+        border-color: #6ea44c;
+        ring: 1px solid #6ea44c;
+        box-shadow: 0 0 0 3px rgba(110, 164, 76, 0.1);
+    }
+
     /* 強調區塊 (統一卡片樣式) */
-    .section-card { background: white; padding: 24px; border-radius: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 24px; }
-    
+    .section-card {
+        background: white;
+        padding: 24px;
+        border-radius: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        margin-bottom: 24px;
+    }
+
     /* 物流選項卡片 */
     .logistics-card {
-        border: 2px solid #f3f4f6; border-radius: 16px; padding: 16px;
-        cursor: pointer; transition: all 0.2s; position: relative;
+        border: 2px solid #f3f4f6;
+        border-radius: 16px;
+        padding: 16px;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
     }
-    .logistics-card:hover { border-color: #e5e7eb; }
-    .logistics-card.active { border-color: #6ea44c; background-color: #f9fdf7; }
-    
+
+    .logistics-card:hover {
+        border-color: #e5e7eb;
+    }
+
+    .logistics-card.active {
+        border-color: #6ea44c;
+        background-color: #f9fdf7;
+    }
+
     /* 按鈕鎖定狀態樣式 */
     .btn-loading {
-        background-color: #9ca3af !important; border-color: #9ca3af !important;
-        cursor: not-allowed !important; color: white !important;
+        background-color: #9ca3af !important;
+        border-color: #9ca3af !important;
+        cursor: not-allowed !important;
+        color: white !important;
     }
-    
+
     /* 統一樣式按鈕 (白底綠框) */
     .btn-outline-green {
-        background-color: white; color: #6ea44c; border: 1px solid #6ea44c;
-        padding: 8px 16px; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 700;
-        display: flex; align-items: center; justify-content: center; white-space: nowrap;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); transition: all 150ms;
+        background-color: white;
+        color: #6ea44c;
+        border: 1px solid #6ea44c;
+        padding: 8px 16px;
+        border-radius: 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        transition: all 150ms;
     }
-    .btn-outline-green:hover { background-color: #f9fafb; }
-    .btn-outline-green:active { transform: scale(0.95); }
+
+    .btn-outline-green:hover {
+        background-color: #f9fafb;
+    }
+
+    .btn-outline-green:active {
+        transform: scale(0.95);
+    }
 
     /* iOS 底部安全區域適配 */
-    .safe-area-pb { padding-bottom: env(safe-area-inset-bottom, 20px); }
-    @supports not (padding-bottom: env(safe-area-inset-bottom)) { .safe-area-pb { padding-bottom: 12px; } }
+    .safe-area-pb {
+        padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
+
+    @supports not (padding-bottom: env(safe-area-inset-bottom)) {
+        .safe-area-pb {
+            padding-bottom: 12px;
+        }
+    }
 
     /* 賣場關閉時的遮罩 */
     #closed-mask {
-        display: none; position: fixed; inset: 0; background: white; z-index: 50;
-        flex-direction: column; align-items: center; justify-content: center; text-align: center;
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: white;
+        z-index: 50;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
     }
 </style>
 
@@ -80,7 +195,7 @@ title: KEICHA 快速結帳
 </div>
 
 <div id="main-content" class="bg-gray-50 min-h-screen pb-32 hidden opacity-0 transition-opacity duration-500">
-    
+
     <div class="container mx-auto px-4 max-w-2xl pt-10 pb-6">
         <h1 class="text-2xl font-bold tracking-tight text-gray-800 flex items-center gap-2">
             <span class="material-symbols-rounded text-[#6ea44c]">shopping_bag</span> 快速結帳
@@ -94,9 +209,10 @@ title: KEICHA 快速結帳
 
         <section class="section-card">
             <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">本次訂購內容</h2>
-            
+
             <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 mb-4">
-                <div id="display-items" class="text-gray-700 text-sm font-bold leading-relaxed whitespace-pre-wrap">載入中...</div>
+                <div id="display-items" class="text-gray-700 text-sm font-bold leading-relaxed whitespace-pre-wrap">
+                    載入中...</div>
             </div>
 
             <div class="flex items-center justify-between px-2">
@@ -106,9 +222,11 @@ title: KEICHA 快速結帳
         </section>
 
         <section class="section-card">
-            <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">您的手機號碼 <span class="text-red-500">*</span></label>
+            <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">您的手機號碼 <span
+                    class="text-slate-500">*</span></label>
             <div class="flex gap-3">
-                <input type="tel" id="input-phone" class="diy-input text-lg font-bold font-mono tracking-wide" placeholder="09xxxxxxxx" maxlength="10">
+                <input type="tel" id="input-phone" class="diy-input text-lg font-bold font-mono tracking-wide"
+                    placeholder="09xxxxxxxx" maxlength="10">
                 <button onclick="lookupPhoneData(this)" id="btn-lookup" class="btn-outline-green">
                     會員自動帶入
                 </button>
@@ -120,7 +238,8 @@ title: KEICHA 快速結帳
         </section>
 
         <section class="section-card space-y-4">
-            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2">物流方式</h2>
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2">物流方式
+            </h2>
 
             <div class="logistics-card flex flex-col gap-3 hidden" id="card-711" onclick="selectLogistics('711')">
                 <div class="flex items-center justify-between pointer-events-none">
@@ -130,10 +249,12 @@ title: KEICHA 快速結帳
                     </div>
                     <div id="price-preview-7-11" class="text-xs font-bold text-gray-400"></div>
                 </div>
-                <div id="detail-711" class="hidden space-y-3 pt-3 border-t border-gray-100/50 mt-1" onclick="event.stopPropagation()">
+                <div id="detail-711" class="hidden space-y-3 pt-3 border-t border-gray-100/50 mt-1"
+                    onclick="event.stopPropagation()">
                     <div class="flex gap-2">
                         <input type="text" id="store-711" class="diy-input flex-1" placeholder="請輸入6碼店號" maxlength="6">
-                        <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="btn-outline-green">查詢店號</a>
+                        <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank"
+                            class="btn-outline-green" id="query-link-711">查詢店號</a>
                     </div>
                     <input type="text" id="store-note-711" class="diy-input" placeholder="店名備註 (例如: 科慶門市)">
                 </div>
@@ -147,10 +268,12 @@ title: KEICHA 快速結帳
                     </div>
                     <div id="price-preview-fami" class="text-xs font-bold text-gray-400"></div>
                 </div>
-                <div id="detail-fami" class="hidden space-y-3 pt-3 border-t border-gray-100/50 mt-1" onclick="event.stopPropagation()">
+                <div id="detail-fami" class="hidden space-y-3 pt-3 border-t border-gray-100/50 mt-1"
+                    onclick="event.stopPropagation()">
                     <div class="flex gap-2">
                         <input type="text" id="store-fami" class="diy-input flex-1" placeholder="請輸入6碼店號" maxlength="6">
-                        <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="btn-outline-green">查詢店號</a>
+                        <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank"
+                            class="btn-outline-green" id="query-link-fami">查詢店號</a>
                     </div>
                     <input type="text" id="store-note-fami" class="diy-input" placeholder="店名備註 (例如: 全家慶中店)">
                 </div>
@@ -164,43 +287,51 @@ title: KEICHA 快速結帳
                     </div>
                     <div id="price-preview-addr" class="text-xs font-bold text-gray-400"></div>
                 </div>
-                <div id="detail-addr" class="hidden pt-3 border-t border-gray-100/50 mt-1" onclick="event.stopPropagation()">
+                <div id="detail-addr" class="hidden pt-3 border-t border-gray-100/50 mt-1"
+                    onclick="event.stopPropagation()">
                     <textarea id="store-addr" class="diy-input" rows="2" placeholder="請輸入完整收件地址"></textarea>
                 </div>
             </div>
-            
+
             <div id="no-logistics-msg" class="hidden text-center text-gray-400 text-sm py-4">
                 目前沒有可用的物流方式，請聯繫管理員。
             </div>
         </section>
 
         <section class="section-card space-y-4">
-            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2">收件人資訊</h2>
-            
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2">收件人資訊
+            </h2>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="text-[10px] font-bold text-gray-400 mb-1 block">真實姓名 <span class="text-red-500">*</span></label>
+                    <label class="text-[10px] font-bold text-gray-400 mb-1 block">真實姓名 <span
+                            class="text-slate-500">*</span></label>
                     <input type="text" id="input-name" class="diy-input" placeholder="請輸入姓名">
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-gray-400 mb-1 block">電子信箱 <span class="text-red-500">*</span></label>
+                    <label class="text-[10px] font-bold text-gray-400 mb-1 block">電子信箱 <span
+                            class="text-slate-500">*</span></label>
                     <input type="email" id="input-email" class="diy-input" placeholder="接收訂單通知">
                 </div>
             </div>
-            
+
             <div>
-                 <label class="text-[10px] font-bold text-gray-400 mb-1 block">LINE 顯示名稱 <span class="text-red-500">*</span></label>
-                 <input type="text" id="input-line" class="diy-input" placeholder="方便我們聯絡您">
+                <label class="text-[10px] font-bold text-gray-400 mb-1 block">LINE 顯示名稱 <span
+                        class="text-slate-500">*</span></label>
+                <input type="text" id="input-line" class="diy-input" placeholder="方便我們聯絡您">
             </div>
         </section>
 
         <section class="section-card">
             <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">訂單備註</label>
             <textarea id="input-note" class="diy-input" rows="2" placeholder="如有其他需求請填寫..."></textarea>
-            
-            <div class="mt-6 p-4 bg-white rounded-xl border border-gray-200 shadow-sm hover:border-[#6ea44c] transition duration-200">
+
+            <div
+                class="mt-6 p-4 bg-white rounded-xl border border-gray-200 shadow-sm hover:border-[#6ea44c] transition duration-200">
                 <label class="flex items-center gap-3 cursor-pointer select-none">
-                    <input type="checkbox" id="join-member-check" class="w-5 h-5 text-[#6ea44c] rounded border-gray-300 focus:ring-[#6ea44c] checked:bg-[#6ea44c]" checked>
+                    <input type="checkbox" id="join-member-check"
+                        class="w-5 h-5 text-[#6ea44c] rounded border-gray-300 focus:ring-[#6ea44c] checked:bg-[#6ea44c]"
+                        checked>
                     <span class="text-xs text-gray-600 font-bold leading-relaxed">
                         確認儲存/更新收件資料，下次可使用「會員自動帶入」
                     </span>
@@ -210,19 +341,23 @@ title: KEICHA 快速結帳
 
     </main>
 
-<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 h-20 px-6 flex items-center shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-40 safe-area-pb">
-    <div class="container mx-auto max-w-2xl flex items-center justify-between gap-3">
-            
+    <div
+        class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 h-20 px-6 flex items-center shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-40 safe-area-pb">
+        <div class="container mx-auto max-w-2xl flex items-center justify-between gap-3">
+
             <div class="flex flex-col justify-center flex-1 min-w-0">
-                <div id="summary-info-text" class="text-[11px] font-bold text-gray-400 whitespace-nowrap truncate leading-tight">
+                <div id="summary-info-text"
+                    class="text-[11px] font-bold text-gray-400 whitespace-nowrap truncate leading-tight">
                     總金額 (含運)｜尚未選擇物流
                 </div>
-                <div id="summary-total" class="text-2xl font-bold brand-green font-mono leading-none mt-0.5 whitespace-nowrap">
+                <div id="summary-total"
+                    class="text-2xl font-bold brand-green font-mono leading-none mt-0.5 whitespace-nowrap">
                     NT$ -
                 </div>
             </div>
 
-            <button onclick="submitOrder(this)" id="btn-submit" class="h-12 bg-[#6ea44c] text-white px-6 rounded-xl font-bold shadow-lg shadow-green-900/10 active:scale-95 hover:bg-[#5d8d41] transition-all flex items-center justify-center gap-1.5 shrink-0">
+            <button onclick="submitOrder(this)" id="btn-submit"
+                class="h-12 bg-[#6ea44c] text-white px-6 rounded-xl font-bold shadow-lg shadow-green-900/10 active:scale-95 hover:bg-[#5d8d41] transition-all flex items-center justify-center gap-1.5 shrink-0">
                 <span>送出<span class="hidden sm:inline">訂單</span></span>
                 <span class="material-symbols-rounded text-lg">arrow_forward</span>
             </button>
@@ -237,29 +372,37 @@ title: KEICHA 快速結帳
     </div>
 </div>
 
+<!-- Supabase JS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/api.js"></script>
 
 <script>
     let currentMethod = null;
     let fastConfig = null;
     let productAmount = 0;
+    let shippingRules = [];
 
     document.addEventListener('DOMContentLoaded', async () => {
         try {
-            const data = await API.fetchSystemData();
+            const [configDoc, shipSnap] = await Promise.all([
+                db.collection('fast_checkout_config').doc('default').get(),
+                db.collection('shipping_rules').get()
+            ]);
+
+            shippingRules = shipSnap.docs.map(doc => doc.data());
             document.getElementById('loading-overlay').classList.add('hidden');
 
-            if (data && data.fast_config) {
-                fastConfig = data.fast_config;
+            if (configDoc.exists) {
+                fastConfig = configDoc.data();
                 renderPageConfig();
             } else {
                 alert("無法讀取賣場設定");
             }
-        } catch (e) { 
+        } catch (e) {
             console.error("Config Error:", e);
             document.getElementById('loading-overlay').innerText = "連線錯誤，請重新整理";
         }
-        
+
         const savedUser = localStorage.getItem('keicha_v2_user');
         if (savedUser) {
             const u = JSON.parse(savedUser);
@@ -267,6 +410,27 @@ title: KEICHA 快速結帳
             fillFormWithData(u);
         }
     });
+
+    // --- 產生訂單編號 (Option 1) ---
+    async function generateOrderId(prefixChar) {
+        const now = new Date();
+        const yy = String(now.getFullYear()).slice(-2);
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const datePrefix = `${prefixChar}${yy}${mm}${dd}`;
+
+        const counterRef = db.collection('order_counters').doc(datePrefix);
+
+        return await db.runTransaction(async (transaction) => {
+            const counterDoc = await transaction.get(counterRef);
+            let nextNum = 1;
+            if (counterDoc.exists) {
+                nextNum = (counterDoc.data().count || 0) + 1;
+            }
+            transaction.set(counterRef, { count: nextNum }, { merge: true });
+            return `${datePrefix}${String(nextNum).padStart(2, '0')}`;
+        });
+    }
 
     function renderPageConfig() {
         if (!fastConfig) return;
@@ -286,7 +450,7 @@ title: KEICHA 快速結帳
         document.getElementById('display-amount').innerText = `NT$ ${productAmount.toLocaleString()}`;
 
         let hasAnyMethod = false;
-        
+
         if (fastConfig.enable_711 === true) {
             document.getElementById('card-711').classList.remove('hidden');
             hasAnyMethod = true;
@@ -311,6 +475,12 @@ title: KEICHA 快速結帳
         if (!hasAnyMethod) {
             document.getElementById('no-logistics-msg').classList.remove('hidden');
         }
+
+        // [新增] 更新查詢連結
+        shippingRules.forEach(r => {
+            if (r.method.includes('7-11') && r.tracking_link) document.getElementById('query-link-711').href = r.tracking_link;
+            if (r.method.includes('全家') && r.tracking_link) document.getElementById('query-link-fami').href = r.tracking_link;
+        });
 
         updatePageSummary();
     }
@@ -342,17 +512,19 @@ title: KEICHA 快速結帳
 
     async function lookupPhoneData(btn) {
         const phone = document.getElementById('input-phone').value.trim();
-        if(!/^09\d{8}$/.test(phone)) return alert("請輸入正確的 09 開頭 10 碼電話");
-        
+        if (!/^09\d{8}$/.test(phone)) return alert("請輸入正確的 09 開頭 10 碼電話");
+
         document.getElementById('join-member-check').checked = true;
         setBtnLoading(btn, true, "查詢中...");
 
         try {
-            const res = await API.login(phone);
-            if(res.success && !res.isNew) {
-                fillFormWithData(res.data);
+            const snapshot = await db.collection('members').where('phone', '==', phone).limit(1).get();
+            if (!snapshot.empty) {
+                fillFormWithData(snapshot.docs[0].data());
+            } else {
+                alert("新朋友您好，請手動輸入收件資料");
             }
-        } catch(e) { alert("連線錯誤"); } 
+        } catch (e) { alert("連線錯誤：" + e.message); }
         finally { setBtnLoading(btn, false); }
     }
 
@@ -372,7 +544,7 @@ title: KEICHA 快速結帳
             const card = document.getElementById(`card-${t}`);
             const detail = document.getElementById(`detail-${t}`);
             const icon = card.querySelector('.material-symbols-rounded');
-            
+
             if (t === type) {
                 card.classList.add('active');
                 detail.classList.remove('hidden');
@@ -387,7 +559,7 @@ title: KEICHA 快速結帳
     }
 
     function updatePageSummary() {
-        const subtotal = productAmount; 
+        const subtotal = productAmount;
         let ship = 0;
         let infoText = "總金額 (含運)";
 
@@ -401,7 +573,7 @@ title: KEICHA 快速結帳
         }
 
         const infoEl = document.getElementById('summary-info-text');
-        if(infoEl) infoEl.innerText = infoText;
+        if (infoEl) infoEl.innerText = infoText;
 
         const total = subtotal + ship;
         document.getElementById('summary-total').innerText = `NT$ ${total.toLocaleString()}`;
@@ -415,29 +587,29 @@ title: KEICHA 快速結帳
         const note = getVal('input-note');
         const isSave = document.getElementById('join-member-check').checked;
 
-        if(!phone || !/^09\d{8}$/.test(phone)) return alert("請輸入正確的手機號碼");
-        if(!name) return alert("請填寫姓名");
-        if(!email) return alert("請填寫 Email");
-        if(!line) return alert("請填寫 LINE 名稱");
-        if(!currentMethod) return alert("請選擇物流方式");
+        if (!phone || !/^09\d{8}$/.test(phone)) return alert("請輸入正確的手機號碼");
+        if (!name) return alert("請填寫姓名");
+        if (!email) return alert("請填寫 Email");
+        if (!line) return alert("請填寫 LINE 名稱");
+        if (!currentMethod) return alert("請選擇物流方式");
 
         let storeData = "";
         let storeNote = "";
         let logisticsRaw = "";
-        
+
         if (currentMethod === '711') {
             storeData = getVal('store-711');
             storeNote = getVal('store-note-711');
-            if(!/^\d{6}$/.test(storeData)) return alert("請輸入正確的 7-11 「6碼純數字」店號");
+            if (!/^\d{6}$/.test(storeData)) return alert("請輸入正確的 7-11 「6碼純數字」店號");
             logisticsRaw = '7-11';
         } else if (currentMethod === 'fami') {
             storeData = getVal('store-fami');
             storeNote = getVal('store-note-fami');
-            if(!/^\d{6}$/.test(storeData)) return alert("請輸入正確的全家 「6碼純數字」店號");
+            if (!/^\d{6}$/.test(storeData)) return alert("請輸入正確的全家 「6碼純數字」店號");
             logisticsRaw = '全家';
         } else {
             storeData = getVal('store-addr');
-            if(!storeData) return alert("請填寫宅配地址");
+            if (!storeData) return alert("請填寫宅配地址");
             logisticsRaw = '宅配';
         }
 
@@ -451,50 +623,73 @@ title: KEICHA 快速結帳
 
         setBtnLoading(btn, true, "處理中...");
 
-        const payload = {
+        const firestorePayload = {
             name: name,
             phone: phone,
             email: email,
             line_name: line,
-            store: storeData,
+            store_id: storeData,
             store_note: storeNote,
-            items: fastConfig.items_text || "快速結帳商品",
+            shipping_address: currentMethod === 'addr' ? storeData : null,
+            items_text: fastConfig.items_text || "快速結帳商品",
+            items: [{ name: fastConfig.items_text || '快速結帳', price: productAmount, qty: 1 }],
             subtotal: productAmount,
-            shipping: ship,
-            date: new Date().toLocaleString('zh-TW'),
+            shipping_fee: ship,
+            total: productAmount + ship,
             note: note,
-            logistics: logisticsDisplay, 
-            join_member: isSave
+            logistics_type: logisticsRaw,
+            payment_method: 'cod',
+            status: '待處理',
+            created_at: firebase.firestore.FieldValue.serverTimestamp(),
+            updated_at: firebase.firestore.FieldValue.serverTimestamp()
         };
-        
+
         try {
-            const res = await API.checkout(payload);
-            if(res.success) {
-                if (isSave) {
-                    let localData = {};
-                    const oldData = localStorage.getItem('keicha_v2_user');
-                    if (oldData) localData = JSON.parse(oldData);
-                    localData.phone = phone; localData.name = name; localData.email = email;
-                    if (currentMethod === '711') { localData.store_711 = storeData; localData.store_711_note = storeNote; } 
-                    else if (currentMethod === 'fami') { localData.store_fami = storeData; localData.store_fami_note = storeNote; } 
-                    else if (currentMethod === 'addr') { localData.shipping_address = storeData; }
-                    localStorage.setItem('keicha_v2_user', JSON.stringify(localData));
+            const newOrderId = await generateOrderId('F');
+            await db.collection('orders').doc(newOrderId).set(firestorePayload);
+            if (isSave) {
+                let localData = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
+                localData = { ...localData, phone, name, email };
+                if (currentMethod === '711') { localData.store_711 = storeData; localData.store_711_note = storeNote; }
+                else if (currentMethod === 'fami') { localData.store_fami = storeData; localData.store_fami_note = storeNote; }
+                else if (currentMethod === 'addr') { localData.shipping_address = storeData; }
+                localStorage.setItem('keicha_v2_user', JSON.stringify(localData));
+
+                // Save to Firestore members collection
+                const memberData = {
+                    phone: phone, name: name, email: email,
+                    updated_at: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                if (currentMethod === '711') { memberData.store_711 = storeData; memberData.store_711_note = storeNote; }
+                else if (currentMethod === 'fami') { memberData.store_fami = storeData; memberData.store_fami_note = storeNote; }
+                else if (currentMethod === 'addr') { memberData.shipping_address = storeData; }
+
+                const memberSnap = await db.collection('members').where('phone', '==', phone).limit(1).get();
+                if (!memberSnap.empty) {
+                    await db.collection('members').doc(memberSnap.docs[0].id).update(memberData);
+                } else {
+                    memberData.created_at = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('members').add(memberData);
                 }
-alert("訂單已成功送出！");
-// 導向確認
-window.location.href = "fast-diy-result.html";
-            } else {
-                alert("送出失敗：" + res.msg);
             }
-        } catch(e) {
+
+            if (window.API && window.API.sendNotification) {
+                window.API.sendNotification('new_matcha_order', {
+                    ...firestorePayload,
+                    order_id: newOrderId
+                }).catch(e => console.error(e));
+            }
+            alert("訂單已成功送出！");
+            window.location.href = "fast-diy-result.html";
+        } catch (e) {
             console.error(e);
-            alert("系統忙碌中，請稍後再試");
+            alert("系統忙碌中，請稍後再試：" + e.message);
         } finally {
             setBtnLoading(btn, false);
         }
     }
 
     function getVal(id) { return document.getElementById(id)?.value.trim() || ''; }
-    function setVal(id, v) { const el = document.getElementById(id); if(el) el.value = v || ''; }
-    function setText(id, t) { const el = document.getElementById(id); if(el) el.innerText = t || ''; }
+    function setVal(id, v) { const el = document.getElementById(id); if (el) el.value = v || ''; }
+    function setText(id, t) { const el = document.getElementById(id); if (el) el.innerText = t || ''; }
 </script>

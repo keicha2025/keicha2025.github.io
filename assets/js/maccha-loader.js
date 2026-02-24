@@ -1,7 +1,7 @@
- /**
- * KEICHA 抹茶代購總覽 - 全自動載入引擎
- * 整合：GAS JSON 資料串接 + 一期一會載入動畫控制
- */
+/**
+* KEICHA 抹茶代購總覽 - 全自動載入引擎
+* 整合：GAS JSON 資料串接 + 一期一會載入動畫控制
+*/
 
 window.addEventListener('load', () => {
 
@@ -12,34 +12,40 @@ window.addEventListener('load', () => {
     const statusGrid = document.getElementById('status-grid-container');
     const statusLoader = document.getElementById('status-loader');
 
-    // 3. 開始抓取資料
-    API.fetchMatchaData()
-        .then(data => {
-            const { brands, products } = data;
+    // 3. 開始抓取資料 (直接從 Firestore 讀取)
+    Promise.all([
+        db.collection('matcha_brands').orderBy('display_order', 'asc').get(),
+        db.collection('matcha_products').get()
+    ])
+        .then(([brandSnap, productSnap]) => {
+            // A. 品牌資料轉換
+            const brands = brandSnap.docs.map(doc => ({
+                key: doc.id,
+                ...doc.data(),
+                order: doc.data().display_order // 相容舊版欄位名
+            }));
 
-            // A. 品牌排序邏輯 (依 order 欄位，小到大)
-            const sortedBrands = brands.sort((a, b) => {
-                const orderA = (a.order === "" || a.order === null) ? 999 : parseInt(a.order);
-                const orderB = (b.order === "" || b.order === null) ? 999 : parseInt(b.order);
-                return orderA - orderB;
+            // B. 商品資料轉換
+            const products = productSnap.docs.map(doc => {
+                const p = doc.data();
+                return {
+                    ...p,
+                    brand_key: p.brand_id // 相容舊版過濾邏輯 (p.brand_key === brand.key)
+                };
             });
 
-            // B. 隱藏品牌區塊的小圈圈 loader (因為全屏遮罩已經蓋住了，這個其實看不見，但還是隱藏以防萬一)
-            if (statusLoader) statusLoader.style.display = 'none';
-
             // C. 執行渲染功能
-            renderBrands(sortedBrands);
-            renderProducts(sortedBrands, products);
-            renderSEO(sortedBrands);
+            renderBrands(brands);
+            renderProducts(brands, products);
+            renderSEO(brands);
 
             // D. ★關鍵步驟：資料全部渲染完畢後，移除「一期一會」全屏遮罩
             hidePreloader();
         })
         .catch(err => {
             console.error("載入失敗:", err);
-            // 發生錯誤時也要移除遮罩，避免使用者卡在白畫面，並顯示錯誤訊息
             hidePreloader();
-            if (statusGrid) statusGrid.innerHTML = `<p class="text-red-500 col-span-full text-center">資料載入失敗，請稍後再試。</p>`;
+            if (statusGrid) statusGrid.innerHTML = `<p class="text-slate-500 col-span-full text-center">資料載入失敗，請稍後再試。</p>`;
         });
 
     // --- 功能函式區 ---
@@ -53,11 +59,11 @@ window.addEventListener('load', () => {
             // 設定 600ms 的緩衝，確保使用者能看清「一期一會」的優雅
             setTimeout(() => {
                 preloader.classList.add('fade-out'); // 觸發 CSS opacity 0
-                
+
                 // 等待 CSS transition (0.8s) 結束後，將 display 設為 none
                 setTimeout(() => {
                     preloader.style.display = 'none';
-                }, 800); 
+                }, 800);
             }, 600);
         }
     }
@@ -103,9 +109,9 @@ window.addEventListener('load', () => {
             const section = document.createElement('section');
             section.id = brand.key;
             section.className = "container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28 mb-16";
-            
+
             let productCardsHTML = '';
-            
+
             if (brandProducts.length === 0) {
                 productCardsHTML = `<p class="text-gray-400 text-center col-span-full py-8">目前暫無品項</p>`;
             } else {
@@ -113,7 +119,7 @@ window.addEventListener('load', () => {
                     const isStatusOut = p.status === 'out-of-stock';
                     const isStockZero = (p.stock === 0 || p.stock === '0');
                     const hasTag = (p.tag && p.tag.trim() !== '');
-                    
+
                     // 1. 標籤顯示邏輯 (Tag 優先於 Stock)
                     let badge = '';
                     if (hasTag) {
@@ -140,18 +146,33 @@ window.addEventListener('load', () => {
 
                     // 3. 品名與規格樣式 (灰色小字)
                     const displayName = `
-                        ${p.name} 
+                        ${p.name.replace(/KEICHA/g, '<span class="font-brand-text">KEICHA</span>')} 
                         ${p.spec ? `<span class="text-sm font-normal text-gray-500 ml-1">${p.spec}</span>` : ''}
                     `;
-                    
+
+                    // [新增] 圖片顯示邏輯
+                    let imgHTML = '';
+                    if (p.image_url) {
+                        imgHTML = `
+                            <div class="h-48 overflow-hidden bg-gray-50">
+                                <img src="${p.image_url}" class="w-full h-full object-cover" loading="lazy">
+                            </div>
+                        `;
+                    }
+
+                    // [移除] 限購提醒 (由使用者要求隱藏)
+                    let limitHTML = '';
+
                     const cardClass = isStatusOut || isStockZero ? 'bg-gray-100 opacity-80' : 'bg-white transform hover:scale-105';
 
                     productCardsHTML += `
                         <div class="${cardClass} relative shadow-lg rounded-lg overflow-hidden transition-all duration-300 flex flex-col">
                             ${badge}
+                            ${imgHTML}
                             <div class="p-6 flex-grow">
                                 <h3 class="text-xl font-bold mb-2">${displayName}</h3>
-                                ${p.note ? `<p class="text-sm text-gray-500">${p.note}</p>` : ''}
+                                ${p.note ? `<p class="text-sm text-gray-500">${p.note.replace(/KEICHA/g, '<span class="font-brand-text">KEICHA</span>')}</p>` : ''}
+                                ${limitHTML}
                             </div>
                             <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
                                 ${priceHTML}
