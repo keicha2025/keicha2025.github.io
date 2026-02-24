@@ -75,6 +75,28 @@ Migrated the KEICHA Admin Panel's backend from Supabase to Firebase, including A
 身份驗證改用 Firebase Google 登入並限制指定管理員信箱，資料庫存取 logic 全部改寫為 Firestore，並導入伺服器端時間戳記以確保資料一致性。
 同時清理了相關過時的 Supabase 依賴。
 
+## [2026-02-25] - Admin Order Management Fixes & Checkout UI Alignment
+
+### Summary of changes
+Resolved critical issues in the admin panel's order management and successfully aligned the `card-order.html` checkout page with the premium aesthetics of `fast.html`.
+
+### Technical details of implementation
+- **Admin Panel Logistics Fix**: Implemented robust fallback logic for logistics data display in `admin.html` (checking `logistics_type`, `store_id`, `shipping_address`, etc.) to eliminate "undefined" values.
+- **Link Order Management**: Enhanced the "Link Orders" table in `admin.html` with updated headers and added an "Actions" column featuring Info, Edit, and Delete functionality.
+- **Fast Checkout Configuration**: Updated the admin interface for fast checkout to include fee toggles, amount inputs, and status controls with integrated saving logic.
+- **Card-Order UI Overhaul**: Re-engineered `card-order.html` from the ground up to match the premium, card-based UI of `fast.html`. 
+    - Reordered sections to prioritize recipient info and order summary.
+    - Implemented card-based logistics and payment selection.
+    - Added 7-11/FamilyMart store lookup integration.
+- **CSS Consolidation**: Synchronized brand colors and component styles between `fast.html` and `card-order.html` for a seamless customer experience.
+
+### Affected files or modules
+- `admin.html`: Updated `loadCardOrders`, added link order CRUD functions, and fast checkout config UI.
+- `card-order.html`: Major structural and styling overhaul.
+
+### Chinese Summary
+修復管理後台「連結訂單」表格標題與物流資訊顯示問題（解決 undefined 並補上操作按鈕）。同步將 `card-order.html` 結帳頁面改裝為與 `fast.html` 一致的高級卡片式設計，並優化填寫流程與門市查詢整合。
+
 ---
 
 ## [2026-02-19] - Finalized Firebase Migration & Supabase Cleanup
@@ -751,3 +773,109 @@ Optimized the Admin Panel interaction flow by ensuring modals close immediately 
 ### Chinese Summary
 優化管理後台操作體驗：刪除按鈕現在會即時關閉彈跳視窗。為全站主要表單導入「自動草稿保存」功能。並修復了抹茶商店「宅配運費」顯示錯誤的問題，透過加強關鍵字模糊匹配與新增頁面分類過濾，確保運費規則抓取精準無誤。
 
+## [2026-02-24] - Card Order System & Admin Link Management
+
+### Summary of changes
+Implemented a dedicated credit card ordering system with unique link suffixes, dynamic product rendering, and secure backend payment generation.
+
+### Technical details of implementation
+- **Custom Card Order Page**: Created `card-order.html` which uses the `id` URL parameter to fetch product details (title, description, amount, status) from Firestore.
+- **Admin Link Management**: Added a "信用卡連結" tab to `admin.html` offering full CRUD capabilities for payment links.
+- **Image Handling**: Integrated a Base64 image upload/preview system for product images, stored directly in the Firestore link document.
+- **Suffix Generation**: Implemented a 4-digit unique suffix generator (e.g., `card-order.html?id=8821`) for clean sharing.
+- **Multi-Stage Payments**: Added optional configuration for multi-stage payment descriptions.
+- **GAS Payment Backend**: Updated `gas/firebase_handler.gs` with the `generate_card_payment` action. It verifies the link data in Firestore (to prevent price tampering) and generates a signed ECPay auto-submit form.
+- **Security Rules**: Updated `firestore.rules` to allow public read access for the `card_orders_links` collection while restricted to authorized administrators for writes.
+
+### Affected files or modules
+- `card-order.html` [NEW]: Customer-facing payment page.
+- `admin.html`: Added link management UI and logic.
+- `gas/firebase_handler.gs`: Added payment generation and Firestore REST lookup logic.
+- `firestore.rules`: Updated for the new collection.
+
+### Chinese Summary
+實作了專屬的「信用卡支付連結」系統。管理員可在後台建立帶有 4 位數唯一後綴的連結（如：8821），並自訂金額、標題與產品圖片（支援 Base64 直接儲存）。後端同步新增了安全的金流簽章產生邏輯，有效防止前端篡改金額，並支援綠界支付自動跳轉。
+
+## [2026-02-24] - Custom Order ID Format (CYYMMDDXX)
+
+### Summary of changes
+Implemented a custom order ID format `CYYMMDDXX` (e.g., `C26022401`) for the card order system, replacing the generic `KC` + timestamp format.
+
+### Technical details of implementation
+- **Daily Sequential Counter**: Implemented `getNextOrderNumber` in `firebase_handler.gs` that uses a Firestore collection `order_counters` to maintain a daily sequence.
+- **Auto-Reset**: The sequential number (01-99) automatically resets to 01 at the start of each day based on the `YYMMDD` prefix.
+- **REST API Helpers**: Added `getFirestoreDocumentById` to securely retrieve counter data via Firestore REST API.
+- **Integration**: Updated `handleCardPayment` to use the generated ID for both Firestore documents and ECPay `MerchantTradeNo`.
+
+### Affected files or modules
+- `gas/firebase_handler.gs`: Logic for ID generation and Firestore counter management.
+
+### Chinese Summary
+實作自定義訂單編號格式 `CYYMMDDXX`（如：`C26022401`），透過 Firestore `order_counters` 集合實作每日自動重置的流水號功能。
+
+## [2026-02-24] - Card Order UI Refinement & Multi-Payment Support
+
+### Summary of changes
+Refined the card order checkout UI for better UX, added multi-payment method management (Credit Card & ATM), and implemented automated payment status tracking via Google Apps Script (GAS) callbacks.
+
+### Technical details of implementation
+- **UI Reordering**: Moved "Recipient Information" above "Shipping Section" in `card-order.html` for a more natural flow.
+- **Visual Polish**: Removed borders from logistics option labels and optimized radio button styling.
+- **Multi-Payment Support**: 
+    - Added "Credit Card" and "ATM" checkboxes to the payment link modal in `admin.html`.
+    - Updated `card-order.html` to render payment method selection dynamically.
+- **Automated Status Tracking**:
+    - Updated `firebase_handler.gs` to use the GAS Web App URL as the ECPay `ReturnURL`.
+    - Implemented `handleECPayCallback` with CheckMacValue verification and automated Firestore status updates (`card_orders` collection).
+    - Updated `firestore.rules` to permit order creation and status updates.
+
+### Affected files or modules
+- `card-order.html`: UI rearrangement and multi-payment rendering.
+- `admin.html`: Managed payment method selection in the admin link modal.
+- `gas/firebase_handler.gs`: Added payment callback logic and Firestore REST helpers.
+- `firestore.rules`: Updated permissions for the `card_orders` collection.
+
+### Chinese Summary
+優化信用卡結帳頁面 UI（將收件資訊上移並美化外框），新增「信用卡/ATM」複選功能，並透過 GAS 實作綠界付款回傳自動更新訂單狀態的功能。
+
+## [2026-02-24] - Refined Shipping Logic & Automated Stage Management
+- **Advanced Shipping Rules**: Implemented "Free Shipping", "Uniform Fee", and "Individual Logistics Fees" logic in `admin.html` and `card-order.html`.
+- **Automated Stage Status**: Integrated callback logic in `gas/firebase_handler.gs` to automatically mark payment stages as `is_paid` upon successful ECPay transaction.
+- **Admin UI Consolidation**: Merged "Link Orders" management into the "Credit Card" tab and refined the visual style of settings by removing yellow backgrounds.
+- **Table Unification & Optimization**: Standardized table styles and components (badges, padding) across all order modules. Added a search filter and stage count display for easier link management.
+- **Improved Data Handling**: Enhanced Firestore REST API parsing for complex nested arrays and objects in GAS.
+
+**實作了進階運費邏輯與支付階段自動化，並完成管理後台介面整併、樣式統一與搜尋優化。**
+
+[admin.html](file:///Users/jing/Downloads/keicha2025.github.io/admin.html), [card-order.html](file:///Users/jing/Downloads/keicha2025.github.io/card-order.html), [gas/firebase_handler.gs](file:///Users/jing/Downloads/keicha2025.github.io/gas/firebase_handler.gs)
+- **Advanced Shipping Logic**: 
+    - Updated `admin.html` to support "Free Shipping", "Uniform Fee", and "Individual Logistics Fees" (7-11, FamilyMart, Home) per payment link.
+    - Implemented `toggleLinkFeeInputs` in the admin modal to manage reactive UI states.
+    - Updated `card-order.html` to dynamically calculate totals and display shipping options based on link-specific rules.
+- **Automated Stage Status**:
+    - Enhanced `gas/firebase_handler.gs` to automatically mark specific payment stages as `is_paid: true` within the `card_orders_links` collection upon receiving a successful ECPay callback.
+    - Improved `fetchFirestoreDocument` in GAS to correctly parse and reconstruct nested/array data from the Firestore REST API.
+    - Added `updateFirestoreDocumentWithArray` to support partial updates of complex array fields in Firestore.
+- **Frontend Enforcement**:
+    - Payment stages already marked as "Paid" are now disabled and visually struck out in `card-order.html` to prevent duplicate payments.
+
+### Affected files or modules
+- `admin.html`: Updated link modal and saving logic.
+- `card-order.html`: Updated checkout logic and stage rendering.
+- `gas/firebase_handler.gs`: Updated callback logic and Firestore helper functions.
+
+### Chinese Summary
+優化了專屬支付連結的運費邏輯，對齊「快速結帳」系統提供免運、統一運費或個別物流計費選項。同步實作了階段付款自動化：當訂單支付成功後，系統會自動將連結中的對應階段標記為「已付」，且前台會自動停用已支付的項目避免重複扣款。
+
+## [2026-02-25] - Shipping & Amount Logic Refinement
+### Admin & Checkout Optimization
+- **Admin Modal Refinement**:
+    - Renamed "Total Amount" to "Product Amount (Excluding Shipping)" to clarify input requirements.
+    - Reordered shipping settings: "Shipping Methods" selection now precedes fee configuration.
+    - Implemented conditional fee inputs: Individual fee fields are now disabled and dimmed if the corresponding method is not selected.
+    - Added automated total calculation preview that sums product amount and the highest selected shipping fee.
+    - Standardized shipping methods to "7-11", "全家" (FamilyMart), and "宅配" (Home Delivery), removing the "N/A" option.
+    - Integrated convenience lookup links for 7-11 and FamilyMart store maps in both admin and checkout views.
+- **Affected Files**: `admin.html`, `card-order.html`
+
+**中文摘要：優化運費與金額邏輯。管理端更名為「商品金額」並新增總額預算；運送方式移至上方並與費率輸入框聯動；同步全站三種運送方式並加入門市查詢連結。**

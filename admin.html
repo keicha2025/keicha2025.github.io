@@ -746,33 +746,37 @@ title: KEICHA 管理後台
 
         <!-- 標籤頁 -->
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('orders')">
+            <button class="tab active" onclick="switchTab('orders', this)">
                 <span class="material-symbols-rounded">package_2</span>
                 <span class="tab-text">訂單</span>
             </button>
-            <button class="tab" onclick="switchTab('denwa')">
+            <button class="tab" onclick="switchTab('denwa', this)">
                 <span class="material-symbols-rounded">call</span>
                 <span class="tab-text">預約</span>
             </button>
-            <button class="tab" onclick="switchTab('products')">
+            <button class="tab" onclick="switchTab('products', this)">
                 <span class="material-symbols-rounded">local_cafe</span>
                 <span class="tab-text">抹茶</span>
             </button>
-            <button class="tab" onclick="switchTab('plans')">
+            <button class="tab" onclick="switchTab('plans', this)">
                 <span class="material-symbols-rounded">payments</span>
                 <span class="tab-text">方案</span>
             </button>
-            <button class="tab" onclick="switchTab('shipping')">
+            <button class="tab" onclick="switchTab('shipping', this)">
                 <span class="material-symbols-rounded">local_shipping</span>
                 <span class="tab-text">運費</span>
             </button>
-            <button class="tab" onclick="switchTab('config')">
+            <button class="tab" onclick="switchTab('config', this)">
                 <span class="material-symbols-rounded">settings</span>
                 <span class="tab-text">快速結帳</span>
             </button>
-            <button class="tab" onclick="switchTab('backup')">
+            <button class="tab" onclick="switchTab('cardlinks', this); loadCardLinks(); loadCardOrders();">
+                <span class="material-symbols-rounded">credit_card</span>
+                <span class="tab-text">刷卡管理</span>
+            </button>
+            <button class="tab" onclick="switchTab('backup', this)">
                 <span class="material-symbols-rounded">database</span>
-                <span class="tab-text">系統備份</span>
+                <span class="tab-text">備份</span>
             </button>
         </div>
 
@@ -921,12 +925,91 @@ title: KEICHA 管理後台
                 <div class="card-header-flex"
                     style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">快速結帳設定</h2>
-                    <button class="btn btn-primary" onclick="showConfigModal()" title="新增">
-                        <span class="material-symbols-rounded" style="font-size: 18px;">add</span>
+                    <button class="btn btn-secondary" onclick="resetFastConfigUI()" title="恢復預設">
+                        <span class="material-symbols-rounded" style="font-size: 18px;">restart_alt</span>
                     </button>
                 </div>
                 <div id="configContent">
                     <div class="loader"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 刷卡管理 (連結與訂單整併) -->
+        <div id="tab-cardlinks" class="tab-content">
+            <div class="card">
+                <div class="card-header-flex"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">刷卡連結管理</h2>
+                    <button class="btn btn-primary" onclick="showCardLinkModal()" title="新增連結">
+                        <span class="material-symbols-rounded" style="font-size: 18px;">add</span>
+                    </button>
+                </div>
+                <div id="cardlinksContent">
+                    <div class="loader"></div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 24px;">
+                <div class="card-header-flex"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">連結訂單管理</h2>
+                    <button class="text-[#6ea44c] hover:underline flex items-center gap-1" onclick="loadCardOrders()">
+                        <span class="material-symbols-rounded text-sm">refresh</span>
+                    </button>
+                </div>
+                <div id="cardordersContent">
+                    <div class="loader"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 系統備份 -->
+        <div id="tab-backup" class="tab-content">
+            <div class="card">
+                <h2 style="margin: 0 0 20px 0; font-size: 1.25rem; font-weight: 700;">資料庫備份與復原</h2>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: stretch;">
+                    <!-- 匯出 -->
+                    <div
+                        style="padding: 24px; border: 2px dashed #e5e7eb; border-radius: 12px; text-align: center; display: flex; flex-direction: column;">
+                        <span class="material-symbols-rounded"
+                            style="font-size: 48px; color: #6ea44c; margin-bottom: 16px;">download_for_offline</span>
+                        <h3 style="margin: 0 0 8px 0;">匯出資料庫 (JSON)</h3>
+                        <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 24px;">下載整份資料庫備份，包含訂單、預約、商品、品牌與設定值。
+                        </p>
+                        <div style="margin-top: auto;">
+                            <button class="btn btn-primary"
+                                style="width: 100%; height: 42px; display: flex; align-items: center; justify-content: center; gap: 8px;"
+                                onclick="exportDatabase(this)">
+                                <span class="material-symbols-rounded">cloud_download</span> 開始匯出
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 匯入 -->
+                    <div
+                        style="padding: 24px; border: 2px dashed #e5e7eb; border-radius: 12px; text-align: center; display: flex; flex-direction: column;">
+                        <span class="material-symbols-rounded"
+                            style="font-size: 48px; color: #64748b; margin-bottom: 16px;">upload_file</span>
+                        <h3 style="margin: 0 0 8px 0;">匯入資料庫 (JSON)</h3>
+                        <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 24px;">從 JSON 檔案還原資料。注意：匯入過程會覆蓋同 ID
+                            的現有資料，請謹慎操作！</p>
+
+                        <input type="file" id="import-file" accept=".json" style="display: none;"
+                            onchange="handleImportFile(this)">
+                        <div style="margin-top: auto;">
+                            <button class="btn btn-secondary"
+                                style="width: 100%; height: 42px; color: #64748b; border-color: #e5e7eb; display: flex; align-items: center; justify-content: center; gap: 8px;"
+                                onclick="document.getElementById('import-file').click()">
+                                <span class="material-symbols-rounded">history</span> 選擇檔案並還原
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="backup-status"
+                    style="margin-top: 24px; padding: 16px; background: #f9fafb; border-radius: 8px; font-family: monospace; font-size: 0.85rem; display: none;">
                 </div>
             </div>
         </div>
@@ -1043,12 +1126,17 @@ title: KEICHA 管理後台
     }
 
     // 切換標籤頁
-    function switchTab(tabName) {
+    function switchTab(tabName, el) {
         // 更新標籤樣式
         document.querySelectorAll('.tab').forEach(tab => {
             tab.classList.remove('active');
         });
-        event.target.classList.add('active');
+        if (el) {
+            el.classList.add('active');
+        } else {
+            // Fallback for cases where el is not passed
+            event.currentTarget.classList.add('active');
+        }
 
         // 更新內容顯示
         document.querySelectorAll('.tab-content').forEach(content => {
@@ -1075,6 +1163,12 @@ title: KEICHA 管理後台
                 break;
             case 'config':
                 loadFastConfig();
+                break;
+            case 'cardlinks':
+                loadCardLinks();
+                break;
+            case 'cardorders':
+                loadCardOrders();
                 break;
             case 'backup':
                 // 不需要特別載入資料，介面是靜態的
@@ -3373,10 +3467,10 @@ title: KEICHA 管理後台
                             <label class="form-label" style="font-size: 1rem; font-weight: 700; color: #1f2937; margin-bottom: 4px;">賣場狀態開關</label>
                             <p style="font-size: 0.75rem; color: #9ca3af; margin: 0;">開啟後顧客可下單，關閉則顯示維護中</p>
                         </div>
-                        <div class="toggle-wrapper" style="width: 52px; height: 28px;">
+                        <div class="toggle-wrapper">
                             <input type="checkbox" id="status_toggle" class="toggle-checkbox" ${data.status === '開啟' ? 'checked' : ''}>
-                            <label for="status_toggle" class="toggle-label" style="padding: 0; width: 100%; height: 100%;">
-                                <div class="toggle-circle" style="top: 2px; left: 2px;"></div>
+                            <label for="status_toggle" class="toggle-label">
+                                <div class="toggle-circle"></div>
                             </label>
                         </div>
                     </div>
@@ -3402,7 +3496,7 @@ title: KEICHA 管理後台
                                 <span class="material-symbols-rounded" style="color: #9ca3af;">local_shipping</span>
                                 <span style="font-weight: 700; color: #4b5563;">7-11 店到店</span>
                             </div>
-                            <div class="toggle-wrapper" style="width: 52px; height: 28px;">
+                        <div class="toggle-wrapper">
                                 <input type="checkbox" id="enable_711" class="toggle-checkbox" ${data.enable_711 ? 'checked' : ''}>
                                 <label for="enable_711" class="toggle-label">
                                     <div class="toggle-circle"></div>
@@ -3414,7 +3508,7 @@ title: KEICHA 管理後台
                                 <span class="material-symbols-rounded" style="color: #9ca3af;">store</span>
                                 <span style="font-weight: 700; color: #4b5563;">全家 店到店</span>
                             </div>
-                            <div class="toggle-wrapper" style="width: 52px; height: 28px;">
+                        <div class="toggle-wrapper">
                                 <input type="checkbox" id="enable_fami" class="toggle-checkbox" ${data.enable_fami ? 'checked' : ''}>
                                 <label for="enable_fami" class="toggle-label">
                                     <div class="toggle-circle"></div>
@@ -3426,7 +3520,7 @@ title: KEICHA 管理後台
                                 <span class="material-symbols-rounded" style="color: #9ca3af;">home</span>
                                 <span style="font-weight: 700; color: #4b5563;">宅配到府</span>
                             </div>
-                            <div class="toggle-wrapper" style="width: 52px; height: 28px;">
+                        <div class="toggle-wrapper">
                                 <input type="checkbox" id="enable_home" class="toggle-checkbox" ${data.enable_home ? 'checked' : ''}>
                                 <label for="enable_home" class="toggle-label">
                                     <div class="toggle-circle"></div>
@@ -3496,6 +3590,34 @@ title: KEICHA 管理後台
             console.error('Load config error:', error);
             container.innerHTML = `<p style="color: #64748b;">載入失敗：${error.message}</p>`;
         }
+    }
+
+    async function resetFastConfigUI() {
+        if (!(await KUI.confirm('確定要清除目前的快速結帳設定嗎？\n以此操作僅會清空畫面上的欄位，若未按儲存，重新整理後仍會載入舊設定。'))) return;
+
+        const ids = [
+            'status_toggle', 'enable_711', 'enable_fami', 'enable_home',
+            'is_free_shipping', 'use_uniform_fee'
+        ];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.checked = false;
+        });
+
+        const textIds = ['items_text'];
+        textIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+
+        const numIds = ['amount', 'uniform_fee', 'fee_711', 'fee_fami', 'fee_home'];
+        numIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = 0;
+        });
+
+        if (typeof toggleFeeInputs === 'function') toggleFeeInputs();
+        KUI.toast('設定已清除（尚未儲存）');
     }
 
     async function saveFastConfig() {
@@ -3767,11 +3889,12 @@ title: KEICHA 管理後台
         'orders',
         'denwa_orders',
         'members',
-        'products',
-        'brands',
-        'plans',
+        'matcha_products',
+        'matcha_brands',
+        'denwa_plans',
         'shipping_rules',
-        'config'
+        'fast_checkout_config',
+        'order_counters'
     ];
 
     function updateBackupStatus(msg, isError = false) {
@@ -3788,7 +3911,7 @@ title: KEICHA 管理後台
     async function exportDatabase(btn) {
         const originalText = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<span class="loader" style="width:16px; height:16px; border-width:2px;"></span> 處理中...';
+        btn.innerHTML = '<span class="loader" style="width:16px; height:16px; border-width:2px; margin: 0;"></span>';
 
         const statusDiv = document.getElementById('backup-status');
         statusDiv.innerHTML = '';
@@ -3826,7 +3949,7 @@ title: KEICHA 管理後台
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            updateBackupStatus('✅ 匯出完成！檔案已開始下載。');
+            updateBackupStatus('匯出完成！檔案已開始下載。');
             KUI.toast('資料庫匯出成功');
         } catch (error) {
             console.error('Export error:', error);
@@ -3899,7 +4022,7 @@ title: KEICHA 管理後台
                 updateBackupStatus(`完成 ${collName} 還原`);
             }
 
-            updateBackupStatus(`✅ 匯入成功！共還原 ${totalCount} 筆資料。`);
+            updateBackupStatus(`匯入成功！共還原 ${totalCount} 筆資料。`);
             KUI.alert(`資料庫還原成功！共 ${totalCount} 筆資料。建議刷新頁面以載入新資料。`);
         } catch (error) {
             console.error('Import error:', error);
@@ -3907,6 +4030,750 @@ title: KEICHA 管理後台
             KUI.alert('還原中斷：' + error.message);
         }
     }
+
+    // ========== 信用卡連結管理 ==========
+
+    async function loadCardLinks() {
+        const container = document.getElementById('cardlinksContent');
+        container.innerHTML = '<div class="loader"></div>';
+
+        try {
+            const snapshot = await db.collection('card_orders_links').orderBy('suffix', 'asc').get();
+            if (snapshot.empty) {
+                container.innerHTML = '<div class="empty-state"><span class="material-symbols-rounded">link_off</span><p>目前沒有任何連結</p></div>';
+                return;
+            }
+
+            let html = `
+                <div style="margin-bottom: 12px;">
+                    <input type="text" id="linkSearch" class="admin-input" placeholder="搜尋標題或後綴..." onkeyup="filterCardLinks(this.value)" style="font-size: 0.85rem; padding: 8px 12px;">
+                </div>
+                <div class="data-table orders-table-responsive">
+                    <table id="cardLinksTable">
+                        <thead>
+                            <tr>
+                                <th style="padding: 12px 15px;">後綴 (ID)</th>
+                                <th style="padding: 12px 15px;">標題</th>
+                                <th style="padding: 12px 15px; text-align: center;">分次/階段</th>
+                                <th style="padding: 12px 15px;">總金額</th>
+                                <th style="padding: 12px 15px; text-align: center;">狀態</th>
+                                <th style="padding: 12px 15px; text-align: right;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const statusClass = data.status === '開啟' ? 'completed' : 'pending';
+                const stagesCount = (data.stages || []).length;
+                html += `
+                    <tr>
+                        <td style="padding: 12px 15px;"><span style="font-family:monospace; font-weight:700; color:#6ea44c;">${data.suffix}</span></td>
+                        <td style="padding: 12px 15px;"><div style="white-space: nowrap; max-width: 200px; overflow: hidden; text-overflow: ellipsis;" title="${data.title}">${data.title}</div></td>
+                        <td style="padding: 12px 15px; text-align: center;"><span style="font-size: 0.8rem; background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 4px;">${stagesCount > 0 ? stagesCount + ' 階段' : '單次支付'}</span></td>
+                        <td style="padding: 12px 15px; font-weight: 700; color: #111827;">$${(data.amount || 0).toLocaleString()}</td>
+                        <td style="padding: 12px 15px; text-align: center;"><span class="status-badge ${statusClass}">${data.status}</span></td>
+                        <td style="padding: 12px 15px;">
+                            <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" onclick="copyCardLink('${data.suffix}')" title="複製連結">
+                                    <span class="material-symbols-rounded" style="font-size: 18px;">content_copy</span>
+                                </button>
+                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" onclick="showCardLinkModal('${doc.id}')" title="編輯">
+                                    <span class="material-symbols-rounded" style="font-size: 18px;">edit</span>
+                                </button>
+                                <button class="btn btn-danger" style="padding: 6px; width: 32px; height: 32px;" onclick="deleteCardLink('${doc.id}')" title="刪除">
+                                    <span class="material-symbols-rounded" style="font-size: 18px;">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        } catch (error) {
+            console.error('Load links error:', error);
+            container.innerHTML = `<p style="color: #64748b; padding: 20px;">載入失敗：${error.message}</p>`;
+        }
+    }
+
+    function filterCardLinks(val) {
+        const filter = val.toLowerCase();
+        const trs = document.querySelectorAll('#cardLinksTable tbody tr');
+        trs.forEach(tr => {
+            const text = tr.innerText.toLowerCase();
+            tr.style.display = text.includes(filter) ? '' : 'none';
+        });
+    }
+
+    async function loadCardOrders() {
+        const container = document.getElementById('cardordersContent');
+        container.innerHTML = '<div class="loader"></div>';
+
+        try {
+            const snapshot = await db.collection('card_orders').orderBy('created_at', 'desc').limit(100).get();
+            if (snapshot.empty) {
+                container.innerHTML = '<div class="empty-state"><span class="material-symbols-rounded">receipt_long</span><p>尚無任何連結訂單</p></div>';
+                return;
+            }
+
+            let html = `
+                <div class="data-table orders-table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="padding: 12px 15px;">編號 / 連結</th>
+                                <th style="padding: 12px 15px;">收件人</th>
+                                <th style="padding: 12px 15px;">本次金額</th>
+                                <th style="padding: 12px 15px; text-align: center;">狀態</th>
+                                <th style="padding: 12px 15px; text-align: right;">日期</th>
+                                <th style="padding: 12px 15px; text-align: right;">運送資訊</th>
+                                <th style="padding: 12px 15px; text-align: right;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const date = data.created_at?.toDate ? data.created_at.toDate() : new Date(data.created_at);
+                const dateStr = date.toLocaleString('zh-TW', { hour12: false });
+                const statusClass = data.payment_status === 'paid' ? 'completed' : 'pending';
+
+                // 物流欄位相容處理
+                const logiType = data.logistics || data.logistics_type || data.shipping_method || '-';
+                const logiAddr = data.address || data.store_id || data.shipping_address || data.store_name || '';
+
+                html += `
+                    <tr>
+                        <td style="padding: 12px 15px;">
+                            <div style="font-family:monospace; font-weight:700; color:#334155; font-size: 0.9rem;">${data.order_id}</div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">連結 ID: ${data.link_id || '-'}</div>
+                        </td>
+                        <td style="padding: 12px 15px;">
+                            <div style="font-weight:700; color:#1e293b;">${data.name || '-'}</div>
+                            <div style="font-size:12px; color:#64748b; font-family:monospace;">${data.phone || ''}</div>
+                        </td>
+                        <td style="padding: 12px 15px;">
+                            <div style="color:#6ea44c; font-weight:700;">$${(data.amount || 0).toLocaleString()}</div>
+                            <div style="font-size:11px; color:#94a3b8;">${data.payment_method || '信用卡'}</div>
+                        </td>
+                        <td style="padding: 12px 15px; text-align: center;">
+                            <span class="status-badge ${statusClass}">${data.payment_status === 'paid' ? '已付款' : '等待中'}</span>
+                        </td>
+                        <td style="padding: 12px 15px; text-align: right; white-space: nowrap;">
+                            <div style="font-size: 0.85rem; color: #475569;">${dateStr.split(' ')[0]}</div>
+                        </td>
+                        <td style="padding: 12px 15px; text-align: right; max-width: 180px;">
+                            <div style="font-size: 0.85rem; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${logiType} ${logiAddr}">
+                                ${logiType} ${logiAddr ? '| ' + logiAddr : ''}
+                            </div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px; font-style: italic;">
+                                ${data.note || '無備註'}
+                            </div>
+                        </td>
+                        <td style="padding: 12px 15px;">
+                            <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" title="詳情" onclick='viewLinkOrderDetails(${JSON.stringify({ id: doc.id, ...data }).replace(/'/g, "&apos;")})'>
+                                    <span class="material-symbols-rounded" style="font-size: 18px;">info</span>
+                                </button>
+                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" title="編輯" onclick='editLinkOrder(${JSON.stringify({ id: doc.id, ...data }).replace(/'/g, "&apos;")})'>
+                                    <span class="material-symbols-rounded" style="font-size: 18px;">edit</span>
+                                </button>
+                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" title="刪除" onclick="deleteLinkOrder('${doc.id}')">
+                                    <span class="material-symbols-rounded" style="font-size: 18px; color: #ef4444;">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        } catch (error) {
+            console.error('Load card orders error:', error);
+            container.innerHTML = `<p style="color: #64748b; padding: 20px;">載入失敗：${error.message}</p>`;
+        }
+    }
+
+    function copyCardLink(suffix) {
+        const url = `${window.location.origin}${window.location.pathname.replace('admin.html', 'card-order.html')}?id=${suffix}`;
+        navigator.clipboard.writeText(url).then(() => {
+            KUI.toast('連結已複製到剪貼簿');
+        });
+    }
+
+    async function showCardLinkModal(linkId = null) {
+        let data = {
+            suffix: Math.floor(1000 + Math.random() * 9000).toString(),
+            title: '',
+            items_text: '',
+            amount: 0,
+            image_enabled: false,
+            image_data: '',
+            payment_provider: 'ECPay',
+            status: '開啟',
+            shipping_methods: ['宅配'],
+            payment_methods: ['信用卡'],
+            stages: []
+        };
+
+        if (linkId) {
+            const doc = await db.collection('card_orders_links').doc(linkId).get();
+            if (doc.exists) data = { ...data, ...doc.data() };
+        }
+
+        const bodyHtml = `
+            <div class="form-group">
+                <label class="form-label">商品標題 <span style="color:red">*</span></label>
+                <input type="text" id="linkTitle" class="admin-input" placeholder="例如：專屬抹茶組合" value="${data.title || ''}">
+            </div>
+            <div class="form-group" style="margin-top:16px;">
+                <label class="form-label">識別後綴 (4位數) <span style="color:red">*</span></label>
+                <input type="text" id="linkSuffix" class="admin-input" placeholder="例如：8821" value="${data.suffix}" maxlength="4">
+            </div>
+            <div class="form-group" style="margin-top:16px;">
+                <label class="form-label">商品內容細節</label>
+                <textarea id="linkItemsText" rows="3" class="admin-textarea" placeholder="詳細內容...">${data.items_text || ''}</textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top:16px;">
+                <div class="form-group">
+                    <label class="form-label">商品金額 (不含運) <span style="color:red">*</span></label>
+                    <input type="number" id="linkAmount" class="admin-input" value="${data.amount}" oninput="updateLinkTotalView()">
+                    <div id="linkTotalPreview" style="font-size: 0.75rem; color: #6ea44c; font-weight: 700; margin-top: 4px;">預估應付總額: $${data.amount}</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">付款方式 (多選)</label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
+                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 0.85rem;">
+                            <input type="checkbox" name="paymentOption" value="信用卡" ${(data.payment_methods || ['信用卡']).includes('信用卡') ? 'checked' : ''}> 信用卡
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 0.85rem;">
+                            <input type="checkbox" name="paymentOption" value="ATM" ${(data.payment_methods || []).includes('ATM') ? 'checked' : ''}> ATM/轉帳
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:24px; padding: 16px; background: #f8fafc; border: 1px solid #e5e7eb;">
+                <div class="section-title" style="color:#6ea44c; margin-bottom:12px;">進階運費與運送設定</div>
+
+                <div class="form-group" style="margin-bottom:16px;">
+                    <label class="form-label">1. 運送方式 (多選)</label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
+                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 0.85rem;">
+                            <input type="checkbox" name="shippingMethod" value="7-11" onchange="toggleLinkFeeInputs()" ${(data.shipping_methods || []).includes('7-11') ? 'checked' : ''}> 7-11
+                            <a href="https://emap.pcsc.com.tw/" target="_blank" title="查詢店號" style="display: inline-flex; color: #94a3b8;"><span class="material-symbols-rounded" style="font-size: 14px;">map</span></a>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 0.85rem;">
+                            <input type="checkbox" name="shippingMethod" value="全家" onchange="toggleLinkFeeInputs()" ${(data.shipping_methods || []).includes('全家') ? 'checked' : ''}> 全家
+                            <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" title="查詢店號" style="display: inline-flex; color: #94a3b8;"><span class="material-symbols-rounded" style="font-size: 14px;">map</span></a>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 0.85rem;">
+                            <input type="checkbox" name="shippingMethod" value="宅配" onchange="toggleLinkFeeInputs()" ${(data.shipping_methods || []).includes('宅配') ? 'checked' : ''}> 宅配
+                        </label>
+                    </div>
+                </div>
+                
+                <div style="border-top: 1px solid #e5e7eb; padding-top: 12px; margin-top: 12px;">
+                    <label class="form-label">2. 運費規則</label>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <span style="font-weight: 700; color: #6ea44c; display: flex; align-items: center; gap: 8px; font-size: 0.85rem;">
+                            <span class="material-symbols-rounded" style="font-size:18px;">loyalty</span> 免運費
+                        </span>
+                        <div class="toggle-wrapper">
+                            <input type="checkbox" id="linkIsFreeShipping" class="toggle-checkbox" onchange="toggleLinkFeeInputs()" ${data.is_free_shipping ? 'checked' : ''}>
+                            <label for="linkIsFreeShipping" class="toggle-label"><div class="toggle-circle"></div></label>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span style="font-weight: 700; color: #4b5563; font-size: 0.85rem;">啟用「統一運費」</span>
+                        <div class="toggle-wrapper">
+                            <input type="checkbox" id="linkUseUniformFee" class="toggle-checkbox" onchange="toggleLinkFeeInputs()" ${data.use_uniform_fee ? 'checked' : ''}>
+                            <label for="linkUseUniformFee" class="toggle-label"><div class="toggle-circle"></div></label>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <input type="number" id="linkUniformFee" class="admin-input" style="font-weight: 700;" placeholder="統一運費金額" value="${data.uniform_fee || 0}" oninput="updateLinkTotalView()">
+                    </div>
+
+                    <div id="link-individual-fees" style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: grid; grid-template-columns: 1fr 2fr; align-items: center; gap: 12px;">
+                            <span style="font-weight: 700; color: #64748b; font-size: 0.75rem;">7-11 運費</span>
+                            <input type="number" id="linkFee711" class="admin-input IndividualFee" style="text-align: right; padding:8px;" value="${data.fee_711 || 60}" oninput="updateLinkTotalView()">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 2fr; align-items: center; gap: 12px;">
+                            <span style="font-weight: 700; color: #64748b; font-size: 0.75rem;">全家 運費</span>
+                            <input type="number" id="linkFeeFami" class="admin-input IndividualFee" style="text-align: right; padding:8px;" value="${data.fee_fami || 60}" oninput="updateLinkTotalView()">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 2fr; align-items: center; gap: 12px;">
+                            <span style="font-weight: 700; color: #64748b; font-size: 0.75rem;">宅配 運費</span>
+                            <input type="number" id="linkFeeHome" class="admin-input IndividualFee" style="text-align: right; padding:8px;" value="${data.fee_home || 120}" oninput="updateLinkTotalView()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top:24px; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e5e7eb;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <label class="form-label" style="margin:0;">商品圖片功能</label>
+                    <div class="toggle-wrapper">
+                        <input type="checkbox" id="linkImageEnabled" class="toggle-checkbox" onchange="toggleImageUpload(this.checked)" ${data.image_enabled ? 'checked' : ''}>
+                        <label for="linkImageEnabled" class="toggle-label"><div class="toggle-circle"></div></label>
+                    </div>
+                </div>
+                <div id="imageUploadArea" style="display: ${data.image_enabled ? 'block' : 'none'};">
+                    <input type="file" id="linkImageFile" accept="image/*" class="admin-input" onchange="previewLinkImage(this)" style="margin-bottom:8px;">
+                    <p id="imgSizeWarning" style="color: #ef4444; font-size: 0.75rem; margin-bottom: 8px; display: none;">圖片超過 500KB，建議縮小以避免儲存失敗。</p>
+                    <div id="linkImagePreview" style="width: 80px; height: 80px; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background: #fff;">
+                        ${data.image_data ? `<img src="${data.image_data}" style="width:100%; height:100%; object-fit:cover;">` : '<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#cbd5e1;"><span class="material-symbols-rounded">image</span></div>'}
+                    </div>
+                    <input type="hidden" id="linkImageData" value="${data.image_data || ''}">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top:16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <label class="form-label" style="margin:0;">多階段支付設定 (選填)</label>
+                    <button class="btn btn-secondary btn-sm" onclick="addStageRow()">
+                        <span class="material-symbols-rounded" style="font-size: 16px;">add</span> 增加階段
+                    </button>
+                </div>
+                <div id="stagesContainer" style="display: flex; flex-direction: column; gap: 8px;">
+                    <!-- 階段列表 -->
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top:24px;">
+                <div class="form-group">
+                    <label class="form-label">金流服務商</label>
+                    <select id="linkProvider" class="admin-input">
+                        <option value="ECPay" ${data.payment_provider === 'ECPay' ? 'selected' : ''}>綠界 (ECPay)</option>
+                        <option value="PCHomePay" ${data.payment_provider === 'PCHomePay' ? 'selected' : ''}>PCHome Pay</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">狀態</label>
+                    <select id="linkStatus" class="admin-input">
+                        <option value="開啟" ${data.status === '開啟' ? 'selected' : ''}>開啟</option>
+                        <option value="關閉" ${data.status === '關閉' ? 'selected' : ''}>關閉</option>
+                    </select>
+                </div>
+            </div>
+        `;
+
+        const footerHtml = `
+            <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+            <button class="btn btn-primary" onclick="saveCardLink('${linkId || ''}')">儲存連結</button>
+        `;
+
+        openModal(linkId ? '編輯支付連結' : '新增支付連結', bodyHtml, footerHtml);
+
+        // 初始化階段
+        if (data.stages && data.stages.length > 0) {
+            data.stages.forEach(s => addStageRow(s.label, s.amount, s.is_paid));
+        }
+
+        // 初始化運費狀態
+        toggleLinkFeeInputs();
+    }
+
+    function toggleLinkFeeInputs() {
+        const isFree = document.getElementById('linkIsFreeShipping').checked;
+        const useUniform = document.getElementById('linkUseUniformFee').checked;
+        const uniformInput = document.getElementById('linkUniformFee');
+        const individualArea = document.getElementById('link-individual-fees');
+
+        // 各別方式勾選狀態
+        const has711 = document.querySelector('input[name="shippingMethod"][value="7-11"]').checked;
+        const hasFami = document.querySelector('input[name="shippingMethod"][value="全家"]').checked;
+        const hasHome = document.querySelector('input[name="shippingMethod"][value="宅配"]').checked;
+
+        const input711 = document.getElementById('linkFee711');
+        const inputFami = document.getElementById('linkFeeFami');
+        const inputHome = document.getElementById('linkFeeHome');
+
+        if (isFree) {
+            uniformInput.disabled = true;
+            uniformInput.style.opacity = '0.5';
+            individualArea.style.opacity = '0.5';
+            individualArea.style.pointerEvents = 'none';
+        } else {
+            uniformInput.disabled = !useUniform;
+            uniformInput.style.opacity = useUniform ? '1' : '0.5';
+            individualArea.style.opacity = useUniform ? '0.5' : '1';
+            individualArea.style.pointerEvents = useUniform ? 'none' : 'auto';
+
+            if (!useUniform) {
+                // 只有在非統一運費時，才根據運送方式勾選狀態決定各別輸入框是否啟用
+                input711.disabled = !has711;
+                input711.style.opacity = has711 ? '1' : '0.3';
+                inputFami.disabled = !hasFami;
+                inputFami.style.opacity = hasFami ? '1' : '0.3';
+                inputHome.disabled = !hasHome;
+                inputHome.style.opacity = hasHome ? '1' : '0.3';
+            }
+        }
+        updateLinkTotalView();
+    }
+
+    function updateLinkTotalView() {
+        const amount = parseInt(document.getElementById('linkAmount').value) || 0;
+        const isFree = document.getElementById('linkIsFreeShipping').checked;
+        const useUniform = document.getElementById('linkUseUniformFee').checked;
+        const uniformFee = parseInt(document.getElementById('linkUniformFee').value) || 0;
+
+        let maxFee = 0;
+        if (!isFree) {
+            if (useUniform) {
+                maxFee = uniformFee;
+            } else {
+                // 找出已勾選方式中的最大運費
+                const methods = Array.from(document.querySelectorAll('input[name="shippingMethod"]:checked')).map(cb => cb.value);
+                const fees = [];
+                if (methods.includes('7-11')) fees.push(parseInt(document.getElementById('linkFee711').value) || 0);
+                if (methods.includes('全家')) fees.push(parseInt(document.getElementById('linkFeeFami').value) || 0);
+                if (methods.includes('宅配')) fees.push(parseInt(document.getElementById('linkFeeHome').value) || 0);
+
+                if (fees.length > 0) maxFee = Math.max(...fees);
+            }
+        }
+
+        const previewEl = document.getElementById('linkTotalPreview');
+        if (previewEl) {
+            previewEl.innerText = `預估應付總額: $${(amount + maxFee).toLocaleString()} (含運費 ${maxFee})`;
+        }
+    }
+
+    function toggleImageUpload(enabled) {
+        document.getElementById('imageUploadArea').style.display = enabled ? 'block' : 'none';
+    }
+
+    function previewLinkImage(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const max_size = 400;
+
+                    if (width > height) {
+                        if (width > max_size) {
+                            height *= max_size / width;
+                            width = max_size;
+                        }
+                    } else {
+                        if (height > max_size) {
+                            width *= max_size / height;
+                            height = max_size;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // 壓縮品質 0.8 JPEG
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+
+                    document.getElementById('linkImageData').value = compressedBase64;
+                    const preview = document.getElementById('linkImagePreview');
+                    preview.innerHTML = `<img src="${compressedBase64}" style="width:100%; height:100%; object-fit:cover;">`;
+
+                    // 顯示壓縮後的體積資訊以優化 UX
+                    const compressedSize = Math.round((compressedBase64.length * 3 / 4) / 1024);
+                    const warning = document.getElementById('imgSizeWarning');
+                    warning.style.display = 'block';
+                    warning.style.color = '#6ea44c';
+                    warning.innerText = `圖片已自動壓縮至 ${compressedSize}KB`;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function addStageRow(label = '', amount = 0, isPaid = false) {
+        const container = document.getElementById('stagesContainer');
+        const rowId = 'stage_' + Math.random().toString(36).substr(2, 9);
+        const row = document.createElement('div');
+        row.className = 'stage-row';
+        row.style = 'display: grid; grid-template-columns: 2fr 1fr auto auto; gap: 8px; align-items: center; padding: 12px; background: #fff; border: 1px solid #f1f5f9; border-radius: 8px;';
+        row.innerHTML = `
+            <input type="text" class="admin-input stage-label" placeholder="階段說明" value="${label}" style="padding: 8px;">
+            <input type="number" class="admin-input stage-amount" placeholder="金額" value="${amount}" style="padding: 8px;">
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <input type="checkbox" class="stage-paid" ${isPaid ? 'checked' : ''} id="${rowId}">
+                <label style="font-size: 0.75rem; color: #64748b; cursor:pointer;" for="${rowId}">已付</label>
+            </div>
+            <button class="btn btn-danger btn-sm" onclick="this.parentElement.remove()" style="padding: 4px; border-radius: 4px;">
+                <span class="material-symbols-rounded" style="font-size: 16px;">close</span>
+            </button>
+        `;
+        container.appendChild(row);
+    }
+
+    let isSavingLink = false;
+    async function saveCardLink(linkId) {
+        if (isSavingLink) return;
+
+        const btn = document.querySelector('.modal-footer .btn-primary');
+        const originalBtnText = btn.innerHTML;
+
+        const title = document.getElementById('linkTitle').value.trim();
+        const suffix = document.getElementById('linkSuffix').value.trim();
+        const amount = parseInt(document.getElementById('linkAmount').value) || 0;
+
+        if (!title || !suffix) {
+            KUI.alert('標題與後綴為必填');
+            return;
+        }
+
+        // 檢查後綴衝突 (排除自己)
+        const checkSnap = await db.collection('card_orders_links').where('suffix', '==', suffix).get();
+        const isConflict = checkSnap.docs.some(doc => doc.id !== linkId);
+        if (isConflict) {
+            KUI.alert('此後綴 ID 已存在，請更換一個');
+            return;
+        }
+
+        try {
+            isSavingLink = true;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="material-symbols-rounded spinning" style="font-size:18px;">sync</span> 處理中...';
+
+            // 收集階段
+            const stages = [];
+            document.querySelectorAll('.stage-row').forEach(row => {
+                stages.push({
+                    label: row.querySelector('.stage-label').value.trim(),
+                    amount: parseInt(row.querySelector('.stage-amount').value) || 0,
+                    is_paid: row.querySelector('.stage-paid').checked
+                });
+            });
+
+            const is_free_shipping = document.getElementById('linkIsFreeShipping').checked;
+            const use_uniform_fee = document.getElementById('linkUseUniformFee').checked;
+            const uniform_fee = parseInt(document.getElementById('linkUniformFee').value) || 0;
+            const fee_711 = parseInt(document.getElementById('linkFee711').value) || 60;
+            const fee_fami = parseInt(document.getElementById('linkFeeFami').value) || 60;
+            const fee_home = parseInt(document.getElementById('linkFeeHome').value) || 120;
+
+            const shipping_methods = Array.from(document.querySelectorAll('input[name="shippingMethod"]:checked')).map(cb => cb.value);
+            const payment_methods = Array.from(document.querySelectorAll('input[name="paymentOption"]:checked')).map(cb => cb.value);
+
+            if (payment_methods.length === 0) {
+                KUI.alert('請至少選擇一種付款方式');
+                isSavingLink = false;
+                btn.disabled = false;
+                btn.innerHTML = originalBtnText;
+                return;
+            }
+
+            const image_enabled = document.getElementById('linkImageEnabled').checked;
+            let image_data = document.getElementById('linkImageData').value;
+
+            // 如果開啟圖片且 image_data 是 Base64 (表示有新上傳)，則先傳到 Google Drive
+            if (image_enabled && image_data && image_data.startsWith('data:image')) {
+                try {
+                    KUI.toast('正在上傳圖片至雲端硬碟...');
+                    // 使用 API.js 封裝好的方法，確保錯誤處理與 CORS 邏輯一致
+                    const uploadResult = await window.API.sendNotification('upload_image', {
+                        base64: image_data,
+                        fileName: `card_link_${suffix}_${Date.now()}.jpg`
+                    });
+
+                    if (uploadResult.success && uploadResult.url) {
+                        image_data = uploadResult.url;
+                    } else {
+                        throw new Error(uploadResult.message || '上傳回傳結果失敗');
+                    }
+                } catch (err) {
+                    KUI.alert('圖片雲端上傳失敗：' + err.message + '\n\n請檢查 GAS 部署是否正確，或嘗試縮小圖片後再試。');
+                    return; // 終止儲存
+                }
+            }
+
+            const data = {
+                title,
+                suffix,
+                items_text: document.getElementById('linkItemsText').value.trim(),
+                amount,
+                payment_provider: document.getElementById('linkProvider').value,
+                is_free_shipping,
+                use_uniform_fee,
+                uniform_fee,
+                fee_711,
+                fee_fami,
+                fee_home,
+                shipping_methods,
+                payment_methods,
+                image_enabled,
+                image_data,
+                status: document.getElementById('linkStatus').value,
+                stages,
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            if (linkId) {
+                await db.collection('card_orders_links').doc(linkId).update(data);
+            } else {
+                data.created_at = firebase.firestore.FieldValue.serverTimestamp();
+                await db.collection('card_orders_links').add(data);
+            }
+            KUI.toast('儲存成功');
+            closeModal();
+            loadCardLinks();
+        } catch (error) {
+            KUI.alert('儲存失敗：' + error.message);
+        } finally {
+            isSavingLink = false;
+            btn.disabled = false;
+            btn.innerHTML = originalBtnText;
+        }
+    }
+
+    async function deleteCardLink(linkId) {
+        if (!(await KUI.confirm('確定要刪除此支付連結嗎？'))) return;
+        try {
+            await db.collection('card_orders_links').doc(linkId).delete();
+            KUI.toast('已刪除');
+            loadCardLinks();
+        } catch (error) {
+            KUI.alert('刪除失敗：' + error.message);
+        }
+    }
+
+    // --- 連結代收訂單管理功能 (Card Orders) ---
+
+    function viewLinkOrderDetails(order) {
+        const dateStr = formatFullDateTime(order.created_at);
+        const logiType = order.logistics || order.logistics_type || '未填寫';
+        const logiAddr = order.address || order.store_id || order.shipping_address || '-';
+
+        const bodyHtml = `
+            <div style="display: flex; flex-direction: column; gap: 16px; font-size: 0.9rem;">
+                <div style="background: #f8fafc; padding: 12px; border-radius: 8px;">
+                    <div style="font-weight: bold; margin-bottom: 4px; color: #6ea44c;">訂單編號</div>
+                    <div style="font-family: monospace; font-weight: bold;">${order.order_id}</div>
+                    <div style="font-weight: bold; margin-bottom: 4px; color: #64748b; margin-top: 8px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">下單時間</div>
+                    <div style="color: #475569;">${dateStr}</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                        <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">客戶姓名</div>
+                        <div>${order.name || '未填寫'}</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">LINE 名稱</div>
+                        <div>${order.line_name || '未填寫'}</div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                        <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">電話</div>
+                        <div>${order.phone || '未填寫'}</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">信箱</div>
+                        <div style="word-break: break-all;">${order.email || '未填寫'}</div>
+                    </div>
+                </div>
+                <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 0;">
+                <div>
+                    <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">物流方式 / 收件店號地址</div>
+                    <div style="font-weight: bold; color: #1e293b;">${logiType}</div>
+                    <div style="background: #f8fafc; padding: 8px; border-radius: 4px; margin-top: 4px;">${logiAddr}</div>
+                </div>
+                <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 0;">
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px; background: #fdfdfd; padding: 12px; border-radius: 8px; border: 1px solid #f1f5f9;">
+                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 200px;">
+                        <span style="color: #64748b;">付款方式</span>
+                        <span>${order.payment_method || '信用卡'}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 200px; font-weight: bold; color: #6ea44c; font-size: 1.1rem; border-top: 1px solid #f1f5f9; margin-top: 4px; padding-top: 4px;">
+                        <span>本次金額</span>
+                        <span>NT$ ${(order.amount || 0).toLocaleString()}</span>
+                    </div>
+                </div>
+                ${order.note ? `
+                <div>
+                    <div style="font-weight: bold; color: #64748b; margin-bottom: 4px;">客戶備註</div>
+                    <div style="background: #fff; border: 1px solid #f1f5f9; padding: 10px; border-radius: 6px; white-space: pre-wrap;">${order.note}</div>
+                </div>` : ''}
+                ${order.seller_note ? `
+                <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                    <div style="font-weight: bold; color: #4b5563; margin-bottom: 4px;">賣家備註 (回覆)</div>
+                    <div style="white-space: pre-wrap;">${order.seller_note}</div>
+                </div>` : ''}
+            </div>
+        `;
+        openModal(`連結訂單詳情`, bodyHtml, `<button class="btn btn-primary" onclick="closeModal()">關閉</button>`);
+    }
+
+    function editLinkOrder(order) {
+        const bodyHtml = `
+            <div class="form-group">
+                <label class="form-label">付款狀態</label>
+                <select id="linkOrderStatus" class="admin-select">
+                    <option value="pending" ${order.payment_status === 'pending' ? 'selected' : ''}>等待中 (Pending)</option>
+                    <option value="paid" ${order.payment_status === 'paid' ? 'selected' : ''}>已付款 (Paid)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">賣家備註 (內部紀錄)</label>
+                <textarea id="linkOrderSellerNote" class="admin-textarea" rows="4">${order.seller_note || ''}</textarea>
+            </div>
+        `;
+        const footerHtml = `
+            <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+            <button class="btn btn-primary" onclick="saveLinkOrder('${order.id}')">儲存變更</button>
+        `;
+        openModal(`編輯連結訂單 ${order.order_id}`, bodyHtml, footerHtml);
+    }
+
+    async function saveLinkOrder(id) {
+        try {
+            const status = document.getElementById('linkOrderStatus').value;
+            const note = document.getElementById('linkOrderSellerNote').value;
+
+            await db.collection('card_orders').doc(id).update({
+                payment_status: status,
+                seller_note: note,
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            KUI.alert('訂單已更新');
+            closeModal();
+            loadCardOrders();
+        } catch (error) {
+            KUI.alert('更新失敗：' + error.message);
+        }
+    }
+
+    async function deleteLinkOrder(id) {
+        if (!confirm('確定要刪除這筆訂單紀錄嗎？\n(注意：此動作無法復原，請確認金流端已處理完畢)')) return;
+        try {
+            await db.collection('card_orders').doc(id).delete();
+            KUI.alert('訂單已刪除');
+            loadCardOrders();
+        } catch (error) {
+            KUI.alert('刪除失敗：' + error.message);
+        }
+    }
+
 </script>
 
 
