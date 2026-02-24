@@ -770,6 +770,10 @@ title: KEICHA 管理後台
                 <span class="material-symbols-rounded">settings</span>
                 <span class="tab-text">快速結帳</span>
             </button>
+            <button class="tab" onclick="switchTab('backup')">
+                <span class="material-symbols-rounded">database</span>
+                <span class="tab-text">系統備份</span>
+            </button>
         </div>
 
         <!-- 訂單管理 -->
@@ -1071,6 +1075,9 @@ title: KEICHA 管理後台
                 break;
             case 'config':
                 loadFastConfig();
+                break;
+            case 'backup':
+                // 不需要特別載入資料，介面是靜態的
                 break;
         }
     }
@@ -3753,6 +3760,153 @@ title: KEICHA 管理後台
         }
 
     });
+
+    // ========== 系統備份與復原 ==========
+
+    const COLLECTIONS_TO_EXPORT = [
+        'orders',
+        'denwa_orders',
+        'members',
+        'products',
+        'brands',
+        'plans',
+        'shipping_rules',
+        'config'
+    ];
+
+    function updateBackupStatus(msg, isError = false) {
+        const statusDiv = document.getElementById('backup-status');
+        statusDiv.style.display = 'block';
+        if (isError) {
+            statusDiv.innerHTML += `<div style="color: #ef4444;">[錯誤] ${msg}</div>`;
+        } else {
+            statusDiv.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+        }
+        statusDiv.scrollTop = statusDiv.scrollHeight;
+    }
+
+    async function exportDatabase(btn) {
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loader" style="width:16px; height:16px; border-width:2px;"></span> 處理中...';
+
+        const statusDiv = document.getElementById('backup-status');
+        statusDiv.innerHTML = '';
+        updateBackupStatus('開始匯出資料庫...');
+
+        try {
+            const backupData = {
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                collections: {}
+            };
+
+            for (const collName of COLLECTIONS_TO_EXPORT) {
+                updateBackupStatus(`正在抓取集合: ${collName}...`);
+                const snapshot = await db.collection(collName).get();
+                backupData.collections[collName] = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    data: doc.data()
+                }));
+                updateBackupStatus(`完成 ${collName} (${snapshot.size} 筆)`);
+            }
+
+            // 轉為 JSON 檔案
+            const jsonStr = JSON.stringify(backupData, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
+            const timeStr = new Date().getHours() + '' + new Date().getMinutes();
+            a.href = url;
+            a.download = `keicha_backup_${dateStr}_${timeStr}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            updateBackupStatus('✅ 匯出完成！檔案已開始下載。');
+            KUI.toast('資料庫匯出成功');
+        } catch (error) {
+            console.error('Export error:', error);
+            updateBackupStatus(`匯出失敗: ${error.message}`, true);
+            KUI.alert('匯出發生錯誤: ' + error.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    }
+
+    async function handleImportFile(input) {
+        if (!input.files || input.files.length === 0) return;
+        const file = input.files[0];
+
+        if (!(await KUI.confirm(`確定要匯入「${file.name}」嗎？\n這將會覆蓋或新增現有的資料庫紀錄！請確保您已做好備份。`))) {
+            input.value = '';
+            return;
+        }
+
+        const statusDiv = document.getElementById('backup-status');
+        statusDiv.innerHTML = '';
+        statusDiv.style.display = 'block';
+        updateBackupStatus(`讀取檔案: ${file.name}...`);
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const jsonData = JSON.parse(e.target.result);
+                if (!jsonData.collections) {
+                    throw new Error('格式錯誤：找不到 collections 欄位');
+                }
+
+                await performImport(jsonData);
+                input.value = '';
+            } catch (err) {
+                updateBackupStatus(`解析檔案失敗: ${err.message}`, true);
+                KUI.alert('匯入失敗：' + err.message);
+                input.value = '';
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    async function performImport(jsonData) {
+        updateBackupStatus('開始寫入資料庫...');
+        let totalCount = 0;
+
+        try {
+            for (const collName in jsonData.collections) {
+                const docs = jsonData.collections[collName];
+                updateBackupStatus(`正在還原集合: ${collName} (${docs.length} 筆)...`);
+
+                // Firestore 批次寫入 (每 500 筆一組)
+                const chunks = [];
+                for (let i = 0; i < docs.length; i += 500) {
+                    chunks.push(docs.slice(i, i + 500));
+                }
+
+                for (const chunk of chunks) {
+                    const batch = db.batch();
+                    chunk.forEach(docObj => {
+                        const docRef = db.collection(collName).doc(docObj.id);
+                        batch.set(docRef, docObj.data);
+                    });
+                    await batch.commit();
+                }
+
+                totalCount += docs.length;
+                updateBackupStatus(`完成 ${collName} 還原`);
+            }
+
+            updateBackupStatus(`✅ 匯入成功！共還原 ${totalCount} 筆資料。`);
+            KUI.alert(`資料庫還原成功！共 ${totalCount} 筆資料。建議刷新頁面以載入新資料。`);
+        } catch (error) {
+            console.error('Import error:', error);
+            updateBackupStatus(`寫入發生錯誤: ${error.message}`, true);
+            KUI.alert('還原中斷：' + error.message);
+        }
+    }
 </script>
 
 
