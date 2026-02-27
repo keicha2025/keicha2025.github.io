@@ -1,14 +1,19 @@
 # Changelog
 
-## [2026-02-27] - New Universal Contact Page with Premium Interactions
+## [2026-02-27] - Global Redirection Updates and Link Refinement
 
 ### Summary of changes
-Created a dedicated contact page (`contact.html`) as a fallback for browsers with LINE deep-link issues. Fixed rendering issues, refactored the ID component, and updated global navigation links to point to this new page.
+Optimized the user journey by redirecting various external LINE links to the internal contact page and synchronizing self-fill order links across the homepage and user guide.
 
 ### Technical details of implementation
-- **Navigation Update**: Changed all "Contact Us" and "LINE Customer Service" links in `_includes/header.html` (both desktop and mobile menus) to point to the internal `/contact.html` instead of external LINE links.
-- **Rendering Fix**: Embedded styles and scripts directly in the content block to ensure proper script execution and CSS application within the Jekyl-rendered document.
-- **Component Refactoring**: Implemented the dual-zone ID container (Selection vs. Copy) with a neutral gray border and distinct animations.
+- **Homepage Redirection**:
+    - Updated "LINE 官方客服" (Hero & Footer sections) to link to `/contact.html`.
+    - Updated "前往自填單" button to link to `/user-guide.html` for a better pre-purchase explanation.
+    - Updated "私訊詢問" in the Matcha service section to link to `/contact.html`.
+- **User Guide Updates**:
+    - Linked "7-11 賣貨便下單" to the specific 7-11 store URL.
+    - Linked "全家 好賣+ 下單" to the specific FamilyMart store URL.
+- **Link Integrity**: Ensured all internal links use the Liquid `{{ site.baseurl }}` tag for consistent environment-based routing.
 - **Micro-interactions**:
     - **Entry Animation**: Implemented a `fadeUp` CSS animation that slides the card up gracefully upon page load.
     - **Smart Input Selection**: The LINE ID field uses `onfocus="this.select()"` combined with a `tap-scale` pulse animation to provide immediate tactile feedback.
