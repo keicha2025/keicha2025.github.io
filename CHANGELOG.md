@@ -1,5 +1,24 @@
 # Changelog
 
+## [2026-02-27] - New Universal Contact Page with Premium Interactions
+
+### Summary of changes
+Created a dedicated contact page (`contact.html`) as a fallback for browsers with LINE deep-link issues. The page features a minimalist, brand-aligned design with smooth animations and smart interactions.
+
+### Technical details of implementation
+- **Layout Integration**: Fully integrated with the Jekyll `default` layout, including global header, footer, and brand design tokens.
+- **Micro-interactions**:
+    - **Entry Animation**: Implemented a `fadeUp` CSS animation that slides the card up gracefully upon page load.
+    - **Smart Input Selection**: The LINE ID field uses `onfocus="this.select()"` combined with a `tap-scale` pulse animation to provide immediate tactile feedback.
+    - **Smooth QR Expansion**: Leveraged CSS `max-height` transitions instead of simple toggling to provide a sliding "drawer" effect for the QR code display.
+- **Brand Alignment**: Enforced strict usage of KEICHA brand green (#6ea44c) across all UI elements, avoiding generic social media brand colors.
+
+### Affected files or modules
+- `contact.html` [NEW]: Dedicated contact interface.
+
+### Chinese Summary
+新建全站通用的「聯絡我們」頁面，作為 LINE 連結失效時的智慧替代方案。導入了由下而上的進場動畫、點擊自動全選 ID 並縮放回饋，以及平滑展開的 QR Code 抽屜式設計，全面提升品牌導航質感。
+
 ## [2026-02-27] - Home & Maccha Store UI Text Adjustments
 
 ### Summary of changes

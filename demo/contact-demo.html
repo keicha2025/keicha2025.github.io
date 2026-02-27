@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聯絡我們 | KEICHA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        :root {
+            --brand-green: #6ea44c;
+            --font-brand: 'Zen Maru Gothic', sans-serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+            --r-md: 16px;
+            --r-lg: 24px;
+            --r-full: 9999px;
+            --s-2xl: 64px;
+        }
+
+        body {
+            font-family: var(--font-body), sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .brand-title {
+            font-family: var(--font-brand);
+            font-weight: 700;
+        }
+
+        .copy-feedback {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+        }
+
+        .copy-feedback.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-5px);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandGreen: '#6ea44c',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="max-w-md w-full bg-white rounded-[var(--r-lg)] shadow-2xl overflow-hidden">
+        <!-- Header -->
+        <div class="bg-brandGreen p-8 text-center text-white">
+            <h1 class="brand-title text-3xl mb-2">聯絡我們</h1>
+            <p class="opacity-90">如有代購需求或疑問，歡迎與我們聯繫</p>
+        </div>
+
+        <div class="p-8 space-y-8">
+            <!-- LINE Button -->
+            <div class="text-center">
+                <p class="text-gray-500 text-sm mb-4">最快速的管道</p>
+                <a href="https://lin.ee/F3JngaC" target="_blank" rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center w-full bg-[#06C755] text-white px-8 py-4 rounded-[var(--r-md)] text-lg font-bold hover:opacity-90 transition-all shadow-lg transform hover:scale-[1.02]">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/LINE_logo.svg"
+                        class="w-6 h-6 mr-3 invert brightness-0" alt="LINE">
+                    LINE 官方客服
+                </a>
+                <p class="text-xs text-gray-400 mt-3">若點擊按鈕無反應，請嘗試下方方式</p>
+            </div>
+
+            <hr class="border-gray-100">
+
+            <!-- ID Copy Box -->
+            <div class="space-y-4">
+                <p class="text-center text-gray-600 font-medium">方式二：搜尋 LINE ID</p>
+                <div class="relative group">
+                    <div id="copy-btn"
+                        class="flex items-center justify-between bg-gray-50 border-2 border-dashed border-gray-200 p-4 rounded-[var(--r-md)] cursor-pointer hover:border-brandGreen hover:bg-green-50 transition-all group">
+                        <span class="text-gray-400 text-sm">ID:</span>
+                        <span id="line-id" class="text-xl font-bold text-gray-700 tracking-wider">@366qwylw</span>
+                        <span
+                            class="material-symbols-rounded text-gray-400 group-hover:text-brandGreen">content_copy</span>
+                        <div id="feedback" class="copy-feedback">已複製 ID</div>
+                    </div>
+                </div>
+                <p class="text-center text-xs text-gray-400">點擊上方方框即可自動複製 ID</p>
+            </div>
+
+            <hr class="border-gray-100">
+
+            <!-- QR Code Section -->
+            <div class="text-center space-y-4">
+                <p class="text-center text-gray-600 font-medium">方式三：掃描行動條碼</p>
+
+                <button id="toggle-qr" class="inline-flex items-center text-brandGreen font-bold hover:underline">
+                    <span class="material-symbols-rounded mr-1">qr_code_2</span>
+                    顯示 QR Code
+                </button>
+
+                <div id="qr-container"
+                    class="hidden pt-4 flex flex-col items-center animate-in fade-in zoom-in duration-300">
+                    <div class="bg-white p-4 border border-gray-100 rounded-[var(--r-md)] shadow-inner">
+                        <img src="https://qr-official.line.me/gs/M_366qwylw_BW.png?oat_content=qr" alt="加入 LINE 頁面"
+                            class="w-48 h-48">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 p-4 text-center border-t border-gray-100 italic">
+            <p class="text-gray-400 text-xs text-brand-title">讓日本的事，變得簡單。</p>
+        </div>
+    </div>
+
+    <script>
+        // Copy Logic
+        const copyBtn = document.getElementById('copy-btn');
+        const lineId = document.getElementById('line-id').innerText;
+        const feedback = document.getElementById('feedback');
+
+        copyBtn.addEventListener('click', async () => {
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(lineId);
+                } else {
+                    // Fallback for older browsers
+                    const textArea = document.createElement("textarea");
+                    textArea.value = lineId;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                }
+
+                // Show feedback
+                feedback.classList.add('show');
+                setTimeout(() => {
+                    feedback.classList.remove('show');
+                }, 2000);
+
+                // Haptic feedback if available
+                if (window.navigator && window.navigator.vibrate) {
+                    window.navigator.vibrate(50);
+                }
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+            }
+        });
+
+        // QR Toggle Logic
+        const toggleQr = document.getElementById('toggle-qr');
+        const qrContainer = document.getElementById('qr-container');
+
+        toggleQr.addEventListener('click', () => {
+            const isHidden = qrContainer.classList.contains('hidden');
+            if (isHidden) {
+                qrContainer.classList.remove('hidden');
+                toggleQr.innerHTML = '<span class="material-symbols-rounded mr-1">keyboard_arrow_up</span> 隱藏 QR Code';
+            } else {
+                qrContainer.classList.add('hidden');
+                toggleQr.innerHTML = '<span class="material-symbols-rounded mr-1">qr_code_2</span> 顯示 QR Code';
+            }
+        });
+    </script>
+</body>
+
+</html>
