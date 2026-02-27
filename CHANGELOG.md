@@ -1,11 +1,12 @@
 # Changelog
 
-## [2026-02-27] - Global Redirection Updates and Link Refinement
+## [2026-02-27] - Global Redirection Updates and UI Refinement
 
 ### Summary of changes
-Optimized the user journey by redirecting various external LINE links to the internal contact page and synchronizing self-fill order links across the homepage and user guide.
+Optimized the user journey by redirecting various external LINE links to the internal contact page, synchronizing store links, and standardizing consistent UI typography across the homepage.
 
 ### Technical details of implementation
+- **Typography Standardization**: Updated the "付款與下單專區" (Payment and Ordering Zone) header in `index.html` to use `text-2xl md:text-3xl`, ensuring visual consistency with the "服務項目" (Service Items) section.
 - **Homepage Redirection**:
     - Updated "LINE 官方客服" (Hero & Footer sections) to link to `/contact.html`.
     - Updated "前往自填單" button to link to `/user-guide.html` for a better pre-purchase explanation.
