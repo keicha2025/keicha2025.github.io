@@ -3,14 +3,12 @@
 ## [2026-02-27] - New Universal Contact Page with Premium Interactions
 
 ### Summary of changes
-Created a dedicated contact page (`contact.html`) as a fallback for browsers with LINE deep-link issues. Refactored the ID display into a multi-part component with split selection and copy functionality.
+Created a dedicated contact page (`contact.html`) as a fallback for browsers with LINE deep-link issues. Fixed non-rendering styles and non-functional scripts by embedding them directly in the content block instead of using variable capture.
 
 ### Technical details of implementation
-- **Component Refactoring**: Split the LINE ID display into two distinct container zones within a single gray-bordered master container (`id-master-container`):
-    - **Selection Zone**: Left-aligned clickable input that triggers `onfocus="this.select()"` and a master-component scale animation.
-    - **Copy Zone**: A dedicated, styled button with hover states and `execCommand('copy')` logic.
-- **Visual Feedback**: Added a fixed "Toast" notification at the bottom that appears upon successful copying to confirm the action to the user.
-- **Consistency**: Retained all previous v2 animations (fadeUp entry, smooth QR drawer expansion).
+- **Rendering Fix**: Moved all `<style>` and `<script>` tags from Liquid variable captures directly into the `{{ content }}` block. This ensures they are rendered within the document `<body>`, bypassing parent layout limitations that were preventing style application and QR code collapsing.
+- **Component Refactoring**: Fully synchronized with the v2 demo design, featuring the split ID selection/copy container with gray borders and neutral backgrounds.
+- **Interaction Parity**: Restored full animation support, including the fadeUp entry and smooth QR drawer expansion.
 - **Micro-interactions**:
     - **Entry Animation**: Implemented a `fadeUp` CSS animation that slides the card up gracefully upon page load.
     - **Smart Input Selection**: The LINE ID field uses `onfocus="this.select()"` combined with a `tap-scale` pulse animation to provide immediate tactile feedback.

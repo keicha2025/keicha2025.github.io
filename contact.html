@@ -4,12 +4,7 @@ title: 聯絡我們 | KEICHA
 description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代購與電話代撥更簡單。
 ---
 
-{% capture styles %}
 <style>
-    :root {
-        --brand-green: #6ea44c;
-    }
-
     body {
         background-color: #fcfdfa;
     }
@@ -129,7 +124,6 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
         animation: toastIn 0.3s ease forwards;
     }
 </style>
-{% endcapture %}
 
 <main class="min-h-[70vh] flex items-center justify-center p-6 py-12 md:py-20 lg:py-24">
     <div class="max-w-md w-full">
@@ -154,10 +148,11 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
                     <label class="block text-center text-xs font-bold text-gray-400 uppercase tracking-widest">官方 LINE
                         ID</label>
 
+                    <!-- 大型組合組件 (灰色邊框) -->
                     <div id="id-master-container" class="id-group-container flex items-center p-2 rounded-2xl">
                         <!-- 左側：點擊全選容器 -->
                         <div class="flex-1 pl-4 pr-2">
-                            <input type="text" value="@366qwylw" readonly id="line-id-input"
+                            <input type="text" value="@366qwylw" readonly="" id="line-id-input"
                                 onfocus="this.select(); document.getElementById('id-master-container').classList.add('tap-scale'); setTimeout(()=>document.getElementById('id-master-container').classList.remove('tap-scale'), 300)"
                                 class="id-input w-full py-3 text-xl font-bold tracking-wider text-gray-700"
                                 placeholder="LINE ID">
@@ -218,7 +213,6 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
     已複製 ID：@366qwylw
 </div>
 
-{% capture scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const toggleBtn = document.getElementById('toggle-qr');
@@ -249,6 +243,7 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
                 idInput.select();
                 try {
                     document.execCommand('copy');
+                    // Show Toast
                     toast.classList.remove('hidden');
                     setTimeout(() => {
                         toast.classList.add('hidden');
@@ -260,4 +255,3 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
         }
     });
 </script>
-{% endcapture %}
