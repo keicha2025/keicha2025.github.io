@@ -1,5 +1,27 @@
 # Changelog
 
+## [2026-02-27] - Home & Maccha Store UI Text Adjustments
+
+### Summary of changes
+Updated homepage and maccha store index text copy and button labels to improve user navigation clarity and match current requirements. Removed icons from specific buttons and updated section links.
+
+### Technical details of implementation
+- **Homepage (`index.html`)**:
+  - Updated the hero section KEICHA title CSS classes to `text-3xl md:text-5xl brand-title-font font-bold tracking-widest leading-tight`.
+  - Replaced the text "前往" in the store-to-store checkout section with "前往自填單" (removed icon) and directed it to `/diy.html`.
+  - Updated the Maccha order buttons to "私訊詢問" and "抹茶品項" (directing to `/maccha-store.html`) while removing icons.
+  - Substituted the phone service buttons with "服務介紹" (`/denwa.html`) and "線上填表" (`/denwa-form.html`) and stripped their icons.
+- **Maccha Layout (`maccha.html`)**:
+  - Modified the "官網下單" button copy to "前往抹茶商店" and "整合自填單".
+  - Renamed the "超商平台自填單" link texts from "前往" to "7-11 賣貨便" and "全家 好賣+".
+
+### Affected files or modules
+- `index.html`: Hero banner and main service category button components.
+- `maccha.html`: Outbound link buttons for internal store and external convenience store platforms.
+
+### Chinese Summary
+優化首頁與抹茶總覽頁面的文案與按鈕標籤。移除了部分按鈕的圖示使畫面更簡潔，並精確標示如「前往自填單」、「7-11 賣貨便」等文字，讓使用者導航更直覺。
+
 ## [2026-02-27] - Autofill & Store Integration Fix for Checkout Pages
 
 ### Summary of changes
