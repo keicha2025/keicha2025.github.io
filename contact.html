@@ -154,7 +154,6 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
                     <label class="block text-center text-xs font-bold text-gray-400 uppercase tracking-widest">官方 LINE
                         ID</label>
 
-                    <!-- 大型組合組件 (灰色邊框) -->
                     <div id="id-master-container" class="id-group-container flex items-center p-2 rounded-2xl">
                         <!-- 左側：點擊全選容器 -->
                         <div class="flex-1 pl-4 pr-2">
@@ -250,7 +249,6 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
                 idInput.select();
                 try {
                     document.execCommand('copy');
-                    // Show Toast
                     toast.classList.remove('hidden');
                     setTimeout(() => {
                         toast.classList.add('hidden');
