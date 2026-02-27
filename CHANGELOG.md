@@ -3,10 +3,12 @@
 ## [2026-02-27] - New Universal Contact Page with Premium Interactions
 
 ### Summary of changes
-Created a dedicated contact page (`contact.html`) as a fallback for browsers with LINE deep-link issues. The page features a minimalist, brand-aligned design with smooth animations and smart interactions.
+Created a dedicated contact page (`contact.html`) as a fallback for browsers with LINE deep-link issues. Fixed layout rendering issues and removed excessive green shadows.
 
 ### Technical details of implementation
-- **Layout Integration**: Fully integrated with the Jekyll `default` layout, including global header, footer, and brand design tokens.
+- **UI Refinement**: Removed `shadow-brandGreen` utilities to ensure a cleaner, neutral card shadow as requested.
+- **Layout Fix**: Corrected the CSS variable application for brand colors, ensuring the icon container and buttons render with the correct background color instead of appearing transparent/white.
+- **Responsive Spacing**: Improved the wrapping container's padding and min-height to prevent "跑版" (layout breaking) on different screen sizes.
 - **Micro-interactions**:
     - **Entry Animation**: Implemented a `fadeUp` CSS animation that slides the card up gracefully upon page load.
     - **Smart Input Selection**: The LINE ID field uses `onfocus="this.select()"` combined with a `tap-scale` pulse animation to provide immediate tactile feedback.

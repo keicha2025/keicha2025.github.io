@@ -6,6 +6,10 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
 
 {% capture styles %}
 <style>
+    :root {
+        --brand-green: #6ea44c;
+    }
+
     body {
         background-color: #fcfdfa;
     }
@@ -15,6 +19,7 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
         font-weight: 700;
     }
 
+    /* 使用 Tailwind 的 brandGreen，這裡做後備 */
     .brand-bg {
         background-color: var(--brand-green);
     }
@@ -91,19 +96,18 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
 </style>
 {% endcapture %}
 
-<main class="min-h-[70vh] flex items-center justify-center p-6 py-16">
+<main class="min-h-[70vh] flex items-center justify-center p-6 py-12 md:py-20 lg:py-24">
     <div class="max-w-md w-full">
         <!-- Main Card -->
-        <div
-            class="bg-white rounded-[var(--r-lg)] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden animate-fade-up">
+        <div class="bg-white rounded-[var(--r-lg)] shadow-xl border border-gray-100 overflow-hidden animate-fade-up">
 
             <!-- Branding Header -->
             <div class="p-8 text-center border-b border-gray-50">
                 <div
-                    class="w-16 h-16 brand-bg rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-md shadow-brandGreen/20">
+                    class="w-16 h-16 bg-brandGreen rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
                     <span class="material-symbols-rounded text-white text-3xl">chat_bubble</span>
                 </div>
-                <h1 class="brand-title text-2xl brand-text mb-2 tracking-tight">聯絡官方客服</h1>
+                <h1 class="brand-title text-2xl text-brandGreen mb-2 tracking-tight">聯絡官方客服</h1>
                 <p class="text-gray-500 text-sm">透過 LINE 獲取您的服務進度與即時諮詢</p>
             </div>
 
@@ -111,12 +115,12 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
             <div class="p-8 space-y-8">
 
                 <!-- ID Selection -->
-                <div class="space-y-3">
+                <div class="space-y-4">
                     <label class="block text-center text-xs font-bold text-gray-400 uppercase tracking-widest">官方 LINE
                         ID</label>
                     <div class="relative">
                         <input type="text" value="@366qwylw" readonly
-                            onfocus="this.select(); this.classList.add('tap-scale'); setTimeout(()=>this.classList.remove('tap-scale'), 300)"
+                            onfocus="this.select(); this.parentElement.classList.add('tap-scale'); setTimeout(()=>this.parentElement.classList.remove('tap-scale'), 300)"
                             class="id-input w-full py-4 text-2xl font-bold tracking-wider rounded-xl text-gray-700 transition-transform"
                             placeholder="LINE ID">
                         <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-30">
@@ -128,7 +132,7 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
                 <!-- Action Button -->
                 <div class="pt-4">
                     <a href="https://lin.ee/F3JngaC" target="_blank" rel="noopener noreferrer"
-                        class="flex items-center justify-center w-full brand-bg text-white px-8 py-4 rounded-xl text-lg font-bold hover:brightness-110 transition-all shadow-lg shadow-brandGreen/25 active:scale-95">
+                        class="flex items-center justify-center w-full bg-brandGreen text-white px-8 py-4 rounded-xl text-lg font-bold hover:brightness-110 shadow-md active:scale-95 transition-all">
                         <span class="material-symbols-rounded mr-2">person_add</span>
                         加入好友
                     </a>
@@ -137,7 +141,7 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
                 <!-- QR Display -->
                 <div class="pt-2 border-t border-gray-50 text-center">
                     <button id="toggle-qr"
-                        class="text-sm font-bold text-gray-400 hover:text-brandGreen transition-colors flex items-center justify-center mx-auto">
+                        class="text-sm font-bold text-gray-400 hover:text-brandGreen transition-colors flex items-center justify-center mx-auto mt-4">
                         <span class="material-symbols-rounded mr-1 text-lg">qr_code_scanner</span>
                         或是掃描 QR Code
                     </button>
@@ -154,7 +158,7 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
         </div>
 
         <!-- Back Link -->
-        <div class="mt-8 text-center">
+        <div class="mt-10 text-center">
             <a href="{{ site.baseurl }}/"
                 class="text-gray-400 hover:text-brandGreen text-sm transition-colors flex items-center justify-center">
                 <span class="material-symbols-rounded text-lg mr-1">arrow_back</span>
