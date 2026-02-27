@@ -106,23 +106,6 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
         opacity: 1;
         margin-top: 1.5rem;
     }
-
-    /* 複製成功的提示動畫 */
-    @keyframes toastIn {
-        from {
-            opacity: 0;
-            transform: translate(-50%, 10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translate(-50%, 0);
-        }
-    }
-
-    .copy-toast {
-        animation: toastIn 0.3s ease forwards;
-    }
 </style>
 
 <main class="min-h-[70vh] flex items-center justify-center p-6 py-12 md:py-20 lg:py-24">
@@ -207,11 +190,7 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
     </div>
 </main>
 
-<!-- 複製成功提示 -->
-<div id="copy-toast"
-    class="hidden fixed bottom-12 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full text-sm font-medium z-50 copy-toast shadow-2xl">
-    已複製 ID：@366qwylw
-</div>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -219,7 +198,7 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
         const qrBox = document.getElementById('qr-box');
         const copyBtn = document.getElementById('copy-btn');
         const idInput = document.getElementById('line-id-input');
-        const toast = document.getElementById('copy-toast');
+
 
         // QR Toggle
         if (toggleBtn && qrBox) {
@@ -243,11 +222,7 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
                 idInput.select();
                 try {
                     document.execCommand('copy');
-                    // Show Toast
-                    toast.classList.remove('hidden');
-                    setTimeout(() => {
-                        toast.classList.add('hidden');
-                    }, 2000);
+
                 } catch (err) {
                     console.error('無法複製', err);
                 }

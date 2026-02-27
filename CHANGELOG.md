@@ -3,9 +3,10 @@
 ## [2026-02-27] - Global Redirection Updates and UI Refinement
 
 ### Summary of changes
-Optimized the user journey by redirecting various external LINE links to the internal contact page, synchronizing store links, and standardizing consistent UI typography across the homepage.
+Optimized the user journey by redirecting various external LINE links to the internal contact page, synchronizing store links, and refining the contact page UI by removing redundant notifications.
 
 ### Technical details of implementation
+- **Contact Page Refinement**: Removed the "已複製" (Copied) toast notification, its associated CSS keyframes, and JavaScript logic to keep the interface cleaner as per user request.
 - **Typography Standardization**: Updated the "付款與下單專區" (Payment and Ordering Zone) header in `index.html` to use `text-2xl md:text-3xl`, ensuring visual consistency with the "服務項目" (Service Items) section.
 - **Homepage Redirection**:
     - Updated "LINE 官方客服" (Hero & Footer sections) to link to `/contact.html`.
