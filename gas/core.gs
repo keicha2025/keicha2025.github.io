@@ -470,7 +470,7 @@ function sendOrderEmails(order, orderId, date) {
   const ADMIN_EMAIL = "wj209ing@gmail.com";         
   const BRAND_COLOR = "#6ea44c";
   const LINE_ID = "@366qwylw";
-  const LINE_LINK = "https://lin.ee/QJU5mUO";
+  const LINE_LINK = "https://lin.ee/CffHu2o";
   
   const subtotal = parseInt(order.subtotal);
   const shipping = parseInt(order.shipping);

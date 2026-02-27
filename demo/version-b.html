@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>訂單詳情 (版本 B - 橫向步進) | KEICHA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        :root {
+            --brand-green: #6ea44c;
+            --brand-dark: #5d8d41;
+            --brand-light: #ebf1e9;
+            --bg-page: #f8fafc;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --border-std: #e5e7eb;
+            --font-brand: 'Zen Maru Gothic', sans-serif;
+            --font-body: 'Noto Sans TC', sans-serif;
+            --r-sm: 8px;
+            --r-md: 16px;
+            --r-lg: 24px;
+            --r-full: 9999px;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-page);
+            color: var(--text-main);
+        }
+
+        .brand-font {
+            font-family: var(--font-brand);
+        }
+
+        /* Stepper Styles */
+        .stepper-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 3rem;
+        }
+
+        .stepper-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--border-std);
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        .stepper-line-active {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 66%;
+            /* Controlled by JS or Server */
+            height: 2px;
+            background-color: var(--brand-green);
+            transform: translateY(-50%);
+            z-index: 2;
+        }
+
+        .step-item {
+            position: relative;
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 2.5rem;
+            height: 2.5rem;
+            background-color: #fff;
+            border: 2px solid var(--border-std);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .step-item.active .step-circle {
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
+            color: #fff;
+            box-shadow: 0 0 0 4px var(--brand-light);
+        }
+
+        .step-item.completed .step-circle {
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
+            color: #fff;
+        }
+
+        .step-label {
+            margin-top: 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .step-item.active .step-label {
+            color: var(--brand-green);
+        }
+
+        .step-item.completed .step-label {
+            color: var(--text-main);
+        }
+    </style>
+</head>
+
+<body class="p-6 md:p-12">
+    <div class="max-w-4xl mx-auto">
+        <!-- Dashboard Header -->
+        <div class="bg-white p-8 rounded-[var(--r-lg)] border border-gray-100 shadow-sm mb-8">
+            <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-10">
+                <div>
+                    <h1 class="text-3xl font-bold brand-font text-gray-800 tracking-tight">訂單狀況說明</h1>
+                    <div class="flex items-center gap-2 mt-2">
+                        <span class="text-xs font-bold text-gray-400 uppercase">Order ID</span>
+                        <span
+                            class="text-sm font-mono font-bold bg-gray-50 px-2 py-0.5 rounded text-gray-600">ORD-227-8892</span>
+                    </div>
+                </div>
+                <div class="flex flex-col items-end">
+                    <span class="text-xs font-bold text-gray-400 uppercase mb-1">訂單狀態</span>
+                    <span class="text-xl font-bold text-[#6ea44c]">備貨發送中</span>
+                </div>
+            </div>
+
+            <!-- Horizontal Stepper -->
+            <div class="stepper-container">
+                <div class="stepper-line"></div>
+                <div class="stepper-line-active" style="width: 50%;"></div>
+
+                <div class="step-item completed">
+                    <div class="step-circle">
+                        <span class="material-symbols-rounded">check</span>
+                    </div>
+                    <span class="step-label">訂單成立</span>
+                </div>
+                <div class="step-item completed">
+                    <div class="step-circle">
+                        <span class="material-symbols-rounded">payments</span>
+                    </div>
+                    <span class="step-label">已支付</span>
+                </div>
+                <div class="step-item active">
+                    <div class="step-circle">
+                        <span class="material-symbols-rounded">package_2</span>
+                    </div>
+                    <span class="step-label">備貨中</span>
+                </div>
+                <div class="step-item">
+                    <div class="step-circle">
+                        <span class="material-symbols-rounded">local_shipping</span>
+                    </div>
+                    <span class="step-label">已寄出</span>
+                </div>
+                <div class="step-item">
+                    <div class="step-circle">
+                        <span class="material-symbols-rounded">verified</span>
+                    </div>
+                    <span class="step-label">已送達</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Left: Items -->
+            <div class="md:col-span-2 space-y-6">
+                <section class="bg-white rounded-[var(--r-lg)] border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-gray-50 flex justify-between items-center">
+                        <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest">購買品項 (2)</h2>
+                        <span class="text-xs bg-gray-50 text-gray-500 px-3 py-1 rounded-full font-bold">包裹 1</span>
+                    </div>
+                    <div class="p-0">
+                        <table class="w-full text-left">
+                            <tbody>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-6">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-12 h-12 bg-gray-100 rounded-[var(--r-sm)]"></div>
+                                            <div>
+                                                <div class="font-bold text-gray-800">一保堂 - 雲門 (40g 罐裝)</div>
+                                                <div class="text-xs text-gray-400 mt-0.5">日本京都直送</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-6 text-sm text-gray-500">x 1</td>
+                                    <td class="p-6 text-right font-mono font-bold text-[#6ea44c]">NT$ 1,280</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-6">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-12 h-12 bg-gray-100 rounded-[var(--r-sm)]"></div>
+                                            <div>
+                                                <div class="font-bold text-gray-800">丸久小山園 - 五十鈴 (100g)</div>
+                                                <div class="text-xs text-gray-400 mt-0.5">專業茶道等級</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-6 text-sm text-gray-500">x 2</td>
+                                    <td class="p-6 text-right font-mono font-bold text-[#6ea44c]">NT$ 2,560</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Logistics Log -->
+                <section class="bg-white p-6 rounded-[var(--r-lg)] border border-gray-100 shadow-sm">
+                    <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">物流記錄</h2>
+                    <div class="space-y-4">
+                        <div class="flex gap-4">
+                            <span class="text-xs font-mono text-gray-400 pt-0.5">12:00</span>
+                            <div>
+                                <p class="text-sm font-bold text-[#6ea44c]">商品正在進行最後包裝檢核</p>
+                                <p class="text-xs text-gray-400 mt-0.5">處理人員：KEICHA 客服中心</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <span class="text-xs font-mono text-gray-400 pt-0.5">11:15</span>
+                            <div>
+                                <p class="text-sm font-bold text-gray-700">款項確認完成，轉入備貨流程</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right: Summary & Info -->
+            <div class="space-y-6">
+                <!-- Summary -->
+                <section class="bg-white p-6 rounded-[var(--r-lg)] border border-gray-100 shadow-sm">
+                    <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 border-b pb-4">款項摘要</h2>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500">商品小計</span>
+                            <span class="font-mono text-gray-700">NT$ 3,840</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500">運費</span>
+                            <span class="font-mono text-gray-700">NT$ 60</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500">折扣碼 (-10%)</span>
+                            <span class="font-mono text-red-400">- NT$ 384</span>
+                        </div>
+                    </div>
+                    <div class="pt-6 border-t border-dashed border-gray-100">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-gray-800">總支付額</span>
+                            <span class="text-2xl font-bold font-mono text-[#6ea44c]">NT$ 3,516</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Customer Info -->
+                <section class="bg-white p-6 rounded-[var(--r-lg)] border border-gray-100 shadow-sm">
+                    <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">收件人資訊</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <span class="text-[10px] font-bold text-gray-400 uppercase block">姓名</span>
+                            <p class="text-sm font-bold text-gray-700">王小明</p>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-gray-400 uppercase block">寄送資訊</span>
+                            <p class="text-sm font-medium text-gray-700">7-11 抹茶門市 (123456)</p>
+                            <p class="text-[10px] text-gray-400 mt-1">台北市信義區忠孝東路五段XXX號</p>
+                        </div>
+                    </div>
+                </section>
+
+                <button
+                    class="w-full bg-[#6ea44c] text-white font-bold py-4 rounded-[var(--r-md)] hover:bg-[#5d8c40] transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-900/10">
+                    <span class="material-symbols-rounded">chat</span>
+                    <span>詢問客服</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

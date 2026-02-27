@@ -1,21 +1,11 @@
 ---
 layout: default
-title: 已送出 | KEICHA
-description: KEICHA 填表結果。
+title: 訂單已送出 | KEICHA
+description: KEICHA 訂單處理結果。
 ---
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
 
 <style>
-    body {
-        background-color: #f8fafc;
-        font-family: sans-serif;
-    }
-
-    /* 確認 Icon 樣式：品牌色 10% 背景 */
+    /* 品牌 Icon 樣式：品牌色 10% 背景 */
     .brand-icon-wrapper {
         width: 80px;
         height: 80px;
@@ -78,12 +68,44 @@ description: KEICHA 填表結果。
         background-color: #f8fafc;
         border-color: #cbd5e1;
     }
+
+    /* 明細表格樣式 */
+    .details-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .details-table th {
+        width: 32%;
+        color: #64748b;
+        font-weight: normal;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: top;
+        font-size: 0.95rem;
+    }
+
+    .details-table td {
+        width: 68%;
+        color: #1e293b;
+        font-weight: 600;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+        padding-left: 12px;
+        font-size: 1rem;
+    }
+
+    .details-table tr:last-child th,
+    .details-table tr:last-child td {
+        border-bottom: none;
+    }
 </style>
 
 <div class="container mx-auto max-w-2xl px-4 py-12 md:py-20">
     <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-10 text-center">
 
-        <div id="success-view">
+        <div id="success-view" style="display: none;">
             <div class="brand-icon-wrapper">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"
                     stroke="currentColor" class="brand-icon-svg">
@@ -91,16 +113,56 @@ description: KEICHA 填表結果。
                 </svg>
             </div>
 
-            <h1 class="text-3xl font-bold text-slate-800 mb-4">預約申請已送出</h1>
+            <h1 class="text-3xl font-bold text-slate-800 mb-4">訂單已送出</h1>
+
+            <div class="text-slate-600 mb-8">
+                <p>感謝您的訂購，我們將儘速為您處理。</p>
+            </div>
+
+            <div class="bg-slate-50 rounded-xl p-6 mb-8 text-left border border-slate-200 relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-[#6ea44c] text-white text-xs px-3 py-1 rounded-bl-lg font-bold">
+                    訂單明細
+                </div>
+
+                <table class="details-table">
+                    <tr>
+                        <th>訂單編號</th>
+                        <td id="d-orderId" class="text-[#6ea44c] font-bold text-lg"></td>
+                    </tr>
+                    <tr>
+                        <th>收件人</th>
+                        <td id="d-name"></td>
+                    </tr>
+                    <tr>
+                        <th>電話</th>
+                        <td id="d-phone"></td>
+                    </tr>
+                    <tr>
+                        <th>商品內容</th>
+                        <td id="d-items"></td>
+                    </tr>
+                    <tr>
+                        <th>配送方式</th>
+                        <td id="d-logistics"></td>
+                    </tr>
+                    <tr>
+                        <th>收件資訊</th>
+                        <td id="d-address"></td>
+                    </tr>
+                    <tr>
+                        <th>應付總額</th>
+                        <td id="d-total" class="font-mono"></td>
+                    </tr>
+                </table>
+            </div>
 
             <div class="mb-6">
                 <p class="text-slate-700 mb-4 leading-relaxed">
-                    請至您的電子信箱查看確認信件，並將截圖透過 LINE 傳給我們。<br>
-                    LINE 客服 ID：@366qwylw
+                    請將上方明細 <span class="font-bold">截圖</span> 並保存。<br>如有任何疑問，請聯繫 LINE 官方客服。
                 </p>
 
-                <div class="flex flex-col max-w-sm mx-auto">
-                    <a href="https://lin.ee/QJU5mUO" target="_blank" class="btn-brand">
+                <div class="flex flex-col gap-0 max-w-sm mx-auto">
+                    <a href="https://lin.ee/CffHu2o" target="_blank" class="btn-brand">
                         聯絡客服
                     </a>
                     <a href="index.html" class="btn-outline">
@@ -110,5 +172,37 @@ description: KEICHA 填表結果。
             </div>
         </div>
 
+        <div id="error-view" style="display: none;">
+            <div class="mb-6 text-gray-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 mx-auto" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-700 mb-2">查無資料</h2>
+            <p class="text-slate-500 mb-8">無法讀取您的訂單資料，可能是頁面已過期。</p>
+            <a href="index.html" class="btn-brand">返回首頁</a>
+        </div>
+
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const storedData = sessionStorage.getItem('orderResult');
+        if (storedData) {
+            const data = JSON.parse(storedData);
+            document.getElementById('d-orderId').textContent = data.orderId;
+            document.getElementById('d-name').textContent = data.name;
+            document.getElementById('d-phone').textContent = data.phone;
+            document.getElementById('d-items').textContent = data.items;
+            document.getElementById('d-logistics').textContent = data.logistics;
+            document.getElementById('d-address').textContent = data.address || '無';
+            document.getElementById('d-total').textContent = `NT$ ${Number(data.total).toLocaleString()}`;
+            document.getElementById('success-view').style.display = 'block';
+        } else {
+            document.getElementById('error-view').style.display = 'block';
+        }
+    });
+</script>

@@ -44,9 +44,39 @@
     <style>
         /* 定義字體變數 */
         :root {
+            /* Font Families */
             --font-brand: 'Zen Maru Gothic', sans-serif;
-            /* 改回 Noto Sans TC */
             --font-body: 'Noto Sans TC', sans-serif;
+            --font-mono: 'JetBrains Mono', 'Segoe UI Mono', monospace;
+
+            /* Spacing System (8pt) */
+            --s-2xs: 4px;
+            --s-xs: 8px;
+            --s-sm: 12px;
+            --s-md: 16px;
+            --s-lg: 24px;
+            --s-xl: 32px;
+            --s-2xl: 64px;
+            --s-3xl: 96px;
+
+            /* Typography Scale */
+            --size-h1: 64px;
+            --size-h2: 32px;
+            --size-h3: 24px;
+            --size-body-l: 18px;
+            --size-body: 16px;
+            --size-label: 14px;
+            --size-note: 12px;
+
+            /* Corner Radius System */
+            --r-sm: 8px;
+            --r-md: 16px;
+            --r-lg: 24px;
+            --r-full: 9999px;
+
+            /* Container Widths */
+            --container-max: 1200px;
+            --container-narrow: 800px;
         }
 
         /* (放入所有頁面共用的 CSS) */
@@ -69,7 +99,7 @@
             width: 18px;
             height: 18px;
             border: 2px solid #e5e7eb;
-            border-radius: 4px;
+            border-radius: var(--r-sm);
             background: #fff;
             cursor: pointer;
             position: relative;

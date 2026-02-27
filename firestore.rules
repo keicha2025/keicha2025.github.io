@@ -12,6 +12,7 @@ service cloud.firestore {
     match /shipping_rules/{docId} { allow read: if true; }
     match /fast_checkout_config/{docId} { allow read: if true; }
     match /denwa_plans/{docId} { allow read: if true; }
+    match /card_orders_links/{docId} { allow read: if true; }
 
     // 2. 公開處理權限 (加上源頭金鑰驗證，防止非網頁直接寫入)
     match /orders/{docId} { 
@@ -24,7 +25,12 @@ service cloud.firestore {
       allow get: if true;
       allow list: if request.query.limit <= 20; 
     }
-    // 訂單計數器
+    match /card_orders/{docId} {
+      allow create: if request.resource.data.source_token == 'keicha_2025_web_auth';
+      allow read: if true; 
+      allow update, delete: if isAdmin();
+    }
+    // 訂單計數器 (允許前端交易更新以產生連續編號)
     match /order_counters/{docId} {
       allow read, write: if true;
     }
@@ -43,6 +49,8 @@ service cloud.firestore {
     match /denwa_plans/{docId} { allow write: if isAdmin(); }
     match /fast_checkout_config/{docId} { allow write: if isAdmin(); }
     match /shipping_rules/{docId} { allow write: if isAdmin(); }
+    match /card_orders_links/{docId} { allow write: if isAdmin(); }
+    match /shipping_methods/{docId} { allow read: if true; allow write: if isAdmin(); }
 
     function isAdmin() {
       return request.auth != null && request.auth.token.email == 'wj209ing@gmail.com';

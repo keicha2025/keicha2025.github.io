@@ -1,5 +1,171 @@
 # Changelog
 
+## [2026-02-27] - Autofill & Store Integration Fix for Checkout Pages
+
+### Summary of changes
+Fixed a critical bug where member store data (7-11, Fami) and shipping addresses were failing to populate during checkout. Aligned the HTML card structure and DOM query logic across all checkout pages to reliably retrieve and save customer delivery details.
+
+### Technical details of implementation
+- **HTML Structure Alignment**: In `fast.html` and `card-order.html`, added `data-method="${method}"` to the logistics cards to match the functional pattern found in `diy.html`.
+- **Input ID Restructuring**: Standardized the store input IDs to `store-id-${method}` across all checkout forms to prevent mismatch with the autofill routines.
+- **Autofill Robustness**: Updated `fillFormWithData` and `lookupPhoneData` functions to use `card.dataset.method` for checking logistics methods instead of relying on regex replacements of the parent DOM ID or non-existent attributes.
+
+### Affected files or modules
+- `fast.html`: Card generation and autofill logic constraints.
+- `card-order.html`: Data binding and submission flow.
+
+### Chinese Summary
+修復了「快速結帳」與「專屬付款連結」頁面無法帶入門市與地址資料的問題，統一 HTML 屬性 `data-method` 與 DOM 選取邏輯，確保每次都能精準帶入歷史物流資料。
+
+## [2026-02-27] - Denwa Order Price Persistence & UI Enhancements
+
+### Summary of changes
+Fixed the issue where phone-assisted orders (`denwa_orders`) displayed an amount of 0 and improved the order tracking UI to hide internal tracking suffixes.
+
+### Technical details of implementation
+- **Price Persistence (`denwa-form.html`)**: Added code to save the selected plan's price into the `total` field in Firestore during submission.
+- **UI Suffix Removal (`order.html`)**: Updated the display logic to use `order_id` instead of the full `tracking_code`, effectively hiding the 4-character random suffix from customers.
+- **Enhanced Details (`order.html`)**: 
+  - Added a dedicated itemized layout for `denwa_orders` that includes the merchant name, service date/time, and a breakdown of adult/child attendees.
+  - Refined seller reply priority to show `public_reply` consistently.
+- **Search Mapping (`jyoukyou.html`)**: Improved field mapping to correctly pull and display prices for phone orders.
+
+### Affected files or modules
+- `denwa-form.html`: Order submission logic.
+- `order.html`: Order detail tracking page.
+- `jyoukyou.html`: Order status query page.
+
+### Chinese Summary
+修正電話訂單金額顯示為 0 的問題，確保下單時會正確紀錄方案金額。同時優化前端介面，移除訂單詳情頁中的亂碼後綴，並補全電話預約專屬的日期、時間與人數細節顯示。
+
+ 
+## [2026-02-27] - Denwa Orders Search & Storage Consistency Fix
+ 
+### Summary of changes
+Resolved the issue where phone-assisted orders (`denwa_orders`) were unsearchable by Order ID on the tracking page. Standardized the storage mechanism to align with other order collections.
+ 
+### Technical details of implementation
+- **Search Logic Update (`jyoukyou.html`)**:
+    - Changed the `denwa_orders` lookup from `.doc(id).get()` to `.where('order_id', '==', rawOrderId).limit(1).get()`.
+    - This ensures legacy orders with random-string Document IDs are correctly retrieved via their human-readable `order_id` field.
+    - Updated result mapping to prioritize the `order_id` field for display consistency.
+- **Storage Standardization (`denwa-form.html`)**:
+    - Replaced `.add(payload)` with `.doc(orderId).set(payload)` during order submission.
+    - Newly created phone orders now use the formatted Order ID (e.g., `DENWA-25022701`) as their primary Firestore Document ID, matching the behavior of `orders` and `card_orders`.
+ 
+### Affected files or modules
+- `jyoukyou.html`: Cross-collection search logic.
+- `denwa-form.html`: Order submission and persistence logic.
+ 
+### Chinese Summary
+修復電話代撥訂單無法透過編號查詢的問題。將查詢邏輯改為欄位比對以兼容舊資料，並同步將下單流程改為以訂單編號作為資料庫主鍵，確保全站訂單儲存格式一致。
+ 
+
+
+## [2026-02-27] - Universal Order Detail Page & Tracking Code Support
+
+### Summary of changes
+Implemented a high-end universal order detail page (`order.html`) based on a vertical linear layout design. Introduced the `tracking_code` system (Format: `OrderID-4DigitRandomSuffix`) across all order-taking modules to enable secure, unguessable order status tracking for customers.
+
+### Technical details of implementation
+- **Unified Order Detail Page (`order.html`)**:
+    - Developed a premium UI using a linear vertical timeline to display order progress and detailed line items.
+    - Implemented cross-collection searching logic that scans `orders`, `denwa_orders`, and `card_orders` using the `tracking_code`.
+    - Integrated with KEICHA design tokens for consistent rounded corners, spacing, and typography.
+    - Added responsive "Contact Support" entry point and order status tracking.
+- **Tracking Code Generation**:
+    - Updated `maccha-store.html`, `denwa-form.html`, and `fast.html` to generate and persist a `tracking_code` upon order submission.
+    - Used a safe character set (`ABCDEFGHJKLMNPQRSTUVWXYZ23456789`) to generate the 4-character random suffix to avoid ambiguous characters like `0/O` or `1/I`.
+- **Legacy Data Backfill**:
+    - Added a "Database Repair & Completion" tool in `admin.html`.
+    - Implemented `backfillTrackingCodes` function to scan existing orders and generate retrospective tracking codes using the last 4 characters of Firebase Document IDs for historical consistency.
+- **URL Structure Alignment**: Standardized the public tracking URL format to `order.html?id=[TrackingCode]`.
+- **Layout Integration**: Applied the `default` site template to `order.html` to include the global header and footer. Fully integrated with KEICHA design tokens (typography, spacing, and radius) for seamless site-wide consistency.
+
+### Affected files or modules
+- `order.html` [NEW]: The universal tracking interface with site-wide layout integration.
+- `maccha-store.html`, `denwa-form.html`, `fast.html`: Order submission logic updates.
+- `admin.html`: Maintenance tool addition and UI updates.
+
+### Chinese Summary
+實作全站通用的「訂單詳情頁」與「查單追蹤碼」系統。現在所有新訂單都會自動產生格式如 `M26022701-A8B9` 的查詢碼，並同步在後台加入「資料補回工具」。此外，訂單詳情頁已整合全站 Layout（頁首/頁尾），確保品牌視覺一致性。
+
+
+## [2026-02-26] - Typography & Spacing System Optimization
+
+### Summary of changes
+Optimized the design system by fully tokenizing Typography and Spacing scales. This update transitions the project from static values to a centralized, variable-driven engine, ensuring consistent information density and visual hierarchy across all devices.
+
+### Technical details of implementation
+- **CSS Variable Centralization**: Defined comprehensive design tokens in `_layouts/default.html`:
+    - **Spacing (8pt)**: Added `--s-2xs` (4px) to `--s-3xl` (96px).
+    - **Typography**: Defined `--size-h1` to `--size-note` for responsive text scaling.
+    - **Font Families**: Added `--font-mono` for data/code blocks and standardized brand/body font variables.
+    - **Container Widths**: Defined `--container-max` (1200px) and `--container-narrow` (800px).
+- **Design System Documentation**: Updated `DESIGN_SYSTEM.md` with mapping between design levels and CSS variables.
+- **Implementation Refinement**:
+    - Replaced hardcoded Tailwind padding and text sizes in `index.html` with variable-based Tailwind classes (e.g., `py-[var(--s-3xl)]`).
+    - Standardized Section and Hero typography to align with the new H1/H2 scale.
+
+### Affected files or modules
+- `_layouts/default.html`, `index.html`, `DESIGN_SYSTEM.md`
+
+### Chinese Summary
+優化字體與間距系統：將全站 Typography 與 Spacing 全面「Token 化」並建立 CSS 變數引擎。定義了 8pt 系統間距、多層級響應式字階、以及數據專用字體。同步更新了首頁與設計規範文件，讓代碼從手寫數值進化為數據驅動的設計系統。
+
+
+
+## [2026-02-25] - Unified Border Radius System & Design Standardization
+
+### Summary of changes
+Implemented a consistent border-radius system across the entire project, defining four core levels (8px, 16px, 24px, 9999px) and applying them systematically to all components. This update enhances visual harmony and ensures a premium, high-quality aesthetic across all user-facing and administrative interfaces.
+
+### Technical details of implementation
+- **Global Design Tokens**: Defined `--r-sm: 8px`, `--r-md: 16px`, `--r-lg: 24px`, and `--r-full: 9999px` in `_layouts/default.html` for site-wide availability.
+- **Component Alignment**:
+    - **Large (24px)**: Applied to main containers, cards, and sections (`.section-card`, `.login-card`, `.modal-content`, `section.bg-white`).
+    - **Medium (16px)**: Applied to input fields, primary buttons, and interactive labels (`.diy-input`, `.btn`, `.order-card`).
+    - **Small (8px)**: Applied to nested elements, secondary buttons, and navigational links (`.note-box`, `.nav-link`, `.dropdown-menu`).
+    - **Full (9999px)**: Applied to status badges, pills, and specialized round elements (`.status-badge`, `.slider-dot`, `.loader`).
+- **Global Checkbox Styling**: Standardized the border-radius of the custom KEICHA checkbox to 8px within the root layout.
+- **Legacy Cleanup**: Replaced all hardcoded values and localized Tailwind `rounded-` classes with CSS variable-based definitions for improved maintainability.
+
+### Affected files or modules
+- `_layouts/default.html`, `_includes/header.html`, `_includes/footer.html`, `_includes/contact-section.html`
+- `admin.html`, `index.html`, `denwa.html`, `maccha.html`, `jyoukyou.html`, `privacy.html`
+- `card-order.html`, `denwa-form.html`, `diy.html`, `maccha-store.html`
+- `css/ui-dialog.css`
+
+### Chinese Summary
+統一全站圓角系統：定義四個核心圓角等級（8px/16px/24px/全圓角），並將其應用於全站組件、容器與按鈕。透過 CSS 變數標準化全站設計語言，顯著提升了介面的精緻感與一致性，並同步優化了全域 Checkbox 與首頁導覽列的視覺細節。
+
+
+
+## [2026-02-25] - Global Shipping Methods Centralization & UI Refinement
+
+### Summary of changes
+Refined the shipping management system by splitting it into "Shipping Methods" (Global Presets) and "Shipping Rules" (Dynamic Tiers). Added an automated initialization tool for standard Taiwan logistics (7-11, FamilyMart, Home Delivery) and unified the tiered fee interface across all modals.
+
+### Technical details of implementation
+- **Shipping Methods (Presets)**: 
+    - Implemented `initDefaultShippingMethods()` to bulk-add standard 7-11/FamilyMart/Home methods with pre-configured lookup URLs.
+    - Enhanced the method management UI to display query links with icons and shortened URLs.
+    - Clarified "Query Link" usage in modals for better admin UX.
+- **Shipping Logic Consolidation**: Thoroughly applied the "Logistics Channels Pool" (global methods) across `fast.html`, `card-order.html`, `maccha-store.html`, and `diy.html`. Front-end logistics options now prioritize tracking links defined in the global pool.
+- **Admin UI Cleanup**: Removed the "Initialize Default Methods" button from the shipping tab as per user request. Fixed redundant padding in the logistics pool container.
+- **UI Aesthetic Corrections**:
+    - Changed all delete icons from red to neutral gray (#64748b) in shipping, card links, and brand list modules.
+    - Simplified error messages and warnings to use neutral gray.
+    - Updated required field indicators to use brand green.
+
+### Affected files or modules
+- `admin.html`: UI cleanup, removed init button, fixed icon colors.
+- `fast.html`, `card-order.html`, `maccha-store.html`, `diy.html`: Updated to fetch and use global shipping methods.
+- `firestore.rules`: Updated to allow public read of `shipping_methods`.
+
+### Chinese Summary
+優化運費與物流邏輯：將「物流管道池」設定徹底套用至全站所有結帳頁面，確保查詢連結變動時可同步更新。移除後台物流初始化按鈕以利手動配置、修復多處 UI 色調（刪除圖示改為中性灰、必填星號改為品牌綠），並精簡了物流管道容器的間距。
+
 ## [2026-02-24] - Dynamic Logistics System, KUI Dialog Component & Pre-Release Audit Fixes
 
 ### Summary of changes
@@ -879,3 +1045,298 @@ Refined the card order checkout UI for better UX, added multi-payment method man
 - **Affected Files**: `admin.html`, `card-order.html`
 
 **中文摘要：優化運費與金額邏輯。管理端更名為「商品金額」並新增總額預算；運送方式移至上方並與費率輸入框聯動；同步全站三種運送方式並加入門市查詢連結。**
+
+## [2026-02-25T11:45:00] - Admin Table Alignment & Checkout Logistics Overhaul
+### UI Unification and Premium Redesign
+- **Admin Panel Alignment**:
+    - Standardized the 'Link Orders' table in `admin.html` to match the main 'Orders' table styling (padding, typography, and structure).
+    - Replaced the generic table header with standard columns: "編號", "收件人", "本次金額", "狀態", "日期", "操作".
+    - Implemented a complete set of action buttons (Info, Edit, Delete) for link orders with identical styling and functionally consistent modals.
+    - Refined amount and status displays to align with the primary order list's color palette and fonts.
+- **Checkout Page Overhaul (`card-order.html`)**:
+    - Replaced the dynamic logistics section with the premium, card-based HTML structure from `fast.html`.
+    - Integrated 7-11 and FamilyMart store lookup functionality with `.btn-outline-green` styling (removing default blue).
+    - Updated `selectLogistics()` and `renderPage()` logic to support the new card-toggling interaction and detail section visibility.
+    - Fixed data mapping in `submitOrder()` to correctly retrieve store IDs and addresses from the new card-based inputs.
+- **Affected Files**: `admin.html`, `card-order.html`
+
+**中文摘要：同步管理後台「連結訂單」與主訂單列表的表格樣式與操作功能（新增詳情、編輯、刪除）。全面重構 `card-order.html` 運送方式區塊為與 `fast.html` 一致的高級卡片式設計，整合店號查詢並修正按鈕樣式。**
+
+---
+
+## [2026-02-25T13:50:00] - Admin Logistics Load Logic & Data Stability Fix
+### Summary of changes
+Refactored the internal loading mechanism for global shipping methods to ensure data availability across all admin modules and fixed UI synchronization issues.
+
+### Technical details of implementation
+- **Singleton Fetching Pattern**: Implemented `ensureGlobalMethods(forceRefresh)` which centralizes Firestore access. It uses a semaphore-like flag (`isFetchingGlobalMethods`) to prevent redundant simultaneous requests and ensures a single source of truth for the `globalShippingMethods` array.
+- **Asynchronous Modal Pre-loading**: Modified `showCardLinkModal`, `showShippingModal`, `editShipping`, and `loadFastConfig` to `await` the completion of `ensureGlobalMethods()` before constructing the HTML. This guarantees that multi-select checkboxes and dropdowns are always populated with live data even if accessed immediately after login.
+- **Data-UI Decoupling**: Refactored `loadGlobalMethods()` to focus on rendering, decoupled from the fetching state, allowing it to be safely called from any tab without DOM dependencies.
+- **Smart Refresh Mechanism**: Added `forceRefresh` support to allow `saveGlobalMethod` and `deleteGlobalMethod` to invalidate the local cache and trigger an immediate database sync, keeping the admin UI perfectly synchronized with Firestore.
+- **Default State Correction**: Updated new card link creation template to default to an empty shipping method list, forcing accurate selection based on current logistics settings.
+
+### Affected files or modules
+- `admin.html`: Significant refactoring of shipping method logic and modal initialization.
+
+### Chinese Summary
+重構管理後台物流管道載入機制：導入 `ensureGlobalMethods` 單例抓取策略，解決「新增支付連結」與「運費規則」彈窗偶爾出現物流選項空白的問題。確保數據抓取與介面渲染分離，並在更新物流管道後即時強制同步全站快取，提升系統穩定性。
+
+---
+
+## [2026-02-25T14:15:00] - Card Link Management Amount Label Clarification
+### Summary of changes
+Standardized the terminology for product costs and final totals within the Card Link Management module to better distinguish between fixed product prices and dynamic total payable amounts.
+
+### Technical details of implementation
+- **Table Header Update**: Changed "總金額" to "商品金額" in the `loadCardLinks` table to accurately reflect that this value represents the base product price without shipping.
+- **Modal UI Refinement**: 
+    - Renamed "商品金額 (不含運)" to simply "商品金額" in the Card Link creation/edit modal.
+    - Updated the real-time calculation preview label from "預估應付總額" to "本次應付金額" to emphasize that this is the final amount the customer will pay (including selected shipping fees).
+- **Consistent Terminology**: Synchronized the `updateLinkTotalView` function to ensure all dynamic price updates use the new "本次應付金額" label.
+
+### Affected files or modules
+- `admin.html`: Modified `loadCardLinks`, `showCardLinkModal`, and `updateLinkTotalView`.
+
+### Chinese Summary
+優化「刷卡連結管理」金額標示：將列表標題與編輯視窗中的「總金額」明確更名為「商品金額」，並將計算運費後的加總項標示為「本次應付金額」。此更動旨在區分固定商品單價與最終含運費的結帳金額，減少管理端的認知誤差。
+
+---
+
+## [2026-02-25T14:15:00] - Client-Side UI Premium Refinement & Logic Fix
+### Summary of changes
+Polished the student-facing checkout pages to separate product costs from shipping fees and enhanced the UI by removing heavy borders for a cleaner, more premium aesthetic.
+
+### Technical details of implementation
+- **Amount Separation**:
+    - In `card-order.html`, Modified `updateTotal()` to ensure the "商品金額" label strictly displays the product/stage base price without including the dynamically calculated shipping fee. The shipping fee is now exclusively factored into the final "本次應付金額" total.
+- **UI Aesthetic Enhancement (Border Removal)**:
+    - **Payment & Stage Options**: Removed standard gray borders (`border-gray-100`) from interactive radio labels. Replaced with subtle background colors (`bg-gray-50`) and improved hover states.
+    - **Logistics Cards**: Refactored `.logistics-card` CSS across `card-order.html`, `fast.html`, and `maccha-store.html`. Replaced the thick gray borders with a transparent border/subtle background combo, transitioning to a brand-green border only when actively selected.
+    - **Color Synchronization**: Adjusted background and icon container colors to use lighter, semi-transparent brand tones (`brandLight/50`) for a softer visual hierarchy.
+
+### Affected files or modules
+- `card-order.html`: Logic fix for amount display and UI styling.
+- `fast.html`: Logistics card UI refinement.
+- `maccha-store.html`: Logistics card UI refinement.
+
+### Chinese Summary
+優化客戶端結帳介面：修正「商品金額」顯示邏輯，確保其固定顯示商品原價（不含運費），運費僅計入最終結帳總額。同步進行 UI 質感升級，移除付款方式與物流卡片的灰色邊框，改採淺色背景與品牌色動態邊框，營造更輕盈、高品質的視覺體驗。
+
+---
+
+## [2026-02-25T15:15:00] - Order Logic & UI Enhancements
+### Summary of changes
+Fixed permission issues in `fast.html`, upgraded the order success page, and added robust shipping validation to `card-order.html`. Enhanced the order tracking page with "Go to Payment" functionality for card orders.
+
+### Technical details of implementation
+- **Permission Fix**: Added `source_token` to Firestore writes in `fast.html` and `denwa-form.html` to resolve authorization errors.
+- **Premium Success Page**: Rebuilt `fast-diy-result.html` to match the high-end design of `form-result.html`, including order detail tables and screenshot reminders.
+- **Strict Shipping Validation**: Implemented input checks in `card-order.html`:
+    - CVS: Requires exact 6-digit store code.
+    - Home Delivery: Requires a non-empty, minimum length address.
+- **Order Tracking Upgrades**: Modified `jyoukyou.html` to:
+    - Search across `card_orders` collection.
+    - Dynamically display a "Go to Payment" (前往付款) button for unpaid card and telephone orders.
+
+### Chinese Summary
+修復 `fast.html` 下單權限錯誤，並升級結帳成功頁面至精品規格。同步加強專屬支付連結的物流校驗（超商 6 碼、宅配地址），並在訂單查詢頁面針對未付款訂單新增「前往付款」按鈕，優化支付閉環。
+
+---
+
+## [2026-02-25T15:53:00] - Admin Image Upload Optimization
+### Summary of changes
+Enhanced the image upload functionality in the admin backend for card payment links. This includes logic updates for better image quality and a UI overhaul of the upload component.
+
+### Technical details of implementation
+- **Center-Crop Compression**: Updated `previewLinkImage` in `admin.html` to use a Canvas-based central cropping algorithm. Images are now automatically cropped and resized to a perfect `1080x1080` square resolution.
+- **Custom UI Components**: Replaced the native browser "Choose File" input with a custom-styled dotted-border button featuring a cloud upload icon, aligning with the project's premium aesthetic.
+- **UX Improvements**: Added informative text within the upload area to guide users towards uploading 1080x1080 images for optimal results.
+
+### Affected files or modules
+- `admin.html`: CSS styles, HTML structure, and JavaScript compression logic.
+
+### Chinese Summary
+優化管理後台支付連結的縮圖上傳功能：將自動壓縮規格提升至 `1080x1080` 並改為正方形「中心裁切」，確保縮圖質感與比例統一。同時美化上傳介面，將原生檔案選擇器替換為品牌風格的自定義虛線按鈕。
+
+---
+
+## [2026-02-25T15:58:00] - Admin Link Defaults Synchronization
+### Summary of changes
+Improved the user experience for creating new payment links by automatically synchronizing default settings with the main store configuration.
+
+### Technical details of implementation
+- **Config Sync**: Updated `showCardLinkModal` in `admin.html` to fetch the latest settings from the `fast_checkout_config/default` document when initializing a new link.
+- **Auto-Population**: For new links, the following fields are now pre-populated from the store defaults:
+    - Enabled shipping methods (7-11, FamilyMart, Home Delivery).
+    - Free shipping status.
+    - Uniform fee settings and specific shipping fees for each method.
+
+### Affected files or modules
+- `admin.html`: Initialization logic for the payment link creation modal.
+
+### Chinese Summary
+優化支付連結的新增體驗：新增連結時會自動讀取資料庫中的「快速結帳設定」作為預設值，包括預設啟用的物流方式、免運設定及各項運費金額，提升管理效率。
+
+---
+
+## [2026-02-25T16:03:00] - Admin UI & Logic Refinement
+### Summary of changes
+Polished the admin interface by removing unauthorized red accents and fixing logic errors in the payment link configuration.
+
+### Technical details of implementation
+- **UI Standard Compliance**: Removed red color (`#ef4444`) from all `delete` icons and replaced them with a neutral gray (`#64748b`) to maintain the brand's premium and cohesive aesthetic.
+- **Nullish Logic Fix**: Refactored the data initialization in `showCardLinkModal` to use the nullish coalescing operator (`??`). This ensures that shipping fees set to `0` in the database are correctly respected and not overwritten by hardcoded fallback values like `60` or `120`.
+- **Template Cleanup**: Removed hardcoded fallback values from the HTML template string for shipping fees, allowing values to flow directly from the database configuration.
+
+### Affected files or modules
+- `admin.html`: Icon styling and modal initialization JavaScript.
+
+### Chinese Summary
+優化後台視覺與邏輯細節：全面移除刪除圖示的紅色樣式，改為中性深灰色以符合品牌質感；同時修正運費初始化邏輯，確保資料庫中設定為 0 元的項目不會被預設的 60/120 元覆蓋，精準呈現金流設定。
+
+---
+
+## [2026-02-25T16:15:00] - Multi-stage Checkout & Admin Shipping Logic Fix
+### Summary of changes
+Refined the multi-stage payment experience in the card checkout page and enhanced the admin panel's shipping configuration logic to pull live data from the database.
+
+### Technical details of implementation
+- **Multi-stage Payment UI**:
+    - Updated `card-order.html` to clearly separate "Product Total" and "Order Total (incl. Shipping)" in the summary area from the "Amount Due Now" (current stage) in the payment bar.
+    - Standardized the hover effect for payment stages using a brand-aligned light green (`#f9fdf7`) and dynamic border (`#6ea44c`) instead of the default Tailwind green.
+    - Ensured consistent use of `font-mono` for all currency displays.
+- **Admin Shipping Synchronization**:
+    - Added a live fetch of `shipping_rules` collection within the `showCardLinkModal` workflow in `admin.html`.
+    - Implemented auto-population logic: when selecting a shipping method (e.g., 7-11), the system now pulls relevant base fees from `shipping_rules` and automatically fills the fee inputs if they are empty or set to zero.
+
+### Affected files or modules
+- `card-order.html`: UI layout and `updateTotal` JavaScript.
+- `admin.html`: Modal initialization and shipping fee toggle logic.
+
+### Chinese Summary
+優化分階段支付體驗與後台物流配對邏輯：分派結帳頁現在會同時顯示「商品總額」與「訂單總額」，並於支付列標註「本次應付金額（階段款項）」。後台新增支付連結時，勾選物流方式將自動從 `shipping_rules` 資料庫抓取對應運費預填，減少人工輸入誤差。
+
+---
+
+## [2026-02-25T16:25:00] - Admin Auto-calculating Payment Stages
+### Summary of changes
+Introduced smart calculation for payment stages in the admin panel, allowing administrators to manage multi-stage payments more efficiently without manual math.
+
+### Technical details of implementation
+- **Auto-Balance Calculation**: Added `calculateRemainingStage` logic in `admin.html`. When multiple stages are present, editing the amount of any early stage (e.g., Down Payment) now automatically calculates and updates the final stage (e.g., Final Payment) to ensure the total matches the primary product amount.
+- **Smart Row Addition**: Updated `addStageRow` to automatically label rows as "預付款" (Down Payment) for the first entry and "尾款" (Final Payment) for subsequent entries.
+- **Improved UX**: Redesigned the "Stages" section in the admin modal with a more subtle, professional UI featuring dashed borders and clear descriptive text. Added live input listeners to ensure balance updates happen in real-time.
+
+### Affected files or modules
+- `admin.html`: Modal structure and stage management JavaScript.
+
+### Chinese Summary
+後台分階段支付智慧化：現在新增支付階段時，系統會自動將第一項標記為「預付款」，其餘為「尾款」。管理者只需輸入預付款金額，系統便會根據商品總額自動計算並填入尾款金額，無需再手動拆分與對帳。
+
+---
+
+## [2026-02-25T16:35:00] - Admin Payment Stages Simplification
+### Summary of changes
+Streamlined the multi-stage payment configuration in the admin panel to focus on a single input for Down Payment, removing the need for manual stage management.
+
+### Technical details of implementation
+- **Simplified Workflow**: Replaced the interactive "Add Stage" list with a single "First Stage Down Payment" toggle and number input field.
+- **Auto-Logic Integration**: 
+    - Updated `saveCardLink` in `admin.html` to automatically generate a two-stage payment structure (Down Payment + Final Payment) whenever the down payment option is enabled.
+    - Added validation to ensure the down payment is a positive value less than the total product amount.
+- **UI Decoupling**: Removed all JavaScript functions related to dynamic stage row management (`addStageRow`, `calculateRemainingStage`) to reduce code complexity and potential UI errors.
+- **Data Persistence**: Ensured existing multi-stage links correctly populate the new simplified input field upon editing.
+
+### Affected files or modules
+- `admin.html`: Modal structure, input logic, and save process.
+
+### Chinese Summary
+後台分階段支付大幅簡化：移除複雜的「增加階段」清單，改為單一「第一階段預付款」輸入框。現在管理者只需輸入預付款金額，系統在儲存時會自動推算出尾款並生成完整的兩階段支付結構，大幅提升操作效率。
+
+---
+
+## [2026-02-25T16:45:00] - Enforced Multi-stage Payment Logic
+### Summary of changes
+Refined the multi-stage payment system with enforced sequential payment logic and a simplified administrative configuration.
+
+### Technical details of implementation
+- **Admin Optimization**: Simplified the payment stage UI in `admin.html`. Administrators now only need to enable "First Stage Down Payment" and enter an amount. The system automatically calculates and generates the "Final Payment" stage upon saving.
+- **Sequential Payment Enforcement**: Modified `card-order.html` to prevent users from paying the final installment before the down payment is received. The "Final Payment" radio option is locked and visually disabled until the first stage is marked as `is_paid`.
+- **Flexible Full Payment Option**: Added an "One-time Full Payment" option to the checkout page, available only before any installments have been paid. 
+- **Shipping Fee Logic Refinement**: Updated `updateTotal` and `submitOrder` to ensure that **shipping fees are only applied to the Final Payment stage or Full Payment**. Selecting the "Down Payment" stage will now automatically set the shipping fee to 0.
+- **Backend Validation (GAS)**: Updated `handleCardPayment` in Google Apps Script to verify the stage sequence server-side and enforce zero shipping fees for the first stage.
+- **Automatic Status Synchronization**: Enhanced the ECPay callback handler to update stage statuses in Firestore. When a full payment is made, all corresponding stages are automatically marked as paid.
+- **Security Enhancements**: Patched a critical vulnerability in `firestore.rules` by removing frontend write access to the `card_orders` and `order_counters` collections. Order creation is now strictly regulated via a hard-coded client token, and modifications are restricted to admins or backend processes, preventing injection or unauthorized deletion.
+- **UX & Anti-Double-Submit**: Added a full-screen loading overlay (`#loading-overlay`) during the payment submission process in `card-order.html` to prevent users from interacting with the page while the API request is pending, mitigating the risk of double submissions.
+
+- **Go-live Audit & Quality Assurance**:
+    - **Idempotency Implementation**: Introduced `request_id` on the frontend and backend to prevent duplicate order generation from network retries or double-clicks.
+    - **Visual Consistency (8pt Grid)**: Adjusted `.section-card` spacing (mobile optimize) and unified button corner radius to `16px` (2xl) to match premium input styles.
+    - **Advanced UX Transitions**: Added smooth CSS transitions for logistics detail expansion in `card-order.html`, replacing abrupt visibility toggles.
+    - **Admin Mobile Optimization**: Refactored the "Close Case" modal table to support responsive wrapping, ensuring usability on small screens.
+    - **Empathetic Empty States**: Standardized "Empty State" UI across all admin panels with icons and contextual messaging to reduce coordinator uncertainty.
+    - **Error Resilience**: Enhanced API error handling in admin panels with user-friendly retry states for better fault tolerance.
+
+- **Admin UI Refinement**:
+    - **Tab Renaming**: Simplified "刷卡管理" to "刷卡" for a cleaner header.
+    - **Typography Adjustment**: Removed italic style from order notes in the card order table for better legibility.
+    - **Financial Transparency**:
+        - Added a "Total Amount" (總金額) column to the card order table with a gray sub-label for shipping fees.
+        - Enhanced the Order Detail modal to explicitly break down financial components: "Product Amount" (商品金額), "Shipping Fee" (運費), "Total Budget" (總預算), and "Current Stage Amount" (本階段金額).
+    - **Consistency**: Unified refresh buttons across admin panels using standard `.btn-secondary` styling with icons.
+
+### Affected files or modules
+- `admin.html`: Tab labels, order table structure, financial breakdown in detail modals, and UI consistency tweaks.
+
+### Chinese Summary
+優化管理員介面：簡化標籤名稱，並在刷卡訂單列表中加入「總金額」與「運費」標示。詳情視窗現在會清晰拆解商品原價、運費及目前支付階段的金額結構，提升帳務核對的透明度與便利性。
+
+- **Order Status Page Refinement (`jyoukyou.html`)**:
+    - **Financial Breakdown**: Enhanced search results to display a detailed breakdown of costs, including "Product Amount" (商品金額), "Shipping Fee" (運費), and "Total Amount" (總計金額) when available.
+    - **Stage Payment Clarity**: Specifically labeled "Current Stage Payment" (本階段支付) for card orders to prevent user confusion during multi-stage billing.
+    - **Layout Breathability**: Significant spacing improvements:
+        - Added `pt-12` and `mt-8` to the primary search container to ensure proper separation from the site navigation/header.
+        - Increased vertical spacing between the Search Box, Results Section, and "Need Help" container to improve visual hierarchy.
+
+### Affected files or modules
+- `jyoukyou.html`: Detailed financial results rendering and container spacing adjustments.
+
+### Chinese Summary
+優化訂單查詢頁面：在查詢結果中加入詳細的金額拆解（商品原價、運費、總額），並針對信用卡分期訂單標示「本階段支付」，讓使用者清楚掌握扣款細節。同時加大了頁面區塊間的間距，提升整體閱讀呼吸感。
+
+
+
+---
+
+## [2026-02-27] - Linear Order Detail Page Templates
+
+### Summary of changes
+Created two distinct design templates for the new Order Detail Page to evaluate different user experiences and information hierarchies. Both templates are built using the project's centralized design tokens to ensure visual consistency and a premium aesthetic.
+
+### Technical details of implementation
+- **Directory Establishment**: Created `/demo` folder to serve as the prototyping environment for new UI components.
+- **Version A (Vertical Linear)**: 
+    - Implemented a "Story-telling" timeline using vertical CSS pseudo-elements.
+    - Focused on mobile-first accessibility where status updates flow naturally downwards.
+    - Used brand-light (#ebf1e9) for active node backgrounds and brand-green (#6ea44c) for the primary track.
+- **Version B (Horizontal Stepper)**:
+    - Designed a "Status-at-a-glance" header with a horizontal progress stepper using SVG-like linear structures.
+    - Implemented a 3-column layout (on desktop) for better information density, separating items, financial summaries, and shipping data.
+- **Design System Adherence**: 
+    - **Radius**: Applied `var(--r-lg)` (24px) for cards and `var(--r-md)` (16px) for inputs/buttons.
+    - **Color**: Strictly used brand green variations and ghost backgrounds from `DESIGN_SYSTEM.md`.
+    - **Typography**: Integrated `Zen Maru Gothic` for branding and `Noto Sans TC` for body content.
+- **Responsive Engineering**: Utilized Tailwind CSS for fluid layout transitions between mobile and desktop views.
+
+### Affected files or modules
+- `demo/version-a.html` [NEW]
+- `demo/version-b.html` [NEW]
+
+### Chinese Summary
+建立與優化訂單詳情頁面範本：在 `demo/` 資料夾下實作兩款風格原型。版本 A 採用「縱向線性軌跡」，版本 B 採用「橫向步進器」。並針對版本 A 進行了 UI 精鍊，包含移除狀態標籤、更新狀態進階邏輯及新增聯絡客服按鈕。
+
+- **Refined Version A**:
+    - Removed redundant status badges from the header for a cleaner aesthetic.
+    - Updated timeline logic to a 3-stage progression: Submitted (Gray), Confirmed (Brand Green), Completed (Brand Green).
+    - Integrated a "Contact Support" call-to-action button using the primary brand style, adjusted to full-width to align with main content containers.
+

@@ -25,6 +25,13 @@ title: KEICHA 管理後台
 <script src="js/ui-dialog.js"></script>
 
 <style>
+    :root {
+        --r-sm: 8px;
+        --r-md: 16px;
+        --r-lg: 24px;
+        --r-full: 9999px;
+    }
+
     /* 移除數字輸入框的上下箭頭 */
     input[type=number]::-webkit-inner-spin-button,
     input[type=number]::-webkit-outer-spin-button {
@@ -67,7 +74,7 @@ title: KEICHA 管理後台
     .login-card {
         background: white;
         padding: 40px;
-        border-radius: 16px;
+        border-radius: var(--r-lg);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         max-width: 400px;
         width: 100%;
@@ -82,7 +89,7 @@ title: KEICHA 管理後台
         padding: 14px 24px;
         background: white;
         border: 2px solid #e5e7eb;
-        border-radius: 8px;
+        border-radius: var(--r-md);
         font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
@@ -105,6 +112,14 @@ title: KEICHA 管理後台
         -webkit-overflow-scrolling: touch;
     }
 
+    .search-pill {
+        display: flex;
+        align-items: center;
+        background: #f3f4f6;
+        padding: 6px 16px;
+        border-radius: var(--r-full);
+    }
+
     .tab {
         display: flex;
         align-items: center;
@@ -112,7 +127,7 @@ title: KEICHA 管理後台
         padding: 12px 20px;
         background: transparent;
         border: none;
-        border-radius: 8px;
+        border-radius: var(--r-md);
         font-size: 0.95rem;
         font-weight: 600;
         color: #6b7280;
@@ -153,7 +168,7 @@ title: KEICHA 管理後台
     .card {
         background: white;
         padding: 20px;
-        border-radius: 12px;
+        border-radius: var(--r-md);
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         margin-bottom: 16px;
     }
@@ -167,6 +182,29 @@ title: KEICHA 管理後台
         margin-bottom: 12px;
     }
 
+    /* Empty State */
+    .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+        color: #94a3b8;
+        background: #fff;
+        border-radius: var(--r-md);
+        border: 2px dashed #f1f5f9;
+        margin: 20px 0;
+    }
+
+    .empty-state .material-symbols-rounded {
+        font-size: 48px;
+        margin-bottom: 12px;
+        opacity: 0.5;
+    }
+
+    .empty-state p {
+        font-size: 0.95rem;
+        font-weight: 500;
+        margin: 0;
+    }
+
     /* 輸入框 */
     .admin-input,
     .admin-textarea,
@@ -174,7 +212,7 @@ title: KEICHA 管理後台
         width: 100%;
         padding: 12px;
         border: 1px solid #e5e7eb;
-        border-radius: 8px;
+        border-radius: var(--r-md);
         font-size: 1rem;
         outline: none;
         transition: all 0.2s;
@@ -232,7 +270,7 @@ title: KEICHA 管理後台
         padding: 4px 8px;
         background: transparent;
         font-size: 0.85rem;
-        border-radius: 4px;
+        border-radius: var(--r-sm);
     }
 
     .batch-edit-table input:focus,
@@ -253,7 +291,7 @@ title: KEICHA 管理後台
 
     .data-table-wrapper {
         overflow-x: auto;
-        border-radius: 12px;
+        border-radius: var(--r-md);
         border: 1px solid #f1f5f9;
         background: #fff;
     }
@@ -285,7 +323,7 @@ title: KEICHA 管理後台
     .btn {
         padding: 12px 24px;
         border: none;
-        border-radius: 8px;
+        border-radius: var(--r-md);
         font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
@@ -330,7 +368,7 @@ title: KEICHA 管理後台
         width: 18px;
         height: 18px;
         border: 2px solid #e5e7eb;
-        border-radius: 4px;
+        border-radius: var(--r-sm);
         background: #fff;
         cursor: pointer;
         position: relative;
@@ -362,7 +400,7 @@ title: KEICHA 管理後台
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         border: 1px solid #f1f5f9;
-        border-radius: 12px;
+        border-radius: var(--r-md);
         background: #fff;
     }
 
@@ -403,7 +441,15 @@ title: KEICHA 管理後台
     .status-badge {
         display: inline-block;
         padding: 4px 12px;
-        border-radius: 12px;
+        border-radius: var(--r-full);
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .pagination-btn {
+        padding: 8px 16px;
+        border-radius: var(--r-full);
         font-size: 0.85rem;
         font-weight: 600;
         white-space: nowrap;
@@ -474,6 +520,34 @@ title: KEICHA 管理後台
         transform: translateX(24px);
     }
 
+    /* 自定義上傳按鈕 */
+    .btn-custom-upload {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        padding: 20px;
+        background: #f8fafc;
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        color: #64748b;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 12px;
+    }
+
+    .btn-custom-upload:hover {
+        background: #f1f5f9;
+        border-color: #6ea44c;
+        color: #6ea44c;
+    }
+
+    .btn-custom-upload .material-symbols-rounded {
+        font-size: 24px;
+    }
+
     /* 載入動畫 */
     .loader {
         border: 3px solid #f3f4f6;
@@ -516,7 +590,7 @@ title: KEICHA 管理後台
 
     .modal-content {
         background: white;
-        border-radius: 16px;
+        border-radius: var(--r-lg);
         max-width: 600px;
         width: 100%;
         max-height: 90vh;
@@ -772,7 +846,7 @@ title: KEICHA 管理後台
             </button>
             <button class="tab" onclick="switchTab('cardlinks', this); loadCardLinks(); loadCardOrders();">
                 <span class="material-symbols-rounded">credit_card</span>
-                <span class="tab-text">刷卡管理</span>
+                <span class="tab-text">刷卡</span>
             </button>
             <button class="tab" onclick="switchTab('backup', this)">
                 <span class="material-symbols-rounded">database</span>
@@ -954,8 +1028,9 @@ title: KEICHA 管理後台
                 <div class="card-header-flex"
                     style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">連結訂單管理</h2>
-                    <button class="text-[#6ea44c] hover:underline flex items-center gap-1" onclick="loadCardOrders()">
-                        <span class="material-symbols-rounded text-sm">refresh</span>
+                    <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;"
+                        onclick="loadCardOrders()" title="刷新">
+                        <span class="material-symbols-rounded" style="font-size: 18px;">refresh</span>
                     </button>
                 </div>
                 <div id="cardordersContent">
@@ -1003,6 +1078,25 @@ title: KEICHA 管理後台
                                 style="width: 100%; height: 42px; color: #64748b; border-color: #e5e7eb; display: flex; align-items: center; justify-content: center; gap: 8px;"
                                 onclick="document.getElementById('import-file').click()">
                                 <span class="material-symbols-rounded">history</span> 選擇檔案並還原
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 資料修復工具 -->
+                    <div
+                        style="padding: 24px; border: 2px dashed #e2e8f0; border-radius: 12px; text-align: center; display: flex; flex-direction: column; grid-column: span 2; margin-top: 20px;">
+                        <span class="material-symbols-rounded"
+                            style="font-size: 32px; color: #9ca3af; margin-bottom: 12px;">build_circle</span>
+                        <h3 style="margin: 0 0 8px 0; color: #374151;">資料庫修復與補全</h3>
+                        <p style="color: #6b7280; font-size: 0.85rem; margin-bottom: 20px;">為舊有的訂單資料補回缺失的 <b>Tracking
+                                Code</b>。這將掃描所有訂單並根據規則產生專屬查詢碼。</p>
+
+                        <div style="display: flex; gap: 12px; justify-content: center;">
+                            <button class="btn btn-secondary"
+                                style="font-size: 0.85rem; padding: 8px 24px; color: #6b7280; border-color: #e5e7eb; display: flex; align-items: center; gap: 8px;"
+                                onclick="backfillTrackingCodes(this)">
+                                <span class="material-symbols-rounded" style="font-size:18px;">auto_fix_high</span> 開始補回
+                                Tracking Code
                             </button>
                         </div>
                     </div>
@@ -1209,7 +1303,12 @@ title: KEICHA 管理後台
                 .get();
 
             if (snapshot.empty) {
-                container.innerHTML = '<div class="empty-state"><span class="material-symbols-rounded">shopping_bag</span><p>目前尚無訂單</p></div>';
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="material-symbols-rounded">event_busy</span>
+                        <p>目前尚無預約資料</p>
+                    </div>
+                `;
                 return;
             }
 
@@ -1264,7 +1363,13 @@ title: KEICHA 管理後台
             container.innerHTML = html;
         } catch (error) {
             console.error('Load orders error:', error);
-            container.innerHTML = `<p style="color: #64748b;">載入失敗：${error.message}</p>`;
+            container.innerHTML = `
+                <div class="empty-state" style="border-color: #fecaca; background: #fffafb;">
+                    <span class="material-symbols-rounded" style="color: #ef4444; opacity: 1;">error</span>
+                    <p style="color: #b91c1c;">載入失敗：${error.message}</p>
+                    <button class="btn btn-secondary" style="margin-top: 12px; font-size: 0.8rem;" onclick="loadOrders()">點此重試</button>
+                </div>
+            `;
         }
     }
 
@@ -1422,7 +1527,12 @@ title: KEICHA 管理後台
                 .get();
 
             if (snapshot.empty) {
-                container.innerHTML = '<div class="empty-state"><span class="material-symbols-rounded">inbox</span><p>尚無預約資料</p></div>';
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="material-symbols-rounded">inbox</span>
+                        <p>尚無預約資料</p>
+                    </div>
+                `;
                 return;
             }
 
@@ -1764,7 +1874,7 @@ title: KEICHA 管理後台
                                 <label style="font-size: 0.8rem; font-weight: 600;">加入好友</label>
                             </div>
                             <input type="text" id="ccBtn1Text" class="admin-input" value="加入好友" placeholder="按鈕文字" style="margin-bottom: 4px;">
-                            <input type="text" id="ccBtn1Link" class="admin-input" value="https://lin.ee/QJU5mUO" placeholder="連結網址">
+                            <input type="text" id="ccBtn1Link" class="admin-input" value="https://lin.ee/CffHu2o" placeholder="連結網址">
                         </div>
                         <div>
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
@@ -1799,12 +1909,12 @@ title: KEICHA 管理後台
         let html = '';
         closeCaseRows.forEach((row, idx) => {
             html += `
-                <div style="display: flex; border-bottom: 1px solid #f1f5f9; align-items: stretch;">
+                <div class="case-row-wrapper" style="display: flex; border-bottom: 1px solid #f1f5f9; align-items: stretch; flex-wrap: wrap;">
                     <input type="text" value="${(row.label || '').replace(/"/g, '&quot;')}" onchange="updateCloseCaseRow(${idx}, 'label', this.value)"
-                        style="width: 35%; padding: 8px 10px; border: none; border-right: 1px solid #f1f5f9; font-size: 0.8rem; color: #64748b; background: #f8fafc; outline: none;">
+                        style="flex: 0 0 100px; padding: 8px 10px; border: none; border-right: 1px solid #f1f5f9; font-size: 0.8rem; color: #64748b; background: #f8fafc; outline: none; min-width: 80px;">
                     <input type="text" value="${(row.value || '').replace(/"/g, '&quot;')}" onchange="updateCloseCaseRow(${idx}, 'value', this.value)"
-                        style="flex: 1; padding: 8px 10px; border: none; font-size: 0.85rem; font-weight: 600; color: #334155; outline: none;">
-                    <button onclick="removeCloseCaseRow(${idx})" style="padding: 0 8px; border: none; background: none; color: #9ca3af; cursor: pointer; font-size: 18px;" title="刪除此列">
+                        style="flex: 1; padding: 8px 10px; border: none; font-size: 0.85rem; font-weight: 600; color: #334155; outline: none; min-width: 150px;">
+                    <button onclick="removeCloseCaseRow(${idx})" style="padding: 0 8px; border: none; background: #fff; color: #9ca3af; cursor: pointer; font-size: 18px;" title="刪除此列">
                         <span class="material-symbols-rounded" style="font-size: 16px;">close</span>
                     </button>
                 </div>
@@ -3908,6 +4018,59 @@ title: KEICHA 管理後台
         statusDiv.scrollTop = statusDiv.scrollHeight;
     }
 
+    async function backfillTrackingCodes(btn) {
+        const originalText = btn.innerHTML;
+        if (!(await KUI.confirm('確定要執行 Tracking Code 補回嗎？\n這將會掃描所有 orders, denwa_orders, card_orders 並更新缺失的查詢碼。'))) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loader" style="width:16px; height:16px; border-width:2px; margin: 0;"></span> 處理中...';
+
+        const statusDiv = document.getElementById('backup-status');
+        statusDiv.style.display = 'block';
+        statusDiv.innerHTML = '';
+        updateBackupStatus('開始補回 Tracking Code...');
+
+        const collections = ['orders', 'denwa_orders', 'card_orders'];
+        let updatedTotal = 0;
+
+        function generateRandomSuffix(id) {
+            // 使用 Doc ID 最後四碼
+            return id.slice(-4).toUpperCase();
+        }
+
+        try {
+            for (const collName of collections) {
+                updateBackupStatus(`檢查集合: ${collName}...`);
+                const snapshot = await db.collection(collName).get();
+                updateBackupStatus(`集合 ${collName} 共 ${snapshot.size} 筆，開始掃描...`);
+
+                let collUpdated = 0;
+                for (const doc of snapshot.docs) {
+                    const data = doc.data();
+                    if (!data.tracking_code) {
+                        const orderId = data.order_id || doc.id;
+                        const trackingCode = `${orderId}-${generateRandomSuffix(doc.id)}`;
+                        await db.collection(collName).doc(doc.id).update({
+                            tracking_code: trackingCode
+                        });
+                        collUpdated++;
+                    }
+                }
+                updateBackupStatus(`${collName} 完成，更新 ${collUpdated} 筆。`);
+                updatedTotal += collUpdated;
+            }
+            updateBackupStatus(`補回完成！總計更新 ${updatedTotal} 筆訂單資料。`);
+            KUI.toast(`成功補回 ${updatedTotal} 筆資料`);
+        } catch (error) {
+            console.error('Backfill error:', error);
+            updateBackupStatus(`補回失敗: ${error.message}`, true);
+            KUI.alert('處理發生錯誤: ' + error.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    }
+
     async function exportDatabase(btn) {
         const originalText = btn.innerHTML;
         btn.disabled = true;
@@ -4040,7 +4203,12 @@ title: KEICHA 管理後台
         try {
             const snapshot = await db.collection('card_orders_links').orderBy('suffix', 'asc').get();
             if (snapshot.empty) {
-                container.innerHTML = '<div class="empty-state"><span class="material-symbols-rounded">link_off</span><p>目前沒有任何連結</p></div>';
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="material-symbols-rounded">link_off</span>
+                        <p>目前沒有任何信用卡支付連結</p>
+                    </div>
+                `;
                 return;
             }
 
@@ -4126,6 +4294,7 @@ title: KEICHA 管理後台
                             <tr>
                                 <th style="padding: 12px 15px;">編號 / 連結</th>
                                 <th style="padding: 12px 15px;">收件人</th>
+                                <th style="padding: 12px 15px;">總金額</th>
                                 <th style="padding: 12px 15px;">本次金額</th>
                                 <th style="padding: 12px 15px; text-align: center;">狀態</th>
                                 <th style="padding: 12px 15px; text-align: right;">日期</th>
@@ -4157,6 +4326,10 @@ title: KEICHA 管理後台
                             <div style="font-size:12px; color:#64748b; font-family:monospace;">${data.phone || ''}</div>
                         </td>
                         <td style="padding: 12px 15px;">
+                            <div style="font-weight:700; color:#334155;">$${(data.total_budget || 0).toLocaleString()}</div>
+                            <div style="font-size:11px; color:#94a3b8;">運費 $${(data.shipping_fee || 0).toLocaleString()}</div>
+                        </td>
+                        <td style="padding: 12px 15px;">
                             <div style="color:#6ea44c; font-weight:700;">$${(data.amount || 0).toLocaleString()}</div>
                             <div style="font-size:11px; color:#94a3b8;">${data.payment_method || '信用卡'}</div>
                         </td>
@@ -4170,7 +4343,7 @@ title: KEICHA 管理後台
                             <div style="font-size: 0.85rem; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${logiType} ${logiAddr}">
                                 ${logiType} ${logiAddr ? '| ' + logiAddr : ''}
                             </div>
-                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px; font-style: italic;">
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
                                 ${data.note || '無備註'}
                             </div>
                         </td>
@@ -4183,7 +4356,7 @@ title: KEICHA 管理後台
                                     <span class="material-symbols-rounded" style="font-size: 18px;">edit</span>
                                 </button>
                                 <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" title="刪除" onclick="deleteLinkOrder('${doc.id}')">
-                                    <span class="material-symbols-rounded" style="font-size: 18px; color: #ef4444;">delete</span>
+                                    <span class="material-symbols-rounded" style="font-size: 18px; color: #64748b;">delete</span>
                                 </button>
                             </div>
                         </td>
@@ -4207,6 +4380,18 @@ title: KEICHA 管理後台
     }
 
     async function showCardLinkModal(linkId = null) {
+        // 預先抓取運費規則池
+        let rulesMap = {};
+        try {
+            const rulesSnap = await db.collection('shipping_rules').get();
+            rulesSnap.forEach(doc => {
+                const r = doc.data();
+                // 每個方法取第一個看到的 base 運費作為預設
+                if (!rulesMap[r.method]) rulesMap[r.method] = r.base;
+            });
+            window.currentShippingRules = rulesMap;
+        } catch (e) { console.error("Load rules error:", e); }
+
         let data = {
             suffix: Math.floor(1000 + Math.random() * 9000).toString(),
             title: '',
@@ -4224,6 +4409,28 @@ title: KEICHA 管理後台
         if (linkId) {
             const doc = await db.collection('card_orders_links').doc(linkId).get();
             if (doc.exists) data = { ...data, ...doc.data() };
+        } else {
+            // 新增連結時，預設讀取快速結帳的設定作為初始值
+            try {
+                const configDoc = await db.collection('fast_checkout_config').doc('default').get();
+                if (configDoc.exists) {
+                    const config = configDoc.data();
+                    const initialMethods = [];
+                    if (config.enable_711) initialMethods.push('7-11');
+                    if (config.enable_fami) initialMethods.push('全家');
+                    if (config.enable_home) initialMethods.push('宅配');
+
+                    data.shipping_methods = initialMethods;
+                    data.is_free_shipping = config.is_free_shipping ?? false;
+                    data.use_uniform_fee = config.use_uniform_fee ?? false;
+                    data.uniform_fee = config.uniform_fee ?? 0;
+                    data.fee_711 = config.fee_711 ?? 0;
+                    data.fee_fami = config.fee_fami ?? 0;
+                    data.fee_home = config.fee_home ?? 0;
+                }
+            } catch (e) {
+                console.error("載入預設設定失敗:", e);
+            }
         }
 
         const bodyHtml = `
@@ -4307,15 +4514,15 @@ title: KEICHA 管理後台
                     <div id="link-individual-fees" style="display: flex; flex-direction: column; gap: 8px;">
                         <div style="display: grid; grid-template-columns: 1fr 2fr; align-items: center; gap: 12px;">
                             <span style="font-weight: 700; color: #64748b; font-size: 0.75rem;">7-11 運費</span>
-                            <input type="number" id="linkFee711" class="admin-input IndividualFee" style="text-align: right; padding:8px;" value="${data.fee_711 || 60}" oninput="updateLinkTotalView()">
+                            <input type="number" id="linkFee711" class="admin-input IndividualFee" style="text-align: right; padding:8px;" value="${data.fee_711 ?? 0}" oninput="updateLinkTotalView()">
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 2fr; align-items: center; gap: 12px;">
                             <span style="font-weight: 700; color: #64748b; font-size: 0.75rem;">全家 運費</span>
-                            <input type="number" id="linkFeeFami" class="admin-input IndividualFee" style="text-align: right; padding:8px;" value="${data.fee_fami || 60}" oninput="updateLinkTotalView()">
+                            <input type="number" id="linkFeeFami" class="admin-input IndividualFee" style="text-align: right; padding:8px;" value="${data.fee_fami ?? 0}" oninput="updateLinkTotalView()">
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 2fr; align-items: center; gap: 12px;">
                             <span style="font-weight: 700; color: #64748b; font-size: 0.75rem;">宅配 運費</span>
-                            <input type="number" id="linkFeeHome" class="admin-input IndividualFee" style="text-align: right; padding:8px;" value="${data.fee_home || 120}" oninput="updateLinkTotalView()">
+                            <input type="number" id="linkFeeHome" class="admin-input IndividualFee" style="text-align: right; padding:8px;" value="${data.fee_home ?? 0}" oninput="updateLinkTotalView()">
                         </div>
                     </div>
                 </div>
@@ -4330,7 +4537,13 @@ title: KEICHA 管理後台
                     </div>
                 </div>
                 <div id="imageUploadArea" style="display: ${data.image_enabled ? 'block' : 'none'};">
-                    <input type="file" id="linkImageFile" accept="image/*" class="admin-input" onchange="previewLinkImage(this)" style="margin-bottom:8px;">
+                     <div class="custom-file-upload">
+                        <input type="file" id="linkImageFile" accept="image/*" onchange="previewLinkImage(this)" style="display: none;">
+                        <button type="button" class="btn-custom-upload" onclick="document.getElementById('linkImageFile').click()">
+                            <span class="material-symbols-rounded">cloud_upload</span>
+                            <span>選擇圖片 (正方形 1080x1080)</span>
+                        </button>
+                    </div>
                     <p id="imgSizeWarning" style="color: #ef4444; font-size: 0.75rem; margin-bottom: 8px; display: none;">圖片超過 500KB，建議縮小以避免儲存失敗。</p>
                     <div id="linkImagePreview" style="width: 80px; height: 80px; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background: #fff;">
                         ${data.image_data ? `<img src="${data.image_data}" style="width:100%; height:100%; object-fit:cover;">` : '<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#cbd5e1;"><span class="material-symbols-rounded">image</span></div>'}
@@ -4339,15 +4552,22 @@ title: KEICHA 管理後台
                 </div>
             </div>
 
-            <div class="form-group" style="margin-top:16px;">
+            <div class="form-group" style="margin-top:24px; padding: 16px; background: #fff; border-radius: 12px; border: 1px dashed #cbd5e1;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <label class="form-label" style="margin:0;">多階段支付設定 (選填)</label>
-                    <button class="btn btn-secondary btn-sm" onclick="addStageRow()">
-                        <span class="material-symbols-rounded" style="font-size: 16px;">add</span> 增加階段
-                    </button>
+                    <div>
+                        <label class="form-label" style="margin:0;">分階段支付設定 (選填)</label>
+                        <p style="font-size: 10px; color: #94a3b8; margin: 0;">啟用後客戶可先付定金再付尾款。只需填入預付款金額。</p>
+                    </div>
+                    <div class="toggle-wrapper">
+                        <input type="checkbox" id="linkEnableStages" class="toggle-checkbox" onchange="document.getElementById('downPaymentArea').style.display = this.checked ? 'block' : 'none'" ${data.stages && data.stages.length > 0 ? 'checked' : ''}>
+                        <label for="linkEnableStages" class="toggle-label"><div class="toggle-circle"></div></label>
+                    </div>
                 </div>
-                <div id="stagesContainer" style="display: flex; flex-direction: column; gap: 8px;">
-                    <!-- 階段列表 -->
+                <div id="downPaymentArea" style="display: ${data.stages && data.stages.length > 0 ? 'block' : 'none'}; border-top: 1px solid #f1f5f9; pt-3; mt-3;">
+                    <div style="display: grid; grid-template-columns: 1fr 2fr; align-items: center; gap: 12px; margin-top: 12px;">
+                        <span style="font-weight: 700; color: #64748b; font-size: 0.85rem;">第一階段預付款</span>
+                        <input type="number" id="linkDownPayment" class="admin-input" style="text-align: right; font-weight: 700; color: #6ea44c;" value="${(data.stages && data.stages.length > 0) ? data.stages[0].amount : 0}">
+                    </div>
                 </div>
             </div>
 
@@ -4375,11 +4595,6 @@ title: KEICHA 管理後台
         `;
 
         openModal(linkId ? '編輯支付連結' : '新增支付連結', bodyHtml, footerHtml);
-
-        // 初始化階段
-        if (data.stages && data.stages.length > 0) {
-            data.stages.forEach(s => addStageRow(s.label, s.amount, s.is_paid));
-        }
 
         // 初始化運費狀態
         toggleLinkFeeInputs();
@@ -4419,6 +4634,12 @@ title: KEICHA 管理後台
                 inputFami.style.opacity = hasFami ? '1' : '0.3';
                 inputHome.disabled = !hasHome;
                 inputHome.style.opacity = hasHome ? '1' : '0.3';
+
+                // [優化] 勾選時如果數值為 0 或空，自動帶入資料庫 rules 設定
+                const rules = window.currentShippingRules || {};
+                if (has711 && (!input711.value || input711.value == '0')) input711.value = rules['7-11'] || 0;
+                if (hasFami && (!inputFami.value || inputFami.value == '0')) inputFami.value = rules['全家'] || 0;
+                if (hasHome && (!inputHome.value || inputHome.value == '0')) inputHome.value = rules['宅配'] || 0;
             }
         }
         updateLinkTotalView();
@@ -4464,26 +4685,23 @@ title: KEICHA 管理後台
                 const img = new Image();
                 img.onload = function () {
                     const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-                    const max_size = 400;
-
-                    if (width > height) {
-                        if (width > max_size) {
-                            height *= max_size / width;
-                            width = max_size;
-                        }
-                    } else {
-                        if (height > max_size) {
-                            width *= max_size / height;
-                            height = max_size;
-                        }
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
-
+                    const targetSize = 1080;
+                    canvas.width = targetSize;
+                    canvas.height = targetSize;
                     const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // 1080x1080 中心裁切邏輯
+                    let sourceX = 0, sourceY = 0, sourceSize;
+                    if (img.width > img.height) {
+                        sourceSize = img.height;
+                        sourceX = (img.width - img.height) / 2;
+                    } else {
+                        sourceSize = img.width;
+                        sourceY = (img.height - img.width) / 2;
+                    }
+
+                    // 繪製中心剪裁後的 1080x1080 圖像
+                    ctx.drawImage(img, sourceX, sourceY, sourceSize, sourceSize, 0, 0, targetSize, targetSize);
 
                     // 壓縮品質 0.8 JPEG
                     const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
@@ -4503,26 +4721,6 @@ title: KEICHA 管理後台
             };
             reader.readAsDataURL(file);
         }
-    }
-
-    function addStageRow(label = '', amount = 0, isPaid = false) {
-        const container = document.getElementById('stagesContainer');
-        const rowId = 'stage_' + Math.random().toString(36).substr(2, 9);
-        const row = document.createElement('div');
-        row.className = 'stage-row';
-        row.style = 'display: grid; grid-template-columns: 2fr 1fr auto auto; gap: 8px; align-items: center; padding: 12px; background: #fff; border: 1px solid #f1f5f9; border-radius: 8px;';
-        row.innerHTML = `
-            <input type="text" class="admin-input stage-label" placeholder="階段說明" value="${label}" style="padding: 8px;">
-            <input type="number" class="admin-input stage-amount" placeholder="金額" value="${amount}" style="padding: 8px;">
-            <div style="display: flex; align-items: center; gap: 4px;">
-                <input type="checkbox" class="stage-paid" ${isPaid ? 'checked' : ''} id="${rowId}">
-                <label style="font-size: 0.75rem; color: #64748b; cursor:pointer;" for="${rowId}">已付</label>
-            </div>
-            <button class="btn btn-danger btn-sm" onclick="this.parentElement.remove()" style="padding: 4px; border-radius: 4px;">
-                <span class="material-symbols-rounded" style="font-size: 16px;">close</span>
-            </button>
-        `;
-        container.appendChild(row);
     }
 
     let isSavingLink = false;
@@ -4556,13 +4754,20 @@ title: KEICHA 管理後台
 
             // 收集階段
             const stages = [];
-            document.querySelectorAll('.stage-row').forEach(row => {
-                stages.push({
-                    label: row.querySelector('.stage-label').value.trim(),
-                    amount: parseInt(row.querySelector('.stage-amount').value) || 0,
-                    is_paid: row.querySelector('.stage-paid').checked
-                });
-            });
+            const enableStages = document.getElementById('linkEnableStages').checked;
+            if (enableStages) {
+                const downPayment = parseInt(document.getElementById('linkDownPayment').value) || 0;
+                if (downPayment > 0 && downPayment < amount) {
+                    stages.push({ label: '預付款', amount: downPayment, is_paid: false });
+                    stages.push({ label: '尾款', amount: amount - downPayment, is_paid: false });
+                } else {
+                    KUI.alert('預付款金額必須大於 0 且小於商品總額');
+                    isSavingLink = false;
+                    btn.disabled = false;
+                    btn.innerHTML = originalBtnText;
+                    return;
+                }
+            }
 
             const is_free_shipping = document.getElementById('linkIsFreeShipping').checked;
             const use_uniform_fee = document.getElementById('linkUseUniformFee').checked;
@@ -4698,14 +4903,26 @@ title: KEICHA 管理後台
                     <div style="background: #f8fafc; padding: 8px; border-radius: 4px; margin-top: 4px;">${logiAddr}</div>
                 </div>
                 <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 0;">
-                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px; background: #fdfdfd; padding: 12px; border-radius: 8px; border: 1px solid #f1f5f9;">
-                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 200px;">
-                        <span style="color: #64748b;">付款方式</span>
-                        <span>${order.payment_method || '信用卡'}</span>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px; background: #fdfdfd; padding: 12px; border-radius: 8px; border: 1px solid #f1f5f9;">
+                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 250px;">
+                        <span style="color: #64748b;">商品金額</span>
+                        <span>NT$ ${(order.base_amount || 0).toLocaleString()}</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 200px; font-weight: bold; color: #6ea44c; font-size: 1.1rem; border-top: 1px solid #f1f5f9; margin-top: 4px; padding-top: 4px;">
-                        <span>本次金額</span>
+                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 250px;">
+                        <span style="color: #64748b;">運費</span>
+                        <span>NT$ ${(order.shipping_fee || 0).toLocaleString()}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 250px; font-weight: 700; color: #1e293b; border-top: 1px dashed #e2e8f0; margin-top: 4px; padding-top: 4px;">
+                        <span style="color: #64748b; font-weight: normal;">總預算 (含運)</span>
+                        <span>NT$ ${(order.total_budget || 0).toLocaleString()}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 250px; font-weight: bold; color: #6ea44c; font-size: 1.1rem; border-top: 1px solid #6ea44c; margin-top: 4px; padding-top: 6px;">
+                        <span>本階段金額</span>
                         <span>NT$ ${(order.amount || 0).toLocaleString()}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 250px;">
+                        <span style="color: #64748b; font-size: 0.8rem;">付款方式</span>
+                        <span style="font-size: 0.8rem;">${order.payment_method || '信用卡'}</span>
                     </div>
                 </div>
                 ${order.note ? `

@@ -34,11 +34,13 @@ title: KEICHA 快速結帳
     input[type=number]::-webkit-inner-spin-button,
     input[type=number]::-webkit-outer-spin-button {
         -webkit-appearance: none;
+        appearance: none;
         margin: 0;
     }
 
     input[type=number] {
         -moz-appearance: textfield;
+        appearance: textfield;
     }
 
     .brand-green {
@@ -97,7 +99,6 @@ title: KEICHA 快速結帳
 
     .diy-input:focus {
         border-color: #6ea44c;
-        ring: 1px solid #6ea44c;
         box-shadow: 0 0 0 3px rgba(110, 164, 76, 0.1);
     }
 
@@ -112,7 +113,8 @@ title: KEICHA 快速結帳
 
     /* 物流選項卡片 */
     .logistics-card {
-        border: 2px solid #f3f4f6;
+        background: #f9fafb;
+        border: 2px solid transparent;
         border-radius: 16px;
         padding: 16px;
         cursor: pointer;
@@ -121,7 +123,7 @@ title: KEICHA 快速結帳
     }
 
     .logistics-card:hover {
-        border-color: #e5e7eb;
+        background: #f3f4f6;
     }
 
     .logistics-card.active {
@@ -185,6 +187,47 @@ title: KEICHA 快速結帳
         justify-content: center;
         text-align: center;
     }
+
+    /* 自定義單選按鈕 (Custom Premium Radio) */
+    input[type="radio"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid #e5e7eb;
+        border-radius: 50%;
+        background-color: #fff;
+        margin: 0;
+        cursor: pointer;
+        display: grid;
+        place-content: center;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        flex-shrink: 0;
+    }
+
+    input[type="radio"]::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        transform: scale(0);
+        transition: 0.2s transform cubic-bezier(0.4, 0, 0.2, 1);
+        background-color: #6ea44c;
+    }
+
+    input[type="radio"]:checked {
+        border-color: #6ea44c;
+        background-color: #f9fdf7;
+    }
+
+    input[type="radio"]:checked::before {
+        transform: scale(1);
+    }
+
+    input[type="radio"]:focus-visible {
+        outline: 2px solid #6ea44c;
+        outline-offset: 2px;
+    }
 </style>
 
 <div id="closed-mask">
@@ -240,59 +283,9 @@ title: KEICHA 快速結帳
         <section class="section-card space-y-4">
             <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2">物流方式
             </h2>
-
-            <div class="logistics-card flex flex-col gap-3 hidden" id="card-711" onclick="selectLogistics('711')">
-                <div class="flex items-center justify-between pointer-events-none">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-rounded text-gray-400 icon-active text-2xl">local_shipping</span>
-                        <span class="font-bold text-gray-700">7-11 店到店</span>
-                    </div>
-                    <div id="price-preview-7-11" class="text-xs font-bold text-gray-400"></div>
-                </div>
-                <div id="detail-711" class="hidden space-y-3 pt-3 border-t border-gray-100/50 mt-1"
-                    onclick="event.stopPropagation()">
-                    <div class="flex gap-2">
-                        <input type="text" id="store-711" class="diy-input flex-1" placeholder="請輸入6碼店號" maxlength="6">
-                        <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank"
-                            class="btn-outline-green" id="query-link-711">查詢店號</a>
-                    </div>
-                    <input type="text" id="store-note-711" class="diy-input" placeholder="店名備註 (例如: 科慶門市)">
-                </div>
+            <div id="logistics-options-container" class="space-y-4">
+                <!-- 由 JS 動態渲染 -->
             </div>
-
-            <div class="logistics-card flex flex-col gap-3 hidden" id="card-fami" onclick="selectLogistics('fami')">
-                <div class="flex items-center justify-between pointer-events-none">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-rounded text-gray-400 icon-active text-2xl">store</span>
-                        <span class="font-bold text-gray-700">全家 店到店</span>
-                    </div>
-                    <div id="price-preview-fami" class="text-xs font-bold text-gray-400"></div>
-                </div>
-                <div id="detail-fami" class="hidden space-y-3 pt-3 border-t border-gray-100/50 mt-1"
-                    onclick="event.stopPropagation()">
-                    <div class="flex gap-2">
-                        <input type="text" id="store-fami" class="diy-input flex-1" placeholder="請輸入6碼店號" maxlength="6">
-                        <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank"
-                            class="btn-outline-green" id="query-link-fami">查詢店號</a>
-                    </div>
-                    <input type="text" id="store-note-fami" class="diy-input" placeholder="店名備註 (例如: 全家慶中店)">
-                </div>
-            </div>
-
-            <div class="logistics-card flex flex-col gap-3 hidden" id="card-addr" onclick="selectLogistics('addr')">
-                <div class="flex items-center justify-between pointer-events-none">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-rounded text-gray-400 icon-active text-2xl">home</span>
-                        <span class="font-bold text-gray-700">宅配到府</span>
-                    </div>
-                    <div id="price-preview-addr" class="text-xs font-bold text-gray-400"></div>
-                </div>
-                <div id="detail-addr" class="hidden pt-3 border-t border-gray-100/50 mt-1"
-                    onclick="event.stopPropagation()">
-                    <textarea id="store-addr" class="diy-input" rows="2" placeholder="請輸入完整收件地址"></textarea>
-                </div>
-            </div>
-
             <div id="no-logistics-msg" class="hidden text-center text-gray-400 text-sm py-4">
                 目前沒有可用的物流方式，請聯繫管理員。
             </div>
@@ -381,15 +374,19 @@ title: KEICHA 快速結帳
     let fastConfig = null;
     let productAmount = 0;
     let shippingRules = [];
+    let globalMethods = [];
 
     document.addEventListener('DOMContentLoaded', async () => {
         try {
-            const [configDoc, shipSnap] = await Promise.all([
+            const [configDoc, shipSnap, methodsSnap] = await Promise.all([
                 db.collection('fast_checkout_config').doc('default').get(),
-                db.collection('shipping_rules').get()
+                db.collection('shipping_rules').get(),
+                db.collection('shipping_methods').get()
             ]);
 
             shippingRules = shipSnap.docs.map(doc => doc.data());
+            globalMethods = methodsSnap.docs.map(doc => doc.data());
+
             document.getElementById('loading-overlay').classList.add('hidden');
 
             if (configDoc.exists) {
@@ -410,6 +407,15 @@ title: KEICHA 快速結帳
             fillFormWithData(u);
         }
     });
+
+    function generateRandomSuffix(length = 4) {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
 
     // --- 產生訂單編號 (Option 1) ---
     async function generateOrderId(prefixChar) {
@@ -449,40 +455,82 @@ title: KEICHA 快速結帳
         productAmount = parseInt(fastConfig.amount) || 0;
         document.getElementById('display-amount').innerText = `NT$ ${productAmount.toLocaleString()}`;
 
-        let hasAnyMethod = false;
-
-        if (fastConfig.enable_711 === true) {
-            document.getElementById('card-711').classList.remove('hidden');
-            hasAnyMethod = true;
-            const fee = calcFastShip('7-11');
-            setText('price-preview-7-11', `運費 $${fee}`);
-        }
-
-        if (fastConfig.enable_fami === true) {
-            document.getElementById('card-fami').classList.remove('hidden');
-            hasAnyMethod = true;
-            const fee = calcFastShip('全家');
-            setText('price-preview-fami', `運費 $${fee}`);
-        }
-
-        if (fastConfig.enable_home === true) {
-            document.getElementById('card-addr').classList.remove('hidden');
-            hasAnyMethod = true;
-            const fee = calcFastShip('宅配');
-            setText('price-preview-addr', `運費 $${fee}`);
-        }
-
-        if (!hasAnyMethod) {
-            document.getElementById('no-logistics-msg').classList.remove('hidden');
-        }
-
-        // [新增] 更新查詢連結
-        shippingRules.forEach(r => {
-            if (r.method.includes('7-11') && r.tracking_link) document.getElementById('query-link-711').href = r.tracking_link;
-            if (r.method.includes('全家') && r.tracking_link) document.getElementById('query-link-fami').href = r.tracking_link;
-        });
-
+        renderLogisticsDynamic();
         updatePageSummary();
+    }
+
+    function renderLogisticsDynamic() {
+        const container = document.getElementById('logistics-options-container');
+        const enabled_methods = fastConfig.enabled_methods || [];
+        const fees_map = fastConfig.fees_map || {};
+        const tracking_links_map = fastConfig.tracking_links_map || {};
+
+        // 相容舊版開關
+        const legacy_methods = [];
+        if (fastConfig.enable_711 && !enabled_methods.includes('7-11')) legacy_methods.push('7-11');
+        if (fastConfig.enable_fami && !enabled_methods.includes('全家')) legacy_methods.push('全家');
+        if (fastConfig.enable_home && !enabled_methods.includes('宅配')) legacy_methods.push('宅配');
+
+        const allMethods = [...enabled_methods, ...legacy_methods];
+
+        if (allMethods.length === 0) {
+            document.getElementById('no-logistics-msg').classList.remove('hidden');
+            return;
+        }
+
+        container.innerHTML = allMethods.map(m => {
+            const fee = calcFastShip(m);
+            const is711 = m.includes('7-11');
+            const isFami = m.includes('全家');
+            const isHome = m.includes('宅配') || m.includes('郵寄') || m.includes('地址');
+
+            let icon = 'local_shipping';
+            if (is711 || isFami) icon = 'store';
+            else if (isHome) icon = 'home';
+
+            // 優先序：快速結帳手動設定 > 全站物流管道設定 > 硬編碼預設值
+            const gm = globalMethods.find(x => x.name === m);
+            let queryLink = tracking_links_map[m] || (gm ? gm.query_url : '');
+
+            if (!queryLink) {
+                if (is711) queryLink = 'https://emap.pcsc.com.tw/';
+                else if (isFami) queryLink = 'https://www.family.com.tw/marketing/inquiry.aspx';
+            }
+
+            let detailHtml = '';
+            if (is711 || isFami) {
+                detailHtml = `
+                    <div class="flex gap-2">
+                        <input type="text" id="store-id-${m}" class="diy-input flex-1" placeholder="輸入6碼店號" maxlength="6" inputmode="numeric">
+                        ${queryLink ? `<a href="${queryLink}" target="_blank" class="btn-outline-green">查詢店號</a>` : ''}
+                    </div>
+                    <input type="text" id="store-note-${m}" class="diy-input" placeholder="店名備註 (例如: 科慶門市)">
+                `;
+            } else if (isHome) {
+                detailHtml = `
+                    <textarea id="store-addr-${m}" class="diy-input" rows="2" placeholder="請輸入完整收件地址"></textarea>
+                `;
+            } else {
+                detailHtml = `
+                    <input type="text" id="store-note-${m}" class="diy-input" placeholder="備註資訊">
+                `;
+            }
+
+            return `
+                <div class="logistics-card flex flex-col gap-3" data-method="${m}" id="card-${m}" onclick="selectLogistics('${m}')">
+                    <div class="flex items-center justify-between pointer-events-none">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-rounded text-gray-400 icon-active text-2xl">${icon}</span>
+                            <span class="font-bold text-gray-700">${m}</span>
+                        </div>
+                        <div id="price-preview-${m}" class="text-xs font-bold text-gray-400">運費 $${fee}</div>
+                    </div>
+                    <div id="detail-${m}" class="hidden space-y-3 pt-3 border-t border-gray-100/50 mt-1" onclick="event.stopPropagation()">
+                        ${detailHtml}
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
 
     function calcFastShip(method) {
@@ -491,6 +539,11 @@ title: KEICHA 快速結帳
         if (fastConfig.use_uniform_fee === true) {
             return parseInt(fastConfig.uniform_fee) || 0;
         }
+
+        const fees_map = fastConfig.fees_map || {};
+        if (fees_map[method] !== undefined) return parseInt(fees_map[method]);
+
+        // 相容舊版
         if (method === '7-11') return parseInt(fastConfig.fee_711) || 0;
         if (method === '全家') return parseInt(fastConfig.fee_fami) || 0;
         if (method === '宅配') return parseInt(fastConfig.fee_home) || 0;
@@ -531,28 +584,46 @@ title: KEICHA 快速結帳
     function fillFormWithData(u) {
         setVal('input-name', u.name);
         setVal('input-email', u.email);
-        setVal('store-711', u.store_711);
-        setVal('store-note-711', u.store_711_note);
-        setVal('store-fami', u.store_fami);
-        setVal('store-note-fami', u.store_fami_note);
-        setVal('store-addr', u.shipping_address);
+
+        const container = document.getElementById('logistics-options-container');
+        if (!container) return;
+
+        container.querySelectorAll('.logistics-card').forEach(card => {
+            const method = card.dataset.method;
+            if (!method) return;
+            if (method.includes('7-11') && u.store_711) {
+                const idEl = document.getElementById(`store-id-${method}`);
+                const nameEl = document.getElementById(`store-note-${method}`);
+                if (idEl) idEl.value = u.store_711;
+                if (nameEl) nameEl.value = u.store_711_note || '';
+            } else if (method.includes('全家') && u.store_fami) {
+                const idEl = document.getElementById(`store-id-${method}`);
+                const nameEl = document.getElementById(`store-note-${method}`);
+                if (idEl) idEl.value = u.store_fami;
+                if (nameEl) nameEl.value = u.store_fami_note || '';
+            } else if ((method.includes('宅配') || method.includes('郵寄') || method.includes('地址')) && u.shipping_address) {
+                const addrEl = document.getElementById(`store-addr-${method}`);
+                if (addrEl) addrEl.value = u.shipping_address;
+            }
+        });
     }
 
     function selectLogistics(type) {
         currentMethod = type;
-        ['711', 'fami', 'addr'].forEach(t => {
-            const card = document.getElementById(`card-${t}`);
-            const detail = document.getElementById(`detail-${t}`);
+
+        document.querySelectorAll('.logistics-card').forEach(card => {
+            const cardMethod = card.dataset.method || card.id.replace('card-', '');
+            const detail = document.getElementById(`detail-${cardMethod}`);
             const icon = card.querySelector('.material-symbols-rounded');
 
-            if (t === type) {
+            if (cardMethod === type) {
                 card.classList.add('active');
-                detail.classList.remove('hidden');
-                icon.classList.add('text-[#6ea44c]'); icon.classList.remove('text-gray-400');
+                if (detail) detail.classList.remove('hidden');
+                if (icon) { icon.classList.add('text-[#6ea44c]'); icon.classList.remove('text-gray-400'); }
             } else {
                 card.classList.remove('active');
-                detail.classList.add('hidden');
-                icon.classList.remove('text-[#6ea44c]'); icon.classList.add('text-gray-400');
+                if (detail) detail.classList.add('hidden');
+                if (icon) { icon.classList.remove('text-[#6ea44c]'); icon.classList.add('text-gray-400'); }
             }
         });
         updatePageSummary();
@@ -564,10 +635,8 @@ title: KEICHA 快速結帳
         let infoText = "總金額 (含運)";
 
         if (currentMethod) {
-            const methodMap = { '711': '7-11', 'fami': '全家', 'addr': '宅配' };
-            const mName = methodMap[currentMethod];
-            ship = calcFastShip(mName);
-            infoText = `總金額 (含運)｜${mName} 運費 +${ship}`;
+            ship = calcFastShip(currentMethod);
+            infoText = `總金額 (含運)｜${currentMethod} 運費 +${ship}`;
         } else {
             infoText = "總金額 (含運)｜尚未選擇物流";
         }
@@ -595,22 +664,21 @@ title: KEICHA 快速結帳
 
         let storeData = "";
         let storeNote = "";
-        let logisticsRaw = "";
+        let logisticsRaw = currentMethod;
 
-        if (currentMethod === '711') {
-            storeData = getVal('store-711');
-            storeNote = getVal('store-note-711');
-            if (!/^\d{6}$/.test(storeData)) return alert("請輸入正確的 7-11 「6碼純數字」店號");
-            logisticsRaw = '7-11';
-        } else if (currentMethod === 'fami') {
-            storeData = getVal('store-fami');
-            storeNote = getVal('store-note-fami');
-            if (!/^\d{6}$/.test(storeData)) return alert("請輸入正確的全家 「6碼純數字」店號");
-            logisticsRaw = '全家';
+        const is711 = currentMethod.includes('7-11');
+        const isFami = currentMethod.includes('全家');
+        const isHome = currentMethod.includes('宅配') || currentMethod.includes('郵寄') || currentMethod.includes('地址');
+
+        if (is711 || isFami) {
+            storeData = getVal(`store-id-${currentMethod}`);
+            storeNote = getVal(`store-note-${currentMethod}`);
+            if (!/^\d{6}$/.test(storeData)) return alert(`請輸入正確的「6碼純數字」店號`);
+        } else if (isHome) {
+            storeData = getVal(`store-addr-${currentMethod}`);
+            if (!storeData) return alert("請填寫地址資訊");
         } else {
-            storeData = getVal('store-addr');
-            if (!storeData) return alert("請填寫宅配地址");
-            logisticsRaw = '宅配';
+            storeNote = getVal(`store-note-${currentMethod}`);
         }
 
         const ship = calcFastShip(logisticsRaw);
@@ -630,7 +698,7 @@ title: KEICHA 快速結帳
             line_name: line,
             store_id: storeData,
             store_note: storeNote,
-            shipping_address: currentMethod === 'addr' ? storeData : null,
+            shipping_address: isHome ? storeData : null,
             items_text: fastConfig.items_text || "快速結帳商品",
             items: [{ name: fastConfig.items_text || '快速結帳', price: productAmount, qty: 1 }],
             subtotal: productAmount,
@@ -640,29 +708,34 @@ title: KEICHA 快速結帳
             logistics_type: logisticsRaw,
             payment_method: 'cod',
             status: '待處理',
+            source_token: 'keicha_2025_web_auth',
             created_at: firebase.firestore.FieldValue.serverTimestamp(),
             updated_at: firebase.firestore.FieldValue.serverTimestamp()
         };
 
         try {
             const newOrderId = await generateOrderId('F');
+            const trackingCode = `${newOrderId}-${generateRandomSuffix()}`;
+            firestorePayload.tracking_code = trackingCode;
+
             await db.collection('orders').doc(newOrderId).set(firestorePayload);
             if (isSave) {
                 let localData = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
                 localData = { ...localData, phone, name, email };
-                if (currentMethod === '711') { localData.store_711 = storeData; localData.store_711_note = storeNote; }
-                else if (currentMethod === 'fami') { localData.store_fami = storeData; localData.store_fami_note = storeNote; }
-                else if (currentMethod === 'addr') { localData.shipping_address = storeData; }
+                if (is711) { localData.store_711 = storeData; localData.store_711_note = storeNote; }
+                else if (isFami) { localData.store_fami = storeData; localData.store_fami_note = storeNote; }
+                else if (isHome) { localData.shipping_address = storeData; }
                 localStorage.setItem('keicha_v2_user', JSON.stringify(localData));
 
                 // Save to Firestore members collection
                 const memberData = {
                     phone: phone, name: name, email: email,
+                    source_token: 'keicha_2025_web_auth',
                     updated_at: firebase.firestore.FieldValue.serverTimestamp()
                 };
-                if (currentMethod === '711') { memberData.store_711 = storeData; memberData.store_711_note = storeNote; }
-                else if (currentMethod === 'fami') { memberData.store_fami = storeData; memberData.store_fami_note = storeNote; }
-                else if (currentMethod === 'addr') { memberData.shipping_address = storeData; }
+                if (is711) { memberData.store_711 = storeData; memberData.store_711_note = storeNote; }
+                else if (isFami) { memberData.store_fami = storeData; memberData.store_fami_note = storeNote; }
+                else if (isHome) { memberData.shipping_address = storeData; }
 
                 const memberSnap = await db.collection('members').where('phone', '==', phone).limit(1).get();
                 if (!memberSnap.empty) {
@@ -679,7 +752,19 @@ title: KEICHA 快速結帳
                     order_id: newOrderId
                 }).catch(e => console.error(e));
             }
-            alert("訂單已成功送出！");
+
+            // Save to sessionStorage for result page
+            const displayData = {
+                orderId: newOrderId,
+                name: name,
+                phone: phone,
+                items: firestorePayload.items_text || "快速結帳商品",
+                total: firestorePayload.total,
+                logistics: logisticsRaw,
+                address: storeData + (storeNote ? ` (${storeNote})` : '')
+            };
+            sessionStorage.setItem('orderResult', JSON.stringify(displayData));
+
             window.location.href = "fast-diy-result.html";
         } catch (e) {
             console.error(e);

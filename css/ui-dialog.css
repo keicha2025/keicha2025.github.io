@@ -10,6 +10,10 @@
     --kui-text: #1e293b;
     --kui-gray: #64748b;
     --kui-gray-light: #f1f5f9;
+    /* Corner Radius System */
+    --kui-radius-sm: 8px;
+    --kui-radius-md: 16px;
+    --kui-radius-lg: 24px;
 }
 
 @keyframes kui-fade-in {
@@ -64,7 +68,7 @@
 
 .kui-dialog {
     background: var(--kui-bg);
-    border-radius: 20px;
+    border-radius: var(--kui-radius-lg);
     width: 100%;
     max-width: 400px;
     padding: 24px;
@@ -108,7 +112,7 @@
 .kui-btn {
     flex: 1;
     padding: 12px;
-    border-radius: 12px;
+    border-radius: var(--kui-radius-md);
     font-weight: 600;
     font-size: 0.9375rem;
     transition: all 0.2s;
@@ -152,7 +156,7 @@
     backdrop-filter: blur(8px);
     color: white;
     padding: 10px 20px;
-    border-radius: 50px;
+    border-radius: 9999px;
     font-size: 0.875rem;
     font-weight: 500;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);

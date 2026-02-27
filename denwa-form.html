@@ -232,7 +232,7 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
         <div class="text-slate-600 font-bold"><span class="font-brand-text">KEICHA</span> 正在處理您的預約...</div>
     </div>
 
-    <form id="booking-form" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
+    <form id="booking-form" class="bg-white rounded-[var(--r-lg)] shadow-sm border border-slate-100 p-6 md:p-8">
 
         <h3 class="section-title mt-0">聯絡人資訊</h3>
 
@@ -305,7 +305,8 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
             </div>
         </div>
 
-        <div id="child-details-section" class="mb-6 p-4 rounded-xl border border-[#6ea44c]/30 bg-[#6ea44c]/10 hidden">
+        <div id="child-details-section"
+            class="mb-6 p-4 rounded-[var(--r-md)] border border-[#6ea44c]/30 bg-[#6ea44c]/10 hidden">
             <label class="form-label text-[#5d8c40]" for="childDetails">
                 小孩詳細資訊 (年齡 / 是否用餐) <span class="text-slate-500">*</span>
             </label>
@@ -360,7 +361,7 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
         </div>
 
         <button type="button" onclick="submitForm()"
-            class="bg-[#6ea44c] hover:bg-[#5d8c40] text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0">
+            class="bg-[#6ea44c] hover:bg-[#5d8c40] text-white font-bold py-3 px-8 rounded-[var(--r-full)] shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0">
             <span class="btn-text">送出</span>
         </button>
     </div>
@@ -441,7 +442,7 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
             // 4. 金額區域增加 shrink-0 確保不被推擠
 
             const html = `
-            <label class="relative flex items-center p-4 border rounded-xl cursor-pointer hover:bg-slate-50 transition-colors border-slate-200 has-[:checked]:border-[#6ea44c] has-[:checked]:bg-[#6ea44c]/10">
+            <label class="relative flex items-center p-4 border rounded-[var(--r-md)] cursor-pointer hover:bg-slate-50 transition-colors border-slate-200 has-[:checked]:border-[#6ea44c] has-[:checked]:bg-[#6ea44c]/10">
                 
                 <input type="radio" name="paymentPlan" value="${plan.name}" 
                        data-link="${plan.link}" 
@@ -469,6 +470,15 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
     function updatePrice(price) {
         currentPrice = price;
         document.getElementById('price-display').innerText = price;
+    }
+
+    function generateRandomSuffix(length = 4) {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
     }
 
     function updateCount(id, delta) {
@@ -544,6 +554,8 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
             plan_name: formData.get('paymentPlan'),
             contact_in_japan: formData.get('japanContact') || '',
             note: finalNote,
+            payment_link: paymentLink,
+            total: currentPrice,
             status: '待處理',
             created_at: firebase.firestore.FieldValue.serverTimestamp(),
             updated_at: firebase.firestore.FieldValue.serverTimestamp()
@@ -573,21 +585,32 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
 
         try {
             const orderId = await generateDenwaOrderId();
+            const trackingCode = `${orderId}-${generateRandomSuffix()}`;
             payload.order_id = orderId;
+            payload.tracking_code = trackingCode;
             payload.source_token = 'keicha_2025_web_auth'; // 基礎安全金鑰
 
-            const docRef = await db.collection('denwa_orders').add(payload);
+            await db.collection('denwa_orders').doc(orderId).set(payload);
 
             // 清除草稿
             localStorage.removeItem('denwa_draft');
 
             // 觸發郵件通知
             if (window.API && window.API.sendNotification) {
-                window.API.sendNotification('new_denwa_order', {
-                    ...payload,
-                    order_id: orderId,
-                    payment_link: paymentLink
-                }).catch(e => console.error('[GAS] Notification error:', e));
+                // 排除非 JSON 格式的 Firestore 原生結構
+                const notifyPayload = { ...payload };
+                delete notifyPayload.created_at;
+                delete notifyPayload.updated_at;
+
+                try {
+                    await window.API.sendNotification('new_denwa_order', {
+                        ...notifyPayload,
+                        order_id: orderId,
+                        payment_link: paymentLink
+                    });
+                } catch (e) {
+                    console.error('[GAS] Notification error:', e);
+                }
             }
 
             const displayData = {

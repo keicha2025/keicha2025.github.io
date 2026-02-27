@@ -156,6 +156,13 @@ keywords: KEICHA, 電話代撥, 電話代打, 日文電話, 餐廳預約, 日本
     }
 
     /* [EXISTING] denwa.html 頁面專用樣式 */
+    :root {
+        --r-sm: 8px;
+        --r-md: 16px;
+        --r-lg: 24px;
+        --r-full: 9999px;
+    }
+
     .nav-link.active {
         background-color: #6ea44c;
         /* brandGreen */
@@ -302,23 +309,23 @@ keywords: KEICHA, 電話代撥, 電話代打, 日文電話, 餐廳預約, 日本
 
         <div class="flex flex-col md:flex-row gap-8">
             <aside class="md:w-1/4 lg:w-1/5 md:sticky md:top-28 self-start">
-                <nav id="toc-nav" class="bg-white rounded-lg shadow-sm p-4">
+                <nav id="toc-nav" class="bg-white rounded-[var(--r-md)] shadow-sm p-4">
                     <h3 class="font-semibold text-lg mb-3 text-slate-700">頁面導覽</h3>
                     <ul class="space-y-2">
                         <li><a href="#section-booking-method"
-                                class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">預約與諮詢方式</a>
+                                class="nav-link block w-full text-left px-4 py-2 rounded-[var(--r-sm)] text-slate-600 hover:bg-slate-100 transition-colors duration-200">預約與諮詢方式</a>
                         </li>
                         <li><a href="#section-payment"
-                                class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">服務費用支付</a>
+                                class="nav-link block w-full text-left px-4 py-2 rounded-[var(--r-sm)] text-slate-600 hover:bg-slate-100 transition-colors duration-200">服務費用支付</a>
                         </li>
                         <li><a href="#section-terms"
-                                class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">服務條款與介紹</a>
+                                class="nav-link block w-full text-left px-4 py-2 rounded-[var(--r-sm)] text-slate-600 hover:bg-slate-100 transition-colors duration-200">服務條款與介紹</a>
                         </li>
                         <li><a href="#section-privacy"
-                                class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">隱私權條款</a>
+                                class="nav-link block w-full text-left px-4 py-2 rounded-[var(--r-sm)] text-slate-600 hover:bg-slate-100 transition-colors duration-200">隱私權條款</a>
                         </li>
                         <li><a href="#section-contact"
-                                class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">聯絡方式</a>
+                                class="nav-link block w-full text-left px-4 py-2 rounded-[var(--r-sm)] text-slate-600 hover:bg-slate-100 transition-colors duration-200">聯絡方式</a>
                         </li>
                     </ul>
                 </nav>
@@ -327,68 +334,68 @@ keywords: KEICHA, 電話代撥, 電話代打, 日文電話, 餐廳預約, 日本
             <main class="md:w-3/4 lg:w-4/5">
                 <div class="space-y-10">
                     <section id="section-booking-method"
-                        class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100">
+                        class="bg-white p-6 md:p-8 rounded-[var(--r-lg)] shadow-sm border border-gray-100">
                         <h2 class="text-2xl font-bold text-brandGreen mb-6">預約與諮詢方式</h2>
                         <p class="text-slate-600 mb-8">我們提供兩種預約管道，請依照您的需求選擇最適合的方式：</p>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div
-                                class="flex flex-col h-full bg-brandGreen/10 rounded-xl p-6 border border-white hover:shadow-md transition duration-300">
+                                class="flex flex-col h-full bg-brandGreen/10 rounded-[var(--r-md)] p-6 border border-white hover:shadow-md transition duration-300">
                                 <div class="flex items-center mb-4">
                                     <span
-                                        class="material-symbols-rounded text-3xl text-brandGreen mr-3 bg-white p-2 rounded-full shadow-sm">edit_document</span>
+                                        class="material-symbols-rounded text-3xl text-brandGreen mr-3 bg-white p-2 rounded-[var(--r-full)] shadow-sm">edit_document</span>
                                     <h3 class="text-xl font-bold text-gray-800">線上填寫表單</h3>
                                 </div>
                                 <p class="text-gray-600 text-sm mb-6 flex-grow leading-relaxed">系統將自動立案並推播給客服，流程最快速。</p>
                                 <a href="/denwa-form.html"
-                                    class="block w-full text-center bg-brandGreen text-white py-3 rounded-lg font-bold hover:bg-opacity-90 transition shadow-sm">填表</a>
+                                    class="block w-full text-center bg-brandGreen text-white py-3 rounded-[var(--r-md)] font-bold hover:bg-opacity-90 transition shadow-sm">填表</a>
                             </div>
                             <div
-                                class="flex flex-col h-full bg-brandGreen/10 rounded-xl p-6 border border-white hover:shadow-md transition duration-300">
+                                class="flex flex-col h-full bg-brandGreen/10 rounded-[var(--r-md)] p-6 border border-white hover:shadow-md transition duration-300">
                                 <div class="flex items-center mb-4">
                                     <span
-                                        class="material-symbols-rounded text-3xl text-brandGreen mr-3 bg-white p-2 rounded-full shadow-sm">chat</span>
+                                        class="material-symbols-rounded text-3xl text-brandGreen mr-3 bg-white p-2 rounded-[var(--r-full)] shadow-sm">chat</span>
                                     <h3 class="text-xl font-bold text-gray-800">直接私訊詢問</h3>
                                 </div>
                                 <p class="text-gray-600 text-sm mb-6 flex-grow leading-relaxed">也歡迎直接透過 LINE
                                     與我們聯絡<br>LINE ID：@366qwylw</p>
                                 <a href="https://lin.ee/F3JngaC" target="_blank" rel="noopener noreferrer"
-                                    class="block w-full text-center bg-brandGreen text-white py-3 rounded-lg font-bold hover:bg-opacity-90 transition shadow-sm">私訊</a>
+                                    class="block w-full text-center bg-brandGreen text-white py-3 rounded-[var(--r-md)] font-bold hover:bg-opacity-90 transition shadow-sm">私訊</a>
                             </div>
                         </div>
                     </section>
 
-                    <section id="section-payment" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm">
+                    <section id="section-payment" class="scroll-mt-28 bg-white p-6 rounded-[var(--r-lg)] shadow-sm">
                         <h2 class="text-2xl font-bold text-brandGreen mb-4">服務費用支付</h2>
                         <p class="text-slate-600 mb-8 text-left">請根據您的需求選擇支付方案，服務皆須先支付預付款。</p>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 items-start justify-items-center text-center">
                             <div class="flex flex-col items-center w-full">
                                 <h3 class="font-semibold mb-3">預付款 (50元)</h3>
                                 <a href="https://pcpay.tw/EhQGv" target="_blank" rel="noopener noreferrer"
-                                    class="w-full max-w-[180px] bg-brandGreen text-white py-2 rounded-md font-medium hover:bg-opacity-90 transition shadow">支付</a>
+                                    class="w-full max-w-[180px] bg-brandGreen text-white py-2 rounded-[var(--r-md)] font-medium hover:bg-opacity-90 transition shadow">支付</a>
                             </div>
                             <div class="flex flex-col items-center w-full">
                                 <h3 class="font-semibold mb-3">基本方案 (150元)</h3>
                                 <a href="https://pcpay.tw/yIurU" target="_blank" rel="noopener noreferrer"
-                                    class="w-full max-w-[180px] bg-brandGreen text-white py-2 rounded-md font-medium hover:bg-opacity-90 transition shadow">基本</a>
+                                    class="w-full max-w-[180px] bg-brandGreen text-white py-2 rounded-[var(--r-md)] font-medium hover:bg-opacity-90 transition shadow">基本</a>
                                 <p class="text-xs text-slate-500 mt-2">(含50元預付款)</p>
                             </div>
                             <div class="flex flex-col items-center w-full">
                                 <h3 class="font-semibold mb-3">補款及尾款</h3>
                                 <a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer"
-                                    class="w-full max-w-[180px] bg-brandGreen text-white py-2 rounded-md font-medium hover:bg-opacity-90 transition shadow">補款</a>
+                                    class="w-full max-w-[180px] bg-brandGreen text-white py-2 rounded-[var(--r-md)] font-medium hover:bg-opacity-90 transition shadow">補款</a>
                                 <p class="text-xs text-slate-500 mt-2">進入後請自行填寫金額</p>
                             </div>
                         </div>
                         <div class="mt-10 pt-8 border-t border-slate-200 text-center flex flex-col items-center">
                             <p class="text-sm text-slate-500 mb-3">如付款按鈕無法正常開啟，請複製以下付款連結至瀏覽器開啟，並自行填寫金額：</p>
                             <input type="text" value="https://pcpay.tw/NF4vv" readonly onclick="this.select()"
-                                class="w-full max-w-md p-3 text-center bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen text-slate-700 mb-8"
+                                class="w-full max-w-md p-3 text-center bg-gray-50 border border-gray-300 rounded-[var(--r-md)] focus:outline-none focus:ring-2 focus:ring-brandGreen text-slate-700 mb-8"
                                 onfocus="this.select()">
                             <p class="text-slate-600 mb-3 font-medium">如有任何疑問，歡迎透過 LINE 聯絡我們<br>LINE ID：@366qwylw</p>
                         </div>
                     </section>
 
-                    <section id="section-terms" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm">
+                    <section id="section-terms" class="scroll-mt-28 bg-white p-6 rounded-[var(--r-lg)] shadow-sm">
                         <h2 class="text-2xl font-bold text-brandGreen mb-6">服務條款與介紹</h2>
                         <div class="service-subsection">
                             <h3 class="text-xl font-bold text-slate-800 mb-4">服務內容</h3>
@@ -454,7 +461,7 @@ keywords: KEICHA, 電話代撥, 電話代打, 日文電話, 餐廳預約, 日本
                             </div>
                         </div>
                         <div id="slider-container"
-                            class="relative w-full max-w-2xl mx-auto rounded-lg overflow-hidden shadow-lg bg-brandGreen mt-8 aspect-[16/9] group">
+                            class="relative w-full max-w-2xl mx-auto rounded-[var(--r-lg)] overflow-hidden shadow-lg bg-brandGreen mt-8 aspect-[16/9] group">
                             <div id="slider-wrapper" class="flex h-full transition-transform duration-500 ease-in-out">
                                 <div class="slider-slide w-full flex-shrink-0 flex items-center justify-center h-full">
                                     <img src="{{ '/images/keicha_電話代撥_服務案例1.png' | relative_url }}" alt="服務案例1"
@@ -466,7 +473,7 @@ keywords: KEICHA, 電話代撥, 電話代打, 日文電話, 餐廳預約, 日本
                                 </div>
                             </div>
                             <button id="slider-prev"
-                                class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 focus:outline-none z-10">
+                                class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-[var(--r-full)] p-2 focus:outline-none z-10">
                                 <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -474,7 +481,7 @@ keywords: KEICHA, 電話代撥, 電話代打, 日文電話, 餐廳預約, 日本
                                 </svg>
                             </button>
                             <button id="slider-next"
-                                class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 focus:outline-none z-10">
+                                class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-[var(--r-full)] p-2 focus:outline-none z-10">
                                 <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -484,23 +491,23 @@ keywords: KEICHA, 電話代撥, 電話代打, 日文電話, 餐廳預約, 日本
                             <div id="slider-dots"
                                 class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
                                 <button
-                                    class="slider-dot w-3 h-3 bg-white bg-opacity-50 rounded-full focus:outline-none"></button>
+                                    class="slider-dot w-3 h-3 bg-white bg-opacity-50 rounded-[var(--r-full)] focus:outline-none"></button>
                                 <button
-                                    class="slider-dot w-3 h-3 bg-white bg-opacity-50 rounded-full focus:outline-none"></button>
+                                    class="slider-dot w-3 h-3 bg-white bg-opacity-50 rounded-[var(--r-full)] focus:outline-none"></button>
                             </div>
                         </div>
                         <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
                             <h3 class="text-xl font-bold text-slate-800 mb-4">服務費用與支付方式</h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-700">
-                                <div class="bg-slate-100 p-4 rounded-lg">
+                                <div class="bg-slate-100 p-4 rounded-[var(--r-sm)]">
                                     <h4 class="font-semibold text-lg mb-2">支付方式</h4>
                                     <p>所有服務皆透過 <strong>信用卡</strong> 付款。</p>
                                 </div>
-                                <div class="bg-slate-100 p-4 rounded-lg">
+                                <div class="bg-slate-100 p-4 rounded-[var(--r-sm)]">
                                     <h4 class="font-semibold text-lg mb-2">預付款（行政處理費）</h4>
                                     <p>所有訂單均須先支付預付款 <strong>新台幣 50 元</strong>。此費用訂單受理後概不退還。</p>
                                 </div>
-                                <div class="bg-[#f0f6ec] p-4 rounded-lg md:col-span-2">
+                                <div class="bg-[#f0f6ec] p-4 rounded-[var(--r-sm)] md:col-span-2">
                                     <h4 class="font-semibold text-lg text-brandGreen mb-2">服務費用標準</h4>
                                     <div class="space-y-3">
                                         <p class="flex items-start"><span
@@ -541,7 +548,7 @@ keywords: KEICHA, 電話代撥, 電話代打, 日文電話, 餐廳預約, 日本
                             <div class="space-y-3">
                                 <div class="accordion-item">
                                     <button
-                                        class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg"><span>不予退款之情況</span><span
+                                        class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-[var(--r-sm)] text-left font-semibold text-lg"><span>不予退款之情況</span><span
                                             class="transform transition-transform duration-300">▼</span></button>
                                     <div class="accordion-content">
                                         <div class="p-4 bg-white border rounded-b-lg">
@@ -554,7 +561,7 @@ keywords: KEICHA, 電話代撥, 電話代打, 日文電話, 餐廳預約, 日本
                                 </div>
                                 <div class="accordion-item">
                                     <button
-                                        class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg"><span>部分退款之情況</span><span
+                                        class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-[var(--r-sm)] text-left font-semibold text-lg"><span>部分退款之情況</span><span
                                             class="transform transition-transform duration-300">▼</span></button>
                                     <div class="accordion-content">
                                         <div class="p-4 bg-white border rounded-b-lg">
@@ -585,7 +592,7 @@ keywords: KEICHA, 電話代撥, 電話代打, 日文電話, 餐廳預約, 日本
                     </section>
 
                     <section id="section-privacy"
-                        class="scroll-mt-28 bg-white rounded-lg shadow-sm overflow-hidden mt-12 mb-12">
+                        class="scroll-mt-28 bg-white rounded-[var(--r-lg)] shadow-sm overflow-hidden mt-12 mb-12">
                         <div class="accordion-item border-0">
                             <button
                                 class="accordion-header flex justify-between items-center w-full p-6 text-left hover:bg-gray-50 transition-colors">

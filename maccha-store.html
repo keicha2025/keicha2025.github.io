@@ -71,6 +71,14 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
 <style>
     :root {
         --font-brand: "Zen Maru Gothic", sans-serif;
+        --brand: #6ea44c;
+        --brandDark: #5d8d41;
+        --brandLight: #ebf1e9;
+        --brandBg: rgba(110, 164, 76, 0.1);
+        --r-sm: 8px;
+        --r-md: 16px;
+        --r-lg: 24px;
+        --r-full: 9999px;
     }
 
     /* 修正 body 為 wrapper，避免影響全站樣式 */
@@ -149,7 +157,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
         width: 100%;
         padding: 12px 14px;
         border: 1px solid #e2e8f0;
-        border-radius: 10px;
+        border-radius: var(--r-md);
         font-size: 15px;
         outline: none;
         transition: all 0.2s ease;
@@ -160,16 +168,52 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
     .input-ui:focus {
         border-color: #6ea44c;
         background-color: white;
-        ring: 1px solid #6ea44c;
+        box-shadow: 0 0 0 3px rgba(110, 164, 76, 0.1);
     }
 
     .input-ui::placeholder {
         color: #94a3b8;
     }
 
+    /* 自定義單選按鈕 (Custom Premium Radio) */
+    input[type="radio"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid #e5e7eb;
+        border-radius: var(--r-full);
+        background-color: #fff;
+        margin: 0;
+        cursor: pointer;
+        display: grid;
+        place-content: center;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        flex-shrink: 0;
+    }
+
+    input[type="radio"]::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: var(--r-full);
+        transform: scale(0);
+        transition: 0.2s transform cubic-bezier(0.4, 0, 0.2, 1);
+        background-color: #6ea44c;
+    }
+
+    input[type="radio"]:checked {
+        border-color: #6ea44c;
+        background-color: #f9fdf7;
+    }
+
+    input[type="radio"]:checked::before {
+        transform: scale(1);
+    }
+
     .logistics-card {
         border: 1px solid #e2e8f0;
-        border-radius: 12px;
+        border-radius: var(--r-lg);
         transition: all 0.2s ease;
         background: white;
         overflow: hidden;
@@ -195,7 +239,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
         justify-content: center;
         gap: 4px;
         padding: 8px 12px;
-        border-radius: 8px;
+        border-radius: var(--r-sm);
         font-weight: bold;
         font-size: 13px;
         transition: background 0.2s;
@@ -220,7 +264,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
         width: 100px;
         height: 100px;
         flex-shrink: 0;
-        border-radius: 12px;
+        border-radius: var(--r-md);
         overflow: hidden;
         background-color: #f9fafb;
     }
@@ -256,7 +300,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
             <!-- 右側購物清單按鈕 -->
             <div class="flex items-center gap-2">
                 <button type="button" onclick="openCart()"
-                    class="flex items-center gap-2 px-3 py-2 text-brand hover:bg-brandLight rounded-full transition cursor-pointer relative">
+                    class="flex items-center gap-2 px-3 py-2 text-brand hover:bg-brandLight rounded-[var(--r-full)] transition cursor-pointer relative">
 
                     <!-- 購物袋 ICON -->
                     <span class="material-symbols-rounded text-2xl pointer-events-none">shopping_bag</span>
@@ -266,7 +310,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
 
                     <!-- 數量徽章 -->
                     <span id="header-cart-badge"
-                        class="absolute -top-1 -right-1 bg-brand text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full hidden pointer-events-none">
+                        class="absolute -top-1 -right-1 bg-brand text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-[var(--r-full)] hidden pointer-events-none">
                         0
                     </span>
                 </button>
@@ -314,9 +358,9 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <button onclick="closeAllPanels()"
-                            class="col-span-1 bg-white text-gray-500 border border-gray-200 font-bold py-3.5 rounded-xl hover:bg-gray-50 transition flex justify-center items-center gap-2">繼續選購</button>
+                            class="col-span-1 bg-white text-gray-500 border border-gray-200 font-bold py-3.5 rounded-[var(--r-md)] hover:bg-gray-50 transition flex justify-center items-center gap-2">繼續選購</button>
                         <button onclick="openCheckout()"
-                            class="col-span-1 bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand/20 hover:bg-brandDark active:scale-[0.98] transition flex justify-center items-center gap-2">前往結帳
+                            class="col-span-1 bg-brand text-white font-bold py-3.5 rounded-[var(--r-md)] shadow-lg shadow-brand/20 hover:bg-brandDark active:scale-[0.98] transition flex justify-center items-center gap-2">前往結帳
                             <span class="material-symbols-rounded text-sm">arrow_forward</span></button>
                     </div>
                 </div>
@@ -354,7 +398,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                                 <input type="tel" id="input-phone" class="input-ui font-bold text-lg tracking-wider"
                                     placeholder="09xxxxxxxx" maxlength="10" inputmode="tel">
                                 <button type="button" onclick="lookupPhoneData(this)"
-                                    class="bg-brand text-white w-14 rounded-xl flex items-center justify-center hover:bg-brandDark transition disabled:opacity-50 shrink-0 shadow-sm shadow-brand/20"><span
+                                    class="bg-brand text-white w-14 rounded-[var(--r-md)] flex items-center justify-center hover:bg-brandDark transition disabled:opacity-50 shrink-0 shadow-sm shadow-brand/20"><span
                                         class="material-symbols-rounded">arrow_forward</span></button>
                             </div>
                             <p id="phone-msg" class="text-xs mt-2 pl-1 h-4 font-medium transition-colors duration-300">
@@ -397,7 +441,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                         </h4>
                         <textarea id="input-note" class="input-ui min-h-[80px]" placeholder="訂單備註 (選填)..."></textarea>
                         <label
-                            class="flex items-center gap-3 p-4 bg-gray-50 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-100 transition">
+                            class="flex items-center gap-3 p-4 bg-gray-50 border border-gray-100 rounded-[var(--r-md)] cursor-pointer hover:bg-gray-100 transition">
                             <input type="checkbox" id="join-member" checked>
                             <span class="text-sm text-gray-600 font-medium">更新並儲存會員資料 (下次自動帶入)</span>
                         </label>
@@ -416,7 +460,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                         </div>
                     </div>
                     <button onclick="submitOrder(this)"
-                        class="w-full bg-brand text-white font-bold py-4 rounded-xl text-lg shadow-lg shadow-brand/20 hover:bg-brandDark active:scale-[0.98] transition flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                        class="w-full bg-brand text-white font-bold py-4 rounded-[var(--r-md)] text-lg shadow-lg shadow-brand/20 hover:bg-brandDark active:scale-[0.98] transition flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
                         <span class="material-symbols-rounded">verified</span> 確認送出訂單
                     </button>
                 </div>
@@ -439,6 +483,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
     let brandList = []; // [修正] 全域定義，供 renderProductCards 使用
     let shippingFee = 0;
     let shippingRules = [];
+    let globalMethods = [];
     let selectedLogisticsType = '';
     let tempQtyMap = {};
     let cachedMemberData = null;
@@ -617,17 +662,26 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
             let icon = 'local_shipping';
             if (is711 || isFami) icon = 'store';
 
+            // 優先序：運費規則設定 > 全站物流管道設定 > 硬編碼預設值
+            const gm = globalMethods.find(x => x.name === method);
+            let queryLink = rule.tracking_link || (gm ? gm.query_url : '');
+
+            if (!queryLink) {
+                if (is711) queryLink = 'https://emap.pcsc.com.tw/';
+                else if (isFami) queryLink = 'https://www.family.com.tw/marketing/inquiry.aspx';
+            }
+
             let detailHtml = '';
             if (is711 || isFami) {
-                const queryLink = is711 ? 'https://www.ibon.com.tw/mobile/retail_inquiry.aspx' : 'https://www.family.com.tw/marketing/inquiry.aspx';
                 detailHtml = `
                     <div class="flex gap-2">
                         <input type="tel" class="input-ui flex-1 text-center font-mono tracking-widest"
                             placeholder="輸入6碼店號" maxlength="6" inputmode="numeric" id="store-id-${method}"
                             oninput="syncStoreInput()">
+                        ${queryLink ? `
                         <a href="${queryLink}" target="_blank" class="btn-query-store">
                             <span class="material-symbols-rounded text-base">map</span> 查詢
-                        </a>
+                        </a>` : ''}
                     </div>
                     <input type="text" class="input-ui text-sm" placeholder="門市名稱 / 備註"
                         id="store-name-${method}" oninput="syncStoreInput()">
@@ -636,26 +690,38 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                 detailHtml = `
                     <textarea id="store-addr-${method}" class="input-ui text-sm min-h-[80px]"
                         placeholder="請輸入完整收件地址 (含郵遞區號)" oninput="syncStoreInput()"></textarea>
+                    ${queryLink ? `
+                    <div class="mt-2 text-right">
+                        <a href="${queryLink}" target="_blank" class="text-xs text-brand underline flex items-center justify-end gap-1">
+                            <span class="material-symbols-rounded" style="font-size:14px;">link</span> 區域查詢
+                        </a>
+                    </div>` : ''}
                 `;
             } else {
                 detailHtml = `
                     <input type="text" class="input-ui text-sm" placeholder="備註資訊"
                         id="store-note-${method}" oninput="syncStoreInput()">
+                    ${queryLink ? `
+                    <div class="mt-2 text-right">
+                        <a href="${queryLink}" target="_blank" class="text-xs text-brand underline flex items-center justify-end gap-1">
+                            <span class="material-symbols-rounded" style="font-size:14px;">link</span> 相關連結
+                        </a>
+                    </div>` : ''}
                 `;
             }
 
             html += `
-                <div class="logistics-card cursor-pointer group" data-method="${method}" onclick="selectLogistics('${method}', this)">
+                <div class="logistics-card cursor-pointer group bg-gray-50 border-2 border-transparent rounded-[var(--r-lg)] transition-all" data-method="${method}" onclick="selectLogistics('${method}', this)">
                     <div class="p-4 flex justify-between items-center">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-brandLight flex items-center justify-center text-brand">
+                            <div class="w-10 h-10 rounded-[var(--r-full)] bg-brandLight/50 flex items-center justify-center text-brand">
                                 <span class="material-symbols-rounded">${icon}</span>
                             </div>
                             <div class="font-bold text-gray-800 text-sm">${method}</div>
                         </div>
                         <span class="text-brand font-bold text-sm logistics-price">運費 $${fee}</span>
                     </div>
-                    <div class="logistics-detail hidden border-t border-brand/20 bg-brandLight/20 p-4 space-y-3"
+                    <div class="logistics-detail hidden bg-brandLight/10 p-4 space-y-3"
                         onclick="event.stopPropagation()">
                         ${detailHtml}
                     </div>
@@ -803,7 +869,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                 let imgHtml = '';
                 if (item.img) {
                     const src = item.img.startsWith('http') ? item.img : BASE_REPO_URL + item.img;
-                    imgHtml = `<div class="w-16 h-16 bg-gray-50 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden border border-gray-100"><img src="${src}" class="w-full h-full object-cover"></div>`;
+                    imgHtml = `<div class="w-16 h-16 bg-gray-50 rounded-[var(--r-sm)] flex-shrink-0 flex items-center justify-center overflow-hidden border border-gray-100"><img src="${src}" class="w-full h-full object-cover"></div>`;
                 }
                 container.innerHTML += `
                     <div class="relative flex gap-4 items-start border-b border-gray-50 p-5 last:border-0 group bg-white">
@@ -815,16 +881,16 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                                 <div class="text-xs mt-1.5 flex items-center gap-1.5 flex-wrap">
                                     ${isMultiPriceApplied ? `
                                         <span class="line-through text-gray-300 font-mono">$${item.price}</span>
-                                        <div class="bg-brandLight text-brandDark text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 whitespace-nowrap relative top-[-1px]"><span class="material-symbols-rounded" style="font-size: 11px;">verified</span>多件優惠</div>
+                                        <div class="bg-brandLight text-brandDark text-[10px] font-bold px-1.5 py-0.5 rounded-[var(--r-sm)] flex items-center gap-0.5 whitespace-nowrap relative top-[-1px]"><span class="material-symbols-rounded" style="font-size: 11px;">verified</span>多件優惠</div>
                                     ` : ''}
                                     <span class="${isMultiPriceApplied ? 'text-brand font-bold' : 'text-gray-400'} font-mono leading-none">$${unitPrice}</span>
                                 </div>
                             </div>
                             <div class="flex justify-between items-end mt-2">
-                                <div class="flex items-center bg-gray-50 border border-gray-200 rounded-lg h-8">
-                                    <button onclick="updateCartQty(${mainIndex}, -1)" class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-brand hover:bg-gray-100 rounded-l-lg transition font-bold">-</button>
+                                <div class="flex items-center bg-gray-50 border border-gray-200 rounded-[var(--r-md)] h-8">
+                                    <button onclick="updateCartQty(${mainIndex}, -1)" class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-brand hover:bg-gray-100 rounded-l-[var(--r-md)] transition font-bold">-</button>
                                     <span class="w-8 text-center text-xs font-bold text-gray-700 font-mono">${item.qty}</span>
-                                    <button onclick="updateCartQty(${mainIndex}, 1)" class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-brand hover:bg-gray-100 rounded-r-lg transition font-bold">+</button>
+                                    <button onclick="updateCartQty(${mainIndex}, 1)" class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-brand hover:bg-gray-100 rounded-r-[var(--r-md)] transition font-bold">+</button>
                                 </div>
                                 <div class="font-bold text-brand font-mono">$${unitPrice * item.qty}</div>
                             </div>
@@ -878,15 +944,15 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
             let unitPrice = itemHasDiscount ? item.price_multi : item.price;
 
             listEl.innerHTML += `
-                <li class="p-4 flex items-start gap-3 bg-white shadow-sm border border-gray-100 rounded-xl mb-3 last:mb-0 transition hover:shadow-md">
+                <li class="p-4 flex items-start gap-3 bg-white shadow-sm border border-gray-100 rounded-[var(--r-md)] mb-3 last:mb-0 transition hover:shadow-md">
                     <div class="flex-1 min-w-0 pr-2">
                         <div class="font-bold text-gray-800 text-sm leading-tight mb-1 flex flex-wrap items-center gap-1.5">
                             ${item.brandName || 'KEICHA'}｜${item.name}
-                            ${item.spec ? `<span class="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-[10px] whitespace-nowrap border border-gray-200">${item.spec}</span>` : ''}
+                            ${item.spec ? `<span class="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-[var(--r-sm)] text-[10px] whitespace-nowrap border border-gray-200">${item.spec}</span>` : ''}
                         </div>
                         <div class="flex items-center gap-2 mt-1.5">
                             <span class="text-xs font-mono text-gray-500">$${unitPrice} × ${item.qty}</span>
-                            ${itemHasDiscount ? `<div class="bg-brandLight text-brandDark text-[9px] font-bold px-1 rounded flex items-center gap-0.5 whitespace-nowrap"><span class="material-symbols-rounded block" style="font-size: 10px;">verified</span>多件優惠</div>` : ''}
+                            ${itemHasDiscount ? `<div class="bg-brandLight text-brandDark text-[9px] font-bold px-1 rounded-[var(--r-sm)] flex items-center gap-0.5 whitespace-nowrap"><span class="material-symbols-rounded block" style="font-size: 10px;">verified</span>多件優惠</div>` : ''}
                         </div>
                     </div>
                     <div class="text-right shrink-0">
@@ -963,6 +1029,10 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                 if (addrEl) addrEl.value = info.shipping_address;
             }
         });
+
+        if (selectedLogisticsType) {
+            syncStoreInput();
+        }
     }
 
     function selectLogistics(type, cardEl) {
@@ -1005,6 +1075,15 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
 
         document.getElementById('input-store').value = storeVal;
         document.getElementById('input-store-note').value = noteVal;
+    }
+
+    function generateRandomSuffix(length = 4) {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Avoid ambiguous chars 0,O,1,I
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
     }
     // --- 產生訂單編號 (Option 1) ---
     async function generateOrderId(prefixChar) {
@@ -1146,10 +1225,13 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
         };
 
         generateOrderId('M').then(newOrderId => {
+            const trackingCode = `${newOrderId}-${generateRandomSuffix()}`;
+            firestorePayload.tracking_code = trackingCode;
+
             return db.collection('orders').doc(newOrderId).set(firestorePayload)
-                .then(() => newOrderId);
+                .then(() => ({ orderId: newOrderId, trackingCode: trackingCode }));
         })
-            .then(async orderId => {
+            .then(async ({ orderId, trackingCode }) => {
                 // [新] 儲存會員資料
                 if (isMemberCheck) {
                     const memberData = {
@@ -1157,9 +1239,9 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                         source_token: 'keicha_2025_web_auth',
                         updated_at: firebase.firestore.FieldValue.serverTimestamp()
                     };
-                    if (type === '7-11') { memberData.store_711 = store; memberData.store_711_note = storeNote; }
-                    else if (type === '全家') { memberData.store_fami = store; memberData.store_fami_note = storeNote; }
-                    else if (type.includes('宅配')) { memberData.shipping_address = store; }
+                    if (type.includes('7-11')) { memberData.store_711 = store; memberData.store_711_note = storeNote; }
+                    else if (type.includes('全家')) { memberData.store_fami = store; memberData.store_fami_note = storeNote; }
+                    else if (type.includes('宅配') || type.includes('郵寄')) { memberData.shipping_address = store; }
 
                     try {
                         const memberSnap = await db.collection('members').where('phone', '==', phone).limit(1).get();
@@ -1176,8 +1258,12 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
 
                 // [新] 觸發郵件通知 (Firebase API)
                 if (window.API && window.API.sendNotification) {
+                    const notifyPayload = { ...firestorePayload };
+                    delete notifyPayload.created_at;
+                    delete notifyPayload.updated_at;
+
                     window.API.sendNotification('new_matcha_order', {
-                        ...firestorePayload,
+                        ...notifyPayload,
                         order_id: orderId
                     }).catch(e => console.error('[GAS] Notification error:', e));
                 }
@@ -1223,12 +1309,14 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
 
         Promise.all([
             db.collection('shipping_rules').get(),
+            db.collection('shipping_methods').get(),
             db.collection('matcha_brands').orderBy('display_order', 'asc').get(),
             db.collection('matcha_products').get()
         ])
-            .then(([shipSnap, brandSnap, prodSnap]) => {
+            .then(([shipSnap, methodsSnap, brandSnap, prodSnap]) => {
                 // 1. Shipping Rules
                 shippingRules = shipSnap.docs.map(doc => doc.data());
+                globalMethods = methodsSnap.docs.map(doc => doc.data());
 
                 // 2. Brands
                 brandList = brandSnap.docs.map(doc => ({ key: doc.id, ...doc.data() }));
@@ -1273,9 +1361,9 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
             } else { statusText = '缺貨中'; }
             container.innerHTML += `
                 <a href="#brand-${brand.key}" class="block group transform hover:-translate-y-1 transition-transform duration-300">
-                    <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 border border-gray-100 flex justify-between items-center">
+                    <div class="bg-white rounded-[var(--r-md)] shadow-sm hover:shadow-md transition-shadow p-4 border border-gray-100 flex justify-between items-center">
                         <span class="font-bold text-gray-800 text-lg group-hover:text-brand transition-colors">${brand.name}</span>
-                        <span class="${statusClass} text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap shadow-sm">${statusText}</span>
+                        <span class="${statusClass} text-xs font-bold px-3 py-1 rounded-[var(--r-full)] whitespace-nowrap shadow-sm">${statusText}</span>
                     </div>
                 </a>`;
         });
@@ -1324,8 +1412,8 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                     </div>`;
             }
             let badgeHTML = '';
-            if (tag) { badgeHTML = `<span class="absolute top-3 right-3 bg-brand text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">${tag}</span>`; }
-            else if (isSoldOut) { badgeHTML = `<span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">缺貨</span>`; }
+            if (tag) { badgeHTML = `<span class="absolute top-3 right-3 bg-brand text-white text-xs font-semibold px-2.5 py-0.5 rounded-[var(--r-full)] z-10 shadow-sm">${tag}</span>`; }
+            else if (isSoldOut) { badgeHTML = `<span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-[var(--r-full)] z-10 shadow-sm">缺貨</span>`; }
 
             let priceHTML = '';
             if (hasMultiPrice) {
@@ -1344,7 +1432,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
             const topRowClass = `flex gap-4 md:contents ${hasImage ? 'items-center' : ''}`;
 
             grid.innerHTML += `
-                <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col mobile-product-card transition hover:shadow-lg group relative">
+                <div class="bg-white rounded-[var(--r-lg)] border border-gray-100 overflow-hidden shadow-sm flex flex-col mobile-product-card transition hover:shadow-lg group relative">
                     ${badgeHTML}
                     <div class="p-4 md:p-0 ${topRowClass}">
                         ${imgHTML}
@@ -1358,12 +1446,12 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                         </div>
                     </div>
                     <div class="flex gap-2 p-4 pt-0 md:p-5 md:border-t">
-                        <div class="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-2 h-12 w-1/3">
+                        <div class="flex items-center justify-between bg-white border border-gray-200 rounded-[var(--r-md)] px-2 h-12 w-1/3">
                             <button class="w-8 h-full flex items-center justify-center text-brand font-bold" onclick="adjQty('${productId}', -1)" ${qtyDisable}>-</button>
                             <span id="iq-${productId}" class="text-xs font-bold px-2 text-center">1</span>
                             <button class="w-8 h-full flex items-center justify-center text-brand font-bold" onclick="adjQty('${productId}', 1)" ${qtyDisable}>+</button>
                         </div>
-                        <button class="flex-1 h-12 rounded-xl text-xs font-bold ${btnClass}" ${clickEvent}>${btnText}</button>
+                        <button class="flex-1 h-12 rounded-[var(--r-md)] text-xs font-bold ${btnClass}" ${clickEvent}>${btnText}</button>
                     </div>
                 </div>`;
         });
