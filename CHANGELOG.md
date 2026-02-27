@@ -3,12 +3,14 @@
 ## [2026-02-27] - New Universal Contact Page with Premium Interactions
 
 ### Summary of changes
-Created a dedicated contact page (`contact.html`) as a fallback for browsers with LINE deep-link issues. Fixed layout rendering issues and removed excessive green shadows.
+Created a dedicated contact page (`contact.html`) as a fallback for browsers with LINE deep-link issues. Refactored the ID display into a multi-part component with split selection and copy functionality.
 
 ### Technical details of implementation
-- **UI Refinement**: Removed `shadow-brandGreen` utilities to ensure a cleaner, neutral card shadow as requested.
-- **Layout Fix**: Corrected the CSS variable application for brand colors, ensuring the icon container and buttons render with the correct background color instead of appearing transparent/white.
-- **Responsive Spacing**: Improved the wrapping container's padding and min-height to prevent "跑版" (layout breaking) on different screen sizes.
+- **Component Refactoring**: Split the LINE ID display into two distinct container zones within a single gray-bordered master container (`id-master-container`):
+    - **Selection Zone**: Left-aligned clickable input that triggers `onfocus="this.select()"` and a master-component scale animation.
+    - **Copy Zone**: A dedicated, styled button with hover states and `execCommand('copy')` logic.
+- **Visual Feedback**: Added a fixed "Toast" notification at the bottom that appears upon successful copying to confirm the action to the user.
+- **Consistency**: Retained all previous v2 animations (fadeUp entry, smooth QR drawer expansion).
 - **Micro-interactions**:
     - **Entry Animation**: Implemented a `fadeUp` CSS animation that slides the card up gracefully upon page load.
     - **Smart Input Selection**: The LINE ID field uses `onfocus="this.select()"` combined with a `tap-scale` pulse animation to provide immediate tactile feedback.

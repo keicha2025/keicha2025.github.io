@@ -19,7 +19,6 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
         font-weight: 700;
     }
 
-    /* 使用 Tailwind 的 brandGreen，這裡做後備 */
     .brand-bg {
         background-color: var(--brand-green);
     }
@@ -28,20 +27,39 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
         color: var(--brand-green);
     }
 
+    /* ID 容器樣式 */
+    .id-group-container {
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+    }
+
     /* 自定義輸入框樣式 */
     .id-input {
-        background: #ffffff;
-        border: 2px solid #e2e8f0;
+        background: transparent;
+        border: none;
         transition: all 0.3s ease;
         cursor: pointer;
-        text-align: center;
+        text-align: left;
     }
 
     .id-input:focus {
-        border-color: var(--brand-green);
-        background: #fdfdfd;
         outline: none;
-        box-shadow: 0 0 0 4px rgba(110, 164, 76, 0.1);
+    }
+
+    /* 複製按鈕樣式 */
+    .copy-trigger {
+        transition: all 0.2s ease;
+        color: #94a3b8;
+    }
+
+    .copy-trigger:hover {
+        color: var(--brand-green);
+        background: #ffffff;
+    }
+
+    .copy-trigger:active {
+        scale: 0.9;
     }
 
     /* 進場動畫 */
@@ -68,7 +86,7 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
         }
 
         50% {
-            transform: scale(0.96);
+            transform: scale(0.98);
         }
 
         100% {
@@ -93,6 +111,23 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
         opacity: 1;
         margin-top: 1.5rem;
     }
+
+    /* 複製成功的提示動畫 */
+    @keyframes toastIn {
+        from {
+            opacity: 0;
+            transform: translate(-50%, 10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+    }
+
+    .copy-toast {
+        animation: toastIn 0.3s ease forwards;
+    }
 </style>
 {% endcapture %}
 
@@ -114,23 +149,33 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
             <!-- Interaction Area -->
             <div class="p-8 space-y-8">
 
-                <!-- ID Selection -->
-                <div class="space-y-4">
+                <!-- ID Combined Component -->
+                <div class="space-y-3">
                     <label class="block text-center text-xs font-bold text-gray-400 uppercase tracking-widest">官方 LINE
                         ID</label>
-                    <div class="relative">
-                        <input type="text" value="@366qwylw" readonly
-                            onfocus="this.select(); this.parentElement.classList.add('tap-scale'); setTimeout(()=>this.parentElement.classList.remove('tap-scale'), 300)"
-                            class="id-input w-full py-4 text-2xl font-bold tracking-wider rounded-xl text-gray-700 transition-transform"
-                            placeholder="LINE ID">
-                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-30">
-                            <span class="material-symbols-rounded">content_copy</span>
+
+                    <!-- 大型組合組件 (灰色邊框) -->
+                    <div id="id-master-container" class="id-group-container flex items-center p-2 rounded-2xl">
+                        <!-- 左側：點擊全選容器 -->
+                        <div class="flex-1 pl-4 pr-2">
+                            <input type="text" value="@366qwylw" readonly id="line-id-input"
+                                onfocus="this.select(); document.getElementById('id-master-container').classList.add('tap-scale'); setTimeout(()=>document.getElementById('id-master-container').classList.remove('tap-scale'), 300)"
+                                class="id-input w-full py-3 text-xl font-bold tracking-wider text-gray-700"
+                                placeholder="LINE ID">
+                        </div>
+
+                        <!-- 右側：獨立複製按鈕容器 -->
+                        <div class="px-1 border-l border-gray-200">
+                            <button id="copy-btn" title="複製 ID"
+                                class="copy-trigger w-12 h-12 flex items-center justify-center rounded-xl bg-gray-50/50">
+                                <span class="material-symbols-rounded text-2xl">content_copy</span>
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Action Button -->
-                <div class="pt-4">
+                <div class="pt-2">
                     <a href="https://lin.ee/F3JngaC" target="_blank" rel="noopener noreferrer"
                         class="flex items-center justify-center w-full bg-brandGreen text-white px-8 py-4 rounded-xl text-lg font-bold hover:brightness-110 shadow-md active:scale-95 transition-all">
                         <span class="material-symbols-rounded mr-2">person_add</span>
@@ -168,12 +213,22 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
     </div>
 </main>
 
+<!-- 複製成功提示 -->
+<div id="copy-toast"
+    class="hidden fixed bottom-12 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full text-sm font-medium z-50 copy-toast shadow-2xl">
+    已複製 ID：@366qwylw
+</div>
+
 {% capture scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const toggleBtn = document.getElementById('toggle-qr');
         const qrBox = document.getElementById('qr-box');
+        const copyBtn = document.getElementById('copy-btn');
+        const idInput = document.getElementById('line-id-input');
+        const toast = document.getElementById('copy-toast');
 
+        // QR Toggle
         if (toggleBtn && qrBox) {
             toggleBtn.addEventListener('click', () => {
                 const isExpanded = qrBox.classList.contains('expanded');
@@ -185,6 +240,23 @@ description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代�
                     qrBox.classList.remove('expanded');
                     toggleBtn.innerHTML = '<span class="material-symbols-rounded mr-1 text-lg">qr_code_scanner</span> 或是掃描 QR Code';
                     toggleBtn.classList.remove('text-brandGreen');
+                }
+            });
+        }
+
+        // Copy Functionality
+        if (copyBtn && idInput) {
+            copyBtn.addEventListener('click', () => {
+                idInput.select();
+                try {
+                    document.execCommand('copy');
+                    // Show Toast
+                    toast.classList.remove('hidden');
+                    setTimeout(() => {
+                        toast.classList.add('hidden');
+                    }, 2000);
+                } catch (err) {
+                    console.error('無法複製', err);
                 }
             });
         }
