@@ -3,12 +3,12 @@
 ## [2026-02-27] - New Universal Contact Page with Premium Interactions
 
 ### Summary of changes
-Created a dedicated contact page (`contact.html`) as a fallback for browsers with LINE deep-link issues. Fixed non-rendering styles and non-functional scripts by embedding them directly in the content block instead of using variable capture.
+Created a dedicated contact page (`contact.html`) as a fallback for browsers with LINE deep-link issues. Fixed rendering issues, refactored the ID component, and updated global navigation links to point to this new page.
 
 ### Technical details of implementation
-- **Rendering Fix**: Moved all `<style>` and `<script>` tags from Liquid variable captures directly into the `{{ content }}` block. This ensures they are rendered within the document `<body>`, bypassing parent layout limitations that were preventing style application and QR code collapsing.
-- **Component Refactoring**: Fully synchronized with the v2 demo design, featuring the split ID selection/copy container with gray borders and neutral backgrounds.
-- **Interaction Parity**: Restored full animation support, including the fadeUp entry and smooth QR drawer expansion.
+- **Navigation Update**: Changed all "Contact Us" and "LINE Customer Service" links in `_includes/header.html` (both desktop and mobile menus) to point to the internal `/contact.html` instead of external LINE links.
+- **Rendering Fix**: Embedded styles and scripts directly in the content block to ensure proper script execution and CSS application within the Jekyl-rendered document.
+- **Component Refactoring**: Implemented the dual-zone ID container (Selection vs. Copy) with a neutral gray border and distinct animations.
 - **Micro-interactions**:
     - **Entry Animation**: Implemented a `fadeUp` CSS animation that slides the card up gracefully upon page load.
     - **Smart Input Selection**: The LINE ID field uses `onfocus="this.select()"` combined with a `tap-scale` pulse animation to provide immediate tactile feedback.
