@@ -677,6 +677,19 @@ title: KEICHA 網路商店
             }
 
             localStorage.removeItem('diy_draft');
+
+            // 儲存結果供成功頁面顯示
+            const resultData = {
+                orderId: newOrderId,
+                name: firestorePayload.name,
+                phone: firestorePayload.phone,
+                items: firestorePayload.items_text,
+                logistics: firestorePayload.logistics_type,
+                address: firestorePayload.store_note,
+                total: firestorePayload.total
+            };
+            sessionStorage.setItem('orderResult', JSON.stringify(resultData));
+
             KUI.alert("訂單已成功送出！");
             window.location.href = "fast-diy-result.html";
         } catch (e) {

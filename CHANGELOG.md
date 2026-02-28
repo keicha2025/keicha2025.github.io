@@ -459,6 +459,21 @@ Fixed a bug where checking "會員自動帶入" (Save/Update member logic) durin
 ### Chinese Summary
 修復了結帳最後一關勾選「會員自動帶入/儲存資料」卻不會真實存入後台資料庫的 Bug。前端代碼已完整補上針對 `members` 集合的查找或新建邏輯，同時開放了此路徑的 Firebase 寫入權限，並順手補齊了各個獨立頁面該有的「新訂單推播通知信」觸發 API 呼叫。
 
+## [2026-02-28] - Fixed DIY Result Page Data Persistence
+
+### Summary of changes
+Resolved an issue where the DIY checkout result page (`fast-diy-result.html`) incorrectly displayed "No data found" after a successful order submission.
+
+### Technical details of implementation
+- **Data Passing**: Modified `diy.html` to store order details (Order ID, Name, Items, Total, etc.) in `sessionStorage` under the key `orderResult` before redirecting.
+- **Result Retrieval**: This ensures `fast-diy-result.html` can successfully retrieve and display the order confirmation details immediately after the user is redirected, preventing the "page expired" error.
+
+### Affected files or modules
+- `diy.html`: Added session storage logic to the checkout completion callback.
+
+### Chinese Summary
+修正 DIY 頁面結帳後跳轉錯誤：現在結帳完成後會正確將訂單資訊存入暫存空間，解決 `fast-diy-result.html` 顯示「查無資料」的問題。
+
 ## [2026-02-21] - Admin Panel Mobile UI Optimization
 
 ### Summary of changes
