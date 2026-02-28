@@ -18,12 +18,22 @@ window.addEventListener('load', () => {
         db.collection('matcha_products').get()
     ])
         .then(([brandSnap, productSnap]) => {
-            // A. 品牌資料轉換
+            // A. 品牌資料轉換與排序 (可訂購優先)
             const brands = brandSnap.docs.map(doc => ({
                 key: doc.id,
                 ...doc.data(),
                 order: doc.data().display_order // 相容舊版欄位名
-            }));
+            })).sort((a, b) => {
+                const activeKeywords = ['active', 'available', 'open', '开团', '開團', '接收訂單中', '收單中', '可供訂購', '可訂購'];
+                const rawA = (a.status || '').toLowerCase().trim();
+                const rawB = (b.status || '').toLowerCase().trim();
+                const isAActive = activeKeywords.includes(rawA);
+                const isBActive = activeKeywords.includes(rawB);
+
+                if (isAActive && !isBActive) return -1;
+                if (!isAActive && isBActive) return 1;
+                return (Number(a.display_order) || 99) - (Number(b.display_order) || 99);
+            });
 
             // B. 商品資料轉換
             const products = productSnap.docs.map(doc => {

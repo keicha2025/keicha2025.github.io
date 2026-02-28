@@ -1400,8 +1400,15 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                 shippingRules = shipSnap.docs.map(doc => doc.data());
                 globalMethods = methodsSnap.docs.map(doc => doc.data());
 
-                // 2. Brands
-                brandList = brandSnap.docs.map(doc => ({ key: doc.id, ...doc.data() }));
+                // 2. Brands (並依狀態排序：可訂購優先)
+                brandList = brandSnap.docs.map(doc => ({ key: doc.id, ...doc.data() })).sort((a, b) => {
+                    const activeKeywords = ['active', 'available', 'open', '开团', '開團', '接收訂單中', '收單中', '可供訂購', '可訂購'];
+                    const isAActive = activeKeywords.includes((a.status || '').toLowerCase().trim());
+                    const isBActive = activeKeywords.includes((b.status || '').toLowerCase().trim());
+                    if (isAActive && !isBActive) return -1;
+                    if (!isAActive && isBActive) return 1;
+                    return (Number(a.display_order) || 999) - (Number(b.display_order) || 999);
+                });
 
                 // 3. Products
                 allProducts = prodSnap.docs.map(doc => {
@@ -1448,7 +1455,15 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
         const container = document.getElementById('status-grid-container');
         if (!container) return;
         container.innerHTML = '';
-        const sortedBrands = brands.sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
+        // 依狀態排序：可訂購優先
+        const sortedBrands = brands.sort((a, b) => {
+            const activeKeywords = ['active', 'available', 'open', '开团', '開團', '接收訂單中', '收單中', '可供訂購', '可訂購'];
+            const isAActive = activeKeywords.includes((a.status || '').toLowerCase().trim());
+            const isBActive = activeKeywords.includes((b.status || '').toLowerCase().trim());
+            if (isAActive && !isBActive) return -1;
+            if (!isAActive && isBActive) return 1;
+            return (Number(a.display_order) || Number(a.order) || 999) - (Number(b.display_order) || Number(b.order) || 999);
+        });
         sortedBrands.forEach(brand => {
             const rawStatus = (brand.status || '').toLowerCase().trim();
             if (rawStatus === 'inactive') return; // 完全隱藏

@@ -471,8 +471,8 @@ title: KEICHA 管理後台
     }
 
     .status-badge.out-of-stock {
-        background-color: #fef3c7;
-        color: #92400e;
+        background: #f3f4f6;
+        color: #6b7280;
     }
 
     .status-badge.cancelled {
@@ -2315,7 +2315,7 @@ title: KEICHA 管理後台
                 let statusClass = 'confirmed';
 
                 if (item.status === 'available') { statusText = '供應中'; statusClass = 'active-green'; }
-                else if (item.status === 'out-of-stock') { statusText = '缺貨中'; statusClass = 'pending'; }
+                else if (item.status === 'out-of-stock') { statusText = '缺貨中'; statusClass = 'out-of-stock'; }
                 else if (item.status === 'discontinued') { statusText = '已停收'; statusClass = 'cancelled'; }
 
                 const hiddenIcon = item.hidden ? 'visibility_off' : 'visibility';
