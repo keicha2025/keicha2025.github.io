@@ -1390,3 +1390,69 @@ Created two distinct design templates for the new Order Detail Page to evaluate 
     - Updated timeline logic to a 3-stage progression: Submitted (Gray), Confirmed (Brand Green), Completed (Brand Green).
     - Integrated a "Contact Support" call-to-action button using the primary brand style, adjusted to full-width to align with main content containers.
 
+## [2026-02-28] - Denwa Pay Page Design Prototypes
+
+### Summary of changes
+Created two distinct design prototypes for the upcoming "Phone Service Payment" page to validate the user experience and visual layout before integrating dynamic database synchronization.
+
+### Technical details of implementation
+- **Template V1 (Vertical Detail List)**:
+    - Designed as a full-width card containing a vertical list of plans.
+    - Each plan item features a title, subtle description, and side-aligned price/button groups.
+    - Optimized for scenarios with extensive plan descriptions.
+- **Template V2 (Compact Grid Cards)**:
+    - Designed with a 2-column grid layout within the main card.
+    - Emphasizes price through the `Zen Maru Gothic` brand font.
+    - Includes a high-contrast dark manual payment entry button for visual separation.
+- **Design System Integration**: 
+    - Both prototypes are built on the KEICHA design engine (24px radius, 8pt spacing).
+    - Integrated `animate-fade-up` and standardized brand terminology.
+    - Preserved the fixed "Manual Payment" requirement for `https://pcpay.tw/NF4vv`.
+
+### Affected files or modules
+- `demo/denwa-pay-v1.html` [NEW]: Vertical list prototype.
+- `demo/denwa-pay-v2.html` [NEW]: Grid card prototype.
+
+### Chinese Summary
+建立了「電話代撥支付頁」的兩款視覺原型：版本 V1 為「縱向清單」，適合詳細說明；版本 V2 為「兩欄網格」，強調金額展示。兩者皆嚴格遵守品牌設計規範，提供初步選型依據。
+
+## [2026-02-28] - Official Denwa Pay Page Implementation
+
+### Summary of changes
+Completed the official implementation of the "Telephone Forwarding Payment" page (`denwa-pay.html`) based on the validated V1 prototype. This page replaces static demos with real-time Firestore database synchronization.
+
+### Technical details of implementation
+- **Real-time Data Fetching**: Integrated Firebase SDK (v9 compat) to fetch payment plans from the `denwa_plans` collection.
+- **Dynamic Filtering & Sorting**: 
+    - Implemented client-side filtering for `status === 'ON'`.
+    - Implemented automatic sorting by `price` in ascending order.
+- **UI Refinement**:
+    - Renamed "Manual Payment Link" to "通用付款連結" (General Payment Link) to better reflect its purpose for flexible amounts.
+    - Updated bottom navigation to link back to the service introduction (`denwa.html`) instead of the home page.
+    - Added skeleton loaders for improved perceived performance during data fetching.
+- **Link Integrity**: Ensured the general payment link points to the fixed endpoint `https://pcpay.tw/NF4vv`.
+
+### Affected files or modules
+- `denwa-pay.html` [NEW]: Official payment page with dynamic integration.
+
+### Chinese Summary
+正式實作「電話代撥支付頁面」：串接 Firestore 資料庫實現動態載入方案，並依據金額由小到大自動排序。更新「通用付款連結」文字與底部署導航邏輯，確保與正式營運流程一致。
+
+## [2026-02-28] - Denwa Pay Page UX Refinement
+
+### Summary of changes
+Refined the user experience of the `denwa-pay.html` page by simplifying the interaction model and cleaning up the visual presentation.
+
+### Technical details of implementation
+- **Interaction Model**: Removed individual "Pay" buttons; now the entire plan component is a clickable link for faster checkout.
+- **Visual Cleanup**: 
+    - Removed green box-shadow and vertical translation on hover for a flatter, more professional look.
+    - Added brand-green border highlight as the primary hover state.
+    - Added subtle scale-down effect (`0.98`) on click/active state for tactile feedback.
+- **Typography and Layout**: Increased price font size in the list view to improve scannability.
+
+### Affected files or modules
+- `denwa-pay.html`: Refined interaction and styles.
+
+### Chinese Summary
+精煉「電話代撥支付頁面」互動體驗：移除獨立支付按鈕，改為點選整塊區域直接跳轉；簡化 Hover 視覺效果，僅保留品牌色邊框高亮，並加入點擊縮放回饋。

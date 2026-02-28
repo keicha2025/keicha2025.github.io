@@ -1,0 +1,212 @@
+---
+layout: default
+title: 電話代撥方案支付 | KEICHA
+description: 點擊您所需的方案進行支付，完成後我們將立即處理您的預約。
+---
+
+<!-- Firebase SDK (v9 compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
+
+<script>
+    // Firebase 設定
+    const firebaseConfig = {
+        apiKey: "AIzaSyBF50fJPE-QL3yV4KaVIWzDmDPFRAkpwT4",
+        authDomain: "keicha-membership-system.firebaseapp.com",
+        projectId: "keicha-membership-system",
+        storageBucket: "keicha-membership-system.firebasestorage.app",
+        messagingSenderId: "941650156322",
+        appId: "1:941650156322:web:5c7473aeaa184e0b94637b"
+    };
+
+    // 初始化 Firebase
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+
+    try {
+        const appCheck = firebase.appCheck();
+        appCheck.activate('6LcPa3UsAAAAAHJ-z9C3N9cqen3AYC8HxEQODoTM', true);
+    } catch (e) {
+        console.warn('[AppCheck] init:', e.message);
+    }
+
+    const db = firebase.firestore();
+</script>
+
+<style>
+    body {
+        background-color: #fcfdfa;
+    }
+
+    .brand-title {
+        font-family: var(--font-brand);
+        font-weight: 700;
+    }
+
+    .plan-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem;
+        border: 2px solid #f1f5f9;
+        /* 使用 2px 預留空間，避免 hover 時震動 */
+        background: #ffffff;
+        border-radius: 1rem;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .plan-item:hover {
+        border-color: #6ea44c;
+        background-color: #fcfdfa;
+    }
+
+    .plan-item:active {
+        transform: scale(0.98);
+        background-color: #f8fafc;
+    }
+
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-up {
+        animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .extra-pay-container {
+        border-top: 1px dashed #e2e8f0;
+        background: #f8fafc;
+    }
+
+    /* Skeleton Loading */
+    .skeleton-loader {
+        height: 80px;
+        background: linear-gradient(90deg, #f1f5f9 25%, #f8fafc 50%, #f1f5f9 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 1rem;
+    }
+
+    @keyframes shimmer {
+        0% {
+            background-position: 200% 0;
+        }
+
+        100% {
+            background-position: -200% 0;
+        }
+    }
+</style>
+
+<main class="min-h-[70vh] flex items-center justify-center p-6 py-12 md:py-20">
+    <div class="max-w-xl w-full">
+        <!-- Main Card -->
+        <div class="bg-white rounded-[var(--r-lg)] shadow-xl border border-gray-100 overflow-hidden animate-fade-up">
+
+            <!-- Branding Header -->
+            <div class="p-8 text-center border-b border-gray-50">
+                <div
+                    class="w-16 h-16 bg-brandGreen rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                    <span class="material-symbols-rounded text-white text-3xl">payments</span>
+                </div>
+                <h1 class="brand-title text-2xl text-brandGreen mb-2 tracking-tight">電話代撥方案支付</h1>
+                <p class="text-gray-500 text-sm">請依照客服指示點擊您的支付方案，完成後我們將立即處理。</p>
+            </div>
+
+            <!-- Interaction Area -->
+            <div class="p-6 md:p-8 space-y-4">
+
+                <!-- Dynamic Plans Container -->
+                <div id="plans-list" class="space-y-4">
+                    <!-- Skeletons while loading -->
+                    <div class="skeleton-loader"></div>
+                    <div class="skeleton-loader"></div>
+                </div>
+
+                <!-- General Payment Link -->
+                <div class="extra-pay-container mt-8 p-6 rounded-2xl text-center">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-3">補款 / 尾款 /
+                        其他金額</label>
+                    <a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer"
+                        class="inline-flex items-center gap-2 text-slate-600 hover:text-brandGreen font-bold transition-colors">
+                        <span class="material-symbols-rounded text-xl">open_in_new</span>
+                        通用付款連結
+                    </a>
+                    <p class="text-[10px] text-gray-400 mt-2">請進入連結後自行填寫應付總金額</p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Back Link -->
+        <div class="mt-10 text-center">
+            <a href="{{ site.baseurl }}/denwa.html"
+                class="text-gray-400 hover:text-brandGreen text-sm transition-colors flex items-center justify-center">
+                <span class="material-symbols-rounded text-lg mr-1">arrow_back</span>
+                電話代撥介紹
+            </a>
+        </div>
+    </div>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const plansList = document.getElementById('plans-list');
+
+        db.collection('denwa_plans')
+            .get()
+            .then(snapshot => {
+                const plans = snapshot.docs
+                    .map(doc => ({ id: doc.id, ...doc.data() }))
+                    .filter(p => p.status === 'ON');
+
+                if (plans.length === 0) {
+                    plansList.innerHTML = '<p class="text-center text-gray-400 py-8 text-sm">目前尚無開放支付方案，請聯繫客服。</p>';
+                    return;
+                }
+
+                // 金額由小到大排序
+                plans.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
+
+                renderPlans(plans);
+            })
+            .catch(err => {
+                console.error("Fetch plans error:", err);
+                plansList.innerHTML = `<p class="text-center text-red-400 py-8 text-sm">載入失敗: ${err.message}</p>`;
+            });
+
+        function renderPlans(plans) {
+            plansList.innerHTML = '';
+            plans.forEach(plan => {
+                const html = `
+                    <a href="${plan.link}" target="_blank" rel="noopener noreferrer" class="plan-item">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-lg font-bold text-gray-800">${plan.name}</span>
+                            </div>
+                            <p class="text-gray-400 text-xs leading-relaxed">${plan.desc || ''}</p>
+                        </div>
+                        <div class="text-right ml-4">
+                            <div class="text-2xl font-bold text-brandGreen">$${plan.price}</div>
+                        </div>
+                    </a>
+                `;
+                plansList.insertAdjacentHTML('beforeend', html);
+            });
+        }
+    });
+</script>
