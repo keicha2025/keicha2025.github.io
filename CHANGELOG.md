@@ -1473,23 +1473,21 @@ Optimized the "Export All Products" functionality in the admin panel to group pr
 ### Chinese Summary
 優化「匯出全品牌商品資料」：現在匯出 Excel 時，系統會自動將同品牌的商品排列在一起，並依照品牌名稱與顯示順序進行排序，大幅提升後台管理與帳務對帳的效率。
 
-## [2026-02-28] - Refined Brand Status UI and Sorted Availability
+## [2026-02-28] - Unified Product Status and Admin UI Fixes
 
 ### Summary of changes
-Polished the admin panel status colors for better visual distinction and implemented availability-first sorting for brands on all store pages.
+Resolved an inconsistency in product status values that caused some "Available" items to appear gray instead of brand green in the admin panel.
 
 ### Technical details of implementation
-- **Admin UI Polish**:
-  - Changed "Out of Stock" (缺貨中) status badge color to neutral gray in `admin.html`.
-  - Ensured "Active/Available" (供應中) status always displays in Brand Green (`active-green`) in the product list table.
-- **Frontend Sorting Logic**:
-  - Updated `assets/js/maccha-loader.js` and `maccha-store.html` to prioritize brands with active ordering statuses (e.g., "可訂購") at the top of the list, followed by those with lower `display_order`.
-  - This ensures users see immediately available options first in both the brand overview grid and the detailed product sections.
+- **Status Unification**: 
+  - Unified the status value for active products to `available` across all components (Single Edit, Batch Edit, New Product). Previously, some components used `in-stock`, which wasn't fully mapped to the `active-green` UI class.
+  - Updated `renderProducts()` to recognize both `available` and `in-stock` as active states to ensure backward compatibility with existing data while transitioning to the unified standard.
+- **Admin UI Consitency**:
+  - Fixed the `statusClass` assignment in the product list to ensure the `active-green` class is applied whenever a product is in an active state.
+  - Added "Discontinued" (已停產) to the individual product edit and creation modals for functional parity with batch editing.
 
 ### Affected files or modules
-- `admin.html`: Updated CSS colors and status class mapping.
-- `assets/js/maccha-loader.js`: Implemented status-based sorting for the general overview.
-- `maccha-store.html`: Implemented status-based sorting for both the overview and the full product list.
+- `admin.html`: Unified status values in modals (`editProduct`, `showProductModal`) and matched colors in `renderProducts`.
 
 ### Chinese Summary
-優化後台品牌狀態色彩：將「缺貨中」標籤改為灰色，並確保「供應中」商品一律顯示品牌綠。同時更新前台排序邏輯，將「可訂購」的品牌優先排在最前面，提升使用者的購物體驗。
+修正後台商品狀態色彩不一致的問題：統一將上架狀態值定為 `available`，並確保無論是單筆編輯還是批量管理，「供應中」標籤皆能正確顯示為品牌綠。同時將「已停產」選項補齊至所有商品管理介面。
