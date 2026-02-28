@@ -111,9 +111,9 @@ window.addEventListener('load', () => {
             section.className = "container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28 mb-16";
 
             let productCardsHTML = '';
-
-            if (brandProducts.length === 0) {
-                productCardsHTML = `<p class="text-gray-400 text-center col-span-full py-8">目前暫無品項</p>`;
+            const isBrandOut = brand.status === 'out-of-stock';
+            if (isBrandOut || brandProducts.length === 0) {
+                productCardsHTML = `<p class="text-gray-400 text-center col-span-full py-8">尚無品項或是缺貨中</p>`;
             } else {
                 brandProducts.forEach(p => {
                     const isStatusOut = p.status === 'out-of-stock';

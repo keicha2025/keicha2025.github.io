@@ -116,6 +116,75 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
         }
     }
 
+    /* 一期一會載入層樣式 */
+    #matcha-preloader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+        transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
+        font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    #matcha-preloader.fade-out {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .bubble-dot {
+        width: 12px;
+        height: 12px;
+        background: #6ea44c;
+        border-radius: 50%;
+        animation: bubble-pulse 1.4s infinite ease-in-out both;
+    }
+
+    @keyframes bubble-pulse {
+
+        0%,
+        80%,
+        100% {
+            transform: scale(0.5);
+            opacity: 0.3;
+        }
+
+        40% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .loading-text {
+        color: #6ea44c;
+        letter-spacing: 0.25em;
+        margin-top: 2.5rem;
+        font-weight: 500;
+        text-align: center;
+        line-height: 1.8;
+        animation: text-soft-breath 2.5s infinite ease-in-out;
+    }
+
+    @keyframes text-soft-breath {
+
+        0%,
+        100% {
+            opacity: 0.6;
+            transform: translateY(0);
+        }
+
+        50% {
+            opacity: 1;
+            transform: translateY(-2px);
+        }
+    }
+
     /* Side Panel 樣式保留，Z-index 設高以覆蓋全站 Header */
     .side-panel {
         position: fixed;
@@ -316,6 +385,19 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                 </button>
             </div>
 
+        </div>
+    </div>
+
+    <!-- 一期一會載入層 -->
+    <div id="matcha-preloader">
+        <div class="flex space-x-4">
+            <div class="bubble-dot" style="animation-delay: 0s"></div>
+            <div class="bubble-dot" style="animation-delay: 0.2s"></div>
+            <div class="bubble-dot" style="animation-delay: 0.4s"></div>
+        </div>
+        <div class="loading-text text-base font-brand">
+            <span id="loader-main-text" class="text-xl font-bold">一期一會</span><br>
+            <span id="loader-sub-text" class="text-sm font-normal opacity-70">正在載入抹茶清單</span>
         </div>
     </div>
 
@@ -1332,18 +1414,32 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                 renderStatusOverview(brandList);
                 renderProductSections(brandList);
                 brandList.forEach(brand => {
-                    renderProductCards(brand.key, allProducts.filter(p => p.brand_id === brand.key && !p.hidden));
+                    renderProductCards(brand.key, allProducts.filter(p => p.brand_id === brand.key && !p.hidden), brand.status);
                 });
 
                 updateShippingFee();
-                loader.style.display = 'none';
+                hidePreloader();
+                if (loader) loader.style.display = 'none';
             })
             .catch(err => {
                 console.error(err);
                 const container = document.getElementById('status-grid-container');
                 if (container) container.innerHTML = `<p class="text-center text-slate-500 w-full col-span-2">資料載入失敗</p>`;
-                loader.style.display = 'none';
+                hidePreloader();
+                if (loader) loader.style.display = 'none';
             });
+
+        function hidePreloader() {
+            const preloader = document.getElementById('matcha-preloader');
+            if (preloader) {
+                setTimeout(() => {
+                    preloader.classList.add('fade-out');
+                    setTimeout(() => {
+                        preloader.style.display = 'none';
+                    }, 800);
+                }, 600);
+            }
+        }
     });
 
     // (Render functions)
@@ -1382,10 +1478,14 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                 </section>`;
         });
     }
-    function renderProductCards(brandKey, products) {
+    function renderProductCards(brandKey, products, brandStatus) {
         const grid = document.getElementById(`${brandKey}-grid`);
         if (!grid) return;
-        if (products.length === 0) { grid.innerHTML = `<p class="text-gray-400 text-center col-span-full py-8">尚無品項或是缺貨中</p>`; return; }
+        const brandIsOut = brandStatus === 'out-of-stock';
+        if (brandIsOut || products.length === 0) {
+            grid.innerHTML = `<p class="text-gray-400 text-center col-span-full py-8">尚無品項或是缺貨中</p>`;
+            return;
+        }
         products.forEach(product => {
             const productId = product.key;
             const name = product.name || '未命名';

@@ -1456,3 +1456,42 @@ Refined the user experience of the `denwa-pay.html` page by simplifying the inte
 
 ### Chinese Summary
 精煉「電話代撥支付頁面」互動體驗：移除獨立支付按鈕，改為點選整塊區域直接跳轉；簡化 Hover 視覺效果，僅保留品牌色邊框高亮，並加入點擊縮放回饋。
+
+## [2026-02-28] - Admin Product Export Optimization
+
+### Summary of changes
+Optimized the "Export All Products" functionality in the admin panel to group products by brand and sort them accordingly to improve report organization.
+
+### Technical details of implementation
+- **Brand Sorting Logic**: Modified the `exportAllProductsToExcel` function to pre-sort fetched products by brand name using `zh-Hant` locale comparison, ensuring products from the same brand are grouped together.
+- **Secondary Sorting Logic**: Added a secondary sort by `display_order` (and name if needed) within each brand group to maintain the user-defined product sequence.
+- **Data Enrichment**: Integrated the `brandMap` during the export process to correctly associate brand IDs with their respective human-readable names for the final spreadsheet output.
+
+### Affected files or modules
+- `admin.html`: Updated `exportAllProductsToExcel` JavaScript logic.
+
+### Chinese Summary
+優化「匯出全品牌商品資料」：現在匯出 Excel 時，系統會自動將同品牌的商品排列在一起，並依照品牌名稱與顯示順序進行排序，大幅提升後台管理與帳務對帳的效率。
+
+## [2026-02-28] - Matcha Store Status Sync and UI Enhancements
+
+### Summary of changes
+Synchronized brand out-of-stock status across all matcha store pages and enhanced the user experience with a unified loading animation and admin UI improvements.
+
+### Technical details of implementation
+- **Brand Status Sync**: 
+  - Updated `assets/js/maccha-loader.js` and `maccha-store.html` to monitor `matcha_brands` collection for `status === 'out-of-stock'`.
+  - Implemented logic to display "缺貨中" in brand overviews and "尚無品項或是缺貨中" in product sections when a brand is out of stock.
+- **Loading Mask Integration**:
+  - Ported the "一期一會" (Ichigo Ichie) full-screen loading mask from `maccha.html` to `maccha-store.html`.
+  - Coordinated the mask disappearance with the completion of Firestore data fetching.
+- **Admin UI Polish**:
+  - Updated `admin.html` to display the "Active" (啟用中) status for matcha brands using the primary Brand Green (`#6ea44c`) instead of neutral gray, improving visual clarity for operational status.
+
+### Affected files or modules
+- `assets/js/maccha-loader.js`: Updated rendering logic for brand/product status.
+- `maccha-store.html`: Integrated loading mask and updated dynamic content logic.
+- `admin.html`: Refined status badge styles and logic for brand management.
+
+### Chinese Summary
+同步抹茶品牌「缺貨中」狀態至前台各頁面，並在「抹茶商店」導入統一的「一期一會」載入遮罩；同時優化管理後台，將啟用中的品牌狀態標籤改為品牌綠色，提升管理辨識度。

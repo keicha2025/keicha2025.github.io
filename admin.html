@@ -465,6 +465,11 @@ title: KEICHA 管理後台
         color: #6b7280;
     }
 
+    .status-badge.active-green {
+        background: #6ea44c;
+        color: white;
+    }
+
     .status-badge.cancelled {
         background: #f3f4f6;
         color: #9ca3af;
@@ -2120,7 +2125,7 @@ title: KEICHA 管理後台
                 // 支援多種啟用狀態字串 (active, available, ON)
                 const isActive = (brand.status === 'active' || brand.status === 'available' || brand.status === 'ON');
                 const statusText = isActive ? '啟用中' : '已停用';
-                const statusClass = isActive ? 'confirmed' : 'pending';
+                const statusClass = isActive ? 'active-green' : 'pending';
 
                 html += `
                     <div class="brand-card" onclick="selectBrand('${brand.id}', '${brand.name}')" style="
@@ -2298,7 +2303,8 @@ title: KEICHA 管理後台
                 let statusText = '供應中';
                 let statusClass = 'confirmed';
 
-                if (item.status === 'out-of-stock') { statusText = '缺貨中'; statusClass = 'pending'; }
+                if (item.status === 'available') { statusText = '供應中'; statusClass = 'active-green'; }
+                else if (item.status === 'out-of-stock') { statusText = '缺貨中'; statusClass = 'pending'; }
                 else if (item.status === 'discontinued') { statusText = '已停收'; statusClass = 'cancelled'; }
 
                 const hiddenIcon = item.hidden ? 'visibility_off' : 'visibility';
@@ -2600,6 +2606,19 @@ title: KEICHA 管理後台
 
             // 抓取所有商品
             const productSnap = await db.collection('matcha_products').get();
+            const products = productSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+            // 實施排序：先根據品牌名稱排序 (繁體中文)，品牌內再根據顯示順序排序
+            products.sort((a, b) => {
+                const brandA = brandMap[a.brand_id] || '未定';
+                const brandB = brandMap[b.brand_id] || '未定';
+
+                if (brandA !== brandB) {
+                    return brandA.localeCompare(brandB, 'zh-Hant');
+                }
+
+                return (a.display_order || 0) - (b.display_order || 0);
+            });
 
             const workbook = new ExcelJS.Workbook();
             const sheet = workbook.addWorksheet('AllProducts');
@@ -2622,12 +2641,11 @@ title: KEICHA 管理後台
             ];
 
             // 填充資料
-            productSnap.forEach(doc => {
-                const item = doc.data();
+            products.forEach(item => {
                 sheet.addRow({
                     brand_id: item.brand_id,
                     brand_name: brandMap[item.brand_id] || '未定',
-                    id: doc.id,
+                    id: item.id,
                     name: item.name,
                     spec: item.spec || '',
                     price: item.price || 0,
