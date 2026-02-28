@@ -1473,25 +1473,27 @@ Optimized the "Export All Products" functionality in the admin panel to group pr
 ### Chinese Summary
 優化「匯出全品牌商品資料」：現在匯出 Excel 時，系統會自動將同品牌的商品排列在一起，並依照品牌名稱與顯示順序進行排序，大幅提升後台管理與帳務對帳的效率。
 
-## [2026-02-28] - Matcha Store Status Sync and UI Enhancements
+## [2026-02-28] - Enhanced Brand Status Management and UI Synchronization
 
 ### Summary of changes
-Synchronized brand out-of-stock status across all matcha store pages and enhanced the user experience with a unified loading animation and admin UI improvements.
+Introduced a tiered brand status system (Active, Out of Stock, Inactive) to provide granular control over product visibility and availability, and synchronized these states across the admin panel and all store pages.
 
 ### Technical details of implementation
-- **Brand Status Sync**: 
-  - Updated `assets/js/maccha-loader.js` and `maccha-store.html` to monitor `matcha_brands` collection for `status === 'out-of-stock'`.
-  - Implemented logic to display "缺貨中" in brand overviews and "尚無品項或是缺貨中" in product sections when a brand is out of stock.
-- **Loading Mask Integration**:
-  - Ported the "一期一會" (Ichigo Ichie) full-screen loading mask from `maccha.html` to `maccha-store.html`.
-  - Coordinated the mask disappearance with the completion of Firestore data fetching.
-- **Admin UI Polish**:
-  - Updated `admin.html` to display the "Active" (啟用中) status for matcha brands using the primary Brand Green (`#6ea44c`) instead of neutral gray, improving visual clarity for operational status.
+- **Admin Panel Enhancements**:
+  - Added "Out of Stock" (缺貨中) as a selectable status in the Brand Management modal in `admin.html`.
+  - Updated brand cards to visually distinguish between "Active" (Green), "Out of Stock" (Amber/Yellow), and "Inactive" (Gray).
+- **Visibility Logic (Frontend)**:
+  - Modified `maccha-store.html` and `assets/js/maccha-loader.js` to completely hide brands with `status: 'inactive'`.
+  - Implemented "Out of Stock" logic where the brand remains visible in the overview but the product section displays "尚無品項或是缺貨中" instead of individual product cards.
+- **Brand Consistency**:
+  - Applied the `brand-title-font` (Zen Maru Gothic) to the "一期一會" text in the loading preloader of `maccha-store.html` and confirmed its presence in `maccha.html`.
+  - Synchronized status text displayed on `maccha.html` with the database status field.
 
 ### Affected files or modules
-- `assets/js/maccha-loader.js`: Updated rendering logic for brand/product status.
-- `maccha-store.html`: Integrated loading mask and updated dynamic content logic.
-- `admin.html`: Refined status badge styles and logic for brand management.
+- `admin.html`: Updated status options, badge styling, and card rendering logic.
+- `maccha-store.html`: Synchronized rendering logic and updated preloader font.
+- `assets/js/maccha-loader.js`: Updated brand filtering and status mapping for the overview page.
+- `maccha.html`: Verified preloader font and status sync.
 
 ### Chinese Summary
-同步抹茶品牌「缺貨中」狀態至前台各頁面，並在「抹茶商店」導入統一的「一期一會」載入遮罩；同時優化管理後台，將啟用中的品牌狀態標籤改為品牌綠色，提升管理辨識度。
+優化品牌狀態管理系統：後台新增「缺貨中」狀態選項，並同步至前台頁面。現在「已停用」品牌會完全從前台隱藏，「缺貨中」品牌則保留區塊但顯示缺貨提示。此外，同步更新載入遮罩的「一期一會」字型，確保全站品牌視覺一致。

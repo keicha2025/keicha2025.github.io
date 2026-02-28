@@ -470,6 +470,11 @@ title: KEICHA 管理後台
         color: white;
     }
 
+    .status-badge.out-of-stock {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
     .status-badge.cancelled {
         background: #f3f4f6;
         color: #9ca3af;
@@ -2122,10 +2127,16 @@ title: KEICHA 管理後台
                     .get();
                 const productCount = productCountSnapshot.size;
 
-                // 支援多種啟用狀態字串 (active, available, ON)
-                const isActive = (brand.status === 'active' || brand.status === 'available' || brand.status === 'ON');
-                const statusText = isActive ? '啟用中' : '已停用';
-                const statusClass = isActive ? 'active-green' : 'pending';
+                // 支援多種狀態 (active, out-of-stock, inactive)
+                let statusText = '已停用';
+                let statusClass = 'pending';
+                if (brand.status === 'active' || brand.status === 'available' || brand.status === 'ON') {
+                    statusText = '啟用中';
+                    statusClass = 'active-green';
+                } else if (brand.status === 'out-of-stock') {
+                    statusText = '缺貨中';
+                    statusClass = 'out-of-stock';
+                }
 
                 html += `
                     <div class="brand-card" onclick="selectBrand('${brand.id}', '${brand.name}')" style="
@@ -3053,7 +3064,8 @@ title: KEICHA 管理後台
                 <label class="form-label">狀態</label>
                 <select id="brandStatus" class="admin-select">
                     <option value="active" ${brand.status === 'active' ? 'selected' : ''}>啟用中</option>
-                    <option value="inactive" ${brand.status === 'inactive' ? 'selected' : ''}>已停用</option>
+                    <option value="out-of-stock" ${brand.status === 'out-of-stock' ? 'selected' : ''}>缺貨中</option>
+                    <option value="inactive" ${brand.status === 'inactive' ? 'selected' : ''}>已停用 (完全隱藏)</option>
                 </select>
             </div>
             <div class="form-group">

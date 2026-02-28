@@ -75,9 +75,13 @@ window.addEventListener('load', () => {
         if (!statusGrid) return;
         statusGrid.innerHTML = '';
         brands.forEach(brand => {
-            const isAvailable = brand.status !== 'out-of-stock';
-            const statusText = isAvailable ? '可訂購' : '缺貨中';
-            const statusColor = isAvailable ? 'bg-brandGreen text-white' : 'bg-gray-200 text-gray-600';
+            if (brand.status === 'inactive') return; // 完全隱藏
+
+            const isActive = brand.status === 'active' || brand.status === 'available' || brand.status === 'open' || brand.status === 'ON';
+            const isOutOfStock = brand.status === 'out-of-stock';
+
+            const statusText = isActive ? '可訂購' : (isOutOfStock ? '缺貨中' : '已停用');
+            const statusColor = isActive ? 'bg-brandGreen text-white' : 'bg-gray-200 text-gray-600';
 
             statusGrid.innerHTML += `
                 <a href="#${brand.key}" class="block group transform hover:-translate-y-1 transition-all">
@@ -97,6 +101,7 @@ window.addEventListener('load', () => {
         productContainer.innerHTML = '';
 
         brands.forEach(brand => {
+            if (brand.status === 'inactive') return; // 若品牌狀態為 "inactive"，完全不渲染該區塊
             // 篩選邏輯：同品牌 + (非缺貨 OR 有 Tag)
             const brandProducts = allProducts.filter(p => {
                 const isStatusOut = p.status === 'out-of-stock';
@@ -113,7 +118,8 @@ window.addEventListener('load', () => {
             let productCardsHTML = '';
             const isBrandOut = brand.status === 'out-of-stock';
             if (isBrandOut || brandProducts.length === 0) {
-                productCardsHTML = `<p class="text-gray-400 text-center col-span-full py-8">尚無品項或是缺貨中</p>`;
+                // 若品牌狀態為 out-of-stock，即使有商品資料也一律隱藏，改顯示「缺貨中」訊息
+                productCardsHTML = `<p class="text-gray-400 text-center col-span-full py-8 font-medium">尚無品項或是缺貨中</p>`;
             } else {
                 brandProducts.forEach(p => {
                     const isStatusOut = p.status === 'out-of-stock';

@@ -396,7 +396,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
             <div class="bubble-dot" style="animation-delay: 0.4s"></div>
         </div>
         <div class="loading-text text-base font-brand">
-            <span id="loader-main-text" class="text-xl font-bold">一期一會</span><br>
+            <span id="loader-main-text" class="text-xl font-bold brand-title-font">一期一會</span><br>
             <span id="loader-sub-text" class="text-sm font-normal opacity-70">正在載入抹茶清單</span>
         </div>
     </div>
@@ -1414,6 +1414,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
                 renderStatusOverview(brandList);
                 renderProductSections(brandList);
                 brandList.forEach(brand => {
+                    if (brand.status === 'inactive') return; // 完全隱藏
                     renderProductCards(brand.key, allProducts.filter(p => p.brand_id === brand.key && !p.hidden), brand.status);
                 });
 
@@ -1450,11 +1451,17 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
         const sortedBrands = brands.sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
         sortedBrands.forEach(brand => {
             const rawStatus = (brand.status || '').toLowerCase().trim();
-            let statusText = brand.status || '未定';
+            if (rawStatus === 'inactive') return; // 完全隱藏
+
+            let statusText = '缺貨中';
             let statusClass = 'bg-gray-200 text-gray-600';
-            if (['active', 'available', 'open', '开团', '開團', '接收訂單中', '收單中', '可供訂購', '可訂購'].includes(rawStatus)) {
-                statusText = '可訂購'; statusClass = 'bg-brand text-white';
-            } else { statusText = '缺貨中'; }
+            const isActive = ['active', 'available', 'open', '开团', '開團', '接收訂單中', '收單中', '可供訂購', '可訂購'].includes(rawStatus);
+
+            if (isActive) {
+                statusText = '可訂購';
+                statusClass = 'bg-brand text-white';
+            }
+
             container.innerHTML += `
                 <a href="#brand-${brand.key}" class="block group transform hover:-translate-y-1 transition-transform duration-300">
                     <div class="bg-white rounded-[var(--r-md)] shadow-sm hover:shadow-md transition-shadow p-4 border border-gray-100 flex justify-between items-center">
@@ -1469,6 +1476,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
         if (!container) return;
         container.innerHTML = '';
         brands.forEach(brand => {
+            if (brand.status === 'inactive') return; // 完全隱藏
             container.innerHTML += `
                 <section id="brand-${brand.key}" class="scroll-mt-24">
                     <h2 class="text-xl font-bold mb-6 flex items-center gap-2 text-gray-800 border-b pb-4">
