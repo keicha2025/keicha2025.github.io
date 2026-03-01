@@ -266,69 +266,8 @@ title: KEICHA 管理後台
     }
 
     .selectable-row.selected {
-        background-color: #f0fdf4;
-        /* Light green background */
         box-shadow: inset 4px 0 0 0 #6ea44c;
         /* Left brand green border */
-    }
-
-    .batch-action-bar {
-        position: fixed;
-        bottom: -100px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #1e293b;
-        color: white;
-        padding: 12px 24px;
-        border-radius: 9999px;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-        transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        z-index: 1000;
-        pointer-events: none;
-    }
-
-    .batch-action-bar.active {
-        bottom: 30px;
-        pointer-events: auto;
-    }
-
-    .batch-count-badge {
-        background: #6ea44c;
-        color: white;
-        font-weight: 700;
-        font-size: 0.85rem;
-        padding: 2px 8px;
-        border-radius: 9999px;
-    }
-
-    .batch-action-btn {
-        background: transparent;
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: background 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .batch-action-btn:hover {
-        background: rgba(255, 255, 255, 0.1);
-    }
-
-    .batch-action-btn.danger {
-        color: #fca5a5;
-        border-color: rgba(248, 113, 113, 0.3);
-    }
-
-    .batch-action-btn.danger:hover {
-        background: rgba(248, 113, 113, 0.1);
     }
 
     .batch-edit-table th {
@@ -546,7 +485,8 @@ title: KEICHA 管理後台
     /* 以下狀態皆統一為灰色系 */
     .status-badge.pending,
     .status-badge.confirmed,
-    .status-badge.cancelled {
+    .status-badge.cancelled,
+    .status-badge.hidden {
         background: #f1f5f9;
         /* 淺灰底 */
         color: #64748b;
@@ -554,21 +494,22 @@ title: KEICHA 管理後台
         border-color: #e2e8f0;
     }
 
-    /* 僅保留「已完成」為品牌綠色 */
+    /* 僅保留「已完成、啟用中、可訂購」為品牌綠色底+白色字 */
     .status-badge.completed,
-    .status-badge.active-green {
-        background: #e1f2d5;
-        /* 品牌淺綠底 */
-        color: #4b7134;
-        /* 品牌深綠字 */
-        border-color: #d1eca4;
+    .status-badge.active-green,
+    .status-badge.available {
+        background: #6ea44c;
+        /* 品牌綠 */
+        color: #ffffff;
+        /* 白色字 */
+        border-color: #5d8d41;
     }
 
     /* 若需要特殊強調缺貨 */
     .status-badge.out-of-stock {
-        background: #fee2e2;
-        color: #ef4444;
-        border-color: #fecaca;
+        background: #f1f5f9;
+        color: #64748b;
+        border-color: #e2e8f0;
     }
 
     /* Toggle 開關 */
@@ -963,7 +904,15 @@ title: KEICHA 管理後台
         <div id="tab-orders" class="tab-content active">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">訂單列表</h2>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">訂單列表</h2>
+                        <button id="batchEditIcon_orders" class="btn btn-outline batch-edit-icon"
+                            style="display: none; padding: 4px 12px; border-color: #6ea44c; color: #6ea44c;"
+                            onclick="openBatchEditModal()" title="批次編輯">
+                            <span class="material-symbols-rounded" style="font-size: 16px;">edit</span>
+                            <span style="font-size: 0.85rem; font-weight: bold;">批次操作</span>
+                        </button>
+                    </div>
                     <button class="btn btn-secondary" onclick="loadOrders()" title="刷新">
                         <span class="material-symbols-rounded" style="font-size: 18px;">refresh</span>
                     </button>
@@ -978,7 +927,15 @@ title: KEICHA 管理後台
         <div id="tab-denwa" class="tab-content">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">預約列表</h2>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">預約列表</h2>
+                        <button id="batchEditIcon_denwa" class="btn btn-outline batch-edit-icon"
+                            style="display: none; padding: 4px 12px; border-color: #6ea44c; color: #6ea44c;"
+                            onclick="openBatchEditModal()" title="批次編輯">
+                            <span class="material-symbols-rounded" style="font-size: 16px;">edit</span>
+                            <span style="font-size: 0.85rem; font-weight: bold;">批次操作</span>
+                        </button>
+                    </div>
                     <button class="btn btn-secondary" onclick="loadDenwaOrders()" title="刷新">
                         <span class="material-symbols-rounded" style="font-size: 18px;">refresh</span>
                     </button>
@@ -1161,7 +1118,15 @@ title: KEICHA 管理後台
             <div class="card" style="margin-top: 24px;">
                 <div class="card-header-flex"
                     style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">連結訂單管理</h2>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">連結訂單管理</h2>
+                        <button id="batchEditIcon_links" class="btn btn-outline batch-edit-icon"
+                            style="display: none; padding: 4px 12px; border-color: #6ea44c; color: #6ea44c;"
+                            onclick="openBatchEditModal()" title="批次編輯">
+                            <span class="material-symbols-rounded" style="font-size: 16px;">edit</span>
+                            <span style="font-size: 0.85rem; font-weight: bold;">批次操作</span>
+                        </button>
+                    </div>
                     <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;"
                         onclick="loadCardOrders()" title="刷新">
                         <span class="material-symbols-rounded" style="font-size: 18px;">refresh</span>
@@ -1257,36 +1222,6 @@ title: KEICHA 管理後台
     </div>
 </div>
 
-<div id="batchActionBar" class="batch-action-bar">
-    <span id="batchCountBadge" class="batch-count-badge">0</span>
-    <span style="font-size: 0.9rem; margin-right: auto;">已選取</span>
-
-    <select id="batchStatusSelect" class="admin-select"
-        style="width: 140px; padding: 6px; font-size: 0.85rem; background-color: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2);">
-        <option value="" style="color: black;" disabled selected>選擇操作...</option>
-        <option value="待處理" style="color: black;">標記為 待處理</option>
-        <option value="已確認" style="color: black;">標記為 已確認</option>
-        <option value="已完成" style="color: black;">標記為 已完成</option>
-        <option value="已取消" style="color: black;">標記為 已取消</option>
-    </select>
-
-    <button class="batch-action-btn" onclick="applyBatchStatus()" title="套用狀態">
-        <span class="material-symbols-rounded" style="font-size: 18px;">check_circle</span>
-        套用
-    </button>
-
-    <div style="width: 1px; height: 20px; background: rgba(255,255,255,0.2); margin: 0 8px;"></div>
-
-    <button class="batch-action-btn danger" onclick="applyBatchDelete()" title="批次刪除">
-        <span class="material-symbols-rounded" style="font-size: 18px;">delete</span>
-        刪除
-    </button>
-
-    <button class="batch-action-btn" onclick="exitBatchMode()" title="取消" style="margin-left: 8px;">
-        <span class="material-symbols-rounded" style="font-size: 18px;">close</span>
-    </button>
-</div>
-
 <div id="backup-status"
     style="margin-top: 24px; padding: 16px; background: #f9fafb; border-radius: 8px; font-family: monospace; font-size: 0.85rem; display: none;">
 </div>
@@ -1338,6 +1273,7 @@ title: KEICHA 管理後台
     let isBatchMode = false;
     let selectedItems = new Set();
     let currentBatchType = ''; // 'orders', 'denwa', 'links'
+    let lockSelectionTime = 0; // 防護鎖：避免長按後放開被判定為 click
 
     // 批次操作核心事件綁定
     function setupLongPress(container) {
@@ -1364,6 +1300,13 @@ title: KEICHA 管理後台
 
             // 點擊切換選取狀態
             row.addEventListener('click', (e) => {
+                // 如果目前處於「剛剛啟動長按」的保護期內，則忽略此次點擊
+                if (Date.now() - lockSelectionTime < 300) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
+
                 if (isBatchMode) {
                     e.preventDefault();
                     e.stopPropagation();
@@ -1378,23 +1321,26 @@ title: KEICHA 管理後台
         isBatchMode = true;
         currentBatchType = row.dataset.type;
         document.body.classList.add('multi-select-mode');
+        // 觸發多選當下，將時間鎖記錄下來，後續 300ms 內的 click 會被阻擋
+        lockSelectionTime = Date.now();
 
-        // 震動回饋 (如果裝置支援)
         if (navigator.vibrate) navigator.vibrate(50);
 
+        document.querySelectorAll('.batch-edit-icon').forEach(btn => btn.style.display = 'none');
+        const iconBtn = document.getElementById(`batchEditIcon_${currentBatchType}`);
+        if (iconBtn) iconBtn.style.display = 'inline-flex';
+
         toggleSelection(row);
-        document.getElementById('batchActionBar').classList.add('active');
     }
 
     function toggleSelection(row) {
-        // 確保只能選擇相同類型的資料
         if (row.dataset.type !== currentBatchType && selectedItems.size > 0) {
             KUI.toast('請選擇相同類型的訂單進行批次操作');
             return;
         }
 
         const id = row.dataset.id;
-        currentBatchType = row.dataset.type; // 在清空狀態下重新賦值
+        currentBatchType = row.dataset.type;
 
         if (selectedItems.has(id)) {
             selectedItems.delete(id);
@@ -1404,10 +1350,11 @@ title: KEICHA 管理後台
             row.classList.add('selected');
         }
 
-        // 更新數字 UI
-        document.getElementById('batchCount').textContent = selectedItems.size;
+        const iconBtn = document.getElementById(`batchEditIcon_${currentBatchType}`);
+        if (iconBtn) {
+            iconBtn.querySelector('span:last-child').textContent = `批次 (${selectedItems.size})`;
+        }
 
-        // 如果全部取消，自動退出模式
         if (selectedItems.size === 0) {
             exitBatchMode();
         }
@@ -1418,7 +1365,8 @@ title: KEICHA 管理後台
         selectedItems.clear();
         currentBatchType = '';
         document.body.classList.remove('multi-select-mode');
-        document.getElementById('batchActionBar').classList.remove('active');
+
+        document.querySelectorAll('.batch-edit-icon').forEach(btn => btn.style.display = 'none');
 
         // 移除所有視覺選取狀態
         document.querySelectorAll('.selectable-row.selected').forEach(row => {
@@ -1426,10 +1374,63 @@ title: KEICHA 管理後台
         });
     }
 
+    function openBatchEditModal() {
+        if (selectedItems.size === 0) return;
+
+        let previewHtml = '<div style="max-height: 200px; overflow-y: auto; margin-bottom: 20px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; background: #f9fafb;">';
+        previewHtml += '<ul style="margin: 0; padding-left: 20px; font-size: 0.85rem; color: #4b5563;">';
+
+        document.querySelectorAll('.selectable-row.selected').forEach(row => {
+            const tds = row.querySelectorAll('td');
+            let text = '';
+            if (currentBatchType === 'orders' && tds.length >= 3) {
+                text = `LINE: ${tds[1].textContent.trim()} | 金額: ${tds[2].textContent.trim()}`;
+            } else if (currentBatchType === 'denwa' && tds.length >= 3) {
+                text = `LINE: ${tds[1].textContent.trim()} | 商家: ${tds[2].textContent.trim()}`;
+            } else if (currentBatchType === 'links' && tds.length >= 1) {
+                text = `單號: ${tds[0].textContent.trim()}`;
+            } else {
+                text = `項目 ID: ${row.dataset.id}`;
+            }
+            previewHtml += `<li style="margin-bottom: 4px;">${text}</li>`;
+        });
+
+        previewHtml += '</ul></div>';
+
+        const bodyHtml = `
+            <div style="margin-bottom: 16px;">
+                <p style="margin-top: 0; font-weight: bold; color: #1e293b;">已選擇 ${selectedItems.size} 筆：</p>
+                ${previewHtml}
+            </div>
+            
+            <div style="margin-bottom: 16px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 8px;">更改選取項目的狀態為：</label>
+                <select id="modalBatchStatus" class="admin-select" style="width: 100%; padding: 8px; margin-bottom: 8px;">
+                    <option value="" disabled selected>請選擇新狀態...</option>
+                    <option value="待處理">待處理</option>
+                    <option value="已確認">已確認</option>
+                    <option value="已完成">已完成</option>
+                    <option value="已取消">已取消</option>
+                </select>
+            </div>
+        `;
+
+        const footerHtml = `
+            <div style="display: flex; gap: 12px; width: 100%;">
+                <button class="btn btn-secondary" style="flex: 1; border-color: #ef4444; color: #ef4444;" onclick="applyBatchDelete()">
+                    <span class="material-symbols-rounded" style="font-size: 16px; margin-right: 4px;">delete</span>批次刪除
+                </button>
+                <button class="btn btn-primary" style="flex: 2;" onclick="applyBatchStatus()">套用狀態</button>
+            </div>
+        `;
+
+        openModal('批次編輯', bodyHtml, footerHtml);
+    }
+
     async function applyBatchStatus() {
         if (selectedItems.size === 0) return;
-        const statusSelect = document.getElementById('batchStatusSelect');
-        const newStatus = statusSelect.value;
+        const statusSelect = document.getElementById('modalBatchStatus');
+        const newStatus = statusSelect ? statusSelect.value : null;
         if (!newStatus) {
             KUI.toast('請選擇一個狀態');
             return;

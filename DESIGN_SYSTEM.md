@@ -77,3 +77,61 @@ Follow these specific dimensions for core UI components.
 | Data Table | `0px` | 12px 15px (Cell) | 1px (Bottom) |
 | Order Card | `var(--r-md)` | 24px | 1px |
 | Modal Content | `var(--r-lg)` | 32px | 0px |
+
+## 6. Status and Badge Terminology (狀態與標籤用語)
+
+This section defines the standardized terminology and visual styles for all status badges (`.status-badge`) across the User Frontend and Admin Backend interfaces.
+
+### Core Philosophy
+- **Green (Active/Completed):** Brand Green background with White text (`background: #6ea44c; color: white;`). This signifies a positive, final, or actively running state.
+- **Grey (Pending/Inactive):** Light Grey background with Dark Grey text (`background: #f1f5f9; color: #64748b;`). This signifies a waiting, cancelled, hidden, or out-of-stock state.
+
+### 6.1 Unified Terminology Mapping
+
+| Context | Status Definition (Traditional Chinese) | Assigned Color Scheme |
+| :--- | :--- | :--- |
+| **All Orders (訂單狀態)** | `待處理`, `已確認`, `已取消` | Grey |
+| **All Orders (訂單狀態)** | `已完成` | Green |
+| **Admin Products (管理介面商品狀態)** | `已隱藏`, `缺貨中` | Grey |
+| **Admin Products (管理介面商品狀態)** | `啟用中` | Green |
+| **User Products (使用者介面商品狀態)** | `缺貨中` | Grey |
+| **User Products (使用者介面商品狀態)** | `可訂購` | Green |
+
+### 6.2 CSS Implementation Guide
+
+When implementing these statuses in HTML, apply the base `.status-badge` class along with the appropriate semantic color class.
+
+```css
+/* Base styling for all badges */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 9999px; /* var(--r-full) */
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+
+/* Grey Theme: Pending, Confirmed, Cancelled, Hidden, Out-of-Stock */
+.status-badge.pending,
+.status-badge.confirmed,
+.status-badge.cancelled,
+.status-badge.out-of-stock,
+.status-badge.hidden {
+    background: #f1f5f9;
+    color: #64748b;
+    border-color: #e2e8f0;
+}
+
+/* Green Theme: Completed, Active, Available */
+.status-badge.completed,
+.status-badge.active-green,
+.status-badge.available {
+    background: #6ea44c; /* Brand Green */
+    color: #ffffff; /* White */
+    border-color: #5d8d41; /* Brand Dark Green for subtle border */
+}
+```
