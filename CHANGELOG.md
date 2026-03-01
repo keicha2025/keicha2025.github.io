@@ -1815,3 +1815,19 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 
 **中文說明：**
 修正了隱私權條款內容（`privacy.tsv`），移除了不相關的第三方公版舉例（如餐廳、飯店等），並明確加入實際使用的物流平台（7-11 賣貨便、全家好賣+）與符合國際資安標準的雲端會員結帳系統（Firebase）說明，以符合實際業務現況並提升客戶信任。
+
+---
+
+### [1.2.14] - 2026-03-02
+
+#### **Summary of changes**
+- Fixed an issue in `denwa-pay.html` where payment plans failed to load because it was strictly matching the legacy `'ON'` status instead of the newly standardized `'available'` status.
+
+#### **Technical details of implementation**
+- **Plan Loading Criteria Update**: Expanded the array filter condition in `denwa-pay.html` to accept `p.status === 'ON' || p.status === 'available'`. This aligns with the previous updates made to `denwa-form.html` to ensure compatibility with how plan statuses are currently managed in the admin backend.
+
+#### **Affected files or modules**
+- `denwa-pay.html`
+
+**中文說明：**
+修復了 `denwa-pay.html` 中無法正常顯示電話代撥支付方案的問題。主因與先前預約表單相同，原系統只判斷舊有的 `ON` 狀態，現在已將條件加上支援後台設定的 `available` 狀態。

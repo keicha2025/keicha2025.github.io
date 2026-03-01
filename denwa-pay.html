@@ -172,7 +172,7 @@ description: 點擊您所需的方案進行支付，完成後我們將立即處�
             .then(snapshot => {
                 const plans = snapshot.docs
                     .map(doc => ({ id: doc.id, ...doc.data() }))
-                    .filter(p => p.status === 'ON');
+                    .filter(p => p.status === 'ON' || p.status === 'available');
 
                 if (plans.length === 0) {
                     plansList.innerHTML = '<p class="text-center text-gray-400 py-8 text-sm">目前尚無開放支付方案，請聯繫客服。</p>';
