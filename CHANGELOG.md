@@ -1613,3 +1613,18 @@ Implemented official PCHome Pay payment integration in the Google Apps Script ba
 
 ### Chinese Summary
 修復測試模組自動帶入時網址多了 `/keicha/` 導致開啟錯誤頁面的問題，並依需求移除了不必要的兩顆「刷卡測試」按鈕。同時修正了 `fast.html` 中物流選項（如 7-11、全家）因比對邏輯錯誤而重複顯示的 Bug。
+
+## [2026-03-01T10:45:00Z]
+### Summary of changes
+- **Admin UI Multi-select**: Implemented a long-press multi-select feature across all order lists (`orders`, `denwa_orders`, `card_orders`) in `admin.html`. 
+- **Batch Actions Integration**: Added a floating batch action bar that supports bulk status updates and bulk deletion.
+- **Delete Icon Standardization**: Unified all delete action icons across the admin panel to a consistent grey color (`#64748b`) with neutral button styling.
+- **Status Terminology Unification**: Standardized order statuses to four core states: '待處理', '已確認', '已完成' (in Brand Green), and '已取消'.
+- **Order Tracking Sorting**: Updated `jyoukyou.html` to sort order tracking results by creation date in descending order (newest first).
+
+### Affected files or modules
+- `admin.html`: Added multi-select logic, batch action UI, unified status badges, and standardized delete icons.
+- `jyoukyou.html`: Injected `createdAt` timestamp sorting into the unified search results array.
+
+### Chinese Summary
+這版主要的更新在「提升後台管理效率」與「視覺定義」。在訂單、預約、與刷卡連結列表中，新增了長按卡片即進入「多選模式」的功能，並加入底部懸浮工具列以支援「批次刪除」與「批次更改狀態」；同時統一了全站刪除按鈕的樣式與訂單狀態用語（待處理、已確認、已完成、已取消）。最後，前台「訂單追蹤」系統現在會聰明地按照建立時間「由新到舊」自動排序了。

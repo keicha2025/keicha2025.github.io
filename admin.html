@@ -254,6 +254,84 @@ title: KEICHA 管理後台
         white-space: nowrap;
     }
 
+    /* 多選與批次操作 UI 樣式 */
+    .selectable-row {
+        transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+    }
+
+    .selectable-row:active {
+        transform: scale(0.98);
+        background-color: #f1f5f9;
+    }
+
+    .selectable-row.selected {
+        background-color: #e0f2fe;
+        /* Light blue background for selected rows */
+        box-shadow: inset 4px 0 0 0 #0ea5e9;
+        /* Left blue border indicator */
+    }
+
+    .batch-action-bar {
+        position: fixed;
+        bottom: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1e293b;
+        /* Dark slate background */
+        color: white;
+        padding: 12px 24px;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        z-index: 1000;
+        pointer-events: none;
+    }
+
+    .batch-action-bar.active {
+        bottom: 30px;
+        pointer-events: auto;
+    }
+
+    .batch-count-badge {
+        background: #3b82f6;
+        color: white;
+        font-weight: 700;
+        font-size: 0.85rem;
+        padding: 2px 8px;
+        border-radius: 9999px;
+    }
+
+    .batch-action-btn {
+        background: transparent;
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .batch-action-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .batch-action-btn.danger {
+        color: #fca5a5;
+        border-color: rgba(248, 113, 113, 0.3);
+    }
+
+    .batch-action-btn.danger:hover {
+        background: rgba(248, 113, 113, 0.1);
+    }
+
     .batch-edit-table th {
         background: #f9fafb;
         font-weight: 600;
@@ -442,347 +520,355 @@ title: KEICHA 管理後台
         display: inline-block;
         padding: 4px 12px;
         border-radius: var(--r-full);
-        font-size: 0.85rem;
-        font-weight: 600;
-        white-space: nowrap;
-    }
 
-    .pagination-btn {
-        padding: 8px 16px;
-        border-radius: var(--r-full);
-        font-size: 0.85rem;
-        font-weight: 600;
-        white-space: nowrap;
-    }
-
-    .status-badge.pending {
-        background: #f3f4f6;
-        color: #6b7280;
-    }
-
-    .status-badge.confirmed {
-        background: #f3f4f6;
-        color: #6b7280;
-    }
-
-    .status-badge.active-green {
-        background: #6ea44c;
-        color: white;
-    }
-
-    .status-badge.out-of-stock {
-        background: #f3f4f6;
-        color: #6b7280;
-    }
-
-    .status-badge.cancelled {
-        background: #f3f4f6;
-        color: #9ca3af;
-    }
-
-    .status-badge.completed {
-        background: rgba(110, 164, 76, 0.15);
-        color: #6ea44c;
-    }
-
-    /* Toggle 開關 */
-    .toggle-wrapper {
-        position: relative;
-        flex-shrink: 0;
-        width: 52px;
-        height: 28px;
-    }
-
-    .toggle-checkbox {
-        position: absolute;
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-
-    .toggle-label {
-        display: block;
-        width: 100%;
-        height: 100%;
-        background-color: #e5e7eb;
-        border-radius: 9999px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    .toggle-circle {
-        width: 24px;
-        height: 24px;
-        background-color: white;
-        border-radius: 50%;
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        transition: transform 0.3s ease;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .toggle-checkbox:checked+.toggle-label {
-        background-color: #6ea44c;
-    }
-
-    .toggle-checkbox:checked+.toggle-label .toggle-circle {
-        transform: translateX(24px);
-    }
-
-    /* 自定義上傳按鈕 */
-    .btn-custom-upload {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        width: 100%;
-        padding: 20px;
-        background: #f8fafc;
-        border: 2px dashed #cbd5e1;
-        border-radius: 12px;
-        color: #64748b;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-        margin-bottom: 12px;
-    }
-
-    .btn-custom-upload:hover {
-        background: #f1f5f9;
-        border-color: #6ea44c;
-        color: #6ea44c;
-    }
-
-    .btn-custom-upload .material-symbols-rounded {
-        font-size: 24px;
-    }
-
-    /* 載入動畫 */
-    .loader {
-        border: 3px solid #f3f4f6;
-        border-top: 3px solid #6ea44c;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        margin: 40px auto;
-    }
-
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-
-    /* Modal */
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-    }
-
-    .modal.active {
-        display: flex;
-    }
-
-    .modal-content {
-        background: white;
-        border-radius: var(--r-lg);
-        max-width: 600px;
-        width: 100%;
-        max-height: 90vh;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-    }
-
-    .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px 24px;
-        border-bottom: 1px solid #e5e7eb;
-        flex-shrink: 0;
-    }
-
-    .modal-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #1f2937;
-    }
-
-    .modal-close {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: #6b7280;
-        padding: 0;
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-    }
-
-    .modal-close:hover {
-        background: #f3f4f6;
-    }
-
-    .modal-body {
-        padding: 24px;
-        overflow-y: auto;
-        flex: 1;
-        max-height: calc(90vh - 140px);
-    }
-
-    .modal-footer {
-        display: flex;
-        gap: 12px;
-        padding: 16px 24px;
-        border-top: 1px solid #e5e7eb;
-        flex-shrink: 0;
-        background: #fafafa;
-    }
-
-    .modal-footer .btn {
-        flex: 1;
-    }
-
-    /* 空狀態 */
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: #9ca3af;
-    }
-
-    .empty-state .material-symbols-rounded {
-        font-size: 64px;
-        margin-bottom: 16px;
-        opacity: 0.5;
-    }
-
-    /* 頂部操作列 */
-    .top-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        flex-wrap: nowrap;
-        gap: 12px;
-    }
-
-    .user-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .user-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        border: 2px solid #6ea44c;
-    }
-
-    /* 響應式 */
-    @media (max-width: 768px) {
-        .admin-container {
-            padding: 12px;
-        }
-
-        .card {
-            padding: 16px;
-        }
-
-        .tabs {
-            gap: 4px;
-        }
-
-        .tab {
-            padding: 10px 14px;
-            font-size: 0.9rem;
-        }
-
-        /* 手機版隱藏按鈕文字，僅顯示圖示 */
-        .tab-text,
-        .btn-text,
-        .logout-text {
-            display: none;
-        }
-
-        .tab .material-symbols-rounded,
-        .btn .material-symbols-rounded {
-            margin: 0 !important;
-        }
-
-        .data-table th,
-        .data-table td {
-            padding: 8px;
+        .pagination-btn {
+            padding: 8px 16px;
+            border-radius: var(--r-full);
             font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
         }
 
-        .modal-content {
-            max-width: 95%;
-            margin: 10px;
+        /* 共用狀態標籤基礎樣式 */
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+            border: 1px solid transparent;
+            /* 預設邊框 */
         }
 
-        /* 詳情網格在手機版改為單欄，防止變形 */
-        .modal-body [style*="display: grid"] {
-            grid-template-columns: 1fr !important;
-            gap: 12px !important;
+        /* 以下狀態皆統一為灰色系 */
+        .status-badge.pending,
+        .status-badge.confirmed,
+        .status-badge.cancelled {
+            background: #f1f5f9;
+            /* 淺灰底 */
+            color: #64748b;
+            /* 灰字 */
+            border-color: #e2e8f0;
         }
 
-        /* 頂部操作列針對手機優化 */
-        .top-bar h1 {
-            font-size: 1.1rem !important;
+        /* 僅保留「已完成」為品牌綠色 */
+        .status-badge.completed,
+        .status-badge.active-green {
+            background: #e1f2d5;
+            /* 品牌淺綠底 */
+            color: #4b7134;
+            /* 品牌深綠字 */
+            border-color: #d1eca4;
         }
 
-        /* 隱藏登出文字 */
-        .logout-text {
+        /* 若需要特殊強調缺貨 */
+        .status-badge.out-of-stock {
+            background: #fee2e2;
+            color: #ef4444;
+            border-color: #fecaca;
+        }
+
+        /* Toggle 開關 */
+        .toggle-wrapper {
+            position: relative;
+            flex-shrink: 0;
+            width: 52px;
+            height: 28px;
+        }
+
+        .toggle-checkbox {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-label {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .toggle-circle {
+            width: 24px;
+            height: 24px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .toggle-checkbox:checked+.toggle-label {
+            background-color: #6ea44c;
+        }
+
+        .toggle-checkbox:checked+.toggle-label .toggle-circle {
+            transform: translateX(24px);
+        }
+
+        /* 自定義上傳按鈕 */
+        .btn-custom-upload {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 20px;
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            color: #64748b;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+        }
+
+        .btn-custom-upload:hover {
+            background: #f1f5f9;
+            border-color: #6ea44c;
+            color: #6ea44c;
+        }
+
+        .btn-custom-upload .material-symbols-rounded {
+            font-size: 24px;
+        }
+
+        /* 載入動畫 */
+        .loader {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #6ea44c;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 40px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Modal */
+        .modal {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
-        /* 表格優化：手機版不再隱藏欄位，改用滑桿查看全部 */
-        .data-table table {
-            min-width: 800px !important;
-        }
-
-        .data-table td {
-            vertical-align: middle;
-            padding: 10px 8px !important;
-        }
-
-        /* 響應式卡片標題 - 維持單橫排 */
-        .card-header-flex {
-            flex-direction: row !important;
-            align-items: center !important;
-            gap: 8px;
+        .modal.active {
+            display: flex;
         }
 
         .modal-content {
-            max-width: 98% !important;
-            margin: 0 !important;
+            background: white;
+            border-radius: var(--r-lg);
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .modal-close:hover {
+            background: #f3f4f6;
         }
 
         .modal-body {
-            padding: 16px !important;
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+            max-height: calc(90vh - 140px);
         }
-    }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            padding: 16px 24px;
+            border-top: 1px solid #e5e7eb;
+            flex-shrink: 0;
+            background: #fafafa;
+        }
+
+        .modal-footer .btn {
+            flex: 1;
+        }
+
+        /* 空狀態 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-state .material-symbols-rounded {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* 頂部操作列 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: nowrap;
+            gap: 12px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #6ea44c;
+        }
+
+        /* 響應式 */
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 12px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .tabs {
+                gap: 4px;
+            }
+
+            .tab {
+                padding: 10px 14px;
+                font-size: 0.9rem;
+            }
+
+            /* 手機版隱藏按鈕文字，僅顯示圖示 */
+            .tab-text,
+            .btn-text,
+            .logout-text {
+                display: none;
+            }
+
+            .tab .material-symbols-rounded,
+            .btn .material-symbols-rounded {
+                margin: 0 !important;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 8px;
+                font-size: 0.85rem;
+            }
+
+            .modal-content {
+                max-width: 95%;
+                margin: 10px;
+            }
+
+            /* 詳情網格在手機版改為單欄，防止變形 */
+            .modal-body [style*="display: grid"] {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+            }
+
+            /* 頂部操作列針對手機優化 */
+            .top-bar h1 {
+                font-size: 1.1rem !important;
+            }
+
+            /* 隱藏登出文字 */
+            .logout-text {
+                display: none;
+            }
+
+            /* 表格優化：手機版不再隱藏欄位，改用滑桿查看全部 */
+            .data-table table {
+                min-width: 800px !important;
+            }
+
+            .data-table td {
+                vertical-align: middle;
+                padding: 10px 8px !important;
+            }
+
+            /* 響應式卡片標題 - 維持單橫排 */
+            .card-header-flex {
+                flex-direction: row !important;
+                align-items: center !important;
+                gap: 8px;
+            }
+
+            .modal-content {
+                max-width: 98% !important;
+                margin: 0 !important;
+            }
+
+            .modal-body {
+                padding: 16px !important;
+            }
+        }
 </style>
 
 <div class="admin-container">
@@ -1217,6 +1303,201 @@ title: KEICHA 管理後台
     const ALLOWED_ADMINS = ['wj209ing@gmail.com'];
     let currentUser = null;
     let isBatchEditing = false;
+
+    // 批次操作全局狀態
+    let isBatchMode = false;
+    let selectedItems = new Set();
+    let currentBatchType = ''; // 'orders', 'denwa', 'links'
+
+    // 批次操作核心事件綁定
+    function setupLongPress(container) {
+        const rows = container.querySelectorAll('.selectable-row');
+        let pressTimer;
+
+        rows.forEach(row => {
+            // 滑鼠事件
+            row.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return; // 僅限左鍵
+                if (isBatchMode) return; // 若已在多選模式，交給 click 處理
+                pressTimer = window.setTimeout(() => startBatchMode(row), 500);
+            });
+            row.addEventListener('mouseup', () => clearTimeout(pressTimer));
+            row.addEventListener('mouseleave', () => clearTimeout(pressTimer));
+
+            // 觸控事件
+            row.addEventListener('touchstart', (e) => {
+                if (isBatchMode) return;
+                pressTimer = window.setTimeout(() => startBatchMode(row), 500);
+            }, { passive: true });
+            row.addEventListener('touchend', () => clearTimeout(pressTimer));
+            row.addEventListener('touchmove', () => clearTimeout(pressTimer));
+
+            // 點擊切換選取狀態
+            row.addEventListener('click', (e) => {
+                if (isBatchMode) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleSelection(row);
+                }
+            });
+        });
+    }
+
+    function startBatchMode(row) {
+        if (isBatchMode) return;
+        isBatchMode = true;
+        currentBatchType = row.dataset.type;
+        document.body.classList.add('multi-select-mode');
+        
+        // 震動回饋 (如果裝置支援)
+        if (navigator.vibrate) navigator.vibrate(50);
+        
+        toggleSelection(row);
+        document.getElementById('batchActionBar').classList.add('active');
+    }
+
+    function toggleSelection(row) {
+        // 確保只能選擇相同類型的資料
+        if (row.dataset.type !== currentBatchType && selectedItems.size > 0) {
+            KUI.toast('請選擇相同類型的訂單進行批次操作');
+            return;
+        }
+
+        const id = row.dataset.id;
+        currentBatchType = row.dataset.type; // 在清空狀態下重新賦值
+
+        if (selectedItems.has(id)) {
+            selectedItems.delete(id);
+            row.classList.remove('selected');
+        } else {
+            selectedItems.add(id);
+            row.classList.add('selected');
+        }
+
+        // 更新數字 UI
+        document.getElementById('batchCount').textContent = selectedItems.size;
+
+        // 如果全部取消，自動退出模式
+        if (selectedItems.size === 0) {
+            exitBatchMode();
+        }
+    }
+
+    function exitBatchMode() {
+        isBatchMode = false;
+        selectedItems.clear();
+        currentBatchType = '';
+        document.body.classList.remove('multi-select-mode');
+        document.getElementById('batchActionBar').classList.remove('active');
+        
+        // 移除所有視覺選取狀態
+        document.querySelectorAll('.selectable-row.selected').forEach(row => {
+            row.classList.remove('selected');
+        });
+    }
+
+    async function applyBatchStatus() {
+        if (selectedItems.size === 0) return;
+        const statusSelect = document.getElementById('batchStatusSelect');
+        const newStatus = statusSelect.value;
+        if (!newStatus) {
+            KUI.toast('請選擇一個狀態');
+            return;
+        }
+
+        if (!(await KUI.confirm(`確定將選取的 ${selectedItems.size} 筆轉換為「${newStatus}」嗎？`))) return;
+
+        showLoading();
+        let collectionName = '';
+        if (currentBatchType === 'orders') collectionName = 'orders';
+        else if (currentBatchType === 'denwa') collectionName = 'denwa_orders';
+        else if (currentBatchType === 'links') collectionName = 'card_orders';
+
+        if (!collectionName) {
+            hideLoading();
+            return;
+        }
+
+        try {
+            const batch = db.batch();
+            let count = 0;
+            let statusField = currentBatchType === 'links' ? 'payment_status' : 'status';
+            let valueToSet = newStatus;
+            
+            // 特別處理 link order 的 payment_status ('paid' 或 'pending')
+            if (currentBatchType === 'links') {
+                valueToSet = newStatus === '已付款' || newStatus === '已完成' ? 'paid' : 'pending';
+            }
+
+            selectedItems.forEach(id => {
+                const ref = db.collection(collectionName).doc(id);
+                batch.update(ref, { [statusField]: valueToSet });
+                count++;
+            });
+
+            await batch.commit();
+            hideLoading();
+            KUI.toast(`已成功變更 ${count} 筆狀態`);
+            exitBatchMode();
+            
+            // 重新載入對應清單
+            if (currentBatchType === 'orders') loadOrders();
+            else if (currentBatchType === 'denwa') loadDenwaOrders();
+            else if (currentBatchType === 'links') loadCardOrders();
+
+        } catch (error) {
+            hideLoading();
+            KUI.alert('批次狀態更新失敗: ' + error.message);
+            console.error(error);
+        }
+    }
+
+    async function applyBatchDelete() {
+        if (selectedItems.size === 0) return;
+        
+        // 再次防護，要求輸入密碼
+        const pwd = prompt(`【危險操作】\n您即將刪除 ${selectedItems.size} 筆資料，此操作無法復原。\n請輸入密碼以確認：`);
+        if (pwd !== '5203') {
+            return;
+        }
+
+        showLoading();
+        let collectionName = '';
+        if (currentBatchType === 'orders') collectionName = 'orders';
+        else if (currentBatchType === 'denwa') collectionName = 'denwa_orders';
+        else if (currentBatchType === 'links') collectionName = 'card_orders';
+
+        if (!collectionName) {
+            hideLoading();
+            return;
+        }
+
+        try {
+            const batch = db.batch();
+            let count = 0;
+            selectedItems.forEach(id => {
+                const ref = db.collection(collectionName).doc(id);
+                batch.delete(ref);
+                count++;
+            });
+
+            await batch.commit();
+            hideLoading();
+            KUI.toast(`已成功刪除 ${count} 筆資料`);
+            exitBatchMode();
+            
+            // 重新載入對應清單
+            if (currentBatchType === 'orders') loadOrders();
+            else if (currentBatchType === 'denwa') loadDenwaOrders();
+            else if (currentBatchType === 'links') loadCardOrders();
+
+        } catch (error) {
+            hideLoading();
+            KUI.alert('批次刪除失敗: ' + error.message);
+            console.error(error);
+        }
+    }
+
     let currentBrandProducts = [];
     let priceSortDirection = 'asc'; // 'asc' or 'desc'
 
@@ -1404,12 +1685,15 @@ title: KEICHA 管理後台
                 const dateStr = date.toLocaleString('zh-TW', { hour12: false });
 
                 // 狀態樣式
+                // 狀態樣式 (待處理, 已確認, 已完成, 已取消)
                 let statusClass = 'pending';
-                if (order.status === '已完成' || order.status === '已出貨') statusClass = 'confirmed';
+                if (order.status === '待處理') statusClass = 'pending';
+                if (order.status === '已確認') statusClass = 'confirmed';
+                if (order.status === '已完成') statusClass = 'completed';
                 if (order.status === '已取消') statusClass = 'cancelled';
 
                 html += `
-                    <tr>
+                    <tr class="selectable-row" data-id="${order.id}" data-type="orders">
                         <td style="padding: 12px 15px; white-space: nowrap;"><span style="font-size: 0.9rem; font-weight: 700; color: #334155;">${(order.order_id && order.order_id !== 'N/A') ? order.order_id : order.id}</span></td>
                         <td style="padding: 12px 15px;"><div style="white-space: nowrap;">${order.line_name || '-'}</div></td>
                         <td style="padding: 12px 15px; white-space: nowrap; font-weight: 700; color: #111827;">$${order.total || 0}</td>
@@ -1417,10 +1701,10 @@ title: KEICHA 管理後台
                         <td style="padding: 12px 15px; white-space: nowrap; font-size: 0.85rem; color: #6b7280;">${dateStr.split(' ')[0]}</td>
                         <td style="padding: 12px 15px; white-space: nowrap;">
                             <div style="display: flex; gap: 6px; justify-content: flex-end;">
-                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" title="詳情" onclick='viewOrderDetails(${JSON.stringify(order).replace(/'/g, "&apos;")})'>
+                                <button class="btn btn-secondary action-btn" style="padding: 6px; width: 32px; height: 32px;" title="詳情" onclick='viewOrderDetails(${JSON.stringify(order).replace(/'/g, "&apos;")}); event.stopPropagation();'>
                                     <span class="material-symbols-rounded" style="font-size: 18px;">info</span>
                                 </button>
-                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" title="編輯" onclick='editOrder(${JSON.stringify(order).replace(/'/g, "&apos;")})'>
+                                <button class="btn btn-secondary action-btn" style="padding: 6px; width: 32px; height: 32px;" title="編輯" onclick='editOrder(${JSON.stringify(order).replace(/'/g, "&apos;")}); event.stopPropagation();'>
                                     <span class="material-symbols-rounded" style="font-size: 18px;">edit</span>
                                 </button>
                             </div>
@@ -1431,6 +1715,9 @@ title: KEICHA 管理後台
 
             html += '</tbody></table></div>';
             container.innerHTML = html;
+
+            // 初始化長按事件
+            setupLongPress(container);
         } catch (error) {
             console.error('Load orders error:', error);
             container.innerHTML = `
@@ -1448,10 +1735,8 @@ title: KEICHA 管理後台
             <div class="form-group">
                 <label class="form-label">訂單狀態</label>
                 <select id="orderStatus" class="admin-select">
-                    <option value="待確認" ${order.status === '待確認' ? 'selected' : ''}>待確認</option>
+                    <option value="待處理" ${order.status === '待處理' ? 'selected' : ''}>待處理</option>
                     <option value="已確認" ${order.status === '已確認' ? 'selected' : ''}>已確認</option>
-                    <option value="處理中" ${order.status === '處理中' ? 'selected' : ''}>處理中</option>
-                    <option value="已出貨" ${order.status === '已出貨' ? 'selected' : ''}>已出貨</option>
                     <option value="已完成" ${order.status === '已完成' ? 'selected' : ''}>已完成</option>
                     <option value="已取消" ${order.status === '已取消' ? 'selected' : ''}>已取消</option>
                 </select>
@@ -1462,13 +1747,13 @@ title: KEICHA 管理後台
             </div>
         `;
         const footerHtml = `
-            <button class="btn btn-secondary" onclick="deleteOrder('${order.id}')">刪除</button>
-            <button class="btn btn-primary" onclick="saveOrder('${order.id}')">儲存</button>
+            <button class="btn btn-secondary" onclick="deleteOrder('${order.id}')" style="color: #64748b;">刪除訂單</button>
+            <button class="btn btn-primary" onclick="saveOrderStatus('${order.id}')">儲存變更</button>
         `;
         openModal(`編輯訂單 ${(order.order_id && order.order_id !== 'N/A') ? order.order_id : order.id}`, bodyHtml, footerHtml);
     }
 
-    async function saveOrder(orderId) {
+    async function saveOrderStatus(orderId) {
         try {
             const newStatus = document.getElementById('orderStatus').value;
             const newReply = document.getElementById('sellerNote').value;
@@ -1624,7 +1909,11 @@ title: KEICHA 管理後台
 
             snapshot.forEach(doc => {
                 const order = { id: doc.id, ...doc.data() };
-                const statusClass = order.status === '已完成' ? 'completed' : (order.status === '已確認' ? 'confirmed' : 'pending');
+                let statusClass = 'pending';
+                if (order.status === '待處理') statusClass = 'pending';
+                if (order.status === '已確認') statusClass = 'confirmed';
+                if (order.status === '已完成') statusClass = 'completed';
+                if (order.status === '已取消') statusClass = 'cancelled';
 
                 // [新增] 格式化日期與時間，處理可能的 ISO 字串或 Date 物件
                 const formatDT = (val, isTime = false) => {
@@ -1643,7 +1932,7 @@ title: KEICHA 管理後台
                 const timeDisplay = formatDT(order.service_time, true);
 
                 html += `
-                    <tr>
+                    <tr class="selectable-row" data-id="${order.id}" data-type="denwa">
                         <td><span style="font-size: 0.75rem; color: #9ca3af;">${(order.order_id && order.order_id !== 'N/A') ? order.order_id : order.id}</span></td>
                         <td><div style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${order.line_name || order.line || order.line_id || '-'}</div></td>
                         <td>${order.merchant_name || '未填寫'}</td>
@@ -1654,13 +1943,13 @@ title: KEICHA 管理後台
                         <td style="width: 1px; white-space: nowrap;"><span class="status-badge ${statusClass}">${order.status || '待處理'}</span></td>
                         <td style="width: 1px; white-space: nowrap;">
                             <div style="display: flex; gap: 6px; justify-content: flex-end;">
-                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" title="詳情" onclick='viewDenwaDetails(${JSON.stringify(order).replace(/'/g, "&apos;")})'>
+                                <button class="btn btn-secondary action-btn" style="padding: 6px; width: 32px; height: 32px;" title="詳情" onclick='viewDenwaDetails(${JSON.stringify(order).replace(/'/g, "&apos;")}); event.stopPropagation();'>
                                     <span class="material-symbols-rounded" style="font-size: 18px;">info</span>
                                 </button>
-                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" title="編輯" onclick='editDenwa(${JSON.stringify(order).replace(/'/g, "&apos;")})'>
+                                <button class="btn btn-secondary action-btn" style="padding: 6px; width: 32px; height: 32px;" title="編輯" onclick='editDenwa(${JSON.stringify(order).replace(/'/g, "&apos;")}); event.stopPropagation();'>
                                     <span class="material-symbols-rounded" style="font-size: 18px;">edit</span>
                                 </button>
-                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px; color: #6ea44c;" title="結案" onclick='closeDenwaCase(${JSON.stringify(order).replace(/'/g, "&apos;")})'>
+                                <button class="btn btn-secondary action-btn" style="padding: 6px; width: 32px; height: 32px; color: #6ea44c;" title="結案" onclick='closeDenwaCase(${JSON.stringify(order).replace(/'/g, "&apos;")}); event.stopPropagation();'>
                                     <span class="material-symbols-rounded" style="font-size: 18px;">assignment_turned_in</span>
                                 </button>
                             </div>
@@ -1671,6 +1960,9 @@ title: KEICHA 管理後台
 
             html += '</tbody></table></div>';
             container.innerHTML = html;
+
+            // 初始化長按事件
+            setupLongPress(container);
         } catch (error) {
             console.error('Load denwa orders error:', error);
             container.innerHTML = `<p style="color: #64748b;">載入失敗：${error.message}</p>`;
@@ -1795,7 +2087,7 @@ title: KEICHA 管理後台
             <div class="form-group">
                 <label class="form-label">預約狀態</label>
                 <select id="denwaStatus" class="admin-select">
-                    <option value="待確認" ${order.status === '待確認' ? 'selected' : ''}>待確認</option>
+                    <option value="待處理" ${order.status === '待處理' ? 'selected' : ''}>待處理</option>
                     <option value="已確認" ${order.status === '已確認' ? 'selected' : ''}>已確認</option>
                     <option value="已完成" ${order.status === '已完成' ? 'selected' : ''}>已完成</option>
                     <option value="已取消" ${order.status === '已取消' ? 'selected' : ''}>已取消</option>
@@ -1807,13 +2099,13 @@ title: KEICHA 管理後台
             </div>
         `;
         const footerHtml = `
-            <button class="btn btn-secondary" onclick="deleteDenwa('${order.id}')">刪除</button>
-            <button class="btn btn-primary" onclick="saveDenwa('${order.id}')">儲存</button>
+            <button class="btn btn-secondary" onclick="closeModal()">關閉</button>
+            <button class="btn btn-primary" onclick="saveDenwaStatus('${order.id}')">儲存</button>
         `;
         openModal(`編輯預約 ${(order.order_id && order.order_id !== 'N/A') ? order.order_id : order.id}`, bodyHtml, footerHtml);
     }
 
-    async function saveDenwa(orderId) {
+    async function saveDenwaStatus(orderId) {
         try {
             const newStatus = document.getElementById('denwaStatus').value;
             const newReply = document.getElementById('publicReply').value;
@@ -2995,7 +3287,9 @@ title: KEICHA 管理後台
             </div>
         `;
         const footerHtml = `
-            <button class="btn btn-secondary" onclick="deleteProduct('${product.id}')">刪除</button>
+            <button class="btn btn-secondary" onclick="deleteProduct('${product.id}')" style="color: #64748b;">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: #64748b; margin-right: 4px; vertical-align: middle;">delete</span>刪除
+            </button>
             <button class="btn btn-primary" onclick="saveProduct('${product.id}')">儲存</button>
         `;
         openModal(`編輯商品：${product.name}`, bodyHtml, footerHtml);
@@ -3318,7 +3612,9 @@ title: KEICHA 管理後台
             </div>
         `;
         const footerHtml = `
-            <button class="btn btn-secondary" onclick="deletePlan('${plan.id}')">刪除</button>
+            <button class="btn btn-secondary" onclick="deletePlan('${plan.id}')" style="color: #64748b;">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: #64748b; margin-right: 4px; vertical-align: middle;">delete</span>刪除
+            </button>
             <button class="btn btn-primary" onclick="savePlan('${plan.id}')">儲存</button>
         `;
         openModal(`編輯方案：${plan.name}`, bodyHtml, footerHtml);
@@ -3547,7 +3843,9 @@ ${!rule.method.includes('宅配') ? `
 </div>
 `;
         const footerHtml = `
-<button class="btn btn-secondary" onclick="deleteShipping('${rule.id}')">刪除</button>
+<button class="btn btn-secondary" onclick="deleteShipping('${rule.id}')" style="color: #64748b;">
+    <span class="material-symbols-rounded" style="font-size: 18px; color: #64748b; margin-right: 4px; vertical-align: middle;">delete</span>刪除
+</button>
 <button class="btn btn-primary" onclick="saveShipping('${rule.id}')">儲存</button>
 `;
         openModal(`編輯運費：${rule.method}`, bodyHtml, footerHtml);
@@ -3700,10 +3998,10 @@ ${!rule.method.includes('宅配') ? `
                             <span class="material-symbols-rounded"
                                 style="font-size: 18px; vertical-align: middle;">edit</span>
                         </button>
-                        <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem; color: #ef4444;"
-                            onclick="deleteShippingMethod('${method.id}')">
+                        <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px; margin-left: 8px;"
+                            onclick="deleteShippingMethod('${method.id}')" title="刪除">
                             <span class="material-symbols-rounded"
-                                style="font-size: 18px; vertical-align: middle;">delete</span>
+                                style="font-size: 18px; vertical-align: middle; color: #64748b;">delete</span>
                         </button>
                     </div>
                 </td>
@@ -4366,8 +4664,8 @@ ${!rule.method.includes('宅配') ? `
                                 <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" onclick="showCardLinkModal('${doc.id}')" title="編輯">
                                     <span class="material-symbols-rounded" style="font-size: 18px;">edit</span>
                                 </button>
-                                <button class="btn btn-danger" style="padding: 6px; width: 32px; height: 32px;" onclick="deleteCardLink('${doc.id}')" title="刪除">
-                                    <span class="material-symbols-rounded" style="font-size: 18px;">delete</span>
+                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" onclick="deleteCardLink('${doc.id}')" title="刪除">
+                                    <span class="material-symbols-rounded" style="font-size: 18px; color: #64748b;">delete</span>
                                 </button>
                             </div>
                         </td>
@@ -4432,7 +4730,7 @@ ${!rule.method.includes('宅配') ? `
                 const logiAddr = data.address || data.store_id || data.shipping_address || data.store_name || '';
 
                 html += `
-                    <tr>
+                    <tr class="selectable-row" data-id="${doc.id}" data-type="links">
                         <td style="padding: 12px 15px;">
                             <div style="font-family:monospace; font-weight:700; color:#334155; font-size: 0.9rem;">${data.order_id}</div>
                             <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">連結 ID: ${data.link_id || '-'}</div>
@@ -4465,13 +4763,13 @@ ${!rule.method.includes('宅配') ? `
                         </td>
                         <td style="padding: 12px 15px;">
                             <div style="display: flex; gap: 6px; justify-content: flex-end;">
-                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" title="詳情" onclick='viewLinkOrderDetails(${JSON.stringify({ id: doc.id, ...data }).replace(/'/g, "&apos;")})'>
+                                <button class="btn btn-secondary action-btn" style="padding: 6px; width: 32px; height: 32px;" title="詳情" onclick='viewLinkOrderDetails(${JSON.stringify({ id: doc.id, ...data }).replace(/'/g, "&apos;")}); event.stopPropagation();'>
                                     <span class="material-symbols-rounded" style="font-size: 18px;">info</span>
                                 </button>
-                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" title="編輯" onclick='editLinkOrder(${JSON.stringify({ id: doc.id, ...data }).replace(/'/g, "&apos;")})'>
+                                <button class="btn btn-secondary action-btn" style="padding: 6px; width: 32px; height: 32px;" title="編輯" onclick='editLinkOrder(${JSON.stringify({ id: doc.id, ...data }).replace(/'/g, "&apos;")}); event.stopPropagation();'>
                                     <span class="material-symbols-rounded" style="font-size: 18px;">edit</span>
                                 </button>
-                                <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" title="刪除" onclick="deleteLinkOrder('${doc.id}')">
+                                <button class="btn btn-secondary action-btn" style="padding: 6px; width: 32px; height: 32px;" title="刪除" onclick="deleteLinkOrder('${doc.id}'); event.stopPropagation();">
                                     <span class="material-symbols-rounded" style="font-size: 18px; color: #64748b;">delete</span>
                                 </button>
                             </div>
@@ -4482,6 +4780,9 @@ ${!rule.method.includes('宅配') ? `
 
             html += '</tbody></table></div>';
             container.innerHTML = html;
+
+            // 初始化長按事件
+            setupLongPress(container);
         } catch (error) {
             console.error('Load card orders error:', error);
             container.innerHTML = `<p style="color: #64748b; padding: 20px;">載入失敗：${error.message}</p>`;

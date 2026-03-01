@@ -156,7 +156,8 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                                 amount: data.total || data.subtotal || 0,
                                 status: data.status || '待處理',
                                 sellerNote: data.seller_note || '',
-                                trackingCode: data.tracking_code || ''
+                                trackingCode: data.tracking_code || '',
+                                createdAt: data.created_at || data.submit_time || data.created_time || 0
                             });
                         }
                     }));
@@ -172,7 +173,8 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                                     amount: data.total || data.subtotal || 0,
                                     status: data.status || '待處理',
                                     sellerNote: data.seller_note || '',
-                                    trackingCode: data.tracking_code || ''
+                                    trackingCode: data.tracking_code || '',
+                                    createdAt: data.created_at || data.submit_time || data.created_time || 0
                                 });
                             }
                         });
@@ -192,7 +194,8 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                                 paymentLink: data.payment_link || '',
                                 paymentStatus: data.payment_status || 'pending',
                                 sellerNote: data.public_reply || data.seller_note || '',
-                                trackingCode: data.tracking_code || ''
+                                trackingCode: data.tracking_code || '',
+                                createdAt: data.created_at || data.submit_time || data.created_time || 0
                             });
                         });
                     }));
@@ -210,7 +213,8 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                                     paymentLink: data.payment_link || '',
                                     paymentStatus: data.payment_status || 'pending',
                                     sellerNote: data.public_reply || data.seller_note || '',
-                                    trackingCode: data.tracking_code || ''
+                                    trackingCode: data.tracking_code || '',
+                                    createdAt: data.created_at || data.submit_time || data.created_time || 0
                                 });
                             }
                         });
@@ -233,7 +237,8 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                                 paymentLink: data.payment_url || (data.link_id ? `card-order.html?id=${data.link_id}` : ''),
                                 paymentStatus: data.payment_status || 'pending',
                                 sellerNote: data.note || '',
-                                trackingCode: data.tracking_code || ''
+                                trackingCode: data.tracking_code || '',
+                                createdAt: data.created_at || data.submit_time || data.created_time || 0
                             });
                         });
                     }));
@@ -254,7 +259,8 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                                     paymentLink: data.payment_url || (data.link_id ? `card-order.html?id=${data.link_id}` : ''),
                                     paymentStatus: data.payment_status || 'pending',
                                     sellerNote: data.note || '',
-                                    trackingCode: data.tracking_code || ''
+                                    trackingCode: data.tracking_code || '',
+                                    createdAt: data.created_at || data.submit_time || data.created_time || 0
                                 });
                             }
                         });
@@ -264,7 +270,19 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                 await Promise.all(searchPromises);
 
                 if (results.length > 0) {
-                    // 按時間排序 (這部分較難直接排序多個集合结果，但可保持順序)
+                    // 按時間降冪排序 (由新到舊)
+                    results.sort((a, b) => {
+                        let timeA = 0;
+                        let timeB = 0;
+                        if (a.createdAt && a.createdAt.toDate) timeA = a.createdAt.toDate().getTime();
+                        else if (a.createdAt) timeA = new Date(a.createdAt).getTime();
+
+                        if (b.createdAt && b.createdAt.toDate) timeB = b.createdAt.toDate().getTime();
+                        else if (b.createdAt) timeB = new Date(b.createdAt).getTime();
+
+                        return timeB - timeA;
+                    });
+
                     renderResults(results);
                     resultSection.classList.remove('hidden');
                     resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
