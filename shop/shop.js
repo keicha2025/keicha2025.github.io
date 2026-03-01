@@ -466,9 +466,9 @@
         btn.disabled = true;
 
         if (db) {
-            db.collection('members').where('phone', '==', phone).get()
-                .then(snapshot => {
-                    const info = !snapshot.empty ? snapshot.docs[0].data() : null;
+            db.collection('members').doc(phone).get()
+                .then(docSnap => {
+                    const info = docSnap.exists ? docSnap.data() : null;
                     if (info && info.name) {
                         // 1. Masking the name (e.g., Wang Ming -> W○ng Ming or 王大明 -> 王○明)
                         const rawName = info.name;
@@ -609,7 +609,7 @@
             // Submit to Firestore
             db.collection('orders').add({
                 ...payload,
-                status: '待處理',
+                status: 'pending',
                 created_at: firebase.firestore.FieldValue.serverTimestamp(),
                 updated_at: firebase.firestore.FieldValue.serverTimestamp()
             })
@@ -625,13 +625,7 @@
                         else if (type.includes('宅配')) { memberData.shipping_address = store; }
 
                         try {
-                            const memberSnap = await db.collection('members').where('phone', '==', phone).limit(1).get();
-                            if (!memberSnap.empty) {
-                                await db.collection('members').doc(memberSnap.docs[0].id).update(memberData);
-                            } else {
-                                memberData.created_at = firebase.firestore.FieldValue.serverTimestamp();
-                                await db.collection('members').add(memberData);
-                            }
+                            await db.collection('members').doc(phone).set(memberData, { merge: true });
                         } catch (e) {
                             console.error("[SHOP] Member save failed:", e);
                         }

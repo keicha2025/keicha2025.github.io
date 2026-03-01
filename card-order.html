@@ -417,7 +417,7 @@ title: KEICHA 信用卡結帳
             linkConfig = linkSnap.docs[0].data();
             globalMethods = methodsSnap.docs.map(doc => doc.data());
 
-            if (linkConfig.status !== '開啟') {
+            if (!['開啟', 'available'].includes(linkConfig.status)) {
                 showError();
                 return;
             }

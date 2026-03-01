@@ -327,6 +327,7 @@ title: KEICHA 網路商店
 
 <script src="js/api.js"></script>
 <script src="js/checkout_core.js"></script>
+<script src="js/member_sync.js"></script>
 
 <script>
     let currentMethod = null;
@@ -407,9 +408,9 @@ title: KEICHA 網路商店
         setBtnLoading(btn, true, '查詢中...');
 
         try {
-            const snapshot = await db.collection('members').where('phone', '==', phone).limit(1).get();
-            if (!snapshot.empty) {
-                fillFormWithData(snapshot.docs[0].data());
+            const docSnap = await db.collection('members').doc(phone).get();
+            if (docSnap.exists) {
+                fillFormWithData(docSnap.data());
             }
             document.getElementById('input-items').focus();
         } catch (e) {
@@ -644,7 +645,7 @@ title: KEICHA 網路商店
             items_text: items,
             items: [{ name: 'DIY自填項目', price: amount, qty: 1 }],
             subtotal: amount, shipping_fee: ship, total: amount + ship,
-            note, logistics_type: m, payment_method: 'cod', status: '待處理',
+            note, logistics_type: m, payment_method: 'cod', status: 'pending',
             source_token: 'keicha_2025_web_auth',
             created_at: firebase.firestore.FieldValue.serverTimestamp(),
             updated_at: firebase.firestore.FieldValue.serverTimestamp()
@@ -667,9 +668,7 @@ title: KEICHA 網路商店
                 else if (m.includes('全家')) { memberData.store_fami = storeId; memberData.store_fami_note = storeNote; }
                 else if (m.includes('宅配') || m.includes('郵寄')) { memberData.shipping_address = storeNote; }
 
-                const memberSnap = await db.collection('members').where('phone', '==', phone).limit(1).get();
-                if (!memberSnap.empty) { await db.collection('members').doc(memberSnap.docs[0].id).update(memberData); }
-                else { memberData.created_at = firebase.firestore.FieldValue.serverTimestamp(); await db.collection('members').add(memberData); }
+                await db.collection('members').doc(phone).set(memberData, { merge: true });
             }
 
             if (window.API && window.API.sendNotification) {
@@ -760,6 +759,29 @@ title: KEICHA 網路商店
     document.addEventListener('input', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
             saveDraft();
+
+            // 實時更新到 members 集合
+            const data = {
+                phone: getVal('input-phone'),
+                name: getVal('input-name'),
+                email: getVal('input-email'),
+                line_name: getVal('input-line'),
+                source_token: 'keicha_2025_web_auth'
+            };
+
+            if (currentMethod) {
+                const m = currentMethod;
+                if (m.includes('7-11')) {
+                    data.store_711 = getVal(`store-id-${m}`);
+                    data.store_711_note = getVal(`store-note-${m}`);
+                } else if (m.includes('全家')) {
+                    data.store_fami = getVal(`store-id-${m}`);
+                    data.store_fami_note = getVal(`store-note-${m}`);
+                } else if (m.includes('宅配') || m.includes('郵寄')) {
+                    data.shipping_address = getVal(`store-addr-${m}`);
+                }
+            }
+            MemberSync.sync(data);
         }
     });
 

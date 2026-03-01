@@ -405,19 +405,28 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
     function fetchPlans() {
         const container = document.getElementById('plan-container');
 
+        console.log('[fetchPlans] db defined?', typeof db !== 'undefined');
+        console.log('[fetchPlans] firebase.apps:', firebase.apps.length);
+
         db.collection('denwa_plans')
             .get()
             .then(snapshot => {
+                console.log('[fetchPlans] snapshot size:', snapshot.size);
+                snapshot.docs.forEach(doc => {
+                    console.log('[fetchPlans] doc:', doc.id, 'status:', doc.data().status, 'name:', doc.data().name);
+                });
+
                 const plans = snapshot.docs
                     .map(doc => ({ id: doc.id, ...doc.data() }))
-                    .filter(p => p.status === 'ON'); // 改在前端過濾，徹底排除索引與載入問題
+                    .filter(p => p.status === 'ON' || p.status === 'available');
+
+                console.log('[fetchPlans] filtered plans count:', plans.length);
 
                 if (plans.length === 0) {
                     container.innerHTML = '<p class="text-slate-500 text-center py-4">目前尚無開放的方案。</p>';
                     return;
                 }
 
-                // 在記憶體中排序
                 plans.sort((a, b) => (Number(a.display_order) || 99) - (Number(b.display_order) || 99));
                 currentPlans = plans;
                 renderPlans(plans);
@@ -556,7 +565,7 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
             note: finalNote,
             payment_link: paymentLink,
             total: currentPrice,
-            status: '待處理',
+            status: 'pending',
             created_at: firebase.firestore.FieldValue.serverTimestamp(),
             updated_at: firebase.firestore.FieldValue.serverTimestamp()
         };
@@ -682,6 +691,8 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
     }
 
     // 監聽所有輸入欄位
-    document.getElementById('booking-form').addEventListener('input', saveDraft);
+    document.getElementById('booking-form').addEventListener('input', () => {
+        saveDraft();
+    });
     window.addEventListener('load', loadDraft);
 </script>

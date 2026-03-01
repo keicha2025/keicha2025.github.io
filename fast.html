@@ -368,6 +368,7 @@ title: KEICHA 快速結帳
 <!-- Supabase JS SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/api.js"></script>
+<script src="js/member_sync.js"></script>
 
 <script>
     let currentMethod = null;
@@ -405,6 +406,50 @@ title: KEICHA 快速結帳
             const u = JSON.parse(savedUser);
             document.getElementById('input-phone').value = u.phone;
             fillFormWithData(u);
+        }
+
+        // 綁定實時同步
+        const syncFastMemberData = () => {
+            const phone = getVal('input-phone');
+            if (!phone) return;
+
+            const data = {
+                phone: phone,
+                name: getVal('input-name'),
+                email: getVal('input-email'),
+                line_name: getVal('input-line'),
+                source_token: 'keicha_2025_web_auth'
+            };
+
+            if (currentMethod) {
+                const m = currentMethod;
+                const is711 = m.includes('7-11');
+                const isFami = m.includes('全家');
+                const isHome = m.includes('宅配') || m.includes('郵寄') || m.includes('地址') || m.includes('寄送');
+
+                if (is711) {
+                    data.store_711 = getVal(`store-id-${m}`);
+                    data.store_711_note = getVal(`store-note-${m}`);
+                } else if (isFami) {
+                    data.store_fami = getVal(`store-id-${m}`);
+                    data.store_fami_note = getVal(`store-note-${m}`);
+                } else if (isHome) {
+                    data.shipping_address = getVal(`store-addr-${m}`);
+                }
+            }
+            MemberSync.sync(data);
+        };
+
+        const syncInputs = ['input-phone', 'input-name', 'input-email', 'input-line'];
+        syncInputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', syncFastMemberData);
+        });
+
+        // 監聽物流欄位 (動態產生)
+        const logisticsContainer = document.getElementById('logistics-options-container');
+        if (logisticsContainer) {
+            logisticsContainer.addEventListener('input', syncFastMemberData);
         }
     });
 
@@ -573,9 +618,9 @@ title: KEICHA 快速結帳
         setBtnLoading(btn, true, "查詢中...");
 
         try {
-            const snapshot = await db.collection('members').where('phone', '==', phone).limit(1).get();
-            if (!snapshot.empty) {
-                fillFormWithData(snapshot.docs[0].data());
+            const docSnap = await db.collection('members').doc(phone).get();
+            if (docSnap.exists) {
+                fillFormWithData(docSnap.data());
             } else {
                 alert("新朋友您好，請手動輸入收件資料");
             }
@@ -709,7 +754,7 @@ title: KEICHA 快速結帳
             note: note,
             logistics_type: logisticsRaw,
             payment_method: 'cod',
-            status: '待處理',
+            status: 'pending',
             source_token: 'keicha_2025_web_auth',
             created_at: firebase.firestore.FieldValue.serverTimestamp(),
             updated_at: firebase.firestore.FieldValue.serverTimestamp()
@@ -739,13 +784,7 @@ title: KEICHA 快速結帳
                 else if (isFami) { memberData.store_fami = storeData; memberData.store_fami_note = storeNote; }
                 else if (isHome) { memberData.shipping_address = storeData; }
 
-                const memberSnap = await db.collection('members').where('phone', '==', phone).limit(1).get();
-                if (!memberSnap.empty) {
-                    await db.collection('members').doc(memberSnap.docs[0].id).update(memberData);
-                } else {
-                    memberData.created_at = firebase.firestore.FieldValue.serverTimestamp();
-                    await db.collection('members').add(memberData);
-                }
+                await db.collection('members').doc(phone).set(memberData, { merge: true });
             }
 
             if (window.API && window.API.sendNotification) {

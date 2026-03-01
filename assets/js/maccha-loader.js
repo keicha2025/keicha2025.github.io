@@ -219,7 +219,7 @@ window.addEventListener('load', () => {
                 "@type": "ListItem",
                 "position": i + 1,
                 "name": b.name,
-                "url": `/maccha.html#${b.key}`
+                "url": `/maccha-store.html#${b.key}`
             }))
         };
         container.innerHTML = `<script type="application/ld+json">${JSON.stringify(schema)}</script>`;

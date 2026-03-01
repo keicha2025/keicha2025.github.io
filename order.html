@@ -342,7 +342,7 @@ title: 訂單詳情 | KEICHA
 
     function renderTimeline(data, type) {
         const timeline = document.getElementById('timeline');
-        const status = data.status || '待處理';
+        const status = data.status || 'pending';
 
         let steps = [
             { id: 'sent', label: '已送出', desc: '您的需求已成功送出。', time: formatDate(data.created_at) },
@@ -351,8 +351,8 @@ title: 訂單詳情 | KEICHA
         ];
 
         let activeIdx = 0;
-        if (['已確認', '處理中', '已出貨', '預約成功', '已付款'].includes(status)) activeIdx = 1;
-        if (['已完成', '結案'].includes(status)) activeIdx = 2;
+        if (['confirmed', '已確認', '處理中', '已出貨', '預約成功', '已付款'].includes(status)) activeIdx = 1;
+        if (['completed', '已完成', '結案'].includes(status)) activeIdx = 2;
 
         timeline.innerHTML = steps.map((s, idx) => {
             let statusClass = '';

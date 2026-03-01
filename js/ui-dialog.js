@@ -110,7 +110,57 @@ const KUI = (() => {
         }
     });
 
-    return { alert, confirm, toast };
+    const prompt = (message, title = '輸入驗證', placeholder = '') => {
+        return new Promise((resolve) => {
+            if (activeDialog) activeDialog.remove();
+
+            const overlay = createOverlay();
+            overlay.innerHTML = `
+                <div class="kui-dialog">
+                    <div class="kui-icon">
+                        <span class="material-symbols-rounded">lock_open</span>
+                    </div>
+                    <div class="kui-title">${title}</div>
+                    <div class="kui-message">${message}</div>
+                    <div class="kui-body" style="padding: 10px 20px;">
+                        <input type="text" class="kui-input" placeholder="${placeholder}" 
+                            style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; outline: none; border-color: #6ea44c;">
+                    </div>
+                    <div class="kui-actions">
+                        <button class="kui-btn kui-btn-secondary">取消</button>
+                        <button class="kui-btn kui-btn-primary">確認</button>
+                    </div>
+                </div>
+            `;
+
+            const input = overlay.querySelector('.kui-input');
+            const cancelBtn = overlay.querySelector('.kui-btn-secondary');
+            const confirmBtn = overlay.querySelector('.kui-btn-primary');
+
+            setTimeout(() => input.focus(), 100);
+
+            input.onkeydown = (e) => {
+                if (e.key === 'Enter') confirmBtn.click();
+            };
+
+            cancelBtn.onclick = () => {
+                overlay.remove();
+                activeDialog = null;
+                resolve(null);
+            };
+
+            confirmBtn.onclick = () => {
+                const val = input.value;
+                overlay.remove();
+                activeDialog = null;
+                resolve(val);
+            };
+
+            activeDialog = overlay;
+        });
+    };
+
+    return { alert, confirm, prompt, toast };
 })();
 
 // Re-expose to global window

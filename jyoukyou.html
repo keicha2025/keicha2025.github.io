@@ -112,6 +112,12 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
 
         let originalButtonContent = "";
 
+        const STATUS_MAP = {
+            'pending': '待處理',
+            'confirmed': '已確認',
+            'completed': '已完成',
+            'cancelled': '已取消'
+        };
 
         if (searchButton) searchButton.addEventListener('click', handleSearch);
 
@@ -154,7 +160,7 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                                 orderId: doc.id,
                                 item: data.items_text || data.items || '抹茶商品',
                                 amount: data.total || data.subtotal || 0,
-                                status: data.status || '待處理',
+                                status: STATUS_MAP[data.status] || data.status || '待處理',
                                 sellerNote: data.seller_note || '',
                                 trackingCode: data.tracking_code || '',
                                 createdAt: data.created_at || data.submit_time || data.created_time || 0
@@ -171,7 +177,7 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                                     orderId: doc.id,
                                     item: data.items_text || data.items || '抹茶商品',
                                     amount: data.total || data.subtotal || 0,
-                                    status: data.status || '待處理',
+                                    status: STATUS_MAP[data.status] || data.status || '待處理',
                                     sellerNote: data.seller_note || '',
                                     trackingCode: data.tracking_code || '',
                                     createdAt: data.created_at || data.submit_time || data.created_time || 0
@@ -190,7 +196,7 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                                 orderId: data.order_id || doc.id,
                                 item: `${data.merchant_name || '電話代撥'} - ${data.plan_name || '基本服務'}`,
                                 amount: data.total || 0,
-                                status: data.status || '待處理',
+                                status: STATUS_MAP[data.status] || data.status || '待處理',
                                 paymentLink: data.payment_link || '',
                                 paymentStatus: data.payment_status || 'pending',
                                 sellerNote: data.public_reply || data.seller_note || '',
@@ -209,7 +215,7 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                                     orderId: data.order_id || doc.id,
                                     item: `${data.merchant_name || '電話代撥'} - ${data.plan_name || '基本服務'}`,
                                     amount: data.total || 0,
-                                    status: data.status || '待處理',
+                                    status: STATUS_MAP[data.status] || data.status || '待處理',
                                     paymentLink: data.payment_link || '',
                                     paymentStatus: data.payment_status || 'pending',
                                     sellerNote: data.public_reply || data.seller_note || '',

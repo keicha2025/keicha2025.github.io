@@ -35,10 +35,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
-    // 3. 會員資料 lookup (暫時使用金鑰驗證)
+    // 3. 會員資料 lookup
     match /members/{docId} { 
-      allow read: if true; // 允許前台查詢會員（通常會帶手機濾鏡）
+      allow read: if true; 
       allow write: if request.resource.data.source_token == 'keicha_2025_web_auth'; 
+      allow read, write: if isAdmin();
     }
 
     // 4. 管理員權限

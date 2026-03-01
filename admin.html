@@ -1,6 +1,6 @@
 ---
 layout: default
-title: KEICHA 管理後台
+title: KEICHA 管理後台 v20260301-3
 ---
 
 
@@ -478,8 +478,7 @@ title: KEICHA 管理後台
         align-items: center;
         gap: 4px;
         white-space: nowrap;
-        border: 1px solid transparent;
-        /* 預設邊框 */
+        border: none;
     }
 
     /* 以下狀態皆統一為灰色系 */
@@ -492,7 +491,7 @@ title: KEICHA 管理後台
         /* 淺灰底 */
         color: #64748b;
         /* 灰字 */
-        border-color: #e2e8f0;
+        /* border-color: #e2e8f0; */
     }
 
     /* 僅保留「已完成、啟用中、可訂購」為品牌綠色底+白色字 */
@@ -503,14 +502,14 @@ title: KEICHA 管理後台
         /* 品牌綠 */
         color: #ffffff;
         /* 白色字 */
-        border-color: #5d8d41;
+        /* border-color: #5d8d41; */
     }
 
     /* 若需要特殊強調缺貨 */
     .status-badge.out-of-stock {
         background: #f1f5f9;
         color: #64748b;
-        border-color: #e2e8f0;
+        /* border-color: #e2e8f0; */
     }
 
     /* Toggle 開關 */
@@ -605,6 +604,20 @@ title: KEICHA 管理後台
         100% {
             transform: rotate(360deg);
         }
+    }
+
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        display: none;
     }
 
     /* Modal */
@@ -897,7 +910,7 @@ title: KEICHA 管理後台
             </button>
             <button class="tab" onclick="switchTab('testing', this)">
                 <span class="material-symbols-rounded">biotech</span>
-                <span class="tab-text">測試模組</span>
+                <span class="tab-text">測試</span>
             </button>
         </div>
 
@@ -1180,13 +1193,61 @@ title: KEICHA 管理後台
                     </div>
                 </div>
             </div>
+
+            <div class="card" style="margin-top: 24px;">
+                <h2 style="margin: 0 0 20px 0; font-size: 1.25rem; font-weight: 700;">系統維護與修復</h2>
+                <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+                    <div
+                        style="padding: 24px; border: 2px dashed #cbd5e1; border-radius: 12px; background: #f8fafc; display: flex; flex-direction: column; align-items: flex-start;">
+                        <span class="material-symbols-rounded"
+                            style="font-size: 32px; color: #64748b; margin-bottom: 12px;">database_sync</span>
+                        <h3 style="margin: 0 0 8px 0; color: #1e293b;">【進階】資料庫狀態一鍵轉換工具 (Database Standardization)</h3>
+                        <p style="color: #4b5563; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.6;">
+                            此工具用於一次性修復歷史遺留的中文/舊式狀態資訊。將 <strong>ON/OFF、待處理、已確認</strong> 等雜亂術語，全面自動化轉換為標準英文字典檔 (pending,
+                            confirmed, completed, available...)。<br>
+                            <span style="color: #475569; font-weight: bold;">[重要提示] 執行前請務必確保上方已完成備份下載。</span>
+                        </p>
+                        <button class="btn btn-primary"
+                            style="background: #475569; border: none; height: 42px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem; padding: 0 24px;"
+                            onclick="startDatabaseRepairTool(this)">
+                            <span class="material-symbols-rounded" style="font-size: 18px;">auto_fix</span>
+                            開始執行修復程序
+                        </button>
+                        <div id="repair-tool-log"
+                            style="display: none; margin-top: 16px; width: 100%; border: 1px solid #e2e8f0; background: #fff; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 12px; height: 200px; overflow-y: auto; color: #4b5563;">
+                        </div>
+                    </div>
+
+                    <!-- 會員資料遷移工具 -->
+                    <div
+                        style="padding: 24px; border: 2px dashed #cbd5e1; border-radius: 12px; background: #f8fafc; display: flex; flex-direction: column; align-items: flex-start; margin-top: 16px;">
+                        <span class="material-symbols-rounded"
+                            style="font-size: 32px; color: #64748b; margin-bottom: 12px;">group_work</span>
+                        <h3 style="margin: 0 0 8px 0; color: #1e293b;">【進階】會員資料 Doc ID 遷移工具 (Member Migration)</h3>
+                        <p style="color: #4b5563; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.6;">
+                            將舊式隨機 Doc ID 的會員文件，整合遷移至以手機號碼為 Doc ID 的標準格式。<br>
+                            使用 <strong>merge</strong> 策略合併資料，確保 7-11、全家、宅配等物流資訊不會遺失。<br>
+                            <span style="color: #475569; font-weight: bold;">[重要提示] 遷移完成後，舊的隨機 ID 文件將被刪除。請先備份。</span>
+                        </p>
+                        <button class="btn btn-primary"
+                            style="background: #475569; border: none; height: 42px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem; padding: 0 24px;"
+                            onclick="startMemberMigration(this)">
+                            <span class="material-symbols-rounded" style="font-size: 18px;">sync_alt</span>
+                            開始會員遷移
+                        </button>
+                        <div id="member-migration-log"
+                            style="display: none; margin-top: 16px; width: 100%; border: 1px solid #e2e8f0; background: #fff; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 12px; height: 200px; overflow-y: auto; color: #4b5563;">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- 測試模組 -->
+        <!-- 測試 -->
         <div id="tab-testing" class="tab-content">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">測試模組</h2>
+                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">測試</h2>
                     <div
                         style="display: flex; align-items: center; gap: 8px; background: #f1f5f9; padding: 6px 12px; border-radius: 20px;">
                         <span class="material-symbols-rounded"
@@ -1243,11 +1304,16 @@ title: KEICHA 管理後台
     </div>
 </div>
 
+<div id="globalLoading" class="loading-overlay">
+    <div class="loader"></div>
+</div>
+
 <!-- Firebase SDK (v9 compat) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="/js/api.js"></script>
+<script src="/js/status-config.js"></script>
 
 <script>
     // Firebase 初始化
@@ -1264,6 +1330,18 @@ title: KEICHA 管理後台
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
+
+    // 嘗試繞過廣告攔截器：強制使用 Long Polling
+    try {
+        db.settings({
+            experimentalForceLongPolling: true,
+            useFetchStreams: false
+        });
+        console.log("Firestore settings: Forced Long Polling enabled for bypassing ad blockers.");
+    } catch (e) {
+        console.warn("Could not set Firestore settings:", e);
+    }
+
     const provider = new firebase.auth.GoogleAuthProvider();
 
     const ALLOWED_ADMINS = ['wj209ing@gmail.com'];
@@ -1274,6 +1352,16 @@ title: KEICHA 管理後台
     let isBatchMode = false;
     let selectedItems = new Set();
     let currentBatchType = ''; // 'orders', 'denwa', 'links'
+
+    function showLoading() {
+        const gl = document.getElementById('globalLoading');
+        if (gl) gl.style.display = 'flex';
+    }
+
+    function hideLoading() {
+        const gl = document.getElementById('globalLoading');
+        if (gl) gl.style.display = 'none';
+    }
     let lockSelectionTime = 0; // 防護鎖：避免長按後放開被判定為 click
 
     // 批次操作核心事件綁定
@@ -1408,20 +1496,23 @@ title: KEICHA 管理後台
                 <label style="font-weight: bold; display: block; margin-bottom: 8px;">更改選取項目的狀態為：</label>
                 <select id="modalBatchStatus" class="admin-select" style="width: 100%; padding: 8px; margin-bottom: 8px;">
                     <option value="" disabled selected>請選擇新狀態...</option>
-                    <option value="待處理">待處理</option>
-                    <option value="已確認">已確認</option>
-                    <option value="已完成">已完成</option>
-                    <option value="已取消">已取消</option>
+                    <option value="pending">待處理</option>
+                    <option value="confirmed">已確認</option>
+                    <option value="completed">已完成</option>
+                    <option value="cancelled">已取消</option>
                 </select>
+                <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 8px;">
+                    ※ 若要執行批次刪除，請在對話框輸入：<code id="deleteHint" style="background:#f1f5f9; padding:2px 4px; border-radius:4px; cursor:pointer;" onclick="navigator.clipboard.writeText('delete'); KUI.toast('已複製 delete，請在點擊刪除後的視窗貼上')">delete</code> (點擊可複製)
+                </p>
             </div>
         `;
 
         const footerHtml = `
             <div style="display: flex; gap: 12px; width: 100%;">
-                <button class="btn btn-secondary" style="flex: 1; border-color: #ef4444; color: #ef4444;" onclick="applyBatchDelete()">
+                <button class="btn btn-danger" style="flex: 1;" onclick="applyBatchDelete()">
                     <span class="material-symbols-rounded" style="font-size: 16px; margin-right: 4px;">delete</span>批次刪除
                 </button>
-                <button class="btn btn-primary" style="flex: 2;" onclick="applyBatchStatus()">套用狀態</button>
+                <button class="btn btn-primary" style="flex: 1;" onclick="applyBatchStatus()">套用狀態</button>
             </div>
         `;
 
@@ -1437,7 +1528,11 @@ title: KEICHA 管理後台
             return;
         }
 
-        if (!(await KUI.confirm(`確定將選取的 ${selectedItems.size} 筆轉換為「${newStatus}」嗎？`))) return;
+        const typeKey = currentBatchType === 'links' ? 'links' : (currentBatchType === 'orders' ? 'orders' : 'denwa');
+        const info = getStatusInfo(typeKey, newStatus);
+        const statusLabel = info.label;
+
+        if (!(await KUI.confirm(`確定將選取的 ${selectedItems.size} 筆轉換為「${statusLabel}」嗎？`))) return;
 
         showLoading();
         let collectionName = '';
@@ -1453,14 +1548,11 @@ title: KEICHA 管理後台
         try {
             const batch = db.batch();
             let count = 0;
+            // 全部模組統一代入 newStatus，內部欄位名稱適配即可
             let statusField = currentBatchType === 'links' ? 'payment_status' : 'status';
             let valueToSet = newStatus;
 
-            // 特別處理 link order 的 payment_status ('paid' 或 'pending')
-            if (currentBatchType === 'links') {
-                valueToSet = newStatus === '已付款' || newStatus === '已完成' ? 'paid' : 'pending';
-            }
-
+            // 連結訂單如果是 Legacy 狀態 (paid) 的處理在渲染層完成，寫入層一律用規範化的 key
             selectedItems.forEach(id => {
                 const ref = db.collection(collectionName).doc(id);
                 batch.update(ref, { [statusField]: valueToSet });
@@ -1469,13 +1561,15 @@ title: KEICHA 管理後台
 
             await batch.commit();
             hideLoading();
+            closeModal();
             KUI.toast(`已成功變更 ${count} 筆狀態`);
-            exitBatchMode();
 
-            // 重新載入對應清單
+            // 重新載入對應清單 (必須在 exitBatchMode 之前，因為需要 currentBatchType)
             if (currentBatchType === 'orders') loadOrders();
             else if (currentBatchType === 'denwa') loadDenwaOrders();
             else if (currentBatchType === 'links') loadCardOrders();
+
+            exitBatchMode();
 
         } catch (error) {
             hideLoading();
@@ -1488,8 +1582,9 @@ title: KEICHA 管理後台
         if (selectedItems.size === 0) return;
 
         // 再次防護，要求輸入密碼
-        const pwd = prompt(`【危險操作】\n您即將刪除 ${selectedItems.size} 筆資料，此操作無法復原。\n請輸入密碼以確認：`);
-        if (pwd !== '5203') {
+        const pwd = await KUI.prompt(`【危險操作】\n您即將刪除 ${selectedItems.size} 筆資料，此操作無法復原。\n請在此框輸入 'delete' 以確認：`, '批次刪除確認', '在此輸入 delete');
+        if (pwd !== 'delete') {
+            if (pwd !== null) KUI.toast('驗證碼錯誤');
             return;
         }
 
@@ -1515,13 +1610,15 @@ title: KEICHA 管理後台
 
             await batch.commit();
             hideLoading();
+            closeModal();
             KUI.toast(`已成功刪除 ${count} 筆資料`);
-            exitBatchMode();
 
             // 重新載入對應清單
             if (currentBatchType === 'orders') loadOrders();
             else if (currentBatchType === 'denwa') loadDenwaOrders();
             else if (currentBatchType === 'links') loadCardOrders();
+
+            exitBatchMode();
 
         } catch (error) {
             hideLoading();
@@ -1716,20 +1813,14 @@ title: KEICHA 管理後台
                 const date = order.created_at?.toDate ? order.created_at.toDate() : new Date(order.created_at);
                 const dateStr = date.toLocaleString('zh-TW', { hour12: false });
 
-                // 狀態樣式
-                // 狀態樣式 (待處理, 已確認, 已完成, 已取消)
-                let statusClass = 'pending';
-                if (order.status === '待處理') statusClass = 'pending';
-                if (order.status === '已確認') statusClass = 'confirmed';
-                if (order.status === '已完成') statusClass = 'completed';
-                if (order.status === '已取消') statusClass = 'cancelled';
+                const badgeHtml = getStatusBadge('orders', order.status);
 
                 html += `
                     <tr class="selectable-row" data-id="${order.id}" data-type="orders">
                         <td style="padding: 12px 15px; white-space: nowrap;"><span style="font-size: 0.9rem; font-weight: 700; color: #334155;">${(order.order_id && order.order_id !== 'N/A') ? order.order_id : order.id}</span></td>
                         <td style="padding: 12px 15px;"><div style="white-space: nowrap;">${order.line_name || '-'}</div></td>
                         <td style="padding: 12px 15px; white-space: nowrap; font-weight: 700; color: #111827;">$${order.total || 0}</td>
-                        <td style="padding: 12px 15px; white-space: nowrap; text-align: center;"><span class="status-badge ${statusClass}">${order.status || '待處理'}</span></td>
+                        <td style="padding: 12px 15px; text-align: center;">${badgeHtml}</td>
                         <td style="padding: 12px 15px; white-space: nowrap; font-size: 0.85rem; color: #6b7280;">${dateStr.split(' ')[0]}</td>
                         <td style="padding: 12px 15px; white-space: nowrap;">
                             <div style="display: flex; gap: 6px; justify-content: flex-end;">
@@ -1767,10 +1858,10 @@ title: KEICHA 管理後台
             <div class="form-group">
                 <label class="form-label">訂單狀態</label>
                 <select id="orderStatus" class="admin-select">
-                    <option value="待處理" ${order.status === '待處理' ? 'selected' : ''}>待處理</option>
-                    <option value="已確認" ${order.status === '已確認' ? 'selected' : ''}>已確認</option>
-                    <option value="已完成" ${order.status === '已完成' ? 'selected' : ''}>已完成</option>
-                    <option value="已取消" ${order.status === '已取消' ? 'selected' : ''}>已取消</option>
+                    <option value="pending" ${['pending', '待處理'].includes(order.status) ? 'selected' : ''}>待處理</option>
+                    <option value="confirmed" ${['confirmed', '已確認'].includes(order.status) ? 'selected' : ''}>已確認</option>
+                    <option value="completed" ${['completed', '已完成'].includes(order.status) ? 'selected' : ''}>已完成</option>
+                    <option value="cancelled" ${['cancelled', '已取消'].includes(order.status) ? 'selected' : ''}>已取消</option>
                 </select>
             </div>
             <div class="form-group">
@@ -1941,11 +2032,7 @@ title: KEICHA 管理後台
 
             snapshot.forEach(doc => {
                 const order = { id: doc.id, ...doc.data() };
-                let statusClass = 'pending';
-                if (order.status === '待處理') statusClass = 'pending';
-                if (order.status === '已確認') statusClass = 'confirmed';
-                if (order.status === '已完成') statusClass = 'completed';
-                if (order.status === '已取消') statusClass = 'cancelled';
+                const badgeHtml = getStatusBadge('denwa', order.status);
 
                 // [新增] 格式化日期與時間，處理可能的 ISO 字串或 Date 物件
                 const formatDT = (val, isTime = false) => {
@@ -1972,7 +2059,7 @@ title: KEICHA 管理後台
                             <div style="font-size: 0.85rem; white-space: nowrap;">${dateDisplay}</div>
                             <div style="font-size: 0.75rem; color: #6b7280; white-space: nowrap;">${timeDisplay}</div>
                         </td>
-                        <td style="width: 1px; white-space: nowrap;"><span class="status-badge ${statusClass}">${order.status || '待處理'}</span></td>
+                        <td style="width: 1px; white-space: nowrap;">${badgeHtml}</td>
                         <td style="width: 1px; white-space: nowrap;">
                             <div style="display: flex; gap: 6px; justify-content: flex-end;">
                                 <button class="btn btn-secondary action-btn" style="padding: 6px; width: 32px; height: 32px;" title="詳情" onclick='viewDenwaDetails(${JSON.stringify(order).replace(/'/g, "&apos;")}); event.stopPropagation();'>
@@ -2119,10 +2206,10 @@ title: KEICHA 管理後台
             <div class="form-group">
                 <label class="form-label">預約狀態</label>
                 <select id="denwaStatus" class="admin-select">
-                    <option value="待處理" ${order.status === '待處理' ? 'selected' : ''}>待處理</option>
-                    <option value="已確認" ${order.status === '已確認' ? 'selected' : ''}>已確認</option>
-                    <option value="已完成" ${order.status === '已完成' ? 'selected' : ''}>已完成</option>
-                    <option value="已取消" ${order.status === '已取消' ? 'selected' : ''}>已取消</option>
+                    <option value="pending" ${['pending', '待處理'].includes(order.status) ? 'selected' : ''}>待處理</option>
+                    <option value="confirmed" ${['confirmed', '已確認'].includes(order.status) ? 'selected' : ''}>已確認</option>
+                    <option value="completed" ${['completed', '已完成'].includes(order.status) ? 'selected' : ''}>已完成</option>
+                    <option value="cancelled" ${['cancelled', '已取消'].includes(order.status) ? 'selected' : ''}>已取消</option>
                 </select>
             </div>
             <div class="form-group">
@@ -2386,7 +2473,7 @@ title: KEICHA 管理後台
                 <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold; color: #334155;">${r.value || '--'}</td>
             </tr>`).join('');
 
-        return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:0;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;line-height:1.8;color:#334155;background-color:#ffffff}.tbl{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:13px}</style></head><body style="margin:0;padding:0;background:#ffffff"><div style="width:100%;max-width:600px;margin:0 auto;background:#fff"><div style="padding:20px"><div style="border-bottom:2px solid #6ea44c;padding-bottom:12px;margin-bottom:25px"><h2 style="color:#6ea44c;margin:0;font-size:20px">電話代撥結案</h2></div><div style="margin-bottom:25px;font-size:15px;color:#334155">電話代撥訂單 <strong style="color:#6ea44c;">${orderDisplayId}</strong> 已完成：</div><table class="tbl">${tableRowsHtml}</table><div style="border-top:1px solid #eee;padding-top:30px;text-align:center"><img src="https://keicha2025.github.io/keicha/images/KEICHA_logotype.png" alt="KEICHA" width="120" style="display:block;margin:10px auto;border:0"><p style="font-size:9px;color:#cbd5e1;margin-top:15px;letter-spacing:3px">© 2025 KEICHA ALL RIGHTS RESERVED.</p></div></div></div></body></html>`;
+        return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:0;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;line-height:1.8;color:#334155;background-color:#ffffff}.tbl{width:100%;border-collapse:collapse;margin:0 auto 20px;font-size:13px}</style></head><body style="margin:0;padding:0;background:#ffffff"><div style="width:100%;max-width:600px;margin:0 auto;background:#fff"><div style="padding:20px"><div style="border-bottom:2px solid #6ea44c;padding-bottom:12px;margin-bottom:25px"><h2 style="color:#6ea44c;margin:0;font-size:20px">電話代撥結案</h2></div><div style="margin-bottom:25px;font-size:15px;color:#334155">電話代撥訂單 <strong style="color:#6ea44c;">${orderDisplayId}</strong> 已完成：</div><table class="tbl">${tableRowsHtml}</table><div style="border-top:1px solid #eee;padding-top:30px;text-align:center"><img src="https://keicha2025.github.io/keicha/images/KEICHA_logotype.png" alt="KEICHA" width="120" style="display:block;margin:10px auto;border:0"><p style="font-size:9px;color:#cbd5e1;margin-top:15px;letter-spacing:3px">© 2025 KEICHA ALL RIGHTS RESERVED.</p></div></div></div></body></html>`;
     }
 
     // 發送結案信件
@@ -2446,7 +2533,7 @@ title: KEICHA 管理後台
             if (result && result.success) {
                 // 更新 Firestore 狀態為已完成
                 await db.collection('denwa_orders').doc(orderId).update({
-                    status: '已完成',
+                    status: 'completed',
                     updated_at: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
@@ -2511,16 +2598,7 @@ title: KEICHA 管理後台
                     .get();
                 const productCount = productCountSnapshot.size;
 
-                // 支援多種狀態
-                let statusText = '已隱藏';
-                let statusClass = 'discontinued';
-                if (brand.status === 'available' || brand.status === 'active' || brand.status === 'ON') {
-                    statusText = '啟用中';
-                    statusClass = 'available';
-                } else if (brand.status === 'out-of-stock') {
-                    statusText = '缺貨中';
-                    statusClass = 'out-of-stock';
-                }
+                const badgeHtml = getStatusBadge('brands', brand.status);
 
                 html += `
                     <div class="brand-card" onclick="selectBrand('${brand.id}', '${brand.name}')" style="
@@ -2534,7 +2612,7 @@ title: KEICHA 管理後台
                        onmouseout="this.style.borderColor='#e5e7eb'; this.style.transform='translateY(0)';">
                         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
                             <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #1f2937;">${brand.name}</h3>
-                            <span class="status-badge ${statusClass}" style="font-size: 0.75rem;">${statusText}</span>
+                            ${badgeHtml}
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <span style="font-size: 0.9rem; color: #6ea44c; font-weight: 600;">
@@ -2695,22 +2773,7 @@ title: KEICHA 管理後台
             `;
 
             currentBrandProducts.forEach(item => {
-                let statusText = '啟用中';
-                let statusClass = 'available'; // 預設使用品牌綠
-
-                if (item.status === 'out-of-stock') {
-                    statusText = '缺貨中';
-                    statusClass = 'out-of-stock';
-                }
-                else if (item.status === 'discontinued') {
-                    statusText = '已隱藏';
-                    statusClass = 'discontinued';
-                }
-                else {
-                    // 預設或 explicitly available/in-stock
-                    statusText = '啟用中';
-                    statusClass = 'available';
-                }
+                const badgeHtml = getStatusBadge('products', item.status);
 
                 const hiddenIcon = item.hidden ? 'visibility_off' : 'visibility';
                 const opacityStyle = item.hidden ? 'opacity: 0.5; background: #f9fafb;' : '';
@@ -2720,7 +2783,7 @@ title: KEICHA 管理後台
                         <td>${item.spec || '-'}</td>
                         <td>NT$ ${item.price}</td>
                         <td>${item.stock}</td>
-                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${badgeHtml}</td>
                         <td><span class="material-symbols-rounded" style="color: ${item.hidden ? '#64748b' : '#6b7280'}; font-size: 18px;">${hiddenIcon}</span></td>
                         <td>
                             <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" onclick='editProduct(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
@@ -3204,7 +3267,7 @@ title: KEICHA 管理後台
                         const brandRef = db.collection('matcha_brands').doc(brandId);
                         batch.set(brandRef, {
                             name: brandId,
-                            status: 'active',
+                            status: 'available',
                             hidden: false,
                             display_order: 99, // 新增品牌預設排在後面
                             created_at: firebase.firestore.FieldValue.serverTimestamp()
@@ -3577,9 +3640,7 @@ title: KEICHA 管理後台
             });
 
             plans.forEach(plan => {
-                const isActive = plan.status === 'available' || plan.status === 'ON';
-                const statusText = isActive ? '啟用中' : '已隱藏';
-                const statusClass = isActive ? 'available' : 'discontinued';
+                const badgeHtml = getStatusBadge('plans', plan.status);
                 html += `
                     <div class="card" style="margin-bottom: 0; border: 1px solid #e5e7eb; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
                         <div>
@@ -3588,7 +3649,7 @@ title: KEICHA 管理後台
                                     <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700;">${plan.name}</h3>
                                     <p style="margin: 4px 0 0 0; font-size: 0.8rem; color: #9ca3af; text-transform: uppercase;">排序: ${plan.display_order}</p>
                                 </div>
-                                <span class="status-badge ${statusClass}">${statusText}</span>
+                                ${badgeHtml}
                             </div>
                             <p style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #6ea44c;">NT$ ${plan.price}</p>
                             <p style="margin: 8px 0 16px 0; font-size: 0.9rem; color: #6b7280; line-height: 1.5;">${plan.desc || '無描述'}</p>
@@ -4346,7 +4407,7 @@ ${!rule.method.includes('宅配') ? `
             });
 
             const updates = {
-                status: document.getElementById('status_toggle').checked ? '開啟' : '關閉',
+                status: document.getElementById('status_toggle').checked ? 'available' : 'discontinued',
                 items_text: document.getElementById('items_text').value,
                 amount: parseInt(document.getElementById('amount').value) || 0,
                 enabled_methods,
@@ -4416,7 +4477,7 @@ ${!rule.method.includes('宅配') ? `
         if (e.target.id === 'editModal') {
             closeModal();
         }
-    });    // --- 測試模組 ---
+    });    // --- 測試 ---
     function goTestPage(page, idParam = null) {
         const autoFill = document.getElementById('testAutoFill').checked;
         let url = `https://keicha2025.github.io/${page}`;
@@ -4440,6 +4501,226 @@ ${!rule.method.includes('宅配') ? `
 </script>
 
 <script>
+    // ========== 資料庫狀態修復工具 ==========
+    async function startDatabaseRepairTool(btn) {
+        if (!(await KUI.confirm("確定要執行資料庫狀態修復嗎？建議先完成一次「系統備份」以防萬一！"))) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-rounded animate-spin-custom" style="font-size: 18px;">refresh</span> 處理中...';
+
+        const logEl = document.getElementById('repair-tool-log');
+        logEl.style.display = 'block';
+        logEl.innerHTML = '';
+
+        const log = (msg) => {
+            logEl.innerHTML += `<div>[${new Date().toLocaleTimeString('zh-TW', { hour12: false })}] ${msg}</div>`;
+            logEl.scrollTop = logEl.scrollHeight;
+            console.log(`[Repair Tool] ${msg}`);
+        };
+
+        try {
+            log("開始掃描並修復資料庫...");
+            const MAX_BATCH_SIZE = 500;
+
+            // Helper function for batched execution
+            async function repairCollection(collName, statusField, rules, filterRules = null) {
+                log(`掃描 ${collName}...`);
+                const snap = await db.collection(collName).get();
+                let fixes = 0;
+                let batch = db.batch();
+                let opCount = 0;
+
+                for (const doc of snap.docs) {
+                    const data = doc.data();
+                    let oldStatus = data[statusField];
+                    let newStatus = oldStatus;
+
+                    if (filterRules && !filterRules(data)) continue; // skip condition
+
+                    // Apply rules mapping
+                    if (rules[oldStatus]) {
+                        newStatus = rules[oldStatus];
+                    }
+
+                    // specific logical maps or special catches
+                    if (oldStatus === 'ON') newStatus = 'available';
+                    if (oldStatus === 'OFF') newStatus = 'discontinued';
+                    if (oldStatus === 'active') newStatus = 'available';
+                    if (oldStatus === 'inactive') newStatus = 'discontinued';
+                    if (oldStatus === 'in-stock') newStatus = 'available';
+                    if (oldStatus === 'out-of-stock') newStatus = 'out-of-stock';
+                    if (oldStatus === '開啟') newStatus = 'available';
+                    if (oldStatus === '關閉') newStatus = 'discontinued';
+                    if (['completed', '已完成', '結案'].includes(oldStatus)) newStatus = 'completed';
+                    if (oldStatus === '待處理') newStatus = 'pending';
+                    if (oldStatus === '已確認') newStatus = 'confirmed';
+                    if (oldStatus === '已取消') newStatus = 'cancelled';
+                    if (oldStatus === 'paid') newStatus = 'confirmed'; // For card orders
+
+                    // Specific mapping rule array passing strategy since old/new may differ
+                    if (newStatus !== oldStatus) {
+                        batch.update(doc.ref, { [statusField]: newStatus });
+                        fixes++;
+                        opCount++;
+                    }
+
+                    if (opCount === MAX_BATCH_SIZE) {
+                        await batch.commit();
+                        log(`${collName}: 提交一批次更新 (${MAX_BATCH_SIZE})`);
+                        batch = db.batch();
+                        opCount = 0;
+                    }
+                }
+
+                if (opCount > 0) {
+                    await batch.commit();
+                }
+
+                log(`${collName} 修復完成，共更新了 ${fixes} 筆。`);
+            }
+
+            // Products
+            await repairCollection('matcha_products', 'status', {});
+            // Brands
+            await repairCollection('matcha_brands', 'status', {});
+            // Plans
+            await repairCollection('denwa_plans', 'status', {});
+            // Card Orders Links
+            await repairCollection('card_orders_links', 'status', {});
+            // Orders
+            await repairCollection('orders', 'status', {});
+            // Denwa Orders
+            await repairCollection('denwa_orders', 'status', {});
+            // Fast Checkout Config
+            await repairCollection('fast_checkout_config', 'status', {});
+
+
+            log("資料庫修復程序全部完成");
+            KUI.toast("修復程序完成", 'info');
+
+        } catch (e) {
+            log(`<span style="color:#64748b">發生錯誤：${e.message}</span>`);
+            console.error(e);
+            KUI.alert("修復過程中發生錯誤，請查看日誌。");
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-rounded" style="font-size: 18px;">auto_fix</span>再次執行修復程序';
+        }
+    }
+
+    // ========== 會員資料 Doc ID 遷移工具 ==========
+    async function startMemberMigration(btn) {
+        const logEl = document.getElementById('member-migration-log');
+        logEl.style.display = 'block';
+        logEl.innerHTML = '';
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-rounded" style="font-size: 18px;">hourglass_top</span>遷移中...';
+
+        function log(msg) {
+            logEl.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        try {
+            log('開始掃描 members 集合...');
+            const snapshot = await db.collection('members').get();
+            log(`共找到 ${snapshot.size} 筆會員文件`);
+
+            let migratedCount = 0;
+            let skippedCount = 0;
+            let deletedCount = 0;
+            const phoneDocs = {}; // phone -> merged data
+
+            // Phase 1: 收集所有需要遷移的文件
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const phone = data.phone || '';
+                const docId = doc.id;
+
+                if (!phone || !/^09\d{8}$/.test(phone)) {
+                    log(`<span style="color:#94a3b8">跳過：${docId} (無有效手機號碼: "${phone}")</span>`);
+                    skippedCount++;
+                    return;
+                }
+
+                if (docId === phone) {
+                    // 已經是標準格式
+                    log(`<span style="color:#6ea44c">✓ ${docId} 已是標準格式</span>`);
+                    if (!phoneDocs[phone]) phoneDocs[phone] = { _standardExists: true, data: { ...data } };
+                    else {
+                        // 合併：保留較新的 updated_at
+                        const existing = phoneDocs[phone].data;
+                        for (const [k, v] of Object.entries(data)) {
+                            if (v !== undefined && v !== null && v !== '') {
+                                if (!existing[k] || existing[k] === '') {
+                                    existing[k] = v;
+                                }
+                            }
+                        }
+                        phoneDocs[phone]._standardExists = true;
+                    }
+                    skippedCount++;
+                    return;
+                }
+
+                // 需要遷移的文件 → 收集到 phoneDocs
+                log(`<span style="color:#f59e0b">遷移：${docId} → doc(${phone})</span>`);
+                if (!phoneDocs[phone]) phoneDocs[phone] = { _standardExists: false, data: {}, _oldDocIds: [] };
+
+                // 合併資料 (不覆蓋已有的非空值)
+                const target = phoneDocs[phone].data;
+                for (const [k, v] of Object.entries(data)) {
+                    if (v !== undefined && v !== null && v !== '') {
+                        if (!target[k] || target[k] === '') {
+                            target[k] = v;
+                        }
+                    }
+                }
+                if (!phoneDocs[phone]._oldDocIds) phoneDocs[phone]._oldDocIds = [];
+                phoneDocs[phone]._oldDocIds.push(docId);
+                migratedCount++;
+            });
+
+            // Phase 2: 寫入合併後的資料
+            log('---');
+            log('開始寫入合併資料...');
+            for (const [phone, info] of Object.entries(phoneDocs)) {
+                if (info._oldDocIds && info._oldDocIds.length > 0) {
+                    const writeData = { ...info.data };
+                    delete writeData._standardExists;
+                    delete writeData._oldDocIds;
+                    writeData.updated_at = firebase.firestore.FieldValue.serverTimestamp();
+                    writeData.migrated_at = firebase.firestore.FieldValue.serverTimestamp();
+
+                    await db.collection('members').doc(phone).set(writeData, { merge: true });
+                    log(`<span style="color:#6ea44c">✓ 已寫入 doc(${phone})，合併了 ${info._oldDocIds.length} 筆舊資料</span>`);
+
+                    // Phase 3: 刪除舊文件
+                    for (const oldId of info._oldDocIds) {
+                        await db.collection('members').doc(oldId).delete();
+                        log(`<span style="color:#94a3b8">✗ 已刪除舊文件 ${oldId}</span>`);
+                        deletedCount++;
+                    }
+                }
+            }
+
+            log('---');
+            log(`<strong>遷移完成！</strong>`);
+            log(`標準格式（已跳過）：${skippedCount} 筆`);
+            log(`已遷移合併：${migratedCount} 筆`);
+            log(`已刪除舊文件：${deletedCount} 筆`);
+            KUI.toast('會員資料遷移完成', 'info');
+
+        } catch (e) {
+            log(`<span style="color:#ef4444">發生錯誤：${e.message}</span>`);
+            console.error(e);
+            KUI.alert('遷移過程中發生錯誤，請查看日誌。');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-rounded" style="font-size: 18px;">sync_alt</span>再次執行遷移';
+        }
+    }
+
     // ========== 系統備份與復原 ==========
 
     const COLLECTIONS_TO_EXPORT = [
@@ -4451,7 +4732,9 @@ ${!rule.method.includes('宅配') ? `
         'denwa_plans',
         'shipping_rules',
         'fast_checkout_config',
-        'order_counters'
+        'order_counters',
+        'card_orders_links',
+        'card_orders'
     ];
 
     function updateBackupStatus(msg, isError = false) {
@@ -4633,7 +4916,7 @@ ${!rule.method.includes('宅配') ? `
                 updateBackupStatus(`完成 ${collName} 還原`);
             }
 
-            updateBackupStatus(`匯入成功！共還原 ${totalCount} 筆資料。`);
+            updateBackupStatus(`匯入成功！共還原 ${totalCount} 筆資料。建議刷新頁面以載入新資料。`);
             KUI.alert(`資料庫還原成功！共 ${totalCount} 筆資料。建議刷新頁面以載入新資料。`);
         } catch (error) {
             console.error('Import error:', error);
@@ -4682,17 +4965,15 @@ ${!rule.method.includes('宅配') ? `
 
             snapshot.forEach(doc => {
                 const data = doc.data();
-                const isActive = data.status === 'available' || data.status === '開啟';
-                const statusClass = isActive ? 'available' : 'discontinued';
-                const statusText = isActive ? '啟用中' : '已隱藏'; // derived from DB status
+                const badgeHtml = getStatusBadge('cardlinks', data.status);
                 const stagesCount = (data.stages || []).length;
                 html += `
                     <tr>
                         <td style="padding: 12px 15px;"><span style="font-family:monospace; font-weight:700; color:#6ea44c;">${data.suffix}</span></td>
                         <td style="padding: 12px 15px;"><div style="white-space: nowrap; max-width: 200px; overflow: hidden; text-overflow: ellipsis;" title="${data.title}">${data.title}</div></td>
-                        <td style="padding: 12px 15px; text-align: center;"><span style="font-size: 0.8rem; background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 4px;">${stagesCount > 0 ? stagesCount + ' 階段' : '單次支付'}</span></td>
+                        <td style="padding: 12px 15px; text-align: center;"><span style="font-size: 0.8rem; background: #f1f5f9; color: #475569; padding: 2px 10px; border-radius: 9999px; font-weight: 500;">${stagesCount > 0 ? stagesCount + ' 階段' : '單次支付'}</span></td>
                         <td style="padding: 12px 15px; font-weight: 700; color: #111827;">$${(data.amount || 0).toLocaleString()}</td>
-                        <td style="padding: 12px 15px; text-align: center;"><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td style="padding: 12px 15px; text-align: center;">${badgeHtml}</td>
                         <td style="padding: 12px 15px;">
                             <div style="display: flex; gap: 6px; justify-content: flex-end;">
                                 <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" onclick="copyCardLink('${data.suffix}')" title="複製連結">
@@ -4760,7 +5041,9 @@ ${!rule.method.includes('宅配') ? `
                 const data = doc.data();
                 const date = data.created_at?.toDate ? data.created_at.toDate() : new Date(data.created_at);
                 const dateStr = date.toLocaleString('zh-TW', { hour12: false });
-                const statusClass = data.payment_status === 'paid' ? 'completed' : 'pending';
+                // 映射邏輯：以前可能存為 paid，現在規一化顯示，但程式邏輯仍需兼容舊資料
+                const displayStatus = data.payment_status === 'paid' ? 'confirmed' : (data.payment_status || 'pending');
+                const badgeHtml = getStatusBadge('cardorders', displayStatus);
 
                 // 物流欄位相容處理
                 const logiType = data.logistics || data.logistics_type || data.shipping_method || '-';
@@ -4784,9 +5067,7 @@ ${!rule.method.includes('宅配') ? `
                             <div style="color:#6ea44c; font-weight:700;">$${(data.amount || 0).toLocaleString()}</div>
                             <div style="font-size:11px; color:#94a3b8;">${data.payment_method || '信用卡'}</div>
                         </td>
-                        <td style="padding: 12px 15px; text-align: center;">
-                            <span class="status-badge ${statusClass}">${data.payment_status === 'paid' ? '已付款' : '等待中'}</span>
-                        </td>
+                        <td style="padding: 12px 15px; text-align: center;">${badgeHtml}</td>
                         <td style="padding: 12px 15px; text-align: right; white-space: nowrap;">
                             <div style="font-size: 0.85rem; color: #475569;">${dateStr.split(' ')[0]}</div>
                         </td>
@@ -5320,6 +5601,7 @@ ${!rule.method.includes('宅配') ? `
         try {
             await db.collection('card_orders_links').doc(linkId).delete();
             KUI.toast('已刪除');
+            closeModal();
             loadCardLinks();
         } catch (error) {
             KUI.alert('刪除失敗：' + error.message);
@@ -5410,8 +5692,10 @@ ${!rule.method.includes('宅配') ? `
             <div class="form-group">
                 <label class="form-label">付款狀態</label>
                 <select id="linkOrderStatus" class="admin-select">
-                    <option value="pending" ${order.payment_status === 'pending' ? 'selected' : ''}>等待中 (Pending)</option>
-                    <option value="paid" ${order.payment_status === 'paid' ? 'selected' : ''}>已付款 (Paid)</option>
+                    <option value="pending" ${order.payment_status === 'pending' ? 'selected' : ''}>待處理 (Pending)</option>
+                    <option value="confirmed" ${['confirmed', 'paid'].includes(order.payment_status) ? 'selected' : ''}>已確認 (Confirmed)</option>
+                    <option value="completed" ${order.payment_status === 'completed' ? 'selected' : ''}>已完成 (Completed)</option>
+                    <option value="cancelled" ${order.payment_status === 'cancelled' ? 'selected' : ''}>已取消 (Cancelled)</option>
                 </select>
             </div>
             <div class="form-group">
@@ -5446,10 +5730,11 @@ ${!rule.method.includes('宅配') ? `
     }
 
     async function deleteLinkOrder(id) {
-        if (!confirm('確定要刪除這筆訂單紀錄嗎？\n(注意：此動作無法復原，請確認金流端已處理完畢)')) return;
+        if (!(await KUI.confirm('確定要刪除這筆訂單紀錄嗎？\n(注意：此動作無法復原，請確認金流端已處理完畢)'))) return;
         try {
             await db.collection('card_orders').doc(id).delete();
-            KUI.alert('訂單已刪除');
+            KUI.toast('訂單已刪除');
+            closeModal();
             loadCardOrders();
         } catch (error) {
             KUI.alert('刪除失敗：' + error.message);

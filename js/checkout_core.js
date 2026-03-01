@@ -29,9 +29,9 @@ async function handleQuickLogin() {
 
     try {
         // 直接從 Firestore 查詢會員
-        const snapshot = await db.collection('members').where('phone', '==', phone).limit(1).get();
-        if (!snapshot.empty) {
-            const userData = snapshot.docs[0].data();
+        const docSnap = await db.collection('members').doc(phone).get();
+        if (docSnap.exists) {
+            const userData = docSnap.data();
             // 登入成功，儲存到 LocalStorage
             localStorage.setItem('keicha_v2_user', JSON.stringify(userData));
             closeAllPanels();

@@ -1643,3 +1643,158 @@ Implemented official PCHome Pay payment integration in the Google Apps Script ba
 ### Chinese Summary
 統一後台資料庫與前台所有的商品、品牌、方案、刷卡連結的狀態對應文字。後台一律使用 `available` 與 `discontinued`（介面為：啟用中、缺貨中、已隱藏），前台使用者介面則一律顯示「可訂購」及「缺貨中」，完全消弭了過去包含 ON/OFF、完售、已停辦等多種雜亂的用字，提升整體一致性。
 
+
+## [2026-03-01T11:49:33Z]
+### Summary of changes
+- **Status Enum Overhaul**: Completely migrated backend status representations to English strings (`pending`, `confirmed`, `completed`, `cancelled`) across all administration modules and checkout processes.
+- **Frontend Sync**: Updated dropdown menus, validation rules, and status badge parsers in `admin.html` to align with the new standard English enums.
+- **Card Order Integration Check**: Validated `card-order.html` to ensure `available` is queried accurately alongside legacy `開啟` properties.
+- **Migration Tool Implementation**: Built and embedded a one-shot `Database Status Repair` algorithm in the '系統維護' module to seamlessly migrate legacy strings to the standardized dictionary across `denwa_products`, `denwa_brands`, `denwa_plans`, `card_orders_links`, `orders`, and `denwa_orders`.
+
+### Technical details of implementation
+- Restructured all string-based condition tests globally for order tracking, display parsing, and dropdowns. 
+- Integrated Firestore `db.batch()` chunked commit mechanisms to ensure performance and reliability throughout the migration.
+
+### Affected files or modules
+- `admin.html`: Injected `startDatabaseRepairTool()` logic and updated multi-select actions to emit english payloads.
+- `order.html`: Timeline parsing logic.
+- `card-order.html`: Payment link availability checks.
+
+### Chinese Summary
+這次針對方案A的需求，全面將資料庫底層狀態以標準英文單字儲存（pending, confirmed, completed, cancelled...等）。為了過渡期，我們在後台寫好了一支「資料庫狀態統一修復工具」，按下去就可以用批次處理安全地翻新成千上萬筆舊資料為標準英文；同時全面檢查了所有的介面、包含前台的連結和進度條，來確保這項轉換是暢通無阻的。
+
+## [2026-03-01T20:15:00Z]
+### Summary of changes
+- **Admin Maintenance UI Refinement**: Adjusted the "System Maintenance and Repair" (系統維護與修復) module to follow a strict grayscale design system.
+- **Grayscale Design System**: Removed all red, yellow, and orange accent colors from the Database Standardization tool, replacing them with neutral slate and gray tones.
+- **Emoji Removal**: Stripped all emojis (⚠️, 🎉) from the user interface and operation logs to maintain a professional, technical aesthetic.
+
+### Technical details of implementation
+- **Schema Alignment**: Corrected the repair tool's target collection names from `denwa_products`/`denwa_brands` to `matcha_products`/`matcha_brands` to align with the production Firestore structure.
+- **Style Overhaul (`admin.html`)**: Updated the primary container style from yellow-toned (`#fffdf2`, `#fcd34d`) to slate-toned (`#f8fafc`, `#cbd5e1`).
+- **Accent Neutralization**: Reassigned the action button and icon colors to `#475569` and `#64748b`.
+- **Log Sanitation**: Modified `startDatabaseRepairTool()` to output plain text logs, removing emoji prefixes and using neutral toast types.
+
+### Affected files or modules
+- `admin.html`: Maintenance tab styling and repair tool JavaScript logic.
+
+### Chinese Summary
+將系統維護與修復（資料庫轉換工具）的介面全面改為灰色系設計，移除了所有的 Emoji、紅色、橘色偏黃等鮮豔屬性，確保介面風格專業且低調，僅使用中性的灰色調進行呈現。
+
+## [2026-03-01T20:25:00Z]
+### Summary of changes
+- **Batch Edit Workflow**: Added automatic modal closing and data reloading after successful batch updates or deletions.
+- **Improved Confirmations**: Implemented status label translation in confirmation messages (e.g., 'completed' to '已完成').
+- **Custom Delete Dialog**: Replaced the native `prompt()` with a custom `KUI.prompt` component for batch delete confirmation, ensuring consistent styling.
+- **UI Label Update**: Renamed '測試模組' to '測試' across the navigation and content sections.
+- **Loading Overlay**: Integrated loading indicators with modal transitions.
+
+### Technical details of implementation
+- **KUI System Extension**: Added `KUI.prompt` function to `js/ui-dialog.js` with auto-focus and Enter-key submission.
+- **DOM Event Handling**: Added `closeModal()` calls within Firestore batch update completions.
+- **Text Refactoring**: Standardized naming across HTML tags and JavaScript comments for the 'Testing' module.
+
+### Affected files or modules
+- `admin.html`: Batch action functions and UI labels.
+- `js/ui-dialog.js`: Core dialog management logic.
+
+- **Status Terminology Unification**: Created `js/status-config.js` to centralize all status labels and UI badge rendering.
+- **Link Order Mapping**: Standardized "Card Order" status to `confirmed` (Previously `paid`), aligning with backend terminology.
+- **Workflow Consistency**: Ensured all edit and delete operations in the admin panel trigger a modal close and automated data reload.
+- **Improved UX**: Upgraded individual delete confirmations to use the custom KEICHA UI dialog system.
+
+### Technical details of implementation
+- **Batch Action Flow**: Reordered `exitBatchMode()` to occur after UI data reloads in `admin.html` to preserve the active context during list refresh.
+- **CSS Consistency**: Updated inline styles for installments count badges to use pill-shaped radius (`9999px`).
+- **GAS compatibility**: Modified `firebase_handler.gs` to recognize `available` and `active` as open link statuses.
+
+### Affected files or modules
+- `admin.html`: Fixed batch logic and badge styles.
+- `gas/firebase_handler.gs`: Updated checkout validation logic.
+- `CHANGELOG.md`: Updated with newest maintenance notes.
+
+### Chinese Summary
+修正了批次操作後不會自動關閉或刷新的邏輯錯誤。統一了「分次/階段」標籤的圓角設計。更新了後端 GAS 腳本，使其支援新的「啟用中」狀態碼，解決了結帳時出現「連結已關閉」的報錯。
+
+---
+
+### [1.2.9] - 2026-03-01
+
+#### **Summary of changes**
+Implemented real-time synchronization of member profile data to Firestore. As users enter their information in `denwa-form.html` and `fast.html`, the data is automatically updated/created in the `members` collection using a debounced mechanism.
+
+#### **Technical details of implementation**
+- **Member Sync Utility**: Created `js/member_sync.js` which provides a reusable `MemberSync` object. It includes a 2000ms debounce function to optimize Firestore write operations and uses the phone number as the document ID for the `members` collection.
+- **Form Integration (Fast Checkout, DIY, Matcha Store)**: Added/Refined listeners across `fast.html`, `diy.html`, and `maccha-store.html` to capture both personal details and shipping information (store IDs, addresses) in real-time.
+- **Exclusion**: Removed synchronization logic from `denwa-form.html` as requested.
+- **Persistence**: Synchronized data is automatically available for auto-filling forms on subsequent visits via the existing lookup logic.
+
+#### **Affected files or modules**
+- `js/member_sync.js`: [NEW] Central sync utility.
+- `denwa-form.html`: Integrated real-time sync into booking flow.
+- `fast.html`: Integrated real-time sync into fast checkout flow.
+
+> 實現會員資料「輸入即存檔」功能，自動同步聯絡資訊與收件地址至 Firestore。
+> 提升客戶填單體驗，確保資料在未送出前即已完成建檔或更新。
+
+---
+
+### [1.2.10] - 2026-03-01
+
+#### **Summary of changes**
+- Fixed a bug where `denwa_plans` failed to load in `denwa-form.html` by updating the criteria to include `available` status as managed by the admin panel.
+- Fixed `STATUS_MAP is not defined` ReferenceError in `jyoukyou.html`, ensuring proper translation of order statuses (pending, confirmed, completed, cancelled) to traditional Chinese.
+
+#### **Technical details of implementation**
+- **Denwa Plans Hotfix**: Changed the Firebase document query in `denwa-form.html` to accept both `'ON'` and `'available'` statuses, ensuring backward compatibility and consistency with the updated admin data structure.
+- **Jyoukyou Status Fix**: Reinitialized the `STATUS_MAP` inline object in `jyoukyou.html` to map internal English status keys to localized Traditional Chinese display strings.
+
+#### **Affected files or modules**
+- `denwa-form.html`
+- `jyoukyou.html`
+
+**中文說明：**
+修復了 `denwa-form.html` 方案未正常載入的異常，將判定條件放寬以支援由後台設定的 `available` 狀態；修復了 `jyoukyou.html` 查詢結果出錯（`STATUS_MAP` 未定義）的問題。
+
+---
+
+### [1.2.11] - 2026-03-01
+
+#### **Summary of changes**
+- Implemented a one-time "Member Data Migration Tool" in the admin panel to consolidate and standardize member document IDs.
+- Unified all member data write and read paths across `diy.html`, `fast.html`, `maccha-store.html`, and `shop/shop.js` to strictly use the phone number as the document ID in Firestore.
+
+#### **Technical details of implementation**
+- **Migration Tool**: Added a script in `admin.html` that queries the `members` collection, identifies documents with random (legacy) IDs, and merges their data into standard `doc(phone)` documents before securely deleting the redundant entries.
+- **Write Path Refactor**: Replaced `db.collection('members').where('phone', '==', phone)` update/add flows with atomic `db.collection('members').doc(phone).set(data, { merge: true })` calls. This guarantees that multiple checkout flows will not overwrite or duplicate member profile data (especially critical for differing logistics data like `store_711` vs `store_fami`).
+- **Read Path Refactor**: Updated lookups to use `.doc(phone).get()` instead of `.where().limit(1).get()`, significantly improving lookup efficiency and ensuring compatibility with the new ID structure.
+
+#### **Affected files or modules**
+- `admin.html`: Added the migration layout and logic.
+- `diy.html`, `fast.html`, `maccha-store.html`: Refactored Firestore read/write patterns.
+- `js/checkout_core.js`, `shop/shop.js`: Refactored Firestore read/write patterns for shared/shop environments.
+
+**中文說明：**
+建立了一次性的會員資料轉移工具，將舊的隨機 ID 會員資料整併。全面統整了前台所有表單寫入及讀取路徑，統一使用「手機號碼」作為文件 ID 並搭配 `merge: true` 寫入，徹底解決超商物流點位資料會互相覆蓋或遺失的 Bug。
+
+---
+
+### [1.2.12] - 2026-03-01
+
+#### **Summary of changes**
+- Updated all legacy navigation links pointing to the deprecated `maccha.html` to direct to the new shopping cart version `maccha-store.html`.
+- Included a dedicated contact section at the bottom of the `maccha-store.html` page to handle inquiries about other matcha brands via the LINE Official Account.
+
+#### **Technical details of implementation**
+- **Global Link Updates**: Replaced URL references to `maccha.html` with `maccha-store.html` across core template components (header/footer/index) and within structured JSON-LD SEO data in `maccha-loader.js`.
+- **Store Enhancement**: Created a new white card section near the bottom of the product list in `maccha-store.html`. Adjusted CSS padding and margins (`py-12 md:py-16`, `mt-12`, `mb-0`, and `pb-12` on main container) to vertically align and visually balance the section with the site footer. Added hover elevation and shadows matching the design of the central brand cards (`shadow-sm hover:shadow-md transform hover:-translate-y-1 transition-all duration-300`).
+
+#### **Affected files or modules**
+- `index.html`
+- `_includes/header.html`
+- `_includes/footer.html`
+- `assets/js/maccha-loader.js`
+- `maccha-store.html`
+
+**中文說明：**
+全面將舊版 `maccha.html` 抹茶代購的連結替換至支援購物車的 `maccha-store.html`。並在商城底部新增純白質感的「其他品牌代購（LINE客服）」聯絡區塊，設定等距版面留白與懸浮陰影特效。

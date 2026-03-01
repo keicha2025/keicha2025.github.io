@@ -106,7 +106,7 @@ function handleCardPayment(payload) {
   // 1. 從 Firestore 驗證連結資訊
   const config = fetchFirestoreDocument('card_orders_links', 'suffix', link_id);
   if (!config) return createJSONResponse(false, '連結無效或已過期');
-  if (config.status !== '開啟') return createJSONResponse(false, '此連結目前已關閉');
+  if (config.status !== '開啟' && config.status !== 'available' && config.status !== 'active') return createJSONResponse(false, '此連結目前已關閉');
 
   // 驗證金額：確保 stage_amount 符合伺服器設定的階段金額或總額
   let baseAmount = 0;
