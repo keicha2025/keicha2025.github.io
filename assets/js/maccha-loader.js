@@ -89,7 +89,7 @@ window.addEventListener('load', () => {
             const isActive = brand.status === 'active' || brand.status === 'available' || brand.status === 'open' || brand.status === 'ON';
             const isOutOfStock = brand.status === 'out-of-stock';
 
-            const statusText = isActive ? '可訂購' : (isOutOfStock ? '缺貨中' : '已停辦');
+            const statusText = isActive ? '可訂購' : '缺貨中';
             const statusColor = isActive ? 'bg-brandGreen text-white' : 'bg-gray-200 text-gray-600';
 
             statusGrid.innerHTML += `

@@ -486,7 +486,8 @@ title: KEICHA 管理後台
     .status-badge.pending,
     .status-badge.confirmed,
     .status-badge.cancelled,
-    .status-badge.hidden {
+    .status-badge.discontinued,
+    .status-badge.inactive {
         background: #f1f5f9;
         /* 淺灰底 */
         color: #64748b;
@@ -496,7 +497,7 @@ title: KEICHA 管理後台
 
     /* 僅保留「已完成、啟用中、可訂購」為品牌綠色底+白色字 */
     .status-badge.completed,
-    .status-badge.active-green,
+    .status-badge.active,
     .status-badge.available {
         background: #6ea44c;
         /* 品牌綠 */
@@ -2510,12 +2511,12 @@ title: KEICHA 管理後台
                     .get();
                 const productCount = productCountSnapshot.size;
 
-                // 支援多種狀態 (active, out-of-stock, inactive)
-                let statusText = '已停用';
-                let statusClass = 'pending';
-                if (brand.status === 'active' || brand.status === 'available' || brand.status === 'ON') {
+                // 支援多種狀態
+                let statusText = '已隱藏';
+                let statusClass = 'discontinued';
+                if (brand.status === 'available' || brand.status === 'active' || brand.status === 'ON') {
                     statusText = '啟用中';
-                    statusClass = 'active-green';
+                    statusClass = 'available';
                 } else if (brand.status === 'out-of-stock') {
                     statusText = '缺貨中';
                     statusClass = 'out-of-stock';
@@ -2654,9 +2655,9 @@ title: KEICHA 管理後台
                         <td><input type="number" class="batch-input" data-field="max_limit" value="${item.max_limit || ''}"></td>
                         <td>
                             <select class="batch-input" data-field="status">
-                                <option value="available" ${item.status === 'available' ? 'selected' : ''}>供應中</option>
+                                <option value="available" ${item.status === 'available' ? 'selected' : ''}>啟用中</option>
                                 <option value="out-of-stock" ${item.status === 'out-of-stock' ? 'selected' : ''}>缺貨中</option>
-                                <option value="discontinued" ${item.status === 'discontinued' ? 'selected' : ''}>已停產</option>
+                                <option value="discontinued" ${item.status === 'discontinued' ? 'selected' : ''}>已隱藏</option>
                             </select>
                         </td>
                         <td><input type="text" class="batch-input" data-field="tag" value="${item.tag || ''}"></td>
@@ -2694,21 +2695,21 @@ title: KEICHA 管理後台
             `;
 
             currentBrandProducts.forEach(item => {
-                let statusText = '供應中';
-                let statusClass = 'active-green'; // 預設使用品牌綠
+                let statusText = '啟用中';
+                let statusClass = 'available'; // 預設使用品牌綠
 
                 if (item.status === 'out-of-stock') {
                     statusText = '缺貨中';
                     statusClass = 'out-of-stock';
                 }
                 else if (item.status === 'discontinued') {
-                    statusText = '已停收';
-                    statusClass = 'cancelled';
+                    statusText = '已隱藏';
+                    statusClass = 'discontinued';
                 }
                 else {
                     // 預設或 explicitly available/in-stock
-                    statusText = '供應中';
-                    statusClass = 'active-green';
+                    statusText = '啟用中';
+                    statusClass = 'available';
                 }
 
                 const hiddenIcon = item.hidden ? 'visibility_off' : 'visibility';
@@ -3288,9 +3289,9 @@ title: KEICHA 管理後台
             <div class="form-group">
                 <label class="form-label">狀態</label>
                 <select id="productStatus" class="admin-select">
-                    <option value="available" ${product.status === 'available' || product.status === 'in-stock' ? 'selected' : ''}>上架中</option>
-                    <option value="out-of-stock" ${product.status === 'out-of-stock' ? 'selected' : ''}>已下架</option>
-                    <option value="discontinued" ${product.status === 'discontinued' ? 'selected' : ''}>已停產</option>
+                    <option value="available" ${product.status === 'available' || product.status === 'in-stock' ? 'selected' : ''}>啟用中</option>
+                    <option value="out-of-stock" ${product.status === 'out-of-stock' ? 'selected' : ''}>缺貨中</option>
+                    <option value="discontinued" ${product.status === 'discontinued' ? 'selected' : ''}>已隱藏</option>
                 </select>
             </div>
             <div class="form-group">
@@ -3405,9 +3406,9 @@ title: KEICHA 管理後台
                 <div class="form-group">
                     <label class="form-label">商品狀態</label>
                     <select id="newProductStatus" class="admin-select">
-                        <option value="available">上架中</option>
-                        <option value="out-of-stock">已下架</option>
-                        <option value="discontinued">已停產</option>
+                        <option value="available">啟用中</option>
+                        <option value="out-of-stock">缺貨中</option>
+                        <option value="discontinued">已隱藏</option>
                     </select>
                 </div>
             </div>
@@ -3460,9 +3461,9 @@ title: KEICHA 管理後台
             <div class="form-group">
                 <label class="form-label">狀態</label>
                 <select id="brandStatus" class="admin-select">
-                    <option value="active" ${brand.status === 'active' ? 'selected' : ''}>啟用中</option>
+                    <option value="available" ${(brand.status === 'available' || brand.status === 'active') ? 'selected' : ''}>啟用中</option>
                     <option value="out-of-stock" ${brand.status === 'out-of-stock' ? 'selected' : ''}>缺貨中</option>
-                    <option value="inactive" ${brand.status === 'inactive' ? 'selected' : ''}>已停用 (完全隱藏)</option>
+                    <option value="discontinued" ${(brand.status === 'discontinued' || brand.status === 'inactive') ? 'selected' : ''}>已隱藏</option>
                 </select>
             </div>
             <div class="form-group">
@@ -3529,7 +3530,7 @@ title: KEICHA 管理後台
         try {
             const newBrand = {
                 name: name,
-                status: 'active',
+                status: 'available',
                 hidden: false,
                 display_order: 0,
                 created_at: firebase.firestore.FieldValue.serverTimestamp()
@@ -3568,14 +3569,17 @@ title: KEICHA 管理後台
 
             // [優化] 排序邏輯：啟用中優先，再按排序權重
             plans.sort((a, b) => {
-                if (a.status === 'ON' && b.status !== 'ON') return -1;
-                if (a.status !== 'ON' && b.status === 'ON') return 1;
+                const aActive = a.status === 'available' || a.status === 'ON';
+                const bActive = b.status === 'available' || b.status === 'ON';
+                if (aActive && !bActive) return -1;
+                if (!aActive && bActive) return 1;
                 return (a.display_order || 99) - (b.display_order || 99);
             });
 
             plans.forEach(plan => {
-                const statusText = plan.status === 'ON' ? '啟用中' : '已停用';
-                const statusClass = plan.status === 'ON' ? 'confirmed' : 'pending';
+                const isActive = plan.status === 'available' || plan.status === 'ON';
+                const statusText = isActive ? '啟用中' : '已隱藏';
+                const statusClass = isActive ? 'available' : 'discontinued';
                 html += `
                     <div class="card" style="margin-bottom: 0; border: 1px solid #e5e7eb; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
                         <div>
@@ -3629,8 +3633,8 @@ title: KEICHA 管理後台
             <div class="form-group">
                 <label class="form-label">狀態</label>
                 <select id="planStatus" class="admin-select">
-                    <option value="ON" ${plan.status === 'ON' ? 'selected' : ''}>啟用中</option>
-                    <option value="OFF" ${plan.status === 'OFF' ? 'selected' : ''}>已停用</option>
+                    <option value="available" ${(plan.status === 'available' || plan.status === 'ON') ? 'selected' : ''}>啟用中</option>
+                    <option value="discontinued" ${(plan.status === 'discontinued' || plan.status === 'OFF') ? 'selected' : ''}>已隱藏</option>
                 </select>
             </div>
             <div class="form-group">
@@ -3717,7 +3721,7 @@ title: KEICHA 管理後台
                 name: document.getElementById('newPlanName').value,
                 price: parseInt(document.getElementById('newPlanPrice').value) || 0,
                 desc: document.getElementById('newPlanDescription').value,
-                status: 'ON',
+                status: 'available',
                 display_order: parseInt(document.getElementById('newPlanOrder').value) || 99,
                 created_at: firebase.firestore.FieldValue.serverTimestamp()
             };
@@ -4678,7 +4682,9 @@ ${!rule.method.includes('宅配') ? `
 
             snapshot.forEach(doc => {
                 const data = doc.data();
-                const statusClass = data.status === '開啟' ? 'completed' : 'pending';
+                const isActive = data.status === 'available' || data.status === '開啟';
+                const statusClass = isActive ? 'available' : 'discontinued';
+                const statusText = isActive ? '啟用中' : '已隱藏'; // derived from DB status
                 const stagesCount = (data.stages || []).length;
                 html += `
                     <tr>
@@ -4686,7 +4692,7 @@ ${!rule.method.includes('宅配') ? `
                         <td style="padding: 12px 15px;"><div style="white-space: nowrap; max-width: 200px; overflow: hidden; text-overflow: ellipsis;" title="${data.title}">${data.title}</div></td>
                         <td style="padding: 12px 15px; text-align: center;"><span style="font-size: 0.8rem; background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 4px;">${stagesCount > 0 ? stagesCount + ' 階段' : '單次支付'}</span></td>
                         <td style="padding: 12px 15px; font-weight: 700; color: #111827;">$${(data.amount || 0).toLocaleString()}</td>
-                        <td style="padding: 12px 15px; text-align: center;"><span class="status-badge ${statusClass}">${data.status}</span></td>
+                        <td style="padding: 12px 15px; text-align: center;"><span class="status-badge ${statusClass}">${statusText}</span></td>
                         <td style="padding: 12px 15px;">
                             <div style="display: flex; gap: 6px; justify-content: flex-end;">
                                 <button class="btn btn-secondary" style="padding: 6px; width: 32px; height: 32px;" onclick="copyCardLink('${data.suffix}')" title="複製連結">
@@ -5041,8 +5047,8 @@ ${!rule.method.includes('宅配') ? `
                 <div class="form-group">
                     <label class="form-label">狀態</label>
                     <select id="linkStatus" class="admin-input">
-                        <option value="開啟" ${data.status === '開啟' ? 'selected' : ''}>開啟</option>
-                        <option value="關閉" ${data.status === '關閉' ? 'selected' : ''}>關閉</option>
+                        <option value="available" ${(data.status === 'available' || data.status === '開啟') ? 'selected' : ''}>啟用中</option>
+                        <option value="discontinued" ${(data.status === 'discontinued' || data.status === '關閉') ? 'selected' : ''}>已隱藏</option>
                     </select>
                 </div>
             </div>

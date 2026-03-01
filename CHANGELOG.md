@@ -1628,3 +1628,18 @@ Implemented official PCHome Pay payment integration in the Google Apps Script ba
 
 ### Chinese Summary
 這版主要的更新在「提升後台管理效率」與「視覺定義」。在訂單、預約、與刷卡連結列表中，新增了長按卡片即進入「多選模式」的功能，並加入底部懸浮工具列以支援「批次刪除」與「批次更改狀態」；同時統一了全站刪除按鈕的樣式與訂單狀態用語（待處理、已確認、已完成、已取消）。最後，前台「訂單追蹤」系統現在會聰明地按照建立時間「由新到舊」自動排序了。
+
+## [2026-03-01T11:45:00Z]
+### Summary of changes
+- **Unified Backend Statuses**: Standardized all backend database status mappings to use `available` and `discontinued` across Products, Brands, Plans, and Card Links.
+- **Frontend Status Normalization**: Updated `maccha-store.html` and `maccha-loader.js` logic to stringently display `可訂購` (available) and `缺貨中` (sold out) in place of varied legacy terms.
+- **Admin Modal Alignment**: Aligned all admin edit and creation modals (Select dropdown options) for Brands, Plans, and Fast Checkouts to strictly match the unified status conventions.
+
+### Affected files or modules
+- `admin.html`: Status badge rendering and select options.
+- `maccha-store.html`: UI button logic and status badges.
+- `maccha-loader.js`: Product data mapping logic.
+
+### Chinese Summary
+統一後台資料庫與前台所有的商品、品牌、方案、刷卡連結的狀態對應文字。後台一律使用 `available` 與 `discontinued`（介面為：啟用中、缺貨中、已隱藏），前台使用者介面則一律顯示「可訂購」及「缺貨中」，完全消弭了過去包含 ON/OFF、完售、已停辦等多種雜亂的用字，提升整體一致性。
+

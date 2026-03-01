@@ -1536,7 +1536,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
             }
             let badgeHTML = '';
             if (tag) { badgeHTML = `<span class="absolute top-3 right-3 bg-brand text-white text-xs font-semibold px-2.5 py-0.5 rounded-[var(--r-full)] z-10 shadow-sm">${tag}</span>`; }
-            else if (isSoldOut) { badgeHTML = `<span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-[var(--r-full)] z-10 shadow-sm">缺貨</span>`; }
+            else if (isSoldOut) { badgeHTML = `<span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-[var(--r-full)] z-10 shadow-sm">缺貨中</span>`; }
 
             let priceHTML = '';
             if (hasMultiPrice) {
@@ -1550,7 +1550,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
 
             const btnClass = isSoldOut ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand text-white transition active:scale-95 hover:bg-brandDark shadow-md shadow-brand/10';
             const clickEvent = isSoldOut ? '' : `onclick="addToCart('${productId}', '${name}', ${price}, ${priceMulti}, ${product.stock}, ${maxLimit}, '${brandList.find(b => b.key === brandKey)?.name || 'KEICHA'}')"`;
-            const btnText = isSoldOut ? '完售' : '加入購物車';
+            const btnText = isSoldOut ? '缺貨中' : '加入購物車';
             const qtyDisable = isSoldOut ? 'disabled opacity-50' : '';
             const topRowClass = `flex gap-4 md:contents ${hasImage ? 'items-center' : ''}`;
 
