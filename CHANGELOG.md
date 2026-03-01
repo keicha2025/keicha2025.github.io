@@ -1798,3 +1798,20 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 
 **中文說明：**
 全面將舊版 `maccha.html` 抹茶代購的連結替換至支援購物車的 `maccha-store.html`。並在商城底部新增純白質感的「其他品牌代購（LINE客服）」聯絡區塊，設定等距版面留白與懸浮陰影特效。
+
+---
+
+### [1.2.13] - 2026-03-01
+
+#### **Summary of changes**
+- Updated the privacy policy content in `assets/data/privacy.tsv` to accurately reflect the current business model and data collection methods, removing irrelevant boilerplate text.
+
+#### **Technical details of implementation**
+- **Data Collection Accuracy**: Modified section "一、資料蒐集方式與項目" to explicitly mention the "website member checkout system" and secure storage in an internationally certified cloud database (Firebase).
+- **Third-Party Providers**: Corrected section "五、第三方服務與資料提供" by replacing generic examples ("restaurants, hotels, transportation") with the actual third-party checkout and logistics platforms used by the business (7-11 Myship, FamilyMart FamiStore, and Google integrations).
+
+#### **Affected files or modules**
+- `assets/data/privacy.tsv`
+
+**中文說明：**
+修正了隱私權條款內容（`privacy.tsv`），移除了不相關的第三方公版舉例（如餐廳、飯店等），並明確加入實際使用的物流平台（7-11 賣貨便、全家好賣+）與符合國際資安標準的雲端會員結帳系統（Firebase）說明，以符合實際業務現況並提升客戶信任。
