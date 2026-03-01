@@ -266,10 +266,10 @@ title: KEICHA 管理後台
     }
 
     .selectable-row.selected {
-        background-color: #e0f2fe;
-        /* Light blue background for selected rows */
-        box-shadow: inset 4px 0 0 0 #0ea5e9;
-        /* Left blue border indicator */
+        background-color: #f0fdf4;
+        /* Light green background */
+        box-shadow: inset 4px 0 0 0 #6ea44c;
+        /* Left brand green border */
     }
 
     .batch-action-bar {
@@ -278,7 +278,6 @@ title: KEICHA 管理後台
         left: 50%;
         transform: translateX(-50%);
         background: #1e293b;
-        /* Dark slate background */
         color: white;
         padding: 12px 24px;
         border-radius: 9999px;
@@ -297,7 +296,7 @@ title: KEICHA 管理後台
     }
 
     .batch-count-badge {
-        background: #3b82f6;
+        background: #6ea44c;
         color: white;
         font-weight: 700;
         font-size: 0.85rem;
@@ -520,355 +519,356 @@ title: KEICHA 管理後台
         display: inline-block;
         padding: 4px 12px;
         border-radius: var(--r-full);
+    }
 
-        .pagination-btn {
-            padding: 8px 16px;
-            border-radius: var(--r-full);
-            font-size: 0.85rem;
-            font-weight: 600;
-            white-space: nowrap;
+    .pagination-btn {
+        padding: 8px 16px;
+        border-radius: var(--r-full);
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    /* 共用狀態標籤基礎樣式 */
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 9999px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+        border: 1px solid transparent;
+        /* 預設邊框 */
+    }
+
+    /* 以下狀態皆統一為灰色系 */
+    .status-badge.pending,
+    .status-badge.confirmed,
+    .status-badge.cancelled {
+        background: #f1f5f9;
+        /* 淺灰底 */
+        color: #64748b;
+        /* 灰字 */
+        border-color: #e2e8f0;
+    }
+
+    /* 僅保留「已完成」為品牌綠色 */
+    .status-badge.completed,
+    .status-badge.active-green {
+        background: #e1f2d5;
+        /* 品牌淺綠底 */
+        color: #4b7134;
+        /* 品牌深綠字 */
+        border-color: #d1eca4;
+    }
+
+    /* 若需要特殊強調缺貨 */
+    .status-badge.out-of-stock {
+        background: #fee2e2;
+        color: #ef4444;
+        border-color: #fecaca;
+    }
+
+    /* Toggle 開關 */
+    .toggle-wrapper {
+        position: relative;
+        flex-shrink: 0;
+        width: 52px;
+        height: 28px;
+    }
+
+    .toggle-checkbox {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-label {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background-color: #e5e7eb;
+        border-radius: 9999px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .toggle-circle {
+        width: 24px;
+        height: 24px;
+        background-color: white;
+        border-radius: 50%;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        transition: transform 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .toggle-checkbox:checked+.toggle-label {
+        background-color: #6ea44c;
+    }
+
+    .toggle-checkbox:checked+.toggle-label .toggle-circle {
+        transform: translateX(24px);
+    }
+
+    /* 自定義上傳按鈕 */
+    .btn-custom-upload {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        padding: 20px;
+        background: #f8fafc;
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        color: #64748b;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 12px;
+    }
+
+    .btn-custom-upload:hover {
+        background: #f1f5f9;
+        border-color: #6ea44c;
+        color: #6ea44c;
+    }
+
+    .btn-custom-upload .material-symbols-rounded {
+        font-size: 24px;
+    }
+
+    /* 載入動畫 */
+    .loader {
+        border: 3px solid #f3f4f6;
+        border-top: 3px solid #6ea44c;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 40px auto;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
         }
 
-        /* 共用狀態標籤基礎樣式 */
-        .status-badge {
-            padding: 4px 10px;
-            border-radius: 9999px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .modal.active {
+        display: flex;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: var(--r-lg);
+        max-width: 600px;
+        width: 100%;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 1px solid #e5e7eb;
+        flex-shrink: 0;
+    }
+
+    .modal-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #6b7280;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+    }
+
+    .modal-close:hover {
+        background: #f3f4f6;
+    }
+
+    .modal-body {
+        padding: 24px;
+        overflow-y: auto;
+        flex: 1;
+        max-height: calc(90vh - 140px);
+    }
+
+    .modal-footer {
+        display: flex;
+        gap: 12px;
+        padding: 16px 24px;
+        border-top: 1px solid #e5e7eb;
+        flex-shrink: 0;
+        background: #fafafa;
+    }
+
+    .modal-footer .btn {
+        flex: 1;
+    }
+
+    /* 空狀態 */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #9ca3af;
+    }
+
+    .empty-state .material-symbols-rounded {
+        font-size: 64px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    /* 頂部操作列 */
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: nowrap;
+        gap: 12px;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid #6ea44c;
+    }
+
+    /* 響應式 */
+    @media (max-width: 768px) {
+        .admin-container {
+            padding: 12px;
+        }
+
+        .card {
+            padding: 16px;
+        }
+
+        .tabs {
             gap: 4px;
-            white-space: nowrap;
-            border: 1px solid transparent;
-            /* 預設邊框 */
         }
 
-        /* 以下狀態皆統一為灰色系 */
-        .status-badge.pending,
-        .status-badge.confirmed,
-        .status-badge.cancelled {
-            background: #f1f5f9;
-            /* 淺灰底 */
-            color: #64748b;
-            /* 灰字 */
-            border-color: #e2e8f0;
+        .tab {
+            padding: 10px 14px;
+            font-size: 0.9rem;
         }
 
-        /* 僅保留「已完成」為品牌綠色 */
-        .status-badge.completed,
-        .status-badge.active-green {
-            background: #e1f2d5;
-            /* 品牌淺綠底 */
-            color: #4b7134;
-            /* 品牌深綠字 */
-            border-color: #d1eca4;
-        }
-
-        /* 若需要特殊強調缺貨 */
-        .status-badge.out-of-stock {
-            background: #fee2e2;
-            color: #ef4444;
-            border-color: #fecaca;
-        }
-
-        /* Toggle 開關 */
-        .toggle-wrapper {
-            position: relative;
-            flex-shrink: 0;
-            width: 52px;
-            height: 28px;
-        }
-
-        .toggle-checkbox {
-            position: absolute;
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .toggle-label {
-            display: block;
-            width: 100%;
-            height: 100%;
-            background-color: #e5e7eb;
-            border-radius: 9999px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .toggle-circle {
-            width: 24px;
-            height: 24px;
-            background-color: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            transition: transform 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .toggle-checkbox:checked+.toggle-label {
-            background-color: #6ea44c;
-        }
-
-        .toggle-checkbox:checked+.toggle-label .toggle-circle {
-            transform: translateX(24px);
-        }
-
-        /* 自定義上傳按鈕 */
-        .btn-custom-upload {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            padding: 20px;
-            background: #f8fafc;
-            border: 2px dashed #cbd5e1;
-            border-radius: 12px;
-            color: #64748b;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-bottom: 12px;
-        }
-
-        .btn-custom-upload:hover {
-            background: #f1f5f9;
-            border-color: #6ea44c;
-            color: #6ea44c;
-        }
-
-        .btn-custom-upload .material-symbols-rounded {
-            font-size: 24px;
-        }
-
-        /* 載入動畫 */
-        .loader {
-            border: 3px solid #f3f4f6;
-            border-top: 3px solid #6ea44c;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 40px auto;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Modal */
-        .modal {
+        /* 手機版隱藏按鈕文字，僅顯示圖示 */
+        .tab-text,
+        .btn-text,
+        .logout-text {
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
         }
 
-        .modal.active {
-            display: flex;
+        .tab .material-symbols-rounded,
+        .btn .material-symbols-rounded {
+            margin: 0 !important;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 8px;
+            font-size: 0.85rem;
         }
 
         .modal-content {
-            background: white;
-            border-radius: var(--r-lg);
-            max-width: 600px;
-            width: 100%;
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            max-width: 95%;
+            margin: 10px;
         }
 
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 24px;
-            border-bottom: 1px solid #e5e7eb;
-            flex-shrink: 0;
+        /* 詳情網格在手機版改為單欄，防止變形 */
+        .modal-body [style*="display: grid"] {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
         }
 
-        .modal-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #1f2937;
+        /* 頂部操作列針對手機優化 */
+        .top-bar h1 {
+            font-size: 1.1rem !important;
         }
 
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #6b7280;
-            padding: 0;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
+        /* 隱藏登出文字 */
+        .logout-text {
+            display: none;
         }
 
-        .modal-close:hover {
-            background: #f3f4f6;
+        /* 表格優化：手機版不再隱藏欄位，改用滑桿查看全部 */
+        .data-table table {
+            min-width: 800px !important;
+        }
+
+        .data-table td {
+            vertical-align: middle;
+            padding: 10px 8px !important;
+        }
+
+        /* 響應式卡片標題 - 維持單橫排 */
+        .card-header-flex {
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 8px;
+        }
+
+        .modal-content {
+            max-width: 98% !important;
+            margin: 0 !important;
         }
 
         .modal-body {
-            padding: 24px;
-            overflow-y: auto;
-            flex: 1;
-            max-height: calc(90vh - 140px);
+            padding: 16px !important;
         }
-
-        .modal-footer {
-            display: flex;
-            gap: 12px;
-            padding: 16px 24px;
-            border-top: 1px solid #e5e7eb;
-            flex-shrink: 0;
-            background: #fafafa;
-        }
-
-        .modal-footer .btn {
-            flex: 1;
-        }
-
-        /* 空狀態 */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #9ca3af;
-        }
-
-        .empty-state .material-symbols-rounded {
-            font-size: 64px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        /* 頂部操作列 */
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: nowrap;
-            gap: 12px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid #6ea44c;
-        }
-
-        /* 響應式 */
-        @media (max-width: 768px) {
-            .admin-container {
-                padding: 12px;
-            }
-
-            .card {
-                padding: 16px;
-            }
-
-            .tabs {
-                gap: 4px;
-            }
-
-            .tab {
-                padding: 10px 14px;
-                font-size: 0.9rem;
-            }
-
-            /* 手機版隱藏按鈕文字，僅顯示圖示 */
-            .tab-text,
-            .btn-text,
-            .logout-text {
-                display: none;
-            }
-
-            .tab .material-symbols-rounded,
-            .btn .material-symbols-rounded {
-                margin: 0 !important;
-            }
-
-            .data-table th,
-            .data-table td {
-                padding: 8px;
-                font-size: 0.85rem;
-            }
-
-            .modal-content {
-                max-width: 95%;
-                margin: 10px;
-            }
-
-            /* 詳情網格在手機版改為單欄，防止變形 */
-            .modal-body [style*="display: grid"] {
-                grid-template-columns: 1fr !important;
-                gap: 12px !important;
-            }
-
-            /* 頂部操作列針對手機優化 */
-            .top-bar h1 {
-                font-size: 1.1rem !important;
-            }
-
-            /* 隱藏登出文字 */
-            .logout-text {
-                display: none;
-            }
-
-            /* 表格優化：手機版不再隱藏欄位，改用滑桿查看全部 */
-            .data-table table {
-                min-width: 800px !important;
-            }
-
-            .data-table td {
-                vertical-align: middle;
-                padding: 10px 8px !important;
-            }
-
-            /* 響應式卡片標題 - 維持單橫排 */
-            .card-header-flex {
-                flex-direction: row !important;
-                align-items: center !important;
-                gap: 8px;
-            }
-
-            .modal-content {
-                max-width: 98% !important;
-                margin: 0 !important;
-            }
-
-            .modal-body {
-                padding: 16px !important;
-            }
-        }
+    }
 </style>
 
 <div class="admin-container">
@@ -1257,6 +1257,36 @@ title: KEICHA 管理後台
     </div>
 </div>
 
+<div id="batchActionBar" class="batch-action-bar">
+    <span id="batchCountBadge" class="batch-count-badge">0</span>
+    <span style="font-size: 0.9rem; margin-right: auto;">已選取</span>
+
+    <select id="batchStatusSelect" class="admin-select"
+        style="width: 140px; padding: 6px; font-size: 0.85rem; background-color: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2);">
+        <option value="" style="color: black;" disabled selected>選擇操作...</option>
+        <option value="待處理" style="color: black;">標記為 待處理</option>
+        <option value="已確認" style="color: black;">標記為 已確認</option>
+        <option value="已完成" style="color: black;">標記為 已完成</option>
+        <option value="已取消" style="color: black;">標記為 已取消</option>
+    </select>
+
+    <button class="batch-action-btn" onclick="applyBatchStatus()" title="套用狀態">
+        <span class="material-symbols-rounded" style="font-size: 18px;">check_circle</span>
+        套用
+    </button>
+
+    <div style="width: 1px; height: 20px; background: rgba(255,255,255,0.2); margin: 0 8px;"></div>
+
+    <button class="batch-action-btn danger" onclick="applyBatchDelete()" title="批次刪除">
+        <span class="material-symbols-rounded" style="font-size: 18px;">delete</span>
+        刪除
+    </button>
+
+    <button class="batch-action-btn" onclick="exitBatchMode()" title="取消" style="margin-left: 8px;">
+        <span class="material-symbols-rounded" style="font-size: 18px;">close</span>
+    </button>
+</div>
+
 <div id="backup-status"
     style="margin-top: 24px; padding: 16px; background: #f9fafb; border-radius: 8px; font-family: monospace; font-size: 0.85rem; display: none;">
 </div>
@@ -1348,10 +1378,10 @@ title: KEICHA 管理後台
         isBatchMode = true;
         currentBatchType = row.dataset.type;
         document.body.classList.add('multi-select-mode');
-        
+
         // 震動回饋 (如果裝置支援)
         if (navigator.vibrate) navigator.vibrate(50);
-        
+
         toggleSelection(row);
         document.getElementById('batchActionBar').classList.add('active');
     }
@@ -1389,7 +1419,7 @@ title: KEICHA 管理後台
         currentBatchType = '';
         document.body.classList.remove('multi-select-mode');
         document.getElementById('batchActionBar').classList.remove('active');
-        
+
         // 移除所有視覺選取狀態
         document.querySelectorAll('.selectable-row.selected').forEach(row => {
             row.classList.remove('selected');
@@ -1423,7 +1453,7 @@ title: KEICHA 管理後台
             let count = 0;
             let statusField = currentBatchType === 'links' ? 'payment_status' : 'status';
             let valueToSet = newStatus;
-            
+
             // 特別處理 link order 的 payment_status ('paid' 或 'pending')
             if (currentBatchType === 'links') {
                 valueToSet = newStatus === '已付款' || newStatus === '已完成' ? 'paid' : 'pending';
@@ -1439,7 +1469,7 @@ title: KEICHA 管理後台
             hideLoading();
             KUI.toast(`已成功變更 ${count} 筆狀態`);
             exitBatchMode();
-            
+
             // 重新載入對應清單
             if (currentBatchType === 'orders') loadOrders();
             else if (currentBatchType === 'denwa') loadDenwaOrders();
@@ -1454,7 +1484,7 @@ title: KEICHA 管理後台
 
     async function applyBatchDelete() {
         if (selectedItems.size === 0) return;
-        
+
         // 再次防護，要求輸入密碼
         const pwd = prompt(`【危險操作】\n您即將刪除 ${selectedItems.size} 筆資料，此操作無法復原。\n請輸入密碼以確認：`);
         if (pwd !== '5203') {
@@ -1485,7 +1515,7 @@ title: KEICHA 管理後台
             hideLoading();
             KUI.toast(`已成功刪除 ${count} 筆資料`);
             exitBatchMode();
-            
+
             // 重新載入對應清單
             if (currentBatchType === 'orders') loadOrders();
             else if (currentBatchType === 'denwa') loadDenwaOrders();
