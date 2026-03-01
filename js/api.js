@@ -78,7 +78,80 @@ const API = {
     },
     async submitDenwaBooking(formData) {
         return await this._post(ENDPOINTS.DENWA, formData, true);
+    },
+
+    // 自帶測試資料處理
+    initTestFill: function () {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('test_fill') !== '1') return;
+
+        console.log('[TestFill] 偵測到測試參數，開始自動填入資料...');
+
+        setTimeout(() => {
+            const fieldMap = {
+                // 姓名類
+                'input-name': 't-測試姓名',
+                'name': 't-測試姓名',
+                'customerName': 't-測試姓名',
+
+                // 電話類
+                'input-phone': '0912345678',
+                'phone': '0912345678',
+                'tel': '0912345678',
+
+                // Email
+                'input-email': 'test@example.com',
+                'email': 'test@example.com',
+
+                // LINE
+                'input-line': 't-line-id',
+                'line': 't-line-id',
+                'line_id': 't-line-id',
+
+                // 備註 / 地址
+                'input-note': 't-這是一則測試備註',
+                'note': 't-這是一則測試備註',
+                'comment': 't-這是一則測試備註',
+                'address': 't-測試地址區街路123號',
+
+                // 超商相關 (ID 可能因頁面而異)
+                'store-id-7-11': '000711',
+                'store-name-7-11': 't-測試門市(7-11)',
+                'store-id-family': '000123',
+                'store-name-family': 't-測試門市(全家)',
+                'store_id': '000711',
+                'store_name': 't-測試門市'
+            };
+
+            for (const [id, value] of Object.entries(fieldMap)) {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.value = value;
+                    // 觸發 input 事件讓 Vue/React 或其它監聽器更新
+                    el.dispatchEvent(new Event('input', { bubbles: true }));
+                    el.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            }
+
+            // 處理 diy.html 這種特殊的 checkbox/radio 或特定的物流選擇
+            const logistics711 = document.querySelector('input[value*="7-11"]');
+            if (logistics711) {
+                logistics711.click();
+            } else {
+                const logisticsFM = document.querySelector('input[value*="全家"]');
+                if (logisticsFM) logisticsFM.click();
+            }
+
+            console.log('[TestFill] 填入完成');
+        }, 1000); // 延遲 1 秒確保頁面載入/Firebase 資料初始化完成
     }
 };
+
+// 頁面載入後自動偵測
+window.addEventListener('DOMContentLoaded', () => {
+    if (window.API && typeof window.API.initTestFill === 'function') {
+        window.API.initTestFill();
+    }
+});
 
 window.API = API;

@@ -26,6 +26,11 @@ function doPost(e) {
     if (e.parameter && e.parameter.MerchantID && e.parameter.RtnCode) {
       return handleECPayCallback(e.parameter);
     }
+    
+    // 檢查是否為 PCHome Pay 回傳 (PCHome Pay Callbacks)
+    if (e.parameter && e.parameter.notify_type && e.parameter.notify_message) {
+      return handlePCHomePayNotify(e.parameter);
+    }
 
     const payload = JSON.parse(e.postData.contents);
     const { action, data, idToken } = payload;
@@ -229,8 +234,95 @@ function handleCardPayment(payload) {
       return createJSONResponse(false, 'PCHome Pay 設定不完整（缺少 APP ID 或 SECRET）');
     }
     
-    // 這裡預留 PCHome Pay API 串接邏輯
-    return createJSONResponse(false, 'PCHome Pay 模組開發中，目前僅支援綠界。');
+    // 1. 準備訂單資料與 Firestore 紀錄 (同 ECPay 邏輯)
+    const orderData = {
+      order_id: orderId,
+      tracking_code: trackingCode,
+      link_id: link_id,
+      name: name,
+      phone: phone,
+      email: email,
+      line_name: line_name,
+      note: note,
+      amount: totalAmount,
+      base_amount: baseAmount,
+      shipping_fee: verifiedShipping,
+      total_budget: (config.amount || 0) + (config.shipping_fee || 0),
+      logistics: logistics || '',
+      address: address || '',
+      stage_index: stage_index,
+      payment_method: payload.payment_method,
+      payment_status: 'pending',
+      request_id: request_id || '',
+      created_at: { 'seconds': Math.floor(Date.now()/1000) },
+      source_token: 'keicha_2025_web_auth',
+      payment_provider: 'PCHomePay'
+    };
+
+    try {
+      createFirestoreDocument('card_orders', orderId, orderData);
+    } catch (fsError) {
+      console.error('Firestore creation failed: ' + fsError);
+    }
+
+    // 發送通知 (同 ECPay 邏輯)
+    try {
+      const buyerSubject = `KEICHA 訂單付款連結 (${orderId})`;
+      const buyerBody = generateCardOrderEmailHTML(orderData, false, tradeDesc);
+      const adminSubject = `[新刷卡訂單] ${name} - $${totalAmount}`;
+      const adminBody = generateCardOrderEmailHTML(orderData, true, tradeDesc);
+      if (email && email.indexOf('@') !== -1) {
+        try { GmailApp.sendEmail(email, buyerSubject, '', { htmlBody: buyerBody, from: SENDER_ALIAS, name: 'KEICHA' }); } 
+        catch (e1) { GmailApp.sendEmail(email, buyerSubject, '', { htmlBody: buyerBody }); }
+      }
+      try { GmailApp.sendEmail(ADMIN_EMAIL, adminSubject, '', { htmlBody: adminBody }); } catch (e2) {}
+    } catch (e) { console.error('Email notify failed: ' + e); }
+
+    // 2. 呼叫 PCHome Pay API 取得付款連結
+    try {
+      const tokenObj = getPCHomePayToken(appId, secret);
+      if (!tokenObj.success) return createJSONResponse(false, 'PCHome Pay 授權失敗：' + tokenObj.error);
+
+      const gasUrl = ScriptApp.getService().getUrl();
+      const pay_type = (payload.payment_method === 'ATM') ? ["ATM"] : ["CARD"];
+      
+      const pcPayPayload = {
+        order_id: orderId,
+        pay_type: pay_type, 
+        amount: totalAmount,
+        return_url: 'https://keicha-membership-system.web.app/index.html',
+        fail_return_url: 'https://keicha-membership-system.web.app/index.html',
+        notify_url: gasUrl,
+        buyer_email: email,
+        items: [{
+          name: tradeDesc || 'KEICHA Order',
+          url: 'https://keicha2025.github.io'
+        }]
+      };
+
+      const options = {
+        method: 'post',
+        contentType: 'application/json',
+        headers: { 'pcpay-token': tokenObj.token },
+        payload: JSON.stringify(pcPayPayload),
+        muteHttpExceptions: true
+      };
+
+      const baseUrl = appId.indexOf('test') !== -1 || appId.indexOf('sandbox') !== -1 
+        ? 'https://sandbox-api.pchomepay.com.tw' 
+        : 'https://api.pchomepay.com.tw';
+      
+      const response = UrlFetchApp.fetch(baseUrl + '/v1/payment', options);
+      const result = JSON.parse(response.getContentText());
+
+      if (result.payment_url) {
+        return createJSONResponse(true, 'OK', { payment_url: result.payment_url });
+      } else {
+        return createJSONResponse(false, 'PCHome Pay 訂單建立失敗：' + (result.message || JSON.stringify(result)));
+      }
+    } catch (apiErr) {
+      return createJSONResponse(false, 'PCHome Pay 串接異常：' + apiErr.toString());
+    }
   }
 
   return createJSONResponse(false, '不支援的金流商');
@@ -282,6 +374,43 @@ function handleRepayOrder(payload) {
     NeedExtraPaidInfo: 'Y',
     PaymentType: 'aio'
   });
+
+  // 如果原本就是 PCHome Pay 訂單，則走 PCHome Pay 重新付款邏輯
+  if (config && config.payment_provider === 'PCHomePay') {
+    const props = PropertiesService.getScriptProperties();
+    const appId = props.getProperty('PCHOMEPAY_APP_ID');
+    const secret = props.getProperty('PCHOMEPAY_SECRET');
+    
+    const pay_type = (order.payment_method === 'ATM') ? ["ATM"] : ["CARD"];
+    
+    const tokenObj = getPCHomePayToken(appId, secret);
+    if (tokenObj.success) {
+      const pcPayPayload = {
+        order_id: repay_order_id + repaySuffix, // PCHome Pay order_id 也不能重複
+        pay_type: pay_type,
+        amount: totalAmount,
+        return_url: 'https://keicha-membership-system.web.app/index.html',
+        fail_return_url: 'https://keicha-membership-system.web.app/index.html',
+        notify_url: gasUrl,
+        buyer_email: order.email,
+        items: [{ name: tradeDesc, url: 'https://keicha2025.github.io' }]
+      };
+      
+      const baseUrl = appId.indexOf('test') !== -1 || appId.indexOf('sandbox') !== -1 
+        ? 'https://sandbox-api.pchomepay.com.tw' 
+        : 'https://api.pchomepay.com.tw';
+
+      const resp = UrlFetchApp.fetch(baseUrl + '/v1/payment', {
+        method: 'post',
+        contentType: 'application/json',
+        headers: { 'pcpay-token': tokenObj.token },
+        payload: JSON.stringify(pcPayPayload),
+        muteHttpExceptions: true
+      });
+      const res = JSON.parse(resp.getContentText());
+      if (res.payment_url) return createJSONResponse(true, 'OK', { payment_url: res.payment_url });
+    }
+  }
 
   return createJSONResponse(true, 'OK', { payment_html: html });
 }
@@ -1137,6 +1266,95 @@ function generateCheckMacValue(params) {
       return v.toString(16).padStart(2, '0');
     }).join('').toUpperCase();
 }
+
+/**
+ * PCHome Pay 取得授權 Token
+ */
+function getPCHomePayToken(appId, secret) {
+  if (!appId || !secret) return { success: false, error: 'Missing PCHome Pay credentials' };
+  
+  const baseUrl = appId.indexOf('test') !== -1 || appId.indexOf('sandbox') !== -1 
+    ? 'https://sandbox-api.pchomepay.com.tw' 
+    : 'https://api.pchomepay.com.tw';
+    
+  const options = {
+    method: 'post',
+    contentType: 'application/json',
+    headers: {
+      'Authorization': 'Basic ' + Utilities.base64Encode(appId + ':' + secret)
+    },
+    muteHttpExceptions: true
+  };
+  
+  try {
+    const response = UrlFetchApp.fetch(baseUrl + '/v1/token', options);
+    const result = JSON.parse(response.getContentText());
+    if (result.token) return { success: true, token: result.token };
+    return { success: false, error: result.message || 'Token acquisition failed' };
+  } catch (e) {
+    return { success: false, error: e.toString() };
+  }
+}
+
+/**
+ * 處理 PCHome Pay 背景回傳通知 (NotifyURL)
+ */
+function handlePCHomePayNotify(params) {
+  const notifyType = params.notify_type;
+  const message = JSON.parse(params.notify_message);
+  
+  // 目前僅處理已付款通知 (order_confirm)
+  if (notifyType === 'order_confirm' && message.status === 'S') {
+    const rawOrderId = message.order_id;
+    // 處理可能的重新付款後綴 (與 ECPay 邏輯一致)
+    const orderId = rawOrderId.split('R')[0];
+    
+    // 更新訂單狀態
+    updateFirestoreDocument('card_orders', orderId, {
+      payment_status: 'paid',
+      paid_at: message.actual_pay_date || message.pay_date,
+      pchomepay_order_id: message.order_id
+    });
+
+    // 自動標記支付連結中的階段為「已付」 (同 ECPay 邏輯)
+    const order = getFirestoreDocumentById('card_orders', orderId);
+    if (order && order.link_id && order.stage_index !== undefined) {
+      const link = fetchFirestoreDocument('card_orders_links', 'suffix', order.link_id);
+      if (link && link.stages && link.stages.length > 0) {
+        if (order.stage_index >= 0) {
+          if (link.stages[order.stage_index]) link.stages[order.stage_index].is_paid = true;
+        } else {
+          link.stages = link.stages.map(s => { s.is_paid = true; return s; });
+        }
+        updateFirestoreDocumentWithArray('card_orders_links', link._id, { stages: link.stages });
+      }
+    }
+
+    // 發送通知郵件
+    try {
+      if (order) {
+        const fakeParams = {
+          TradeAmt: message.trade_amount || message.amount,
+          PaymentDate: message.actual_pay_date || message.pay_date,
+          PaymentType: 'PCHomePay (' + (message.pay_type || 'CARD') + ')'
+        };
+        const buyerSubject = `[付款成功] KEICHA 訂單 ${orderId} 已完成付款`;
+        const buyerBody = generateCardPaidEmailHTML(order, false, fakeParams);
+        const adminSubject = `[付款成功] ${order.name || '客戶'} - 訂單 ${orderId}`;
+        const adminBody = generateCardPaidEmailHTML(order, true, fakeParams);
+
+        if (order.email && order.email.indexOf('@') !== -1) {
+          try { GmailApp.sendEmail(order.email, buyerSubject, '', { htmlBody: buyerBody, from: SENDER_ALIAS, name: 'KEICHA' }); } 
+          catch (e) { GmailApp.sendEmail(order.email, buyerSubject, '', { htmlBody: buyerBody }); }
+        }
+        try { GmailApp.sendEmail(ADMIN_EMAIL, adminSubject, '', { htmlBody: adminBody }); } catch (e) {}
+      }
+    } catch (e) { console.error('PCHome Pay notify email failed: ' + e); }
+  }
+
+  return ContentService.createTextOutput("success");
+}
+
 /**
  * 產生自定義訂單編號 (CYYMMDDXX)
  */

@@ -465,13 +465,15 @@ title: KEICHA 快速結帳
         const fees_map = fastConfig.fees_map || {};
         const tracking_links_map = fastConfig.tracking_links_map || {};
 
-        // 相容舊版開關
+        // 舊版開關佈署
         const legacy_methods = [];
-        if (fastConfig.enable_711 && !enabled_methods.includes('7-11')) legacy_methods.push('7-11');
-        if (fastConfig.enable_fami && !enabled_methods.includes('全家')) legacy_methods.push('全家');
-        if (fastConfig.enable_home && !enabled_methods.includes('宅配')) legacy_methods.push('宅配');
+        if (fastConfig.enable_711 && !enabled_methods.some(m => m.includes('7-11'))) legacy_methods.push('7-11');
+        if (fastConfig.enable_fami && !enabled_methods.some(m => m.includes('全家'))) legacy_methods.push('全家');
+        if (fastConfig.enable_home && !enabled_methods.some(m => m.includes('宅配') || m.includes('郵寄') || m.includes('黑貓'))) legacy_methods.push('宅配');
 
-        const allMethods = [...enabled_methods, ...legacy_methods];
+        let allMethods = [...enabled_methods, ...legacy_methods];
+        // 去重
+        allMethods = [...new Set(allMethods)];
 
         if (allMethods.length === 0) {
             document.getElementById('no-logistics-msg').classList.remove('hidden');
@@ -482,7 +484,7 @@ title: KEICHA 快速結帳
             const fee = calcFastShip(m);
             const is711 = m.includes('7-11');
             const isFami = m.includes('全家');
-            const isHome = m.includes('宅配') || m.includes('郵寄') || m.includes('地址');
+            const isHome = m.includes('宅配') || m.includes('郵寄') || m.includes('地址') || m.includes('寄送');
 
             let icon = 'local_shipping';
             if (is711 || isFami) icon = 'store';
@@ -541,12 +543,12 @@ title: KEICHA 快速結帳
         }
 
         const fees_map = fastConfig.fees_map || {};
-        if (fees_map[method] !== undefined) return parseInt(fees_map[method]);
+        if (fees_map[method] !== undefined && fees_map[method] !== null) return parseInt(fees_map[method]);
 
-        // 相容舊版
-        if (method === '7-11') return parseInt(fastConfig.fee_711) || 0;
-        if (method === '全家') return parseInt(fastConfig.fee_fami) || 0;
-        if (method === '宅配') return parseInt(fastConfig.fee_home) || 0;
+        // 相容舊版欄位
+        if (method.includes('7-11')) return parseInt(fastConfig.fee_711) || 0;
+        if (method.includes('全家')) return parseInt(fastConfig.fee_fami) || 0;
+        if (method.includes('宅配')) return parseInt(fastConfig.fee_home) || 0;
         return 0;
     }
 
@@ -668,7 +670,7 @@ title: KEICHA 快速結帳
 
         const is711 = currentMethod.includes('7-11');
         const isFami = currentMethod.includes('全家');
-        const isHome = currentMethod.includes('宅配') || currentMethod.includes('郵寄') || currentMethod.includes('地址');
+        const isHome = currentMethod.includes('宅配') || currentMethod.includes('郵寄') || currentMethod.includes('地址') || currentMethod.includes('寄送');
 
         if (is711 || isFami) {
             storeData = getVal(`store-id-${currentMethod}`);

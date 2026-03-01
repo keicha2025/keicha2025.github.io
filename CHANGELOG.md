@@ -1,5 +1,32 @@
 # Changelog
 
+## [2026-02-28] - Logistics System Dynamic Refactor & Code Integrity Cleanup
+
+### Summary of changes
+Refactored the logistics management architecture to be fully data-driven, enabling dynamic delivery method configuration across all checkout interfaces. Performed an emergency recovery of the administrative module's source code, repairing corrupted script block hierarchies and JavaScript syntax errors caused by improper formatting tools.
+
+### Technical details of implementation
+- **Logistics Pool Integration**:
+    - Refactored `fast.html` to eliminate hardcoded shipping methods (7-11, FamilyMart, Home Delivery).
+    - Implemented a unified `renderLogisticsDynamic` engine that generates delivery cards, store lookups, and address inputs based on names fetched from the `shipping_methods` collection.
+    - Integrated with `fast_checkout_config` using the new `enabled_methods` (array) and `fees_map` (object) schema.
+- **Dynamic Fee Engine**: Updated `calcFastShip` to prioritize real-time fee mapping from Firestore, with graceful fallbacks for legacy configurations.
+- **Admin Management Upgrades**:
+    - Created a "Logistics Channel Pool" management interface in `admin.html`.
+    - Implemented dynamic configuration generation in the Fast Checkout settings tab.
+- **Code Integrity Fixes**:
+    - Cleaned up corrupted HTML tags (e.g., `< div >` fixed to `<div>`) across administrative sub-modules.
+    - Removed excessive spaces in template literals throughout the backup and data repair tools, ensuring reliable variable interpolation.
+    - Corrected broken script attributes for link order management actions.
+
+### Affected files or modules
+- `admin.html`: Core administrative logic and UI cleanup.
+- `fast.html`: Checkout rendering and order submission logic.
+- `CHANGELOG.md`: Updated project history.
+
+**中文摘要**：物流系統全面轉向「數據驅動」架構。現在管理員可在後台自由新增物流管道，前端 `fast.html` 會自動根據物流名稱產對應的輸入框（店號/地址）與運費。同時徹底清理了管理後台因格式化錯誤導致的亂碼與語法空格，恢復備份工具的穩定性。
+
+
 ## [2026-02-27] - Global Redirection Updates and UI Refinement
 
 ### Summary of changes
@@ -1506,3 +1533,83 @@ Resolved an inconsistency in product status values that caused some "Available" 
 
 ### Chinese Summary
 修正後台商品狀態色彩不一致的問題：統一將上架狀態值定為 `available`，並確保無論是單筆編輯還是批量管理，「供應中」標籤皆能正確顯示為品牌綠。同時將「已停產」選項補齊至所有商品管理介面。
+
+## [2026-03-01] - PCHome Pay Integration (Backend)
+
+### Summary of changes
+Implemented official PCHome Pay payment integration in the Google Apps Script backend, providing a robust secondary payment option alongside ECPay.
+
+### Technical details of implementation
+- **Token Management**: Added `getPCHomePayToken` which implements HTTP Basic Auth to securely fetch short-lived access tokens from the PCHome Pay API.
+- **Order Creation**: 
+    - Implemented `handleCardPayment` logic for the `PCHomePay` provider.
+    - Added support for automatic environment switching (Sandbox vs. Production) based on the provided `APP_ID`.
+    - Integrated with PCHome Pay's `/v1/payment` endpoint to receive dynamic `payment_url` redirects.
+- **WebHook Callbacks**: 
+    - Added a routing rule in `doPost` to capture PCHome Pay's `notify_url` signals.
+    - Implemented `handlePCHomePayNotify` to parse and verify `order_confirm` events.
+    - Automated Firestore order status updates and multi-stage payment tracking matching the existing ECPay logic.
+- **Email Notifications**: Synchronized the payment success email flow for both the customer and admin using existing HTML templates.
+- **Payment Method Restriction**: Dynamic `pay_type` mapping implemented for PCHome Pay. The system now restricts the available payment channels on the PCHome Pay page based on the user's selection (e.g., Credit Card or ATM), ensuring UI consistency.
+
+### Affected files or modules
+- `gas/firebase_handler.gs`: core API integration, token handling, and result processing.
+
+### Chinese Summary
+實作 PCHome Pay 金流串接：支援自動取得 API Token、建立訂單並取得跳轉連結。同步實作 WebHook 回傳處理，確保付款後系統自動更新 Firestore 訂單狀態、同步支付階段並發送通知郵件，並優化支付管道限制，確保跳轉後僅顯示使用者選擇的付款方式。
+
+## [2026-03-01T05:30:35Z]
+### Summary of changes
+- **Firebase Hosting Recovery**: Restored the correct project deployment for `keicha-membership-system` after an accidental overwrite by an external project.
+- **URL Routing Optimization**: Enabled `cleanUrls` in `firebase.json` and added specific rewrite rules for `/admin` to ensure correct routing to `admin.html`.
+- **Admin Panel Syntax Fix**: Resolved critical "Unexpected end of input" and "ReferenceError" in `admin.html`.
+    - Escaped illegal `</script>` tags within JavaScript template literals.
+    - Fixed unclosed `DOMContentLoaded` event listener that prevented script execution.
+    - Restored missing `showShareButton` calls.
+
+### Affected files or modules
+- `firebase.json`: added cleanUrls and admin rewrite rules.
+- `admin.html`: fixed syntax errors and unclosed code blocks.
+
+### Chinese Summary
+恢復因錯誤部署受損的 Firebase Hosting 專案，並修復 `admin.html` 的嚴重語法錯誤（包含標籤轉義錯誤與未閉合的括號），同時優化路由規則，支援透過 `/admin` 短網址直接存取。
+
+## [2026-03-01T07:02:29Z]
+### Summary of changes
+- **Admin Panel Order Export**: Implemented a unified "Export Logistics Orders" button to compile both standard (`orders`) and link-based (`card_orders`) transactions containing shipping information.
+    - Excludes 'Completed' and 'Cancelled' statuses to filter only actionable orders.
+    - Autogenerates a single `.xlsx` file segmenting records into "全家訂單" and "7-11訂單" sheets adhering to the exact merchant-prescribed structure and columns.
+    - Sorts records chronologically by most recent `created_at` timestamp.
+- **UI Bug Resolution**: Corrected an improperly structured `<div>` inline property syntax error (`< div style = "margin-bottom: 12px;" >`) causing a visual bug in the card links view.
+
+### Affected files or modules
+- `admin.html`: Injected `exportLogisticsOrders()` function, `exceljs` processing, and removed faulty structural divs.
+
+### Chinese Summary
+在管理員後台實作「匯出物流訂單」功能，將標準訂單與連結訂單中含有物流資料、且未完成/未取消的項目，依建立時間降冪排序後，統一輸出成含「全家」與「7-11」獨立分頁的 Excel 檔案。同時修復了刷卡連結管理頁面上一處多餘的 HTML 文字破圖問題。
+
+## [2026-03-01T08:05:00Z]
+### Summary of changes
+- **Enhanced Order Export Filtering**: Refined `exportLogisticsOrders()` to include multiple logistics-related fields (`logistics`, `logistics_type`, `shipping_method`, `method`), ensuring orders with diverse naming conventions are correctly identified.
+- **Improved Order Data Mapping**: Expanded field detection for exports, including `items_text` for product descriptions and alternative total/shipping amount keys (`total`, `shipping`) to cover both standard and link-based orders.
+- **Brand UI Alignment**: Switched the order export confirmation from a native `confirm()` to the brand's custom `KUI.confirm()` dialog.
+- **Robust Card Link Copying**: Fixed the `copyCardLink()` function to correctly handle root path deployments (`/admin` vs `/admin.html`) by dynamically detecting and replacing the base path, ensuring generated payment links are always accurate.
+
+### Affected files or modules
+- `admin.html`: Updated `exportLogisticsOrders()` and `copyCardLink()` logic.
+
+### Chinese Summary
+優化「匯出物流訂單」的篩選邏輯，相容更多物流相關欄位（logistics, method 等）並支援更廣泛的商品與金額欄位名稱，確保資料不遺漏。同時修正了「支付連結」複製時因 URL 路徑不一致導致的錯誤問題，並將確認視窗統一更換為品牌風格的 `KUI.confirm` 組件。
+
+## [2026-03-01T08:45:00Z]
+### Summary of changes
+- **Testing Module Path Fix**: Removed the erroneous `/keicha/` segment from the generated test URLs in `admin.html` to ensure they point accurately to the root pages (e.g., `fast.html`).
+- **Removed Deprecated Test Actions**: Cleaned up the Testing Module UI by removing the two legacy "Card Order" testing buttons (PC-T, EC-T) as they are no longer required for current workflows.
+- **Resolved Logistics Options Duplication**: Fixed a bug in `fast.html` where legacy logistics methods like "7-11" and "全家" were being erroneously appended alongside the updated labels (e.g., "7-11 店到店"). The detection logic now utilizes `.some()` to verify any inclusive match within the enabled methods before appending fallbacks.
+
+### Affected files or modules
+- `admin.html`: Updated `goTestPage` URL construction and removed redundant button elements.
+- `fast.html`: Updated the logistics rendering logic to check for substring matches using `Array.some`.
+
+### Chinese Summary
+修復測試模組自動帶入時網址多了 `/keicha/` 導致開啟錯誤頁面的問題，並依需求移除了不必要的兩顆「刷卡測試」按鈕。同時修正了 `fast.html` 中物流選項（如 7-11、全家）因比對邏輯錯誤而重複顯示的 Bug。

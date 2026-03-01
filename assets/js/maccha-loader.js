@@ -25,11 +25,10 @@ window.addEventListener('load', () => {
                 order: doc.data().display_order // 相容舊版欄位名
             })).sort((a, b) => {
                 const activeKeywords = ['active', 'available', 'open', '开团', '開團', '接收訂單中', '收單中', '可供訂購', '可訂購'];
-                const rawA = (a.status || '').toLowerCase().trim();
-                const rawB = (b.status || '').toLowerCase().trim();
-                const isAActive = activeKeywords.includes(rawA);
-                const isBActive = activeKeywords.includes(rawB);
+                const isAActive = activeKeywords.includes((a.status || '').toLowerCase().trim());
+                const isBActive = activeKeywords.includes((b.status || '').toLowerCase().trim());
 
+                // 排序規則：可訂購優先，其餘依照 display_order
                 if (isAActive && !isBActive) return -1;
                 if (!isAActive && isBActive) return 1;
                 return (Number(a.display_order) || 99) - (Number(b.display_order) || 99);
@@ -90,7 +89,7 @@ window.addEventListener('load', () => {
             const isActive = brand.status === 'active' || brand.status === 'available' || brand.status === 'open' || brand.status === 'ON';
             const isOutOfStock = brand.status === 'out-of-stock';
 
-            const statusText = isActive ? '可訂購' : (isOutOfStock ? '缺貨中' : '已停用');
+            const statusText = isActive ? '可訂購' : (isOutOfStock ? '缺貨中' : '已停辦');
             const statusColor = isActive ? 'bg-brandGreen text-white' : 'bg-gray-200 text-gray-600';
 
             statusGrid.innerHTML += `

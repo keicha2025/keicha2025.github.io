@@ -1,12 +1,17 @@
 {
   "hosting": {
     "public": "_site",
+    "cleanUrls": true,
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
     "rewrites": [
+      {
+        "source": "/admin",
+        "destination": "/admin.html"
+      },
       {
         "source": "**",
         "destination": "/index.html"
