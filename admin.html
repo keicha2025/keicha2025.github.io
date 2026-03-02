@@ -4280,7 +4280,7 @@ ${!rule.method.includes('宅配') ? `
             <p style="font-size: 0.75rem; color: #9ca3af; margin: 0;">開啟後顧客可下單，關閉則顯示維護中</p>
         </div>
         <div class="toggle-wrapper">
-            <input type="checkbox" id="status_toggle" class="toggle-checkbox" ${data.status === '開啟' ? 'checked' : ''}>
+            <input type="checkbox" id="status_toggle" class="toggle-checkbox" ${['開啟', 'available', 'ON'].includes(data.status) ? 'checked' : ''}>
             <label for="status_toggle" class="toggle-label">
                 <div class="toggle-circle"></div>
             </label>
