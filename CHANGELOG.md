@@ -1928,9 +1928,11 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 - **Plan Loading Logic**: Expanded Firestore filtering in `denwa-form.html` to include both `ON` and `available` status for plans. Added logging for easier debugging.
 - **Path Integrity**: Restored `form-result.html` and `fast-diy-result.html` to the root directory, fixing the 404 error on redirection.
 - **Pre-Deployment Sync**: Verified local file existence and sync before final build.
-- **Admin Access Optimization**: Added `permalink: /admin` to `admin.html` front matter to ensure a clean `/admin` access path on GitHub Pages.
+- **Admin Access Restoration**: Moved `admin.html` and `admin_fast.html` back to the root directory from `/admin/` as GitHub Pages redirection issues caused 404. Updated `firebase.json` for mapping.
+- **Permalink Optimization**: Removed `permalink: /admin` in favor of direct file access for maximum compatibility across environments.
+- **Admin URL Update**: The master admin interface is now back to `https://keicha2025.github.io/admin.html`.
 
 **中文說明：**
-修復了表單送出後的 404 錯誤，將結果頁面移回正確路徑。同時根據用戶需求優化了 `denwa-form.html` 的 UI 提示字與方案載入邏輯，並為管理後台設定了 Permalink，讓 GitHub Pages 端的管理中心網址優化為 `https://keicha2025.github.io/admin`。
+因 GitHub Pages 的轉址設定導致子目錄下的管理介面出現 404 錯誤，現已將 `admin.html` 與 `admin_fast.html` 搬回根目錄。現在 GitHub 正向入口均恢復正常（URL 為 `https://keicha2025.github.io/admin.html`），並同步更新了 Firebase 的轉址規則確保兩端一致。
 
 ---
