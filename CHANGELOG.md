@@ -1973,3 +1973,17 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 
 **中文說明：**
 優化了自填單 (`diy.html`) 與快速結帳 (`fast.html`) 的表單欄位名稱。將 LINE 顯示名稱改為具備蝦皮名稱提示的複合欄位，並確認了後台 GAS 程式碼已支援發送此類訂單的結帳通知信件。
+
+---
+
+### [1.2.24] - 2026-03-02
+
+#### **Summary of changes**
+- Refined field placeholders in `diy.html` and `fast.html` for better user guidance.
+
+#### **Technical details of implementation**
+- **Placeholder Update**: Updated the placeholder for "LINE / 蝦皮顯示名稱" from "蝦皮客戶請填寫蝦皮名稱" to "請輸入主要聯絡方式的顯示名稱" across `diy.html` and `fast.html`. This provides more general guidance regardless of the communication platform used.
+
+**中文說明：**
+優化了表單中的提示文字。將 `diy.html` 與 `fast.html` 的聯絡名稱佔位符統一改為「請輸入主要聯絡方式的顯示名稱」，使引導內容更具包容性。
+
