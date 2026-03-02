@@ -486,7 +486,7 @@ title: KEICHA 快速結帳
     function renderPageConfig() {
         if (!fastConfig) return;
 
-        if (fastConfig.status !== '開啟') {
+        if (!['開啟', 'available', 'ON'].includes(fastConfig.status)) {
             document.getElementById('closed-mask').style.display = 'flex';
             document.getElementById('main-content').classList.add('hidden');
             return;

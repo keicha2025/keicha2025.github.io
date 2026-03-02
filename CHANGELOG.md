@@ -1936,3 +1936,16 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 因 GitHub Pages 的轉址設定導致子目錄下的管理介面出現 404 錯誤，現已將 `admin.html` 與 `admin_fast.html` 搬回根目錄。現在 GitHub 正向入口均恢復正常（URL 為 `https://keicha2025.github.io/admin.html`），並同步更新了 Firebase 的轉址規則確保兩端一致。
 
 ---
+
+### [1.2.21] - 2026-03-02
+
+#### **Summary of changes**
+- Expanded configuration state checks in the fast checkout frontend logic to resolve "Shop Closed" misidentification.
+
+#### **Technical details of implementation**
+- **Status Value Check Relaxation**: Updated `renderPageConfig()` function inside `fast.html`. The page previously only recognized exactly `'開啟'` as an active fast-checkout shop state. Modified the condition (`!['開啟', 'available', 'ON'].includes(fastConfig.status)`) to interpret `'available'` and `'ON'` (produced by the admin or default database setups) as valid open states. This unblocks the user interface without altering backend structure or previously saved document states.
+
+**中文說明：**
+修正了 `fast.html` 快速結帳頁面的賣場開啟狀態判斷，將 `available` 與 `ON` 等資料庫實際儲存的值一併納入「開啟」的條件，避免明明後台已設定開啟，前端卻被「目前未開放」遮罩卡住的問題。
+
+---
