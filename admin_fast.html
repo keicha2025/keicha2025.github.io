@@ -299,7 +299,7 @@ title: 賣場管理後台
     });
 
     function fillForm(c) {
-        setCheck('status_toggle', c.status === '開啟');
+        setCheck('status_toggle', ['開啟', 'available', 'ON'].includes(c.status));
         setVal('items_text', c.items_text);
         setVal('amount', c.amount);
 
@@ -331,7 +331,7 @@ title: 賣場管理後台
         const payload = {
             action: 'updateFastConfig',
             password: password,
-            status: getCheck('status_toggle') ? '開啟' : '關閉',
+            status: getCheck('status_toggle') ? 'available' : '關閉',
             items_text: getVal('items_text'),
             amount: getVal('amount'),
             enable_711: getCheck('enable_711'),

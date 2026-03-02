@@ -1949,3 +1949,17 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 修正了 `fast.html` 快速結帳頁面的賣場開啟狀態判斷，將 `available` 與 `ON` 等資料庫實際儲存的值一併納入「開啟」的條件，避免明明後台已設定開啟，前端卻被「目前未開放」遮罩卡住的問題。
 
 ---
+
+### [1.2.22] - 2026-03-02
+
+#### **Summary of changes**
+- Synchronized admin toggle logic with the expanded status values to correctly reflect and update the shop state.
+
+#### **Technical details of implementation**
+- **Admin Toggle Initialization**: Updated `fillForm()` in `admin_fast.html` to check if the status is one of `['開啟', 'available', 'ON']`, ensuring the UI toggle correctly initializes to "ON" for all valid open states.
+- **Admin Status Persistence**: Updated `saveConfig()` in `admin_fast.html` to save the active status as `'available'` instead of `'開啟'`, aligning with the new project standard and ensuring consistent behavior between frontend and backend.
+
+**中文說明：**
+修正了快速結帳後台 (`admin_fast.html`) 的狀態開關邏輯。現在進入頁面時，「賣場狀態開關」能正確讀取並反映資料庫中的多種開啟狀態（包含 `available` 與 `ON`），且儲存時會統一使用 `available` 狀態，確保與前台邏輯及專案資料庫規範一致。
+
+---
