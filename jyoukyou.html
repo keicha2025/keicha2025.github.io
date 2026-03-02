@@ -115,6 +115,7 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
         const STATUS_MAP = {
             'pending': '待處理',
             'confirmed': '已確認',
+            'paid': '已確認',
             'completed': '已完成',
             'cancelled': '已取消'
         };
@@ -238,11 +239,11 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                                 amount: data.amount || 0,
                                 baseAmount: data.base_amount || 0,
                                 shippingFee: data.shipping_fee || 0,
-                                totalBudget: data.total_budget || 0,
-                                status: data.payment_status === 'paid' ? '已付款' : '等待付款',
+                                totalBudget: data.total_budget || ((data.base_amount || 0) + (data.shipping_fee || 0)) || 0,
+                                status: STATUS_MAP[data.payment_status] || (data.payment_status === 'paid' ? '已確認' : '待處理'),
                                 paymentLink: data.payment_url || (data.link_id ? `card-order.html?id=${data.link_id}` : ''),
                                 paymentStatus: data.payment_status || 'pending',
-                                sellerNote: data.note || '',
+                                sellerNote: data.seller_note || '',
                                 trackingCode: data.tracking_code || '',
                                 createdAt: data.created_at || data.submit_time || data.created_time || 0
                             });
@@ -260,11 +261,11 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                                     amount: data.amount || 0,
                                     baseAmount: data.base_amount || 0,
                                     shippingFee: data.shipping_fee || 0,
-                                    totalBudget: data.total_budget || 0,
-                                    status: data.payment_status === 'paid' ? '已付款' : '等待付款',
+                                    totalBudget: data.total_budget || ((data.base_amount || 0) + (data.shipping_fee || 0)) || 0,
+                                    status: STATUS_MAP[data.payment_status] || (data.payment_status === 'paid' ? '已確認' : '待處理'),
                                     paymentLink: data.payment_url || (data.link_id ? `card-order.html?id=${data.link_id}` : ''),
                                     paymentStatus: data.payment_status || 'pending',
-                                    sellerNote: data.note || '',
+                                    sellerNote: data.seller_note || '',
                                     trackingCode: data.tracking_code || '',
                                     createdAt: data.created_at || data.submit_time || data.created_time || 0
                                 });
@@ -307,9 +308,9 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
             resultsContainer.innerHTML = '';
 
             orders.forEach(order => {
-                // 顏色邏輯：待確認為灰色，其餘品牌綠
-                const isPending = order.status === "待確認" || order.status === "等待付款";
-                const textColorClass = isPending ? "text-gray-500" : "text-[#6ea44c]";
+                // 顏色邏輯：已完成為綠色，其餘 (待處理、已確認、已取消) 為灰色
+                const isGreen = order.status === "已完成";
+                const textColorClass = isGreen ? "text-[#6ea44c]" : "text-gray-500";
 
                 // 方案 A：垂直清單化處理訂單明細
                 const itemsList = String(order.item || '').split('\n').filter(row => row.trim() !== '');

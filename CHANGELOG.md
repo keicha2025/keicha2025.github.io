@@ -1849,3 +1849,22 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 
 **中文說明：**
 統一了專屬刷卡頁面 (`card-order.html`) 的會員資料讀寫邏輯。現在當客人在刷卡結帳時更新收件姓名、Email 或取貨門市，系統會自動將最新資訊同步回資料庫的會員存檔中，確保客人在不同頁面間購物時的一致性體驗。
+
+---
+
+### [1.2.16] - 2026-03-02
+
+#### **Summary of changes**
+- Fixed display inconsistencies and data mapping errors in the order tracking page (`jyoukyou.html`).
+
+#### **Technical details of implementation**
+- **Calculation Correction**: Updated card order display to calculate "Total Amount" by summing `base_amount` and `shipping_fee` as a fallback, ensuring the total matches the breakdown even if `total_budget` was saved incorrectly in the database.
+- **Mapping Fixes**: Corrected "Seller Remark" mapping for card orders to correctly pull from `seller_note` instead of the buyer's `note` field.
+- **Status Unification**: Standardized status labels across all order types to `待處理`, `已確認`, `已取消`, and `已完成` using a unified `STATUS_MAP`.
+- **UI Styling**: Updated status badge colors to match brand requirements—only `已完成` (Completed) is Green, while all other statuses are now uniformly Grey.
+
+#### **Affected files or modules**
+- `jyoukyou.html`
+
+**中文說明：**
+修復了訂單查詢頁面 (`jyoukyou.html`) 的顯示問題。包括修正刷卡訂單的總計金額計算（避免漏算運費）、修正「賣家留言」誤抓成客人備註的問題。同時統一了所有訂單類型的狀態名稱（待處理、已確認等）與配色，確保只有「已完成」顯示為綠色，其餘進度皆以灰色顯示，維持介面語義一致。
