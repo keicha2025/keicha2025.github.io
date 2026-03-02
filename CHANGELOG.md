@@ -1831,3 +1831,21 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 
 **中文說明：**
 修復了 `denwa-pay.html` 中無法正常顯示電話代撥支付方案的問題。主因與先前預約表單相同，原系統只判斷舊有的 `ON` 狀態，現在已將條件加上支援後台設定的 `available` 狀態。
+
+---
+
+### [1.2.15] - 2026-03-02
+
+#### **Summary of changes**
+- Synchronized the member data read/write logic in `card-order.html` with the rest of the application to ensure profile consistency across all checkout entry points.
+
+#### **Technical details of implementation**
+- **Read Path Migration**: Updated `lookupPhoneData` in `card-order.html` to fetch member profiles using direct document IDs (`db.collection('members').doc(phone).get()`) instead of query-based filtering.
+- **Auto-Sync on Checkout**: Implemented a background sync in `submitOrder` that automatically updates the user's `members` document with the latest name, email, LINE name, and logistics preferences (Store ID or Address) whenever a card payment is initiated.
+- **Atomic Operations**: Used `set(..., { merge: true })` to prevent accidental overwrites of existing member fields while ensuring new information is captured reliably.
+
+#### **Affected files or modules**
+- `card-order.html`
+
+**中文說明：**
+統一了專屬刷卡頁面 (`card-order.html`) 的會員資料讀寫邏輯。現在當客人在刷卡結帳時更新收件姓名、Email 或取貨門市，系統會自動將最新資訊同步回資料庫的會員存檔中，確保客人在不同頁面間購物時的一致性體驗。

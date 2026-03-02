@@ -705,11 +705,12 @@ title: KEICHA 信用卡結帳
         btn.innerHTML = '<span class="material-symbols-rounded animate-spin-custom text-sm">refresh</span>';
 
         try {
-            const snap = await db.collection('members').where('phone', '==', phone).limit(1).get();
-            if (!snap.empty) {
-                const u = snap.docs[0].data();
+            const docSnap = await db.collection('members').doc(phone).get();
+            if (docSnap.exists) {
+                const u = docSnap.data();
                 document.getElementById('input-name').value = u.name || '';
                 document.getElementById('input-email').value = u.email || '';
+                document.getElementById('input-line').value = u.line_name || '';
 
                 // 自動帶入門市 / 地址
                 document.querySelectorAll('.logistics-card').forEach(card => {
@@ -849,6 +850,33 @@ title: KEICHA 信用卡結帳
 
         // 【UI 防呆】開啟滿版遮罩，防止使用者在等待 API 時繼續亂點
         document.getElementById('loading-overlay').classList.remove('hidden');
+
+        // 同步回會員資料
+        try {
+            const memberData = {
+                phone: payload.phone,
+                name: payload.name,
+                email: payload.email,
+                line_name: payload.line_name,
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            if (logistics) {
+                if (logistics.includes('7-11')) {
+                    memberData.store_711 = rawCVSStore;
+                    const noteEl = document.getElementById(`store-note-${logistics}`);
+                    if (noteEl) memberData.store_711_note = noteEl.value.trim();
+                } else if (logistics.includes('全家')) {
+                    memberData.store_fami = rawCVSStore;
+                    const noteEl = document.getElementById(`store-note-${logistics}`);
+                    if (noteEl) memberData.store_fami_note = noteEl.value.trim();
+                } else if (logistics.includes('宅配') || logistics.includes('郵寄') || logistics.includes('地址')) {
+                    memberData.shipping_address = address;
+                }
+            }
+            await db.collection('members').doc(payload.phone).set(memberData, { merge: true });
+        } catch (e) {
+            console.error("[MemberSync] Save failed:", e);
+        }
 
         try {
             const response = await fetch("https://script.google.com/macros/s/AKfycbxuhZcx8uKvrASAQy7ZEf3k979DT4b4qU6MK7Rhb8oiOir8QWCxlgmR4vYdticnxD0B/exec", {
