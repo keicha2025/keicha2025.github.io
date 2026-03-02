@@ -15,28 +15,38 @@
 
 ---
 
-## 1️⃣ 第一階段：本地測試與部署到 Firebase (測試預覽用)
+## 1️⃣ 第一階段：測試與部署到 Firebase (Beta 預覽用)
 
-根據我們專案的規範，**只要是測試與修改中的確認，請一律使用 Firebase Hosting 進行預覽，切勿直接 push 上 GitHub**。
+現在專案已導入 **GitHub Actions 自動化部署**。建議將測試中的功能推送到 `develop` 或其功能分支，系統會自動將變更部署至 Firebase Hosting 供即時預覽。
 
-### 🌱 操作指令：
-若要同時建置 Jekyll Site 內容並推送到 Firebase Hosting，可以直接使用專案內建的腳本（此腳本會自動負責編譯並推送到 `keicha-membership-system` 專案）：
+### 🕊️ 自動化流程：
+當您執行 `git push` 時，GitHub 就會自動接手：
+1. **觸發頻率**：每次推送任一分支代碼至 GitHub 儲存庫。
+2. **動作內容**：
+   - 自動在雲端執行 `jekyll build` 建置網站。
+   - 自動將建置後的 `_site` 部署到 Firebase Hosting Beta 環境。
+3. **網址確認**：[https://keicha-membership-system.web.app/](https://keicha-membership-system.web.app/)
 
-```bash
-zsh sync.sh
-```
-
-> **💡 解析 `sync.sh` 裡面的動作：**
-> 1. `jekyll build` - 將目前的 HTML / MD 建置到 `_site` 目錄。
-> 2. `firebase deploy --only hosting` - 將 `_site` 裡面的內容打包上傳至 Firebase 供即時預覽。
-
-**測試網址**：[https://keicha-membership-system.web.app/](https://keicha-membership-system.web.app/)
+> **💡 注意事項**：
+> 如果您是第一次使用此自動化流程，請確保 GitHub 儲存庫中已設定 `FIREBASE_SERVICE_ACCOUNT_KEICHA_MEMBERSHIP_SYSTEM` 金鑰。詳見下方「GitHub Actions 常見設定」章節。
 
 ---
 
 ## 2️⃣ 第二階段：正式發布到 GitHub (Production 環境)
 
-當在 Firebase 上測試完成，確定所有功能與 UI（完全遵循 `DESIGN_SYSTEM.md`）都沒有問題，且經過手動確認後，這時才能將變更發布到 GitHub 成為正式版本供實際消費者存取。
+當在 Firebase 上測試完成，確定所有功能與 UI 都符合 `DESIGN_SYSTEM.md` 無誤後，這時才能啟動正式版建置。
+
+根據您的需求，**正式版預設為手動觸發**，讓您有 100% 的主導權。
+
+### 🚀 指令與操作：
+當您準備好要升級至正式版時，請依照下列步驟：
+1. 確保變更已合併進 `main` 分支。
+2. 開啟 GitHub 瀏覽器頁面，點選儲存庫頂端的「**Actions**」分頁。
+3. 在左側清單選擇「**Keicha Automated Deployment**」。
+4. 點選「**Run workflow**」按鈕，並在下拉選單選擇「**github_prod**」。
+5. 等待流程跑完，您的正式網站就會同步更新。
+
+**正式版網址**：[https://keicha2025.github.io/](https://keicha2025.github.io/)
 
 ### 🚨 部署前必做事項：更新變更日誌
 在準備 Push 到遠端 (GitHub) 前，**必須** 更新根目錄下的 `CHANGELOG.md`：
@@ -75,8 +85,25 @@ git push origin main
 
 ---
 
-## 🛑 常見的防呆錯誤與原則
+## 🛑 GitHub Actions 常見問題與安全性設定
 
-1. **嚴禁未經測試就推上 Github**：任何細微的修改，即使是修一個拼字錯誤，都請先跑一次 `zsh sync.sh` 用 Firebase 測試！
-2. **忘記填寫 CHANGELOG.md**：為了團隊日後的追蹤，即使是很小幅度的變更，也建議要妥善記錄。
-3. **找不到 Firebase 指令**：如果出現 `firebase: command not found`，請確認全域是否有正確安裝 CLI：`npm install -g firebase-tools`。
+為了讓自動部署正常運作，您需要設定以下安全金鑰 (Repository Secrets)：
+
+1. **取得 Service Account 金鑰**：
+   - 到 [Firebase 控制台](https://console.firebase.google.com/) -> 專案設定 -> 服務帳戶。
+   - 點擊「產生新的私密金鑰 (JSON)」。
+2. **設定到 GitHub**：
+   - 到 GitHub 儲存庫 -> Settings -> Secrets and variables -> Actions。
+   - 點擊「New repository secret」。
+   - 名稱填入：`FIREBASE_SERVICE_ACCOUNT_KEICHA_MEMBERSHIP_SYSTEM`。
+   - 內容貼入剛才下載的 JSON 全文。
+
+---
+
+## 📜 部署與版本歷史準則 (Changelog)
+
+在啟動正式部署 (Production) 前，請務必按照規範：
+1. 更新根目錄下的 `CHANGELOG.md`：
+   - 將最新的修改內容追加至末尾。
+   - 主內容使用技術英文，結尾附上 1-2 句中文摘要。
+2. **每次正式推送或手動部署必須對應一個 Changelog 紀錄**，切勿合併多次更新。

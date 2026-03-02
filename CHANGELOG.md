@@ -1987,3 +1987,35 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 **中文說明：**
 優化了表單中的提示文字。將 `diy.html` 與 `fast.html` 的聯絡名稱佔位符統一改為「請輸入主要聯絡方式的顯示名稱」，使引導內容更具包容性。
 
+---
+
+### [1.2.25] - 2026-03-02
+
+#### **Summary of changes**
+- Implemented tab persistence in the admin panel (`admin.html`) to remember the last active tab after a page reload.
+
+#### **Technical details of implementation**
+- **Persistence Logic**: Updated `switchTab` to store the active tab name in `localStorage` under `adminActiveTab`.
+- **Restoration Logic**: Modified `showMainApp` to retrieve the saved tab from `localStorage` on login and trigger `switchTab` during initialization.
+- **UI Enhancement**: Improved `switchTab` to correctly highlight the manual button even when triggered programmatically at startup.
+
+**中文說明：**
+實作了官網後台 (`admin.html`) 的分頁記憶功能。現在操作員在切換分頁後重新整理網頁，系統會自動停留在最後使用的標籤頁，提升操作體驗。
+
+---
+
+### [1.3.0] - 2026-03-02
+
+#### **Summary of changes**
+- Optimized deployment workflow by introducing GitHub Actions CI/CD for dual-environment support (Firebase Beta & GitHub Production).
+- Updated the deployment guide to reflect the transition from manual to automated processes.
+
+#### **Technical details of implementation**
+- **CI/CD Workflow**: Created `.github/workflows/deploy.yml` to automate Jekyll builds.
+- **Beta Environment**: Configured automatic deployment to Firebase Hosting for all branch pushes, facilitating rapid testing and preview.
+- **Production Environment**: Implemented manual trigger (`workflow_dispatch`) for GitHub Pages deployment from the `main` branch, ensuring a gated release process as per project policy.
+- **Documentation**: Overhauled `docs/DEPLOY_GUIDE.md` to explain the new automated flow and how to configure repository secrets.
+
+**中文說明：**
+導入了 GitHub Actions 自動化部署流程，優化了開發體驗。所有分支推送現在都會自動部署到 Firebase (Beta 測試版)，而 GitHub Pages (正式版) 則改為手動點選觸發，確保在測試完全無誤後才更新正式官網。
+
