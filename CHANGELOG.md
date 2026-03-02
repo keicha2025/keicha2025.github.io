@@ -1928,8 +1928,9 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 - **Plan Loading Logic**: Expanded Firestore filtering in `denwa-form.html` to include both `ON` and `available` status for plans. Added logging for easier debugging.
 - **Path Integrity**: Restored `form-result.html` and `fast-diy-result.html` to the root directory, fixing the 404 error on redirection.
 - **Pre-Deployment Sync**: Verified local file existence and sync before final build.
+- **Admin Access Optimization**: Added `permalink: /admin` to `admin.html` front matter to ensure a clean `/admin` access path on GitHub Pages.
 
 **中文說明：**
-修復了表單送出後的 404 錯誤，將結果頁面移回正確路徑。同時根據用戶需求優化了 `denwa-form.html` 的 UI 提示字（如蝦皮名稱、英文姓名說明），並調整了方案載入邏輯以包含 `available` 狀態的項目。
+修復了表單送出後的 404 錯誤，將結果頁面移回正確路徑。同時根據用戶需求優化了 `denwa-form.html` 的 UI 提示字與方案載入邏輯，並為管理後台設定了 Permalink，讓 GitHub Pages 端的管理中心網址優化為 `https://keicha2025.github.io/admin`。
 
 ---
