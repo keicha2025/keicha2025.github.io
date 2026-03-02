@@ -1694,21 +1694,27 @@ title: KEICHA 管理後台 v20260301-3
             document.getElementById('userAvatar').src = 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
         }
 
-        // 載入初始資料
-        loadOrders();
+        // 恢復上次所在的標籤頁
+        const savedTab = localStorage.getItem('adminActiveTab') || 'orders';
+        switchTab(savedTab);
     }
 
     // 切換標籤頁
     function switchTab(tabName, el) {
+        // 儲存當前標籤頁到 localStorage
+        localStorage.setItem('adminActiveTab', tabName);
+
         // 更新標籤樣式
         document.querySelectorAll('.tab').forEach(tab => {
             tab.classList.remove('active');
         });
+
         if (el) {
             el.classList.add('active');
         } else {
-            // Fallback for cases where el is not passed
-            event.currentTarget.classList.add('active');
+            // 如果沒有傳入 el（例如頁面載入時調用），則根據 tabName 尋找對應的按鈕
+            const targetTab = document.querySelector(`.tab[onclick*="'${tabName}'"]`);
+            if (targetTab) targetTab.classList.add('active');
         }
 
         // 更新內容顯示
