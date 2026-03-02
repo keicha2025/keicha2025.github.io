@@ -1918,3 +1918,18 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 
 **中文說明：**
 提升了 CSS 的瀏覽器相容性並修正語法錯誤。修正了數字輸入框在非 Firefox 瀏覽器下的顯示相容性，並將 CSS 中誤用的 `ring` 屬性替換為標準的 `box-shadow` 聚焦效果，確保介面在不同環境下都能穩定呈現設計規範。
+
+---
+
+### [1.2.20] - 2026-03-02
+
+#### **Summary of changes**
+- **UI Refinements**: Updated placeholders in `denwa-form.html` to clarify input requirements (Shopee ID, Booking Name). Simplified "特殊備註" label to "備註".
+- **Plan Loading Logic**: Expanded Firestore filtering in `denwa-form.html` to include both `ON` and `available` status for plans. Added logging for easier debugging.
+- **Path Integrity**: Restored `form-result.html` and `fast-diy-result.html` to the root directory, fixing the 404 error on redirection.
+- **Pre-Deployment Sync**: Verified local file existence and sync before final build.
+
+**中文說明：**
+修復了表單送出後的 404 錯誤，將結果頁面移回正確路徑。同時根據用戶需求優化了 `denwa-form.html` 的 UI 提示字（如蝦皮名稱、英文姓名說明），並調整了方案載入邏輯以包含 `available` 狀態的項目。
+
+---
