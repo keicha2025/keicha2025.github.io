@@ -48,7 +48,7 @@
 4. 在選單中確保 `Deploy Environment` 選擇為 **github_prod**，然後點擊「Run workflow」。
 
 #### **方法 B：使用終端機指令 (GitHub CLI)**
-如果您已安裝 `gh` 指令工具，可直接在本地執行：
+如果您已安裝 [GitHub CLI (`gh`)](https://cli.github.com/) 工具，可直接在本地執行：
 ```bash
 # 觸發正式環境部署
 gh workflow run deploy.yml --field deploy_env=github_prod
@@ -56,6 +56,7 @@ gh workflow run deploy.yml --field deploy_env=github_prod
 # 查看部署進度
 gh run list --workflow deploy.yml --limit 1
 ```
+> **💡 小提示**：如果您的 Mac 尚未安裝 `gh`，可以使用 `brew install gh` 進行安裝。
 5. 等待流程跑完，您的正式網站就會同步更新。
 
 **正式版網址**：[https://keicha2025.github.io/](https://keicha2025.github.io/)
