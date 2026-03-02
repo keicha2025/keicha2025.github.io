@@ -1247,7 +1247,7 @@ title: KEICHA 管理後台 v20260301-3
         <div id="tab-testing" class="tab-content">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">測試</h2>
+                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">功能測試 (帶入資料)</h2>
                     <div
                         style="display: flex; align-items: center; gap: 8px; background: #f1f5f9; padding: 6px 12px; border-radius: 20px;">
                         <span class="material-symbols-rounded"
@@ -1278,6 +1278,71 @@ title: KEICHA 管理後台 v20260301-3
                         <span class="material-symbols-rounded" style="font-size: 32px; color: #6ea44c;">call</span>
                         <span style="font-weight: 700;">電話代撥表單</span>
                     </button>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 24px;">
+                <h2 style="margin: 0 0 20px 0; font-size: 1.25rem; font-weight: 700;">所有前端頁面 (快速連結)</h2>
+                <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 24px;">
+                    用於發佈新版本後，快速確認各個前端頁面是否正常顯示與運作。</p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;">
+                    <!-- 首頁 -->
+                    <a href="index.html" target="_blank" class="btn btn-outline"
+                        style="text-decoration: none; padding: 12px; height: auto; text-align: left; display: flex; align-items: center; gap: 10px; border: 1px solid #e5e7eb;">
+                        <span class="material-symbols-rounded" style="color: #64748b;">home</span>
+                        <span style="font-weight: 600; color: #1f2937;">官網首頁</span>
+                    </a>
+                    <!-- 抹茶相關 -->
+                    <a href="maccha-store.html" target="_blank" class="btn btn-outline"
+                        style="text-decoration: none; padding: 12px; height: auto; text-align: left; display: flex; align-items: center; gap: 10px; border: 1px solid #e5e7eb;">
+                        <span class="material-symbols-rounded" style="color: #6ea44c;">store</span>
+                        <span style="font-weight: 600; color: #1f2937;">抹茶商店</span>
+                    </a>
+                    <a href="maccha.html" target="_blank" class="btn btn-outline"
+                        style="text-decoration: none; padding: 12px; height: auto; text-align: left; display: flex; align-items: center; gap: 10px; border: 1px solid #e5e7eb;">
+                        <span class="material-symbols-rounded" style="color: #6ea44c;">menu_book</span>
+                        <span style="font-weight: 600; color: #1f2937;">抹茶選單</span>
+                    </a>
+                    <!-- 電話相關 -->
+                    <a href="denwa.html" target="_blank" class="btn btn-outline"
+                        style="text-decoration: none; padding: 12px; height: auto; text-align: left; display: flex; align-items: center; gap: 10px; border: 1px solid #e5e7eb;">
+                        <span class="material-symbols-rounded" style="color: #0284c7;">phone_in_talk</span>
+                        <span style="font-weight: 600; color: #1f2937;">電話代撥首頁</span>
+                    </a>
+                    <!-- 結帳相關 -->
+                    <a href="fast.html" target="_blank" class="btn btn-outline"
+                        style="text-decoration: none; padding: 12px; height: auto; text-align: left; display: flex; align-items: center; gap: 10px; border: 1px solid #e5e7eb;">
+                        <span class="material-symbols-rounded" style="color: #6ea44c;">shopping_cart</span>
+                        <span style="font-weight: 600; color: #1f2937;">快速結帳 (Fast)</span>
+                    </a>
+                    <a href="diy.html" target="_blank" class="btn btn-outline"
+                        style="text-decoration: none; padding: 12px; height: auto; text-align: left; display: flex; align-items: center; gap: 10px; border: 1px solid #e5e7eb;">
+                        <span class="material-symbols-rounded" style="color: #6ea44c;">edit_document</span>
+                        <span style="font-weight: 600; color: #1f2937;">自填單 (DIY)</span>
+                    </a>
+                    <a href="card-order.html" target="_blank" class="btn btn-outline"
+                        style="text-decoration: none; padding: 12px; height: auto; text-align: left; display: flex; align-items: center; gap: 10px; border: 1px solid #e5e7eb;">
+                        <span class="material-symbols-rounded" style="color: #ef4444;">credit_card</span>
+                        <span style="font-weight: 600; color: #1f2937;">刷卡結帳</span>
+                    </a>
+                    <!-- 查詢相關 -->
+                    <a href="order.html" target="_blank" class="btn btn-outline"
+                        style="text-decoration: none; padding: 12px; height: auto; text-align: left; display: flex; align-items: center; gap: 10px; border: 1px solid #e5e7eb;">
+                        <span class="material-symbols-rounded" style="color: #64748b;">search</span>
+                        <span style="font-weight: 600; color: #1f2937;">訂單查詢</span>
+                    </a>
+                    <a href="jyoukyou.html" target="_blank" class="btn btn-outline"
+                        style="text-decoration: none; padding: 12px; height: auto; text-align: left; display: flex; align-items: center; gap: 10px; border: 1px solid #e5e7eb;">
+                        <span class="material-symbols-rounded" style="color: #64748b;">query_stats</span>
+                        <span style="font-weight: 600; color: #1f2937;">門號狀況查詢</span>
+                    </a>
+                    <!-- 聯絡 -->
+                    <a href="contact.html" target="_blank" class="btn btn-outline"
+                        style="text-decoration: none; padding: 12px; height: auto; text-align: left; display: flex; align-items: center; gap: 10px; border: 1px solid #e5e7eb;">
+                        <span class="material-symbols-rounded" style="color: #64748b;">support_agent</span>
+                        <span style="font-weight: 600; color: #1f2937;">聯絡我們</span>
+                    </a>
                 </div>
             </div>
         </div>

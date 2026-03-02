@@ -2035,3 +2035,19 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 **中文說明：**
 驗證了 CI/CD 自動化部署設定。透過推送到 GitHub 觸發自動建置，並確認 Firebase Hosting Secret 設定正確，能夠成功完成遠端部署流程。
 
+---
+
+### [1.3.2] - 2026-03-02
+
+#### **Summary of changes**
+- Added a new "All Pages" (所有頁面) section to the Testing tab in `admin.html`.
+- Listed direct links to all key frontend pages for quick post-deployment verification.
+
+#### **Technical details of implementation**
+- **UI Update**: Created a new `card` section in the Testing tab with a responsive grid of buttons.
+- **Navigation**: Integrated links to `index.html`, `maccha-store.html`, `denwa.html`, `fast.html`, `diy.html`, and other customer-facing pages.
+- **Design Alignment**: Used consistent material icons and color tokens (Matcha green, Telephony blue) following the project's design system.
+
+**中文說明：**
+在管理後台的「測試」標籤頁中新增了「所有前端頁面」快速連結區塊。方便管理員在發佈新版本後，快速點擊按鈕確認各個頁面（如商店、電話代撥、結帳單等）的顯示是否正常。
+
