@@ -160,7 +160,9 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                             results.push({
                                 orderId: doc.id,
                                 item: data.items_text || data.items || '抹茶商品',
-                                amount: data.total || data.subtotal || 0,
+                                amount: data.total || 0,
+                                baseAmount: data.subtotal || 0,
+                                shippingFee: data.shipping_fee || 0,
                                 status: STATUS_MAP[data.status] || data.status || '待處理',
                                 sellerNote: data.seller_note || '',
                                 trackingCode: data.tracking_code || '',
@@ -177,7 +179,9 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                                 results.push({
                                     orderId: doc.id,
                                     item: data.items_text || data.items || '抹茶商品',
-                                    amount: data.total || data.subtotal || 0,
+                                    amount: data.total || 0,
+                                    baseAmount: data.subtotal || 0,
+                                    shippingFee: data.shipping_fee || 0,
                                     status: STATUS_MAP[data.status] || data.status || '待處理',
                                     sellerNote: data.seller_note || '',
                                     trackingCode: data.tracking_code || '',
@@ -197,6 +201,8 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                                 orderId: data.order_id || doc.id,
                                 item: `${data.merchant_name || '電話代撥'} - ${data.plan_name || '基本服務'}`,
                                 amount: data.total || 0,
+                                baseAmount: data.plan_price || data.total || 0,
+                                shippingFee: 0,
                                 status: STATUS_MAP[data.status] || data.status || '待處理',
                                 paymentLink: data.payment_link || '',
                                 paymentStatus: data.payment_status || 'pending',
@@ -216,6 +222,8 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                                     orderId: data.order_id || doc.id,
                                     item: `${data.merchant_name || '電話代撥'} - ${data.plan_name || '基本服務'}`,
                                     amount: data.total || 0,
+                                    baseAmount: data.plan_price || data.total || 0,
+                                    shippingFee: 0,
                                     status: STATUS_MAP[data.status] || data.status || '待處理',
                                     paymentLink: data.payment_link || '',
                                     paymentStatus: data.payment_status || 'pending',
@@ -239,7 +247,7 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                                 amount: data.amount || 0,
                                 baseAmount: data.base_amount || 0,
                                 shippingFee: data.shipping_fee || 0,
-                                totalBudget: data.total_budget || ((data.base_amount || 0) + (data.shipping_fee || 0)) || 0,
+                                // Calculated totalAmount will be used in render
                                 status: STATUS_MAP[data.payment_status] || (data.payment_status === 'paid' ? '已確認' : '待處理'),
                                 paymentLink: data.payment_url || (data.link_id ? `card-order.html?id=${data.link_id}` : ''),
                                 paymentStatus: data.payment_status || 'pending',
@@ -261,7 +269,7 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                                     amount: data.amount || 0,
                                     baseAmount: data.base_amount || 0,
                                     shippingFee: data.shipping_fee || 0,
-                                    totalBudget: data.total_budget || ((data.base_amount || 0) + (data.shipping_fee || 0)) || 0,
+                                    // Calculated totalAmount will be used in render
                                     status: STATUS_MAP[data.payment_status] || (data.payment_status === 'paid' ? '已確認' : '待處理'),
                                     paymentLink: data.payment_url || (data.link_id ? `card-order.html?id=${data.link_id}` : ''),
                                     paymentStatus: data.payment_status || 'pending',
@@ -311,6 +319,10 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                 // 顏色邏輯：已完成為綠色，其餘 (待處理、已確認、已取消) 為灰色
                 const isGreen = order.status === "已完成";
                 const textColorClass = isGreen ? "text-[#6ea44c]" : "text-gray-500";
+
+                // 總計金額計算邏輯：商品 + 運費，若為 0 則回退至訂單總額 (適用於舊數據)
+                const calculatedTotal = (order.baseAmount || 0) + (order.shippingFee || 0);
+                const finalTotal = calculatedTotal > 0 ? calculatedTotal : (order.amount || 0);
 
                 // 方案 A：垂直清單化處理訂單明細
                 const itemsList = String(order.item || '').split('\n').filter(row => row.trim() !== '');
@@ -387,16 +399,16 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
                                                 <span class="font-mono">NT$ ${order.shippingFee.toLocaleString()}</span>
                                             </div>
                                         ` : ''}
-                                        ${order.totalBudget !== undefined && order.totalBudget > 0 ? `
-                                            <div class="flex justify-between text-sm font-bold text-gray-700 pt-1 border-t border-dashed border-gray-100">
-                                                <span>總計金額</span>
-                                                <span class="font-mono">NT$ ${order.totalBudget.toLocaleString()}</span>
-                                            </div>
-                                        ` : ''}
-                                        <div class="flex justify-between items-center pt-1">
-                                            <span class="text-xs font-bold text-[#6ea44c]">${order.totalBudget ? '本階段支付' : '訂單金額'}</span>
-                                            <span class="text-lg font-bold font-mono text-[#6ea44c]">NT$ ${order.amount ? Number(order.amount).toLocaleString() : '-'}</span>
+                                        <div class="flex justify-between text-sm font-bold text-gray-700 pt-1 border-t border-dashed border-gray-100">
+                                            <span>總計金額</span>
+                                            <span class="font-mono">NT$ ${finalTotal.toLocaleString()}</span>
                                         </div>
+                                        ${(order.amount && Number(order.amount) > 0 && Number(order.amount) !== finalTotal) ? `
+                                        <div class="flex justify-between items-center pt-1">
+                                            <span class="text-xs font-bold text-[#6ea44c]">本階段支付</span>
+                                            <span class="text-lg font-bold font-mono text-[#6ea44c]">NT$ ${Number(order.amount).toLocaleString()}</span>
+                                        </div>
+                                        ` : ''}
                                     </div>
                                 </div>
                             </div>

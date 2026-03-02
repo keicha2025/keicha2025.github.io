@@ -1868,3 +1868,38 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 
 **中文說明：**
 修復了訂單查詢頁面 (`jyoukyou.html`) 的顯示問題。包括修正刷卡訂單的總計金額計算（避免漏算運費）、修正「賣家留言」誤抓成客人備註的問題。同時統一了所有訂單類型的狀態名稱（待處理、已確認等）與配色，確保只有「已完成」顯示為綠色，其餘進度皆以灰色顯示，維持介面語義一致。
+
+---
+
+### [1.2.17] - 2026-03-02
+
+#### **Summary of changes**
+- Reorganized the project root directory to improve maintainability and follow better structural patterns.
+
+#### **Technical details of implementation**
+- **Folder Creation**: Created `/admin`, `/docs`, and `/archive` directories to categorize root-level files.
+- **File Relocation**: 
+  - Moved `admin.html` and `admin_fast.html` to `/admin/`.
+  - Moved documentation (`DATABASE_SCHEMA.md`, `DEPLOY_GUIDE.md`, etc.) to `/docs/`.
+  - Moved legacy/test files (`seed.html`, `original_denwa.html`, etc.) to `/archive/`.
+- **Link Integrity**: Updated `admin.html` to use absolute paths for CSS and JS assets to ensure functionality from the new subfolder.
+- **Hosting Configuration**: Updated `firebase.json` rewrite rules to map `/admin` to `/admin/admin.html`, preserving the clean administrative URL.
+- **Documentation Updates**: Renamed `PChomePay API.md` to `PChomePay_API.md` and updated internal documentation references.
+
+**中文說明：**
+完成了專案根目錄的結構重整，將管理後台、系統文件、以及舊版/測試檔案分別歸類至 `/admin`、`/docs` 與 `/archive` 資料夾中。同時更新了 Firebase Hosting 的路徑對應，確保原本的 `/admin` 存取網址依然有效，並修正了移動後的檔案連結以維持功能正常。
+
+---
+
+### [1.2.18] - 2026-03-02
+
+#### **Summary of changes**
+- Refined billing logic and total amount visibility in the order tracking page (`jyoukyou.html`).
+
+#### **Technical details of implementation**
+- **Calculation Correction**: Forced "Total Amount" to always be calculated as `subtotal + shipping_fee`. Added a fallback to the current total "amount" for legacy orders where individual items were not captured.
+- **Conditional Visibility**: Implemented logic to hide the "Stage Payment" (本階段支付) row if the current amount to pay equals the total order value, reducing clutter for single-payment orders.
+- **Data Mapping Enhancement**: Expanded Firestore data mapping to bridge `baseAmount` and `shippingFee` for all order types (Matcha, Denwa, and Custom Card links).
+
+**中文說明：**
+優化了訂單查詢頁面 (`jyoukyou.html`) 的款項顯示邏輯。現在「總計金額」會強制限於「商品金額 + 運費」，若單次付清則會自動隱藏「本階段支付」欄位，僅在兩階段付款或金額不一致時才會額外顯示，使帳單明細更直觀清晰。

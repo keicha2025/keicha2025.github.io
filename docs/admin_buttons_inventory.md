@@ -2,7 +2,7 @@
 
 此文件整理了專案中出現的所有按鈕文字、分類位置及其對應的圖標 (Material Symbols Rounded)。
 
-## 1. 管理後台 (admin.html)
+## 1. 管理後台 (admin/admin.html)
 
 ### 頂部與導覽
 | 分類 | 按鈕文字 | 有無 Icon | Icon 代碼 / 說明 | 備註 |
@@ -97,7 +97,7 @@
 
 ---
 
-## 2. 獨立後台頁面 (admin_fast.html)
+## 2. 獨立後台頁面 (admin/admin_fast.html)
 
 | 功能位置 | 按鈕文字 | 有無 Icon | Icon 代碼 / 說明 | 備註 |
 | :--- | :--- | :---: | :--- | :--- |
