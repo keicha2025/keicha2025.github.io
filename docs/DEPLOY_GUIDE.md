@@ -38,12 +38,24 @@
 
 根據您的需求，**正式版預設為手動觸發**，讓您有 100% 的主導權。
 
-### 🚀 指令與操作：
-當您準備好要升級至正式版時，請依照下列步驟：
-1. 確保變更已合併進 `main` 分支。
-2. 開啟 GitHub 瀏覽器頁面，點選儲存庫頂端的「**Actions**」分頁。
-3. 在左側清單選擇「**Keicha Automated Deployment**」。
-4. 點選「**Run workflow**」按鈕，並在下拉選單選擇「**github_prod**」。
+### 🚀 觸發方式 (Trigger Methods)：
+當您準備好要升級至正式版時，可以選擇以下任一方式觸發：
+
+#### **方法 A：使用 GitHub 網頁 (Web UI)**
+1. 開啟 [GitHub 儲存庫頁面](https://github.com/keicha2025/keicha2025.github.io/actions)。
+2. 點選左側清單中的「**Keicha Automated Deployment**」。
+3. 點選右側「**Run workflow**」按鈕。
+4. 在選單中確保 `Deploy Environment` 選擇為 **github_prod**，然後點擊「Run workflow」。
+
+#### **方法 B：使用終端機指令 (GitHub CLI)**
+如果您已安裝 `gh` 指令工具，可直接在本地執行：
+```bash
+# 觸發正式環境部署
+gh workflow run deploy.yml --field deploy_env=github_prod
+
+# 查看部署進度
+gh run list --workflow deploy.yml --limit 1
+```
 5. 等待流程跑完，您的正式網站就會同步更新。
 
 **正式版網址**：[https://keicha2025.github.io/](https://keicha2025.github.io/)

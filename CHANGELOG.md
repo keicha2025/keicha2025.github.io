@@ -2083,3 +2083,18 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 **中文說明：**
 調整管理後台快速連結的導覽邏輯。將「訂單查詢」按鈕改為引導至 `jyoukyou.html` 頁面，並移除重複的「門號狀況查詢」按鈕，使介面更加精簡。
 
+---
+
+### [1.3.5] - 2026-03-02
+
+#### **Summary of changes**
+- Updated `docs/DEPLOY_GUIDE.md` to include manual production deployment instructions via GitHub CLI (`gh`).
+- Triggered the first manual production deployment to GitHub Pages.
+
+#### **Technical details of implementation**
+- **Documentation Update**: Added "Method B" (GitHub CLI) to the manual trigger instructions in the deployment guide.
+- **Automation Trigger**: Executed `gh workflow run deploy.yml --field deploy_env=github_prod` to initiate the production release.
+
+**中文說明：**
+更新部署指南文件，增加使用 GitHub CLI 指令觸發正式環境部署的說明。並同時執行了第一次正式的手動觸發部署，將代碼推送至正式官網環境。
+
