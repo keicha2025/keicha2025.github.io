@@ -2019,3 +2019,19 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 **中文說明：**
 導入了 GitHub Actions 自動化部署流程，優化了開發體驗。所有分支推送現在都會自動部署到 Firebase (Beta 測試版)，而 GitHub Pages (正式版) 則改為手動點選觸發，確保在測試完全無誤後才更新正式官網。
 
+---
+
+### [1.3.1] - 2026-03-02
+
+#### **Summary of changes**
+- Verified the GitHub Actions CI/CD configuration by triggering an automated deployment.
+- Successfully validated the connection between GitHub and Firebase Hosting using the newly configured Secret.
+
+#### **Technical details of implementation**
+- **Trigger**: Performed a push to `main` to initiate the "Keicha Automated Deployment" workflow.
+- **Validation**: Confirmed that the build and deployment jobs correctly retrieve the `FIREBASE_SERVICE_ACCOUNT` secret and update the live site.
+- **Documentation**: Updated `docs/DEPLOY_GUIDE.md` with the latest verification timestamp.
+
+**中文說明：**
+驗證了 CI/CD 自動化部署設定。透過推送到 GitHub 觸發自動建置，並確認 Firebase Hosting Secret 設定正確，能夠成功完成遠端部署流程。
+
