@@ -2051,3 +2051,20 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 **中文說明：**
 在管理後台的「測試」標籤頁中新增了「所有前端頁面」快速連結區塊。方便管理員在發佈新版本後，快速點擊按鈕確認各個頁面（如商店、電話代撥、結帳單等）的顯示是否正常。
 
+---
+
+### [1.3.3] - 2026-03-02
+
+#### **Summary of changes**
+- Refined the "All Pages" section in `admin.html` to strictly follow the brand color system.
+- Added the missing "Phone Order Form" (`denwa-form.html`) to the primary service list.
+- Removed the "Home" button as requested.
+
+#### **Technical details of implementation**
+- **Brand Color Alignment**: Primary services (Matcha Store, Phone Form, Fast, DIY) now exclusively use brand green (`#6ea44c`).
+- **Visual Hierarchy**: Auxiliary pages (Menu, Search, etc.) are standardized to grey (`#64748b`).
+- **Navigation Update**: Added `denwa-form.html` and removed `index.html` from the quick link grid.
+
+**中文說明：**
+優化管理後台的快速連結區塊，嚴格遵守品牌色彩系統。主要服務（抹茶商店、電話代撥表單、DIY、Fast）統一使用品牌綠色，其餘頁面統一使用灰色，並新增遺漏的電話表單連結且移除首頁按鈕。
+
