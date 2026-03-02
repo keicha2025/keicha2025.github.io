@@ -1961,5 +1961,15 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 
 **中文說明：**
 修正了 `admin.html` (快速結帳頁籤) 的狀態開關邏輯。現在進入官網管理後台時，開關能正確根據資料庫中的 `available` 值切換為「開啟」狀態，且儲存時會統一標記為 `available`，解決了後台開關狀態與實際設定不符的問題。
+### [1.2.23] - 2026-03-02
 
----
+#### **Summary of changes**
+- Updated form fields in `diy.html` and `fast.html` to improve multi-platform support (LINE/Shopee).
+- Verified email notification support for DIY orders.
+
+#### **Technical details of implementation**
+- **UI Label Update**: Changed "LINE 顯示名稱" to "LINE / 蝦皮顯示名稱" and updated placeholders in both `diy.html` and `fast.html` to better accommodate Shopee users.
+- **Backend Verification**: Confirmed that `firebase_handler.gs` correctly handles `new_matcha_order` notifications for DIY/Fast orders as long as the `email` field is provided by the frontend. Checked that `generateOrderEmailHTML` supports `items_text` which is used by these pages.
+
+**中文說明：**
+優化了自填單 (`diy.html`) 與快速結帳 (`fast.html`) 的表單欄位名稱。將 LINE 顯示名稱改為具備蝦皮名稱提示的複合欄位，並確認了後台 GAS 程式碼已支援發送此類訂單的結帳通知信件。
