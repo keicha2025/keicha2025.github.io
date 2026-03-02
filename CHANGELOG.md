@@ -2068,3 +2068,18 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 **中文說明：**
 優化管理後台的快速連結區塊，嚴格遵守品牌色彩系統。主要服務（抹茶商店、電話代撥表單、DIY、Fast）統一使用品牌綠色，其餘頁面統一使用灰色，並新增遺漏的電話表單連結且移除首頁按鈕。
 
+---
+
+### [1.3.4] - 2026-03-02
+
+#### **Summary of changes**
+- Adjusted "Order Search" (訂單查詢) to redirect to `jyoukyou.html`.
+- Removed the "SIM Status Search" (門號狀況查詢) button to streamline the interface.
+
+#### **Technical details of implementation**
+- **Navigation Update**: Updated the `href` of the "Order Search" link in the Testing tab's quick link section.
+- **Cleanup**: Excised the redundant "SIM Status Search" button from the `admin.html` grid.
+
+**中文說明：**
+調整管理後台快速連結的導覽邏輯。將「訂單查詢」按鈕改為引導至 `jyoukyou.html` 頁面，並移除重複的「門號狀況查詢」按鈕，使介面更加精簡。
+
