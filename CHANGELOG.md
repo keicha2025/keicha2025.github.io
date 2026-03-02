@@ -1903,3 +1903,18 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 
 **中文說明：**
 優化了訂單查詢頁面 (`jyoukyou.html`) 的款項顯示邏輯。現在「總計金額」會強制限於「商品金額 + 運費」，若單次付清則會自動隱藏「本階段支付」欄位，僅在兩階段付款或金額不一致時才會額外顯示，使帳單明細更直觀清晰。
+
+---
+
+### [1.2.19] - 2026-03-02
+
+#### **Summary of changes**
+- Improved CSS compatibility and resolved syntax warnings across multiple components.
+
+#### **Technical details of implementation**
+- **Browser Compatibility**: Added standard `appearance: textfield` property alongside `-moz-appearance` for number inputs to ensure consistent UI across modern browsers.
+- **Syntax Correction**: Removed invalid `ring` CSS property (Tailwind utility misused in standard CSS) and replaced it with standard `box-shadow` focus states in `diy.html` and `admin/admin_fast.html`.
+- **UI Consistency**: Standardized focus ring aesthetics to match the brand design system (3px spread, 10% opacity brand green).
+
+**中文說明：**
+提升了 CSS 的瀏覽器相容性並修正語法錯誤。修正了數字輸入框在非 Firefox 瀏覽器下的顯示相容性，並將 CSS 中誤用的 `ring` 屬性替換為標準的 `box-shadow` 聚焦效果，確保介面在不同環境下都能穩定呈現設計規範。
