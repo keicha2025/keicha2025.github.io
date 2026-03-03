@@ -202,7 +202,7 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
 
         <div class="mb-6">
             <label class="form-label" for="email">電子郵件 (接收確認信) <span class="text-slate-500">*</span></label>
-            <input type="email" id="email" name="email" class="form-input" placeholder="接收訂單確認信" required>
+            <input type="email" id="email" name="email" class="form-input" required>
         </div>
 
         <div class="mb-6">
@@ -213,21 +213,26 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
         <h3 class="section-title">代撥需求內容</h3>
 
         <div class="mb-6">
-            <label class="form-label" for="shopName">預約餐廳/店家名稱 <span class="text-slate-500">*</span></label>
+            <label class="form-label" for="shopName">聯絡對象 <span class="text-slate-500">*</span></label>
             <input type="text" id="shopName" name="shopName" class="form-input" placeholder="例如：叙叙苑 晴空塔店" required>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-2">
             <div>
-                <label class="form-label" for="serviceDate">預約日期 <span class="text-slate-500">*</span></label>
+                <label class="form-label" for="serviceDate">日期 <span class="text-slate-500">*</span></label>
                 <input type="date" id="serviceDate" name="serviceDate" class="form-input" required>
             </div>
             <div>
-                <label class="form-label" for="serviceTime">預約時間 <span class="text-slate-500">*</span></label>
+                <label class="form-label" for="serviceTime">時間 <span class="text-slate-500">*</span></label>
                 <select id="serviceTime" name="serviceTime" class="form-input appearance-none bg-white cursor-pointer"
                     required>
                 </select>
             </div>
+        </div>
+
+        <div class="flex items-center mb-6 text-xs text-slate-500">
+            <span class="material-symbols-rounded mr-1 text-slate-400" style="font-size: 16px;">info</span>
+            <span>若您的委託需求不涉及特定時段或人數，日期、時間及人數請保留預設狀態。</span>
         </div>
 
         <div class="space-y-4 mb-6">
@@ -279,7 +284,8 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
 
         <div class="mb-6">
             <label class="form-label" for="note">備註 (選填)</label>
-            <textarea id="note" name="note" class="form-input" rows="3" placeholder="如有備用時段，或套餐選擇等需求請於此填寫"></textarea>
+            <textarea id="note" name="note" class="form-input" rows="3"
+                placeholder="預約建議提供備用時段；其他洽詢請在此填寫您的需求與細節"></textarea>
         </div>
 
         <div class="mb-6">
