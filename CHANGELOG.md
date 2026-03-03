@@ -2098,3 +2098,16 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 **中文說明：**
 更新部署指南文件，增加使用 GitHub CLI 指令觸發正式環境部署的說明與安裝提示。由於本地環境尚未安裝 `gh` 工具，建議本次發布暫由 GitHub 網頁端手動觸發部署。
 
+---
+
+### [1.3.5.3] - 2026-03-03
+
+#### **Summary of changes**
+- Fixed an error in `docs/DEPLOY_GUIDE.md` where the field name for `gh workflow run` was incorrect.
+
+#### **Technical details of implementation**
+- **Bug Fix**: Changed `--field deploy_env=github_prod` to `--field deploy_target=github_prod` to match the trigger configuration in `deploy.yml`.
+
+**中文說明：**
+修正部署指南中的參數錯誤。將指令中的 `deploy_env` 修改為正確的 `deploy_target`，以符合自動化腳本的設定。
+

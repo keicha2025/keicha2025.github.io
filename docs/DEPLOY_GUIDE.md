@@ -51,7 +51,7 @@
 如果您已安裝 [GitHub CLI (`gh`)](https://cli.github.com/) 工具，可直接在本地執行：
 ```bash
 # 觸發正式環境部署
-gh workflow run deploy.yml --field deploy_env=github_prod
+gh workflow run deploy.yml --field deploy_target=github_prod
 
 # 查看部署進度
 gh run list --workflow deploy.yml --limit 1
