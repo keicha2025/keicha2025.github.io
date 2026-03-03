@@ -874,7 +874,7 @@ title: KEICHA 管理後台 v20260301-3
                 <span class="material-symbols-rounded">settings</span>
                 <span class="tab-text">快速結帳</span>
             </button>
-            <button class="tab" onclick="switchTab('cardlinks', this); loadCardLinks(); loadCardOrders();">
+            <button class="tab" onclick="switchTab('cardlinks', this)">
                 <span class="material-symbols-rounded">credit_card</span>
                 <span class="tab-text">刷卡</span>
             </button>
@@ -1777,8 +1777,6 @@ title: KEICHA 管理後台 v20260301-3
                 break;
             case 'cardlinks':
                 loadCardLinks();
-                break;
-            case 'cardorders':
                 loadCardOrders();
                 break;
             case 'backup':

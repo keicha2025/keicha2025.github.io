@@ -293,7 +293,10 @@ function handleCardPayment(payload) {
         return_url: 'https://keicha-membership-system.web.app/index.html',
         fail_return_url: 'https://keicha-membership-system.web.app/index.html',
         notify_url: gasUrl,
+        buyer_name: name,
+        buyer_mobile: formatPhoneForPCPay(phone),
         buyer_email: email,
+        member_key: formatPhoneForPCPay(phone),
         items: [{
           name: tradeDesc || 'KEICHA Order',
           url: 'https://keicha2025.github.io'
@@ -344,7 +347,7 @@ function handleRepayOrder(payload) {
     if (!order) return createJSONResponse(false, '找不到訂單資料');
   }
   
-  if (order.payment_status === 'paid') {
+  if (order.payment_status === 'paid' || order.payment_status === 'completed') {
     return createJSONResponse(false, '訂單已完成付款，請勿重複支付');
   }
 
@@ -392,7 +395,10 @@ function handleRepayOrder(payload) {
         return_url: 'https://keicha-membership-system.web.app/index.html',
         fail_return_url: 'https://keicha-membership-system.web.app/index.html',
         notify_url: gasUrl,
+        buyer_name: order.name || order.customer_name || '',
+        buyer_mobile: formatPhoneForPCPay(order.phone),
         buyer_email: order.email,
+        member_key: formatPhoneForPCPay(order.phone),
         items: [{ name: tradeDesc, url: 'https://keicha2025.github.io' }]
       };
       
@@ -961,29 +967,57 @@ function generateCardOrderEmailHTML(data, isAdmin, title) {
 function generateCardPaidEmailHTML(order, isAdmin, params) {
   const titleText = isAdmin ? "【收款成功通知】" : "【付款成功通知】";
   const introText = isAdmin
-    ? `<div>客戶 ${order.name || '未知'} 已完成付款。</div>`
-    : `<div>您好：<br><br>我們已收到您的款項，以下是本次支付詳細資訊：</div>`;
+    ? `<div>您的客戶 <strong>${order.name || '未知'}</strong> 已完成付款，請查看以下支付明細內容。</div>`
+    : `<div>您好：<br><br>我們已收到您的款項，您的訂單已正式進入排程處理，以下是本次支付詳細資訊：</div>`;
 
   return `
     <!DOCTYPE html><html><head><meta charset="UTF-8"></head>
-    <body style="margin:0;padding:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;line-height:1.8;color:#334155;background-color:#ffffff">
-      <div style="width:100%;max-width:600px;margin:0 auto;background:#fff">
-        <div style="padding:20px">
-          <div style="border-bottom:2px solid #6ea44c;padding-bottom:12px;margin-bottom:25px">
-            <h2 style="color:#6ea44c;margin:0;font-size:20px">${titleText}</h2>
+    <body style="margin:0;padding:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;line-height:1.6;color:#334155;background-color:#f8fafc">
+      <div style="width:100%;max-width:600px;margin:20px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1)">
+        <div style="background-color:${BRAND_COLOR};padding:30px 20px;text-align:center">
+          <h2 style="color:#ffffff;margin:0;font-size:24px;letter-spacing:1px">${titleText}</h2>
+        </div>
+        <div style="padding:40px 30px">
+          <div style="margin-bottom:30px;font-size:16px;color:#475569">${introText}</div>
+          
+          <div style="background-color:#ffffff;border:2px solid ${BRAND_COLOR};border-radius:12px;padding:25px;margin-bottom:30px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.05)">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="padding-bottom:10px;color:#64748b;font-size:14px">訂單編號</td>
+              </tr>
+              <tr>
+                <td style="padding-bottom:20px;font-weight:bold;font-size:16px;color:#1e293b">
+                  <a href="https://keicha-membership-system.web.app/order.html?id=${order.tracking_code || order.order_id}" style="color:${BRAND_COLOR};text-decoration:none">${order.order_id}</a>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-bottom:10px;color:#64748b;font-size:14px">支付金額</td>
+              </tr>
+              <tr>
+                <td style="padding-bottom:20px;font-weight:bold;font-size:28px;color:${BRAND_COLOR}">NT$ ${params.TradeAmt}</td>
+              </tr>
+              <tr>
+                <td>
+                  <table width="100%" style="border-top:1px solid #f1f5f9;padding-top:20px">
+                    <tr>
+                      <td style="color:#64748b;font-size:13px;padding-bottom:5px">付款時間：${params.PaymentDate}</td>
+                    </tr>
+                    <tr>
+                      <td style="color:#64748b;font-size:13px">付款方式：${params.PaymentType}</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
           </div>
-          <div style="margin-bottom:25px;font-size:15px;color:#334155">${introText}</div>
-          <div style="background-color: #f0fdf4; border: 1px solid #6ea44c; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
-            <p style="margin: 0; line-height: 1.6; font-weight: bold; color: #166534;">訂單編號：<a href="https://keicha-membership-system.web.app/order.html?id=${order.tracking_code || order.order_id}" style="color: #166534; text-decoration: none;">${order.order_id}</a></p>
-            <p style="margin: 5px 0 0 0; font-size: 18px; font-weight: bold; color: #166534;">支付金額：NT$ ${params.TradeAmt}</p>
-            <p style="margin: 5px 0 0 0; color: #166534;">付款時間：${params.PaymentDate}</p>
-            <p style="margin: 5px 0 0 0; color: #166534;">付款方式：${params.PaymentType}</p>
-          </div>
-          <div style="border-top:1px solid #eee;padding-top:30px;text-align:center">
-            <p style="font-size:11px;color:#94a3b8;margin:0">如有疑問請聯絡 LINE 官方帳號</p>
-            <p style="font-size:11px;color:#94a3b8;margin:4px 0 20px;font-weight:bold">${LINE_ID}</p>
-            <img src="https://keicha2025.github.io/keicha/images/KEICHA_logotype.png" alt="KEICHA" width="120" style="display:block;margin:10px auto;border:0">
-            <p style="font-size:9px;color:#cbd5e1;margin-top:15px;letter-spacing:3px">© 2025 KEICHA ALL RIGHTS RESERVED.</p>
+
+          <div style="border-top:1px solid #f1f5f9;padding-top:30px;text-align:center">
+            <p style="font-size:12px;color:#94a3b8;margin:0">如有任何疑問，歡迎聯絡官方 LINE</p>
+            <p style="font-size:14px;color:#475569;margin:8px 0 25px;font-weight:bold">${LINE_ID}</p>
+            <a href="https://keicha2025.github.io" style="text-decoration:none">
+              <img src="https://keicha2025.github.io/keicha/images/KEICHA_logotype.png" alt="KEICHA" width="100" style="display:block;margin:0 auto;border:0">
+            </a>
+            <p style="font-size:10px;color:#cbd5e1;margin-top:20px;letter-spacing:2px">© 2025 KEICHA ALL RIGHTS RESERVED.</p>
           </div>
         </div>
       </div>
@@ -1080,15 +1114,21 @@ function handleECPayCallback(params) {
     const tradeNo = rawTradeNo.split('R')[0]; // 移除重新付款的後綴
     const paymentDate = params.PaymentDate;
     
+    // 冪等性檢查：如果已經是 paid 或 completed 狀態，則不重複處理，但仍需回傳成功給綠界
+    const order = getFirestoreDocumentById('card_orders', tradeNo);
+    if (order && (order.payment_status === 'paid' || order.payment_status === 'completed')) {
+      console.log(`Order ${tradeNo} already processed as paid. Skipping duplicate processing.`);
+      return ContentService.createTextOutput("1|OK");
+    }
+
     // 更新訂單狀態
     updateFirestoreDocument('card_orders', tradeNo, {
-      payment_status: 'paid',
+      payment_status: 'completed',
       paid_at: paymentDate,
       ecpay_trade_no: params.TradeNo
     });
 
     // 自動標記支付連結中的階段為「已付」
-    const order = getFirestoreDocumentById('card_orders', tradeNo);
     if (order && order.link_id && order.stage_index !== undefined) {
       const link = fetchFirestoreDocument('card_orders_links', 'suffix', order.link_id);
       if (link && link.stages && link.stages.length > 0) {
@@ -1129,8 +1169,6 @@ function handleECPayCallback(params) {
         } catch (e) {
           console.error(`Failed to send admin email for order ${tradeNo}: ${e}`);
         }
-      } else {
-        console.warn(`Order object not found for tradeNo ${tradeNo}. Skipping email notifications.`);
       }
     } catch (e) {
       console.error('Failed to send payment success email: ' + e);
@@ -1297,6 +1335,18 @@ function getPCHomePayToken(appId, secret) {
 }
 
 /**
+ * 清理並格式化電話號碼給 PChome Pay (需為 09xx 格式)
+ */
+function formatPhoneForPCPay(phone) {
+  if (!phone) return '';
+  let cleaned = phone.replace(/\D/g, '');
+  if (cleaned.startsWith('886')) {
+    cleaned = '0' + cleaned.substring(3);
+  }
+  return cleaned;
+}
+
+/**
  * 處理 PCHome Pay 背景回傳通知 (NotifyURL)
  */
 function handlePCHomePayNotify(params) {
@@ -1306,18 +1356,23 @@ function handlePCHomePayNotify(params) {
   // 目前僅處理已付款通知 (order_confirm)
   if (notifyType === 'order_confirm' && message.status === 'S') {
     const rawOrderId = message.order_id;
-    // 處理可能的重新付款後綴 (與 ECPay 邏輯一致)
     const orderId = rawOrderId.split('R')[0];
     
+    // 冪等性檢查
+    const order = getFirestoreDocumentById('card_orders', orderId);
+    if (order && (order.payment_status === 'paid' || order.payment_status === 'completed')) {
+      console.log(`Order ${orderId} already marked as paid/completed. Skipping notification processing.`);
+      return ContentService.createTextOutput("success");
+    }
+
     // 更新訂單狀態
     updateFirestoreDocument('card_orders', orderId, {
-      payment_status: 'paid',
+      payment_status: 'completed',
       paid_at: message.actual_pay_date || message.pay_date,
       pchomepay_order_id: message.order_id
     });
 
-    // 自動標記支付連結中的階段為「已付」 (同 ECPay 邏輯)
-    const order = getFirestoreDocumentById('card_orders', orderId);
+    // 自動標記支付連結中的階段為「已付」
     if (order && order.link_id && order.stage_index !== undefined) {
       const link = fetchFirestoreDocument('card_orders_links', 'suffix', order.link_id);
       if (link && link.stages && link.stages.length > 0) {

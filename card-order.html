@@ -127,6 +127,15 @@ title: KEICHA 信用卡結帳
         outline: 2px solid #6ea44c;
         outline-offset: 2px;
     }
+
+    /* Loading Text Fade Transition */
+    .loading-text {
+        transition: opacity 0.5s ease;
+    }
+
+    .loading-text.fade-out {
+        opacity: 0;
+    }
 </style>
 
 <div id="closed-mask">
@@ -257,10 +266,10 @@ title: KEICHA 信用卡結帳
     </div>
 </div>
 
-<div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex items-center justify-center">
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex items-center justify-center hidden">
     <div class="flex flex-col items-center">
         <div class="w-10 h-10 border-4 border-gray-200 border-t-[#6ea44c] rounded-full animate-spin mb-4"></div>
-        <div class="text-gray-400 text-sm font-bold tracking-widest">驗證支付連結...</div>
+        <div id="loading-text" class="text-gray-400 text-sm font-bold tracking-widest loading-text">驗證支付連結...</div>
     </div>
 </div>
 
@@ -726,6 +735,7 @@ title: KEICHA 信用卡結帳
 
         // 【UI 防呆】開啟滿版遮罩，防止使用者在等待 API 時繼續亂點
         document.getElementById('loading-overlay').classList.remove('hidden');
+        startLoadingTextRotation();
 
         // 同步回會員資料
         try {
@@ -782,6 +792,62 @@ title: KEICHA 信用卡結帳
         } finally {
             btn.disabled = false;
             btn.innerHTML = originalText;
+            stopLoadingTextRotation();
+        }
+    }
+
+    // --- Loading Text Rotation Logic ---
+    let loadingInterval = null;
+    const loadingPhrases = [
+        "驗證支付連結...",
+        "正在進行加密連線...",
+        "與金流系統進行對接...",
+        "請稍候片刻..."
+    ];
+    let currentDeck = [];
+
+    function shuffleDeck() {
+        let deck = [...loadingPhrases];
+        for (let i = deck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+        return deck;
+    }
+
+    function startLoadingTextRotation() {
+        const textEl = document.getElementById('loading-text');
+        if (!textEl) return;
+
+        // Reset
+        clearInterval(loadingInterval);
+        currentDeck = shuffleDeck();
+        textEl.innerText = currentDeck.pop();
+        textEl.classList.remove('fade-out');
+
+        loadingInterval = setInterval(() => {
+            if (currentDeck.length === 0) {
+                currentDeck = shuffleDeck();
+            }
+            const nextText = currentDeck.pop();
+
+            // Fade out
+            textEl.classList.add('fade-out');
+
+            setTimeout(() => {
+                textEl.innerText = nextText;
+                // Fade in
+                textEl.classList.remove('fade-out');
+            }, 500); // Wait for fade out to complete (matching CSS transition)
+        }, 3000);
+    }
+
+    function stopLoadingTextRotation() {
+        clearInterval(loadingInterval);
+        const textEl = document.getElementById('loading-text');
+        if (textEl) {
+            textEl.classList.remove('fade-out');
+            textEl.innerText = "驗證支付連結..."; // Reset to default
         }
     }
 </script>

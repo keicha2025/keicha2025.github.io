@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.3.8] - 2026-03-03T20:21:07+08:00 - Payment Status Normalization & Admin UI Fix
+
+### Summary of changes
+Normalized the payment status value for successful transactions from `paid` to `completed` in both ECPay and PChome Pay callback handlers. Additionally fixed a race condition in the admin panel where the "連結訂單管理" section failed to load on initial page restore.
+
+### Technical details of implementation
+
+- **`gas/firebase_handler.gs`**:
+  - `handleECPayCallback`: Changed `payment_status` write value from `'paid'` to `'completed'` upon successful payment confirmation.
+  - `handlePCHomePayNotify`: Changed `payment_status` write value from `'paid'` to `'completed'` upon successful PChome Pay order confirmation.
+  - Both idempotency checks updated to guard against both `'paid'` and `'completed'` states to maintain backward compatibility with legacy records.
+  - `handleRepayOrder`: Updated guard condition to also block re-payment if status is `'completed'`.
+  - `generateCardPaidEmailHTML`: Removed a stray closing brace `}` that caused a `SyntaxError: Unexpected token '}'` on line 1027.
+- **`admin.html`**:
+  - `switchTab()` function: Added `loadCardOrders()` call inside the `'cardlinks'` case so that both card link management and link order management load automatically when the tab is activated — including on page restore from `localStorage`.
+  - Removed redundant `loadCardLinks()` and `loadCardOrders()` calls from the tab button's `onclick` attribute to prevent duplicate Firestore fetches.
+
+### Affected files or modules
+- `gas/firebase_handler.gs`: Payment status write logic and syntax error fix.
+- `admin.html`: `switchTab()` and tab button `onclick` cleanup.
+
+### Potential side effects or migration notes
+- Existing Firestore records with `payment_status: 'paid'` are **not migrated** automatically. All idempotency and guard checks now accept both `'paid'` and `'completed'` to ensure backward compatibility. Admin UI display already maps `'paid'` to the `'confirmed'` badge label.
+
+**中文摘要**：將付款成功後的訂單狀態正規化為 `completed`，並修正 Admin 刷卡分頁在頁面還原時「連結訂單管理」無法自動載入的問題。舊有 `paid` 狀態資料保持相容，無需手動遷移。
+
+---
+
 ## [2026-03-03] - Global CSS Refactoring & JS Modularity
 
 ### Summary of changes
@@ -2134,4 +2162,40 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 
 **中文說明：**
 修正部署指南中的參數錯誤。將指令中的 `deploy_env` 修改為正確的 `deploy_target`，以符合自動化腳本的設定。
+
+---
+
+### [1.3.6] - 2026-03-03
+
+#### **Summary of changes**
+- Optimized PChome Pay checkout experience by pre-filling buyer information.
+
+#### **Technical details of implementation**
+- **Backend (GAS)**: Modified `gas/firebase_handler.gs` to pass `buyer_name`, `buyer_mobile`, and `member_key` to the PChome Pay `/v1/payment` API in both initial payment and repayment flows.
+- **User Experience**: Automatically populates the buyer's name and mobile number on the PChome Pay payment page using data already collected on the shop's checkout page.
+- **Data Sanitization**: Implemented phone number formatting (digits only) to meet PChome Pay API specifications.
+
+**中文說明：**
+優化 PChome Pay 結帳流程。透過在後端 API 呼叫中帶入買家姓名與電話，讓用戶跳轉至金流平台時不再需要重複輸入基本資料，提升結帳體驗與效率。
+
+---
+
+### [1.3.7] - 2026-03-03
+
+#### **Summary of changes**
+- Enhanced PChome Pay pre-fill logic with phone number sanitization.
+- Improved checkout loading UI with dynamic, randomized status messages.
+
+#### **Technical details of implementation**
+- **Backend (GAS)**: Refined `gas/firebase_handler.gs` to sanitize phone numbers (e.g., converting `886` prefix to `0`) to increase the success rate of PChome Pay's auto-fill feature.
+- **Frontend (UI)**: Updated `card-order.html` loading overlay:
+    - Implemented randomized, non-repeating message rotation using Fisher-Yates shuffle.
+    - Added CSS-based opacity transitions (fade-out/in) for smooth text switching.
+    - Set rotation interval to 3000ms.
+- **Content**: Added new loading phrases: "正在進行加密連線...", "與金流系統進行對接...", "請稍候片刻...".
+
+**中文說明：**
+增強 PChome Pay 資訊帶入的穩定性並優化結帳載入介面。後端加入電話號碼自動格式化（確保符合 09xx 格式）；前端載入畫面改為動態隨機切換文案（搭配淡入淡出效果），減少用戶等待時的枯燥感。
+
+
 
