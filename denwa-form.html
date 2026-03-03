@@ -5,46 +5,23 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
 ---
 
 
-<!-- Firebase SDK (v9 compat) -->
+<!-- KEICHA Global Styles & Scripts -->
+<link rel="stylesheet" href="css/global.css">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
+<script src="js/firebase-services.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
 
 <script>
-    // Firebase 設定
-    const firebaseConfig = {
-        apiKey: "AIzaSyBF50fJPE-QL3yV4KaVIWzDmDPFRAkpwT4",
-        authDomain: "keicha-membership-system.firebaseapp.com",
-        projectId: "keicha-membership-system",
-        storageBucket: "keicha-membership-system.firebasestorage.app",
-        messagingSenderId: "941650156322",
-        appId: "1:941650156322:web:5c7473aeaa184e0b94637b"
-    };
-
-    // 初始化 Firebase (若尚未初始化)
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-
-    // 【最穩定初始化順序】1. 激活 App Check -> 2. 獲取 Firestore 實例
-    try {
-        const appCheck = firebase.appCheck();
-        appCheck.activate('6LcPa3UsAAAAAHJ-z9C3N9cqen3AYC8HxEQODoTM', true);
-        window.firebaseAppCheckActive = true;
-        console.log('[AppCheck] 🛡️ 服務已啟動');
-    } catch (e) {
-        console.warn('[AppCheck] 啟動中或已在執行:', e.message);
-    }
-
-    // 在激活後才生成的 db 實例會自動帶上 App Check 攔截器
-    const db = firebase.firestore();
+    // 初始化 App Check
+    FB.initAppCheck('6LcPa3UsAAAAAHJ-z9C3N9cqen3AYC8HxEQODoTM');
 </script>
-<script src="{{ '/js/api.js' | relative_url }}"></script>
-
 
 <style>
-    /* 基礎表單樣式 */
+    /* 基礎表單樣式 (擴充 global.css 以外的部分) */
     .form-input {
         width: 100%;
         padding: 0.75rem;
@@ -134,7 +111,6 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
         border-radius: 50%;
         background-color: white;
         border: 2px solid #cbd5e1;
-        /* 未選取時：灰色邊框 */
         cursor: pointer;
         flex-shrink: 0;
         transition: all 0.2s ease;
@@ -142,8 +118,6 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
 
     .custom-radio:checked {
         border-color: white;
-        /* 選取時：白色外框 */
-        /* 選取時：中間品牌色圓點 (利用漸層模擬) */
         background-image: radial-gradient(circle, #6ea44c 45%, transparent 50%);
     }
 
@@ -183,33 +157,12 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
         flex-direction: column;
     }
 
-    .spinner {
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #6ea44c;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        margin-bottom: 10px;
-    }
-
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-
     .content-safe-area {
         padding-bottom: 120px;
     }
 
     .material-symbols-rounded {
         vertical-align: middle;
-        /* 確保 icon 大小一致 */
         font-size: 18px !important;
     }
 

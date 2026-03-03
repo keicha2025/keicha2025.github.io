@@ -30,111 +30,10 @@ title: KEICHA 信用卡結帳
 
 <!-- KEICHA UI Dialog System -->
 <link rel="stylesheet" href="css/ui-dialog.css">
+<link rel="stylesheet" href="css/global.css">
 <script src="js/ui-dialog.js"></script>
 
 <style>
-    :root {
-        --r-sm: 8px;
-        --r-md: 16px;
-        --r-lg: 24px;
-        --r-full: 9999px;
-    }
-
-    /* 基礎樣式繼承自 Fast Checkout */
-    input[type=number]::-webkit-inner-spin-button,
-    input[type=number]::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-
-    input[type=number] {
-        -moz-appearance: textfield;
-        appearance: textfield;
-    }
-
-    .brand-green {
-        color: #6ea44c;
-    }
-
-    .bg-brand-green {
-        background-color: #6ea44c;
-    }
-
-    .animate-spin-custom {
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        from {
-            transform: rotate(0deg);
-        }
-
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    .diy-input {
-        width: 100%;
-        padding: 14px 16px;
-        border: 2px solid #f3f4f6;
-        border-radius: var(--r-md);
-        font-size: 0.95rem;
-        font-weight: 500;
-        outline: none;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        background-color: #f9fafb;
-        color: #1f2937;
-    }
-
-    .diy-input:focus {
-        border-color: #6ea44c;
-        background-color: #fff;
-        box-shadow: 0 8px 20px rgba(110, 164, 76, 0.08);
-    }
-
-    .diy-input::placeholder {
-        color: #9ca3af;
-        font-weight: 400;
-    }
-
-    .section-card {
-        background: white;
-        padding: 24px;
-        border-radius: var(--r-lg);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        margin-bottom: 24px;
-        transition: all 0.3s ease;
-    }
-
-    @media (max-width: 640px) {
-        .section-card {
-            padding: 16px;
-            border-radius: var(--r-md);
-            margin-bottom: 16px;
-        }
-    }
-
-    /* 物流選項卡片 */
-    .logistics-card {
-        background: #f9fafb;
-        border: 2px solid transparent;
-        border-radius: var(--r-md);
-        padding: 16px;
-        cursor: pointer;
-        transition: all 0.2s;
-        position: relative;
-    }
-
-    .logistics-card:hover {
-        background: #f3f4f6;
-    }
-
-    .logistics-card.active {
-        border-color: #6ea44c;
-        background-color: #f9fdf7;
-    }
-
     .logistics-detail-wrapper {
         max-height: 0;
         overflow: hidden;
@@ -147,29 +46,6 @@ title: KEICHA 信用卡結帳
         opacity: 1;
         padding-top: 12px;
         margin-top: 4px;
-    }
-
-    .btn-outline-green {
-        background-color: white;
-        color: #6ea44c;
-        border: 1px solid #6ea44c;
-        padding: 8px 16px;
-        border-radius: var(--r-md);
-        font-size: 0.75rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        white-space: nowrap;
-        transition: all 150ms;
-    }
-
-    .btn-outline-green:active {
-        transform: scale(0.95);
-    }
-
-    .safe-area-pb {
-        padding-bottom: env(safe-area-inset-bottom, 20px);
     }
 
     /* 圖片樣式 1:1 */

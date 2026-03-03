@@ -1,5 +1,29 @@
 # Changelog
 
+## [2026-03-03] - Global CSS Refactoring & JS Modularity
+
+### Summary of changes
+Refactored the project's frontend architecture to improve modularity and reduce code duplication. This update introduces a centralized CSS system and modular JavaScript services, streamlining maintenance and ensuring visual consistency across all checkout and administrative interfaces.
+
+### Technical details of implementation
+- **Global Design System (`css/global.css`)**:
+    - Centralized brand color tokens (`#6ea44c`), spacing scales, and border-radius tokens.
+    - Extracted common component styles including premium inputs (`.diy-input`), stylized buttons (`.btn-outline-green`), layout cards (`.section-card`), and UI overlays.
+- **JavaScript Service Abstraction**:
+    - **`js/firebase-services.js`**: Centralized Firebase initialization and added a unified `FB` object. Integrated App Check initialization and implemented `experimentalForceLongPolling` to bypass aggressive ad-blocking environments.
+    - **`js/utils.js`**: Introduced a shared utility library for currency formatting (NT$), date manipulation, and a global loading overlay engine.
+- **Template Modernization**: Updated `diy.html`, `card-order.html`, `fast.html`, `jyoukyou.html`, `denwa-form.html`, and `admin.html` to link to global assets. Removed approximately 1,000+ lines of redundant internal styles and initialization scripts across the project.
+- **Layout Integrity**: Corrected a CSS syntax error in `fast.html` where an extra `</style>` tag was breaking the layout during the transition to global styles.
+
+### Affected files or modules
+- `css/global.css` [NEW]
+- `js/firebase-services.js` [NEW]
+- `js/utils.js` [NEW]
+- `diy.html`, `card-order.html`, `fast.html`, `jyoukyou.html`, `denwa-form.html`, `admin.html`: Refactored to use global assets.
+
+**中文摘要**：實施全站 CSS 與 JS 架構重構。建立了全域樣式表與 Firebase 模組化服務，將原本分散在各頁面的重複樣式（如品牌色、輸入框、按鈕）與初始化邏輯（Firebase 設定、App Check）抽離至獨立檔案。這大幅減少了全站約 1,000 行重複代碼，讓未來維護更直覺，並確保全站介面行為高度一致。
+
+
 ## [2026-02-28] - Logistics System Dynamic Refactor & Code Integrity Cleanup
 
 ### Summary of changes

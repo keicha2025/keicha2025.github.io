@@ -5,101 +5,26 @@ title: KEICHA 快速結帳
 
 <meta charset="UTF-8">
 
-<!-- Firebase SDK (v9 compat) -->
+<!-- KEICHA Global Styles & Scripts -->
+<link rel="stylesheet" href="css/global.css">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
+<script src="js/firebase-services.js"></script>
+<script src="js/utils.js"></script>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyBF50fJPE-QL3yV4KaVIWzDmDPFRAkpwT4",
-        authDomain: "keicha-membership-system.firebaseapp.com",
-        projectId: "keicha-membership-system",
-        storageBucket: "keicha-membership-system.firebasestorage.app",
-        messagingSenderId: "941650156322",
-        appId: "1:941650156322:web:5c7473aeaa184e0b94637b"
-    };
-    firebase.initializeApp(firebaseConfig);
-
     // 初始化 App Check
-    const appCheck = firebase.appCheck();
-    appCheck.activate('6LcPa3UsAAAAAHJ-z9C3N9cqen3AYC8HxEQODoTM', true);
-
-    const db = firebase.firestore();
+    FB.initAppCheck('6LcPa3UsAAAAAHJ-z9C3N9cqen3AYC8HxEQODoTM');
 </script>
 
 <style>
     /* [UI設定] 基礎樣式繼承自 DIY */
-    input[type=number]::-webkit-inner-spin-button,
-    input[type=number]::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        appearance: none;
-        margin: 0;
-    }
-
-    input[type=number] {
-        -moz-appearance: textfield;
-        appearance: textfield;
-    }
-
-    .brand-green {
-        color: #6ea44c;
-    }
-
-    .bg-brand-green {
-        background-color: #6ea44c;
-    }
-
-    .border-brand-green {
-        border-color: #6ea44c;
-    }
-
-    .overlay {
-        position: fixed;
-        inset: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 190;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.3s;
-        backdrop-filter: blur(4px);
-    }
-
-    .overlay.open {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    .animate-spin-custom {
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        from {
-            transform: rotate(0deg);
+    @media (max-width: 640px) {
+        .btn-text {
+            display: none;
         }
-
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    /* 輸入框樣式 */
-    .diy-input {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        font-size: 0.95rem;
-        outline: none;
-        transition: all 0.2s;
-        background-color: #fff;
-    }
-
-    .diy-input:focus {
-        border-color: #6ea44c;
-        box-shadow: 0 0 0 3px rgba(110, 164, 76, 0.1);
     }
 
     /* 強調區塊 (統一卡片樣式) */

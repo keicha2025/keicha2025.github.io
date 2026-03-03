@@ -6,59 +6,20 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
 
 ---
 
-<!-- Firebase SDK (v9 compat) -->
+<!-- KEICHA Global Styles & Scripts -->
+<link rel="stylesheet" href="css/global.css">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyBF50fJPE-QL3yV4KaVIWzDmDPFRAkpwT4",
-        authDomain: "keicha-membership-system.firebaseapp.com",
-        projectId: "keicha-membership-system",
-        storageBucket: "keicha-membership-system.firebasestorage.app",
-        messagingSenderId: "941650156322",
-        appId: "1:941650156322:web:5c7473aeaa184e0b94637b"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-</script>
+<script src="js/firebase-services.js"></script>
+<script src="js/utils.js"></script>
 
 <style>
-    :root {
-        --r-sm: 8px;
-        --r-md: 16px;
-        --r-lg: 24px;
-        --r-full: 9999px;
-    }
-
     /* 專屬樣式 */
     .note-box {
         background-color: #f3f4f6;
         /* gray-100 */
         color: #374151;
-    }
-
-    /* 按鈕內專用的白色 Loader */
-    .loader-white {
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-radius: 50%;
-        border-top: 2px solid #ffffff;
-        width: 18px;
-        height: 18px;
-        animation: spin 0.8s linear infinite;
-        display: inline-block;
-        vertical-align: middle;
-    }
-
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-
-        100% {
-            transform: rotate(360deg);
-        }
     }
 
     /* 結果卡片樣式 */
@@ -86,23 +47,10 @@ keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
     @media (max-width: 640px) {
         /* 只針對非例外按鈕進行文字隱藏，查詢已經是 2 字，暫不隱藏，但預留架構 */
     }
-
-    .animate-spin-custom {
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        from {
-            transform: rotate(0deg);
-        }
-
-        to {
-            transform: rotate(360deg);
-        }
-    }
 </style>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const db = FB.db;
         const searchButton = document.getElementById('search-order-button');
         const orderInput = document.getElementById('order-number-input');
         const phoneInput = document.getElementById('phone-number-input');
