@@ -11,6 +11,8 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
+<link rel="stylesheet" href="css/ui-dialog.css">
+<script src="js/ui-dialog.js"></script>
 <script src="js/firebase-services.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/api.js"></script>
@@ -142,6 +144,27 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
         }
     }
 
+    /* Loading Spinner */
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #6ea44c;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
     /* Loading Overlay */
     #loading-overlay {
         display: none;
@@ -264,7 +287,7 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
         </div>
 
         <div id="child-details-section"
-            class="mb-6 p-4 rounded-[var(--r-md)] border border-[#6ea44c]/30 bg-[#6ea44c]/10 hidden">
+            class="mb-6 p-4 rounded-[var(--r-md)] border border-[#6ea44c]/20 bg-[#f9fdf7] hidden">
             <label class="form-label text-[#5d8c40]" for="childDetails">
                 小孩詳細資訊 (年齡 / 是否用餐) <span class="text-slate-500">*</span>
             </label>
@@ -340,6 +363,7 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
 
         initTimeSelect();
         fetchPlans();
+        KUI.initAllSelects();
     });
 
     function initTimeSelect() {
@@ -410,7 +434,7 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
             // 4. 金額區域增加 shrink-0 確保不被推擠
 
             const html = `
-            <label class="relative flex items-center p-4 border rounded-[var(--r-md)] cursor-pointer hover:bg-slate-50 transition-colors border-slate-200 has-[:checked]:border-[#6ea44c] has-[:checked]:bg-[#6ea44c]/10">
+            <label class="relative flex items-center p-4 border rounded-[var(--r-md)] cursor-pointer hover:bg-[#f9fdf7] transition-colors border-slate-200 has-[:checked]:border-[#6ea44c] has-[:checked]:bg-[#f9fdf7]">
                 
                 <input type="radio" name="paymentPlan" value="${plan.name}" 
                        data-link="${plan.link}" 
@@ -484,7 +508,11 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
         const form = document.getElementById('booking-form');
 
         if (!form.checkValidity()) {
-            form.reportValidity();
+            const firstInvalid = form.querySelector(':invalid');
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                KUI.validate(firstInvalid, firstInvalid.validationMessage || "此欄位為必填項目");
+            }
             return;
         }
 
@@ -600,7 +628,7 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
             window.location.href = `form-result.html`;
         } catch (error) {
             console.error('Error:', error);
-            alert('發生錯誤，請檢查網路連線：' + error.message);
+            await KUI.alert('發生錯誤，請檢查網路連線：' + error.message);
             document.getElementById('loading-overlay').style.display = 'none';
         }
     }

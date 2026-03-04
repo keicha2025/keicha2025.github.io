@@ -21,7 +21,7 @@ async function handleQuickLogin() {
     const phoneInput = document.getElementById('login-phone');
     if (!phoneInput) return;
     const phone = phoneInput.value.trim();
-    if (!/^09\d{8}$/.test(phone)) return alert("請輸入正確的 09 開頭 10 碼電話");
+    if (!/^09\d{8}$/.test(phone)) return KUI.alert("請輸入正確的 09 開頭 10 碼電話");
 
     const btn = document.getElementById('login-submit-btn');
     const oldHtml = btn.innerHTML;
@@ -44,13 +44,13 @@ async function handleQuickLogin() {
                     fillFormWithData(userData);
                 }
             }
-            alert("會員資料讀取成功！");
+            await KUI.alert("會員資料讀取成功！");
         } else {
-            alert("查無此行動電話之會員資料。");
+            await KUI.alert("查無此行動電話之會員資料。");
         }
     } catch (e) {
         console.error("Login Error:", e);
-        alert("系統讀取錯誤，請稍後再試。");
+        await KUI.alert("系統讀取錯誤，請稍後再試。");
     } finally {
         btn.innerHTML = oldHtml;
     }

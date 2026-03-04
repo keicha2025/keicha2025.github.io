@@ -1289,6 +1289,11 @@ title: KEICHA 管理後台 v20260301-3
                         <span class="material-symbols-rounded" style="color: #64748b;">phone_in_talk</span>
                         <span style="font-weight: 600; color: #1f2937;">電話代撥首頁</span>
                     </a>
+                    <a href="denwa-pay.html" target="_blank" class="btn btn-outline"
+                        style="text-decoration: none; padding: 12px; height: auto; text-align: left; display: flex; align-items: center; gap: 10px; border: 1px solid #e5e7eb;">
+                        <span class="material-symbols-rounded" style="color: #64748b;">payments</span>
+                        <span style="font-weight: 600; color: #1f2937;">電話代撥支付</span>
+                    </a>
                     <a href="maccha.html" target="_blank" class="btn btn-outline"
                         style="text-decoration: none; padding: 12px; height: auto; text-align: left; display: flex; align-items: center; gap: 10px; border: 1px solid #e5e7eb;">
                         <span class="material-symbols-rounded" style="color: #64748b;">menu_book</span>
@@ -1672,12 +1677,13 @@ title: KEICHA 管理後台 v20260301-3
 
                 // 檢查是否為授權管理員
                 if (!ALLOWED_ADMINS.includes(email)) {
-                    KUI.alert('您沒有管理權限，只允許：' + ALLOWED_ADMINS.join(', '));
+                    KUI.alert('您沒有管理權限');
                     await handleLogout();
                     return;
                 }
 
                 currentUser = user;
+                KUI.initAllSelects();
                 showMainApp();
             } else {
                 showLoginScreen();
@@ -4498,6 +4504,8 @@ ${!rule.method.includes('宅配') ? `
         document.getElementById('modalBody').innerHTML = bodyHtml;
         document.getElementById('modalFooter').innerHTML = footerHtml || '';
         document.getElementById('editModal').classList.add('active');
+        // 初始化自定義下拉選單
+        KUI.initAllSelects(document.getElementById('modalBody'));
     }
 
     function closeModal() {

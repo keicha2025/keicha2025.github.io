@@ -160,7 +160,110 @@ const KUI = (() => {
         });
     };
 
-    return { alert, confirm, prompt, toast };
+    const validate = (el, message = "請填寫此欄位") => {
+        // 先清除現有的
+        const existing = document.querySelector('.kui-tooltip');
+        if (existing) existing.remove();
+
+        const tooltip = document.createElement('div');
+        tooltip.className = 'kui-tooltip';
+        tooltip.innerHTML = `
+            <div class="kui-tooltip-icon">!</div>
+            <div>${message}</div>
+        `;
+        document.body.appendChild(tooltip);
+
+        const rect = el.getBoundingClientRect();
+        const scrollX = window.scrollX || window.pageXOffset;
+        const scrollY = window.scrollY || window.pageYOffset;
+
+        // 計算位置 (靠左對齊輸入框上方)
+        tooltip.style.left = `${rect.left + scrollX}px`;
+        tooltip.style.top = `${rect.top + scrollY - tooltip.offsetHeight - 10}px`;
+
+        // 偵測輸入即清除
+        el.addEventListener('input', () => tooltip.remove(), { once: true });
+
+        // 5秒後自動消失
+        setTimeout(() => { if (tooltip.parentNode) tooltip.remove(); }, 5000);
+
+        // 點擊頁面其他地方清除
+        const closeTooltip = (e) => {
+            if (!el.contains(e.target)) {
+                tooltip.remove();
+                document.removeEventListener('click', closeTooltip);
+            }
+        };
+        setTimeout(() => document.addEventListener('click', closeTooltip), 10);
+    };
+
+    const initSelect = (selectEl) => {
+        if (!selectEl || selectEl.getAttribute('data-kui-init')) return;
+        selectEl.setAttribute('data-kui-init', 'true');
+
+        // 建立容器
+        const container = document.createElement('div');
+        container.className = 'kui-select-container';
+        selectEl.parentNode.insertBefore(container, selectEl);
+        container.appendChild(selectEl);
+        selectEl.classList.add('kui-select-native');
+
+        // 建立顯示區域
+        const display = document.createElement('div');
+        display.className = 'kui-select-display';
+        display.innerText = selectEl.options[selectEl.selectedIndex]?.text || "請選擇";
+        container.appendChild(display);
+
+        // 建立選單
+        const menu = document.createElement('div');
+        menu.className = 'kui-select-menu';
+        container.appendChild(menu);
+
+        const renderOptions = () => {
+            menu.innerHTML = '';
+            Array.from(selectEl.options).forEach((opt, idx) => {
+                const item = document.createElement('div');
+                item.className = 'kui-select-option';
+                if (idx === selectEl.selectedIndex) item.classList.add('selected');
+                item.innerText = opt.text;
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    selectEl.selectedIndex = idx;
+                    selectEl.dispatchEvent(new Event('change'));
+                    display.innerText = opt.text;
+                    container.classList.remove('open');
+                    renderOptions(); // 更新選中狀態樣式
+                };
+                menu.appendChild(item);
+            });
+        };
+
+        display.onclick = (e) => {
+            e.stopPropagation();
+            // 先關閉其他所有選單
+            document.querySelectorAll('.kui-select-container.open').forEach(el => {
+                if (el !== container) el.classList.remove('open');
+            });
+            container.classList.toggle('open');
+            if (container.classList.contains('open')) renderOptions();
+        };
+
+        // 監聽原生 select 的外部變化
+        selectEl.addEventListener('change', () => {
+            display.innerText = selectEl.options[selectEl.selectedIndex]?.text || "請選擇";
+        });
+
+        // 點擊外部關閉
+        document.addEventListener('click', () => {
+            container.classList.remove('open');
+        });
+    };
+
+    const initAllSelects = (parent = document) => {
+        parent.querySelectorAll('select.form-input, select.admin-select').forEach(initSelect);
+    };
+
+    return { alert, confirm, prompt, toast, validate, initSelect, initAllSelects };
 })();
 
 // Re-expose to global window

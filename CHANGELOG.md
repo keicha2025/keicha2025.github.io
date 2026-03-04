@@ -1,5 +1,122 @@
 # Changelog
 
+## [1.3.14] - 2026-03-04T12:00:00+08:00 - Visual Optimization (Yuki-Maccha Palette)
+
+### Summary of changes
+Refined the visual weight of `denwa-form.html` by replacing heavy green overlays with a lighter "Yuki-Maccha" (#f9fdf7) background.
+
+### Technical details of implementation
+- **`denwa-form.html`**: Updated child details section and plan selection card checked/hover states to use `--brand-green-light` palette.
+- **`denwa-form.html`**: Reduced border opacity for decorative elements to improve focus on content.
+
+### Affected files or modules
+- `denwa-form.html`: Updated CSS classes and inline styles.
+
+**中文摘要**：優化代撥表單視覺權重，將較深的背景色替換為品牌「雪抹」系淡綠色 (#f9fdf7)，提升介面清爽度。
+
+---
+
+## [1.3.13] - 2026-03-04T01:00:00+08:00 - Admin Panel Quick Links Update
+
+
+### Summary of changes
+Added `denwa-pay.html` (Call Payment) to the "All Front-end Pages (Quick Links)" section in the admin panel for easier verification.
+
+### Technical details of implementation
+- **`admin.html`**: Added an `<a>` tag for `denwa-pay.html` in the quick links grid with the `payments` material icon.
+
+### Affected files or modules
+- `admin.html`: Updated Quick Links section.
+
+**中文摘要**：在管理後台的「快速連結」中加入「電話代撥支付 (denwa-pay.html)」頁面，方便管理員快速進行頁面驗證。
+
+---
+
+## [1.3.12] - 2026-03-04T00:55:00+08:00 - Custom Dropdown (Select) Implementation
+
+
+### Summary of changes
+Replaced native HTML `<select>` elements with custom, branded KUI dropdown components for improved cross-browser consistency and brand alignment.
+
+### Technical details of implementation
+- **`css/ui-dialog.css`**: Added styles for `.kui-select-container`, `.kui-select-display`, and `.kui-select-menu` with brand green (#6ea44c) highlights.
+- **`js/ui-dialog.js`**: Added `KUI.initSelect(el)` and `KUI.initAllSelects()` to transform native select elements into searchable-ready custom dropdowns.
+- **`denwa-form.html`**: Integrated `KUI.initAllSelects()` after dynamic time selection initialization.
+- **`admin.html`**: Integrated `KUI.initAllSelects()` in `openModal()` and authentication callback to handle static and dynamic dropdowns.
+
+### Affected files or modules
+- `css/ui-dialog.css`: New dropdown styles.
+- `js/ui-dialog.js`: Dropdown transformation logic.
+- `denwa-form.html`: UI integration.
+- `admin.html`: UI integration for management portal.
+
+**中文摘要**：將原生 `<select>` 下拉選單替換為自定義 KUI 元件，支援品牌綠選中效果與一致的跨平台視覺體驗，並自動同步原生欄位數值。
+
+---
+
+## [1.3.11] - 2026-03-04T00:45:00+08:00 - Custom Validation UI Implementation
+
+
+### Summary of changes
+Implemented a custom KUI validation tooltip system to replace native browser validation bubbles, ensuring consistent branding across all project forms.
+
+### Technical details of implementation
+- **`css/ui-dialog.css`**: Added `.kui-tooltip` and `.kui-tooltip-icon` styles, with the exclamation icon background set to brand green (#6ea44c).
+- **`js/ui-dialog.js`**: Added `KUI.validate(el, message)` to dynamically position and display custom tooltips above input elements.
+- **`denwa-form.html`**: Updated `submitForm` to use `KUI.validate` for displaying error messages when form validation fails.
+
+### Affected files or modules
+- `css/ui-dialog.css`: New tooltip styles.
+- `js/ui-dialog.js`: New validation logic.
+- `denwa-form.html`: Integrated validation UI.
+
+**中文摘要**：實作自定義 KUI 驗證氣泡以取代瀏覽器原生提示，並將驚嘆號圖示底色改為品牌綠 (#6ea44c)，達成全站視覺統一。
+
+---
+
+## [1.3.10] - 2026-03-04T00:39:00+08:00 - Denwa Form Loading UI Fix
+
+
+### Summary of changes
+Restored the missing CSS for the loading spinner in the `denwa-form.html` booking submission overlay and improved CSS readability.
+
+### Technical details of implementation
+- **`denwa-form.html`**:
+  - Re-added the missing `.spinner` and `@keyframes spin` CSS definitions within the `<style>` block.
+  - Aligned the spinner color with the KEICHA brand green (#6ea44c).
+
+### Affected files or modules
+- `denwa-form.html`: CSS style definitions.
+
+**中文摘要**：修復電話代撥表單提交時「讀取中」動畫消失的問題，重新加入 `.spinner` 樣式並確保顏色符合品牌規範。
+
+---
+
+
+
+### Summary of changes
+Replaced remaining browser native `alert()` and `confirm()` dialogs with the custom, asynchronous `KUI` (KEICHA UI Dialog System) to ensure brand consistency and non-blocking user interaction.
+
+### Technical details of implementation
+- **`denwa-form.html`**:
+  - Integrated `css/ui-dialog.css` and `js/ui-dialog.js` into the document head.
+  - Replaced native `alert()` call in the error catch block of the booking submission with `await KUI.alert()`.
+- **`js/checkout_core.js`**:
+  - Replaced all four instances of native `alert()` with `await KUI.alert()`. 
+  - Updated `handleQuickLogin` to correctly `await` the custom dialog promises, preventing potential race conditions in the UI feedback loop.
+
+### Affected files or modules
+- `denwa-form.html`: Head section and error handling logic.
+- `js/checkout_core.js`: Member lookup and login validation alerts.
+
+### Potential side effects or migration notes
+- All alerts are now asynchronous. Any code relying on the execution-blocking nature of native `alert()` (rare in this project) may behave differently. The `KUI` system requires the calling function to be `async` if `await` is used, which has been accounted for in the core scripts.
+
+**中文摘要**：汰換全站殘留的原生 `alert()` 對話框，統一使用 `KUI` 自定義 Modal 系統。這提升了品牌視覺一致性，並解決了原生彈窗阻斷瀏覽器執行緒的問題。
+
+---
+
+
 ## [1.3.8] - 2026-03-03T20:21:07+08:00 - Payment Status Normalization & Admin UI Fix
 
 ### Summary of changes
