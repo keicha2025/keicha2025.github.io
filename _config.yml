@@ -19,3 +19,4 @@ exclude:
   - package.json
   - package-lock.json
   - git_backup
+  - vendor
