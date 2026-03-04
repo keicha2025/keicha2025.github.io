@@ -6,21 +6,21 @@ const STATUS_CONFIG = {
     // 訂單管理 (matcha_orders)
     orders: {
         'pending': { label: '待處理', class: 'pending' },
-        'confirmed': { label: '已確認', class: 'pending' }, // 已確認改為灰色 (跟待處理一樣色系)
+        'confirmed': { label: '已確認', class: 'completed' }, // 改為綠色 (支付成功)
         'completed': { label: '已完成', class: 'completed' }, // 綠色
         'cancelled': { label: '已取消', class: 'cancelled' }
     },
     // 預約管理 (denwa_orders)
     denwa: {
         'pending': { label: '待處理', class: 'pending' },
-        'confirmed': { label: '已確認', class: 'pending' }, // 已確認改為灰色
+        'confirmed': { label: '已確認', class: 'completed' }, // 改為綠色
         'completed': { label: '已完成', class: 'completed' }, // 綠色
         'cancelled': { label: '已取消', class: 'cancelled' }
     },
     // 連結訂單 / 刷卡訂單 (card_orders)
     links: {
         'pending': { label: '待處理', class: 'pending' },
-        'confirmed': { label: '已確認', class: 'pending' }, // 已確認改為灰色
+        'confirmed': { label: '已確認', class: 'completed' }, // 改為綠色
         'completed': { label: '已完成', class: 'completed' }, // 綠色
         'cancelled': { label: '已取消', class: 'cancelled' }
     },

@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.3.20] - 2026-03-04T18:50:00+08:00 - Diagnostic Report Fixes & Infrastructure Refinement
+
+### Summary of changes
+Addressed critical infrastructure and UI mapping issues identified in the 2026-03-04 Diagnostic Report, including payment routing, status visualization, and security refactoring.
+
+### Technical details of implementation
+- **`js/status-config.js`**: Re-mapped 'confirmed' status CSS to 'completed' (green) across all order types for consistent success visualization.
+- **`admin.html`**: Standardized status display logic in `loadOrders`, `loadDenwaOrders`, and `loadCardOrders` to handle legacy 'paid' labels.
+- **`gas/firebase_handler.gs`**: Refactored `handleRepayOrder` to dynamically detect payment providers (ECPay vs. PCHomePay) from linked configurations, ensuring correct gateway routing.
+- **`card-order.html`**: Refactored Firebase initialization to use the centralized `js/firebase-services.js` module and enabled App Check protection through the global helper.
+
+### Affected files or modules
+- `js/status-config.js`, `admin.html`, `card-order.html`, `gas/firebase_handler.gs`.
+
+**中文摘要**：修復 2026-03-04 診斷報告中的核心問題。包含統一訂單狀態綠色顯示、修正 PCHomePay 重新付款路由邏輯，並將 `card-order.html` 的 Firebase 初始化模組化，提升安全性與程式碼整潔度。
+
+---
+
 ## [1.3.19] - 2026-03-04T13:40:00+08:00 - Global Refined Scrollbar & Intelligent Visibility
 
 ### Summary of changes

@@ -1854,7 +1854,9 @@ title: KEICHA 管理後台 v20260301-3
                 const date = order.created_at?.toDate ? order.created_at.toDate() : new Date(order.created_at);
                 const dateStr = date.toLocaleString('zh-TW', { hour12: false });
 
-                const badgeHtml = getStatusBadge('orders', order.status);
+                // 映射邏輯：將 paid 規一化為 confirmed
+                const displayStatus = (order.status === 'paid') ? 'confirmed' : (order.status || 'pending');
+                const badgeHtml = getStatusBadge('orders', displayStatus);
 
                 html += `
                     <tr class="selectable-row" data-id="${order.id}" data-type="orders">
@@ -2073,7 +2075,10 @@ title: KEICHA 管理後台 v20260301-3
 
             snapshot.forEach(doc => {
                 const order = { id: doc.id, ...doc.data() };
-                const badgeHtml = getStatusBadge('denwa', order.status);
+
+                // 映射邏輯：將 paid 規一化為 confirmed
+                const displayStatus = (order.status === 'paid') ? 'confirmed' : (order.status || 'pending');
+                const badgeHtml = getStatusBadge('denwa', displayStatus);
 
                 // [新增] 格式化日期與時間，處理可能的 ISO 字串或 Date 物件
                 const formatDT = (val, isTime = false) => {

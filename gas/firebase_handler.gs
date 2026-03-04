@@ -339,7 +339,6 @@ function handleRepayOrder(payload) {
   
   // 嘗試從 card_orders 抓取資料
   let order = getFirestoreDocumentById('card_orders', repay_order_id);
-  let linkId = '';
   
   if (!order) {
     // 可能是 denwa_orders
@@ -352,31 +351,13 @@ function handleRepayOrder(payload) {
   }
 
   // 取得相對應的連結設定 (用於獲取金流商資訊與標題)
-  linkId = order.link_id;
+  const linkId = order.link_id;
   const config = fetchFirestoreDocument('card_orders_links', 'suffix', linkId || 'default');
   
   const totalAmount = order.amount || order.total || 0;
   const tradeDesc = config ? config.title : (order.merchant_name || 'KEICHA 訂單');
-  
-  // ECPay 需要唯一的訂單編號，後綴 R + 隨機數
   const repaySuffix = 'R' + Math.floor(Math.random() * 90 + 10); 
-  const merchantTradeNo = repay_order_id + repaySuffix;
-
   const gasUrl = ScriptApp.getService().getUrl();
-  const choosePayment = (order.payment_method === 'ATM') ? 'ATM' : 'Credit';
-
-  const html = generateECPayForm({
-    MerchantTradeNo: merchantTradeNo,
-    MerchantTradeDate: Utilities.formatDate(new Date(), "GMT+8", "yyyy/MM/dd HH:mm:ss"),
-    TotalAmount: totalAmount,
-    TradeDesc: tradeDesc,
-    ItemName: tradeDesc,
-    ReturnURL: gasUrl,
-    OrderResultURL: 'https://keicha-membership-system.web.app/index.html',
-    ChoosePayment: choosePayment,
-    NeedExtraPaidInfo: 'Y',
-    PaymentType: 'aio'
-  });
 
   // 如果原本就是 PCHome Pay 訂單，則走 PCHome Pay 重新付款邏輯
   if (config && config.payment_provider === 'PCHomePay') {
@@ -415,8 +396,26 @@ function handleRepayOrder(payload) {
       });
       const res = JSON.parse(resp.getContentText());
       if (res.payment_url) return createJSONResponse(true, 'OK', { payment_url: res.payment_url });
+      else return createJSONResponse(false, 'PCHome Pay 訂單建立失敗：' + (res.message || JSON.stringify(res)));
+    } else {
+      return createJSONResponse(false, 'PCHome Pay 授權失敗：' + tokenObj.error);
     }
   }
+
+  // 預設走 ECPay 邏輯 (或 config 明確指定為 ECPay)
+  const choosePayment = (order.payment_method === 'ATM') ? 'ATM' : 'Credit';
+  const html = generateECPayForm({
+    MerchantTradeNo: repay_order_id + repaySuffix,
+    MerchantTradeDate: Utilities.formatDate(new Date(), "GMT+8", "yyyy/MM/dd HH:mm:ss"),
+    TotalAmount: totalAmount,
+    TradeDesc: tradeDesc,
+    ItemName: tradeDesc,
+    ReturnURL: gasUrl,
+    OrderResultURL: 'https://keicha-membership-system.web.app/index.html',
+    ChoosePayment: choosePayment,
+    NeedExtraPaidInfo: 'Y',
+    PaymentType: 'aio'
+  });
 
   return createJSONResponse(true, 'OK', { payment_html: html });
 }

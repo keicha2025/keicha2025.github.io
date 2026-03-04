@@ -11,21 +11,14 @@ title: KEICHA 信用卡結帳
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
 
+<!-- Global Firebase Services -->
+<script src="js/firebase-services.js"></script>
+
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyBF50fJPE-QL3yV4KaVIWzDmDPFRAkpwT4",
-        authDomain: "keicha-membership-system.firebaseapp.com",
-        projectId: "keicha-membership-system",
-        storageBucket: "keicha-membership-system.firebasestorage.app",
-        messagingSenderId: "941650156322",
-        appId: "1:941650156322:web:5c7473aeaa184e0b94637b"
-    };
-    firebase.initializeApp(firebaseConfig);
-
-    const appCheck = firebase.appCheck();
-    appCheck.activate('6LcPa3UsAAAAAHJ-z9C3N9cqen3AYC8HxEQODoTM', true);
-
-    const db = firebase.firestore();
+    // 啟動 App Check (使用全域模組函式)
+    if (window.FB && FB.initAppCheck) {
+        FB.initAppCheck('6LcPa3UsAAAAAHJ-z9C3N9cqen3AYC8HxEQODoTM');
+    }
 </script>
 
 <!-- KEICHA UI Dialog System -->
