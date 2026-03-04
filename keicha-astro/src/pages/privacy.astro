@@ -1,0 +1,82 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+---
+
+<MainLayout
+    title="KEICHA 隱私權條款"
+    description="KEICHA 隱私權條款，說明我們如何蒐集、使用及保護您的個人資訊。"
+    keywords="KEICHA, 隱私權, 隱私權條款, 個資保護"
+>
+    <Fragment slot="head">
+        <style>
+            .privacy-content h3 {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: #1e293b;
+                margin-bottom: 1rem;
+                margin-top: 2rem;
+                padding-top: 1.5rem;
+                border-top: 1px solid #e2e8f0;
+            }
+            .privacy-content section:first-child h3 {
+                margin-top: 0;
+                padding-top: 0;
+                border-top: 0;
+            }
+            .privacy-content div,
+            .privacy-content p {
+                color: #334155;
+                margin-bottom: 0.75rem;
+                line-height: 1.6;
+            }
+            .privacy-content ul {
+                list-style-type: disc;
+                list-style-position: inside;
+                padding-left: 1rem;
+                color: #334155;
+                margin-bottom: 0.75rem;
+            }
+            .loader {
+                border-top-color: #6ea44c;
+                animation: spin 1s linear infinite;
+            }
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+    </Fragment>
+
+    <main class="py-16 md:py-24">
+        <div class="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+            <div class="bg-white p-8 md:p-12 rounded-[var(--r-lg)] shadow-lg">
+                <header class="text-center mb-10 pb-6 border-b border-gray-200">
+                    <h1 class="text-3xl md:text-4xl font-bold text-brandGreen">
+                        隱私權條款
+                    </h1>
+                    <p class="mt-4 text-lg text-gray-600">Privacy Policy</p>
+                </header>
+                <div
+                    id="privacy-loader"
+                    class="flex justify-center items-center h-32"
+                >
+                    <div
+                        class="loader ease-linear rounded-[var(--r-full)] border-4 border-t-4 border-gray-300 h-12 w-12"
+                    >
+                    </div>
+                </div>
+                <div id="privacy-container" class="privacy-content"></div>
+            </div>
+        </div>
+    </main>
+
+    <Fragment slot="scripts">
+        <script
+            src="/assets/js/privacy-loader.js"
+            data-cf-async="false"
+            defer
+            is:inline
+        ></script>
+    </Fragment>
+</MainLayout>

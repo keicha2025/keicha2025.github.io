@@ -1,0 +1,261 @@
+/* 
+ * KEICHA Global Styles (v1.0.0)
+ * 集中管理品牌色系、通用 UI 組件與全域樣式。
+ */
+
+:root {
+    /* 品牌色系 (Brand Colors) */
+    --brand-green: #6ea44c;
+    --brand-green-hover: #5d8d41;
+    --brand-green-light: #f9fdf7;
+    --brand-green-alpha: rgba(110, 164, 76, 0.1);
+
+    /* 灰色系 (Grays) */
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+
+    /* 圓角規模 (Border Radius Tokens) */
+    --r-sm: 8px;
+    --r-md: 16px;
+    --r-lg: 24px;
+    --r-full: 9999px;
+}
+
+/* --- 1. 基礎重置 (Base Reset) --- */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+/* 全域捲軸優化 (Global Scrollbar Optimization) */
+/* 預設使用低調捲軸，且僅在內容溢出時出現 (overflow: auto) */
+html,
+body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -ms-overflow-style: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #e5e7eb transparent;
+}
+
+/* Chrome, Safari, Edge 自定義樣式 */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    display: block;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #e5e7eb;
+    /* gray-200 */
+    background-clip: padding-box;
+    border: 2px solid transparent;
+    /* 核心：透過透明邊界讓滑塊看起來變細 */
+    border-radius: 10px;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #d1d5db;
+    /* gray-300 */
+}
+
+/* --- 2. 品牌工具類 (Brand Utilities) --- */
+.brand-green {
+    color: var(--brand-green);
+}
+
+.bg-brand-green {
+    background-color: var(--brand-green);
+}
+
+.border-brand-green {
+    border-color: var(--brand-green);
+}
+
+/* --- 3. 通用 UI 組件 (Common Components) --- */
+
+/* 標準卡片容器 (Section Card) */
+.section-card {
+    background: white;
+    padding: 24px;
+    border-radius: var(--r-lg);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 640px) {
+    .section-card {
+        padding: 16px;
+        border-radius: var(--r-md);
+        margin-bottom: 16px;
+    }
+}
+
+/* 標準輸入框 (Unified Input) */
+/* 兼容舊項目的 .diy-input */
+.diy-input,
+.k-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--r-md);
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.2s;
+    background-color: #fff;
+    color: var(--gray-800);
+}
+
+.diy-input:focus,
+.k-input:focus {
+    border-color: var(--brand-green);
+    box-shadow: 0 0 0 3px var(--brand-green-alpha);
+    background-color: #fff;
+}
+
+.diy-input::placeholder,
+.k-input::placeholder {
+    color: var(--gray-400);
+}
+
+/* 物流選項卡片 */
+.logistics-card {
+    border: 2px solid var(--gray-100);
+    border-radius: var(--r-md);
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    background-color: var(--gray-50);
+}
+
+.logistics-card:hover {
+    border-color: var(--gray-200);
+}
+
+.logistics-card.active {
+    border-color: var(--brand-green);
+    background-color: var(--brand-green-light);
+}
+
+.logistics-card.active .icon-active {
+    color: var(--brand-green) !important;
+}
+
+/* 按鈕系統 */
+.btn-outline-green {
+    background-color: white;
+    color: var(--brand-green);
+    border: 1px solid var(--brand-green);
+    padding: 8px 16px;
+    border-radius: var(--r-md);
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    transition: all 150ms;
+    cursor: pointer;
+}
+
+.btn-outline-green:hover {
+    background-color: var(--gray-50);
+}
+
+.btn-outline-green:active {
+    transform: scale(0.95);
+}
+
+.btn-loading {
+    background-color: var(--gray-400) !important;
+    border-color: var(--gray-400) !important;
+    cursor: not-allowed !important;
+    color: white !important;
+}
+
+/* --- 4. 輔助工具 (Layout Helpers) --- */
+
+/* iOS 安全區域 */
+.safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+@supports not (padding-bottom: env(safe-area-inset-bottom)) {
+    .safe-area-pb {
+        padding-bottom: 20px;
+    }
+}
+
+/* 遮罩層 (Overlay) */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 190;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s;
+    backdrop-filter: blur(4px);
+}
+
+.overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* --- 5. 動畫 (Animations) --- */
+.animate-spin-custom {
+    animation: k-spin 1s linear infinite;
+}
+
+@keyframes k-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 圖片容器 (1:1) */
+.square-img-container {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    background-color: var(--gray-100);
+}
+
+.square-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

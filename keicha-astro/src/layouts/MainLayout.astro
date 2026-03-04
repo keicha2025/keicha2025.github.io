@@ -1,0 +1,141 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  keywords?: string;
+  bodyClass?: string;
+  hideHeader?: boolean;
+  hideFooter?: boolean;
+}
+
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const {
+  title = 'KEICHA - 抹茶代購 | 日本電話代撥服務',
+  description = 'KEICHA 提供最專業的日本代購服務，並提供日本電話代撥，為您處理日本大小事。',
+  keywords = '',
+  bodyClass = '',
+  hideHeader = false,
+  hideFooter = false,
+} = Astro.props;
+
+const siteUrl = 'https://keicha2025.github.io';
+const ogImage = `${siteUrl}/images/KEICHA_OGImage.png`;
+const canonicalUrl = `${siteUrl}${Astro.url.pathname}`;
+---
+
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  {keywords && <meta name="keywords" content={keywords} />}
+
+  <meta name="google-site-verification" content="RSCsK8X-OoCTr2uKZ2oKz-QbY1SjZWYLZRIfQz9NKWY" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:url" content={canonicalUrl} />
+  <meta property="og:site_name" content="KEICHA" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImage} />
+
+  <!-- Favicon -->
+  <link rel="icon" href="/images/favicon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/images/favicon.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <!-- Page-specific styles slot -->
+  <slot name="head" />
+</head>
+
+<body class={`bg-gray-50 text-gray-800 ${bodyClass}`}>
+  {!hideHeader && <Header />}
+
+  <slot />
+
+  {!hideFooter && <Footer />}
+
+  <!-- Global Nav Script -->
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+      // --- Mobile Menu ---
+      const menuButton = document.getElementById('mobile-menu-button');
+      const mobileMenu = document.getElementById('mobile-menu');
+      if (menuButton && mobileMenu) {
+        menuButton.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const currentState = mobileMenu.getAttribute('data-state');
+          mobileMenu.setAttribute('data-state', currentState === 'closed' ? 'open' : 'closed');
+        });
+      }
+
+      // --- Desktop Dropdown ---
+      const dropdownButton = document.getElementById('desktop-dropdown-button');
+      const dropdownMenu = document.getElementById('desktop-dropdown-menu');
+      if (dropdownButton && dropdownMenu) {
+        dropdownButton.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const currentState = dropdownMenu.getAttribute('data-state');
+          dropdownMenu.setAttribute('data-state', currentState === 'closed' ? 'open' : 'closed');
+        });
+        dropdownMenu.addEventListener('click', () => {
+          dropdownMenu.setAttribute('data-state', 'closed');
+        });
+      }
+
+      // --- Close on outside click ---
+      window.addEventListener('click', () => {
+        if (dropdownMenu) dropdownMenu.setAttribute('data-state', 'closed');
+        if (mobileMenu && mobileMenu.getAttribute('data-state') === 'open') {
+          mobileMenu.setAttribute('data-state', 'closed');
+        }
+      });
+      if (mobileMenu) mobileMenu.addEventListener('click', (e) => e.stopPropagation());
+
+      // --- Web Share API ---
+      const desktopShareButton = document.getElementById('desktop-share-button');
+      const mobileShareButtonFixed = document.getElementById('mobile-share-button-fixed');
+      const shareTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content') || document.title;
+      const shareText = document.querySelector('meta[property="og:description"]')?.getAttribute('content') || '查看 KEICHA 的服務';
+      const shareUrl = document.querySelector('meta[property="og:url"]')?.getAttribute('content') || window.location.href;
+      const shareData = { title: shareTitle, text: shareText, url: shareUrl };
+
+      if (navigator.share) {
+        const showShareButton = (button) => {
+          if (button) {
+            button.classList.remove('hidden');
+            button.addEventListener('click', async (event) => {
+              event.stopPropagation();
+              try { await navigator.share(shareData); } catch (err) { console.error('分享失敗:', err); }
+            });
+          }
+        };
+        showShareButton(desktopShareButton);
+        showShareButton(mobileShareButtonFixed);
+      }
+    });
+  </script>
+
+  <!-- Page-specific scripts slot -->
+  <slot name="scripts" />
+</body>
+</html>

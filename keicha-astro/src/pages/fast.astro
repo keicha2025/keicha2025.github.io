@@ -1,0 +1,998 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+---
+
+<MainLayout title="KEICHA 快速結帳">
+    <Fragment slot="head">
+        <script
+            src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"
+            is:inline
+        ></script>
+        <script
+            src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"
+            is:inline
+        ></script>
+        <script
+            src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"
+            is:inline
+        ></script>
+        <script
+            src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"
+            is:inline
+        ></script>
+        <script src="/js/firebase-services.js" is:inline></script>
+        <script src="/js/utils.js" is:inline></script>
+        <script is:inline>
+            FB.initAppCheck("6LcPa3UsAAAAAHJ-z9C3N9cqen3AYC8HxEQODoTM");
+        </script>
+        <style>
+            @media (max-width: 640px) {
+                .btn-text {
+                    display: none;
+                }
+            }
+            .section-card {
+                background: white;
+                padding: 24px;
+                border-radius: 24px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                margin-bottom: 24px;
+            }
+            .logistics-card {
+                background: #f9fafb;
+                border: 2px solid transparent;
+                border-radius: 16px;
+                padding: 16px;
+                cursor: pointer;
+                transition: all 0.2s;
+                position: relative;
+            }
+            .logistics-card:hover {
+                background: #f3f4f6;
+            }
+            .logistics-card.active {
+                border-color: #6ea44c;
+                background-color: #f9fdf7;
+            }
+            .btn-loading {
+                background-color: #9ca3af !important;
+                border-color: #9ca3af !important;
+                cursor: not-allowed !important;
+                color: white !important;
+            }
+            .btn-outline-green {
+                background-color: white;
+                color: #6ea44c;
+                border: 1px solid #6ea44c;
+                padding: 8px 16px;
+                border-radius: 0.75rem;
+                font-size: 0.75rem;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                white-space: nowrap;
+                box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+                transition: all 150ms;
+            }
+            .btn-outline-green:hover {
+                background-color: #f9fafb;
+            }
+            .btn-outline-green:active {
+                transform: scale(0.95);
+            }
+            .safe-area-pb {
+                padding-bottom: env(safe-area-inset-bottom, 20px);
+            }
+            @supports not (padding-bottom: env(safe-area-inset-bottom)) {
+                .safe-area-pb {
+                    padding-bottom: 12px;
+                }
+            }
+            #closed-mask {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: white;
+                z-index: 50;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+            }
+            input[type="radio"] {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 18px;
+                height: 18px;
+                border: 2px solid #e5e7eb;
+                border-radius: 50%;
+                background-color: #fff;
+                margin: 0;
+                cursor: pointer;
+                display: grid;
+                place-content: center;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                flex-shrink: 0;
+            }
+            input[type="radio"]::before {
+                content: "";
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                transform: scale(0);
+                transition: 0.2s transform cubic-bezier(0.4, 0, 0.2, 1);
+                background-color: #6ea44c;
+            }
+            input[type="radio"]:checked {
+                border-color: #6ea44c;
+                background-color: #f9fdf7;
+            }
+            input[type="radio"]:checked::before {
+                transform: scale(1);
+            }
+            input[type="radio"]:focus-visible {
+                outline: 2px solid #6ea44c;
+                outline-offset: 2px;
+            }
+            .diy-input {
+                width: 100%;
+                border: 1px solid #d1d5db;
+                border-radius: 0.375rem;
+                padding: 0.75rem 1rem;
+            }
+        </style>
+    </Fragment>
+
+    <main>
+        <div id="closed-mask">
+            <span class="material-symbols-rounded text-6xl text-gray-300 mb-4"
+                >storefront</span
+            >
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">
+                賣場目前未開放
+            </h2>
+            <p class="text-gray-500 text-sm">
+                如有疑問請私訊官方帳號，謝謝您的支持。
+            </p>
+            <a href="/" class="mt-8 text-[#6ea44c] font-bold hover:underline"
+                >返回首頁</a
+            >
+        </div>
+
+        <div
+            id="main-content"
+            class="bg-gray-50 min-h-screen pb-32 hidden opacity-0 transition-opacity duration-500"
+        >
+            <div class="container mx-auto px-4 max-w-2xl pt-10 pb-6">
+                <h1
+                    class="text-2xl font-bold tracking-tight text-gray-800 flex items-center gap-2"
+                >
+                    <span class="material-symbols-rounded text-[#6ea44c]"
+                        >shopping_bag</span
+                    > 快速結帳
+                </h1>
+                <p class="text-xs text-gray-400 mt-1 font-bold leading-relaxed">
+                    若您已與我們確認訂單內容，請於此直接輸入資料完成訂購。
+                </p>
+            </div>
+
+            <div class="container mx-auto px-4 max-w-2xl">
+                <section class="section-card">
+                    <h2
+                        class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4"
+                    >
+                        本次訂購內容
+                    </h2>
+                    <div
+                        class="bg-gray-50 rounded-xl p-5 border border-gray-100 mb-4"
+                    >
+                        <div
+                            id="display-items"
+                            class="text-gray-700 text-sm font-bold leading-relaxed whitespace-pre-wrap"
+                        >
+                            載入中...
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between px-2">
+                        <span class="text-xs font-bold text-gray-400"
+                            >商品金額</span
+                        >
+                        <span
+                            id="display-amount"
+                            class="text-xl font-mono font-bold text-[#6ea44c]"
+                            >NT$ -</span
+                        >
+                    </div>
+                </section>
+
+                <section class="section-card">
+                    <label
+                        class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3"
+                        >您的手機號碼 <span class="text-slate-500">*</span>
+                    </label>
+                    <div class="flex gap-3">
+                        <input
+                            type="tel"
+                            id="input-phone"
+                            class="diy-input text-lg font-bold font-mono tracking-wide"
+                            placeholder="09xxxxxxxx"
+                            maxlength="10"
+                        />
+                        <button
+                            onclick="lookupPhoneData(this)"
+                            id="btn-lookup"
+                            class="btn-outline-green">會員自動帶入</button
+                        >
+                    </div>
+                    <p
+                        class="text-[10px] text-gray-400 mt-3 flex items-start gap-1 leading-relaxed"
+                    >
+                        <span
+                            class="material-symbols-rounded text-sm shrink-0 mt-0.5"
+                            >info</span
+                        >
+                        <span
+                            >若您曾經儲存資料，收件資訊將自動帶入。點選「會員自動帶入」後，您的收件資訊也會同步儲存，方便下次快速填寫。</span
+                        >
+                    </p>
+                </section>
+
+                <section class="section-card space-y-4">
+                    <h2
+                        class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2"
+                    >
+                        物流方式
+                    </h2>
+                    <div id="logistics-options-container" class="space-y-4">
+                    </div>
+                    <div
+                        id="no-logistics-msg"
+                        class="hidden text-center text-gray-400 text-sm py-4"
+                    >
+                        目前沒有可用的物流方式，請聯繫管理員。
+                    </div>
+                </section>
+
+                <section class="section-card space-y-4">
+                    <h2
+                        class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2"
+                    >
+                        收件人資訊
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                class="text-[10px] font-bold text-gray-400 mb-1 block"
+                                >真實姓名 <span class="text-slate-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="input-name"
+                                class="diy-input"
+                                placeholder="請輸入姓名"
+                            />
+                        </div>
+                        <div>
+                            <label
+                                class="text-[10px] font-bold text-gray-400 mb-1 block"
+                                >電子信箱 <span class="text-slate-500">*</span>
+                            </label>
+                            <input
+                                type="email"
+                                id="input-email"
+                                class="diy-input"
+                                placeholder="接收訂單通知"
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <label
+                            class="text-[10px] font-bold text-gray-400 mb-1 block"
+                            >LINE / 蝦皮顯示名稱 <span class="text-slate-500"
+                                >*</span
+                            >
+                        </label>
+                        <input
+                            type="text"
+                            id="input-line"
+                            class="diy-input"
+                            placeholder="請輸入主要聯絡方式的顯示名稱"
+                        />
+                    </div>
+                </section>
+
+                <section class="section-card">
+                    <label
+                        class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3"
+                        >訂單備註</label
+                    >
+                    <textarea
+                        id="input-note"
+                        class="diy-input"
+                        rows="2"
+                        placeholder="如有其他需求請填寫..."></textarea>
+                    <div
+                        class="mt-6 p-4 bg-white rounded-xl border border-gray-200 shadow-sm hover:border-[#6ea44c] transition duration-200"
+                    >
+                        <label
+                            class="flex items-center gap-3 cursor-pointer select-none"
+                        >
+                            <input
+                                type="checkbox"
+                                id="join-member-check"
+                                class="w-5 h-5 text-[#6ea44c] rounded border-gray-300 focus:ring-[#6ea44c] checked:bg-[#6ea44c]"
+                                checked
+                            />
+                            <span
+                                class="text-xs text-gray-600 font-bold leading-relaxed"
+                                >確認儲存/更新收件資料，下次可使用「會員自動帶入」</span
+                            >
+                        </label>
+                    </div>
+                </section>
+            </div>
+
+            <div
+                class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 h-20 px-6 flex items-center shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-40 safe-area-pb"
+            >
+                <div
+                    class="container mx-auto max-w-2xl flex items-center justify-between gap-3"
+                >
+                    <div class="flex flex-col justify-center flex-1 min-w-0">
+                        <div
+                            id="summary-info-text"
+                            class="text-[11px] font-bold text-gray-400 whitespace-nowrap truncate leading-tight"
+                        >
+                            總金額 (含運)｜尚未選擇物流
+                        </div>
+                        <div
+                            id="summary-total"
+                            class="text-2xl font-bold text-[#6ea44c] font-mono leading-none mt-0.5 whitespace-nowrap"
+                        >
+                            NT$ -
+                        </div>
+                    </div>
+                    <button
+                        onclick="submitOrder(this)"
+                        id="btn-submit"
+                        class="h-12 bg-[#6ea44c] text-white px-6 rounded-xl font-bold shadow-lg shadow-green-900/10 active:scale-95 hover:bg-[#5d8d41] transition-all flex items-center justify-center gap-1.5 shrink-0"
+                    >
+                        <span
+                            >送出<span class="hidden sm:inline">訂單</span>
+                        </span>
+                        <span class="material-symbols-rounded text-lg"
+                            >arrow_forward</span
+                        >
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div
+            id="loading-overlay"
+            class="fixed inset-0 bg-white z-[100] flex items-center justify-center"
+        >
+            <div class="flex flex-col items-center">
+                <div
+                    class="w-10 h-10 border-4 border-gray-200 border-t-[#6ea44c] rounded-full animate-spin mb-4"
+                >
+                </div>
+                <div class="text-gray-400 text-sm font-bold tracking-widest">
+                    載入賣場資訊...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <Fragment slot="scripts">
+        <script
+            src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+            is:inline
+        ></script>
+        <script src="/js/api.js" is:inline></script>
+        <script src="/js/member_sync.js" is:inline></script>
+
+        <script is:inline>
+            let currentMethod = null;
+            let fastConfig = null;
+            let productAmount = 0;
+            let shippingRules = [];
+            let globalMethods = [];
+
+            document.addEventListener("DOMContentLoaded", async () => {
+                try {
+                    const db = window.FB?.db || window.firebase?.firestore();
+                    if (!db) throw new Error("Firebase DB not initialized.");
+                    const [configDoc, shipSnap, methodsSnap] =
+                        await Promise.all([
+                            db
+                                .collection("fast_checkout_config")
+                                .doc("default")
+                                .get(),
+                            db.collection("shipping_rules").get(),
+                            db.collection("shipping_methods").get(),
+                        ]);
+
+                    shippingRules = shipSnap.docs.map((doc) => doc.data());
+                    globalMethods = methodsSnap.docs.map((doc) => doc.data());
+
+                    document
+                        .getElementById("loading-overlay")
+                        .classList.add("hidden");
+
+                    if (configDoc.exists) {
+                        fastConfig = configDoc.data();
+                        renderPageConfig();
+                    } else {
+                        alert("無法讀取賣場設定");
+                    }
+                } catch (e) {
+                    console.error("Config Error:", e);
+                    document.getElementById("loading-overlay").innerText =
+                        "連線錯誤，請重新整理";
+                }
+
+                const savedUser = localStorage.getItem("keicha_v2_user");
+                if (savedUser) {
+                    const u = JSON.parse(savedUser);
+                    document.getElementById("input-phone").value = u.phone;
+                    fillFormWithData(u);
+                }
+
+                const syncFastMemberData = () => {
+                    const phone = getVal("input-phone");
+                    if (!phone) return;
+
+                    const data = {
+                        phone: phone,
+                        name: getVal("input-name"),
+                        email: getVal("input-email"),
+                        line_name: getVal("input-line"),
+                        source_token: "keicha_2025_web_auth",
+                    };
+
+                    if (currentMethod) {
+                        const m = currentMethod;
+                        const is711 = m.includes("7-11");
+                        const isFami = m.includes("全家");
+                        const isHome =
+                            m.includes("宅配") ||
+                            m.includes("郵寄") ||
+                            m.includes("地址") ||
+                            m.includes("寄送");
+
+                        if (is711) {
+                            data.store_711 = getVal(`store-id-${m}`);
+                            data.store_711_note = getVal(`store-note-${m}`);
+                        } else if (isFami) {
+                            data.store_fami = getVal(`store-id-${m}`);
+                            data.store_fami_note = getVal(`store-note-${m}`);
+                        } else if (isHome) {
+                            data.shipping_address = getVal(`store-addr-${m}`);
+                        }
+                    }
+                    if (window.MemberSync) window.MemberSync.sync(data);
+                };
+
+                const syncInputs = [
+                    "input-phone",
+                    "input-name",
+                    "input-email",
+                    "input-line",
+                ];
+                syncInputs.forEach((id) => {
+                    const el = document.getElementById(id);
+                    if (el) el.addEventListener("input", syncFastMemberData);
+                });
+
+                const logisticsContainer = document.getElementById(
+                    "logistics-options-container"
+                );
+                if (logisticsContainer) {
+                    logisticsContainer.addEventListener(
+                        "input",
+                        syncFastMemberData
+                    );
+                }
+            });
+
+            function generateRandomSuffix(length = 4) {
+                const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+                let result = "";
+                for (let i = 0; i < length; i++)
+                    result += chars.charAt(
+                        Math.floor(Math.random() * chars.length)
+                    );
+                return result;
+            }
+
+            async function generateOrderId(prefixChar) {
+                const db = window.FB?.db || window.firebase?.firestore();
+                const now = new Date();
+                const yy = String(now.getFullYear()).slice(-2);
+                const mm = String(now.getMonth() + 1).padStart(2, "0");
+                const dd = String(now.getDate()).padStart(2, "0");
+                const datePrefix = `${prefixChar}${yy}${mm}${dd}`;
+
+                const counterRef = db
+                    .collection("order_counters")
+                    .doc(datePrefix);
+
+                return await db.runTransaction(async (transaction) => {
+                    const counterDoc = await transaction.get(counterRef);
+                    let nextNum = 1;
+                    if (counterDoc.exists) {
+                        nextNum = (counterDoc.data().count || 0) + 1;
+                    }
+                    transaction.set(
+                        counterRef,
+                        { count: nextNum },
+                        { merge: true }
+                    );
+                    return `${datePrefix}${String(nextNum).padStart(2, "0")}`;
+                });
+            }
+
+            function renderPageConfig() {
+                if (!fastConfig) return;
+                if (!["開啟", "available", "ON"].includes(fastConfig.status)) {
+                    document.getElementById("closed-mask").style.display =
+                        "flex";
+                    document
+                        .getElementById("main-content")
+                        .classList.add("hidden");
+                    return;
+                }
+
+                const main = document.getElementById("main-content");
+                main.classList.remove("hidden");
+                setTimeout(() => main.classList.remove("opacity-0"), 50);
+
+                document.getElementById("display-items").innerText =
+                    fastConfig.items_text || "無商品說明";
+                productAmount = parseInt(fastConfig.amount) || 0;
+                document.getElementById(
+                    "display-amount"
+                ).innerText = `NT$ ${productAmount.toLocaleString()}`;
+
+                renderLogisticsDynamic();
+                updatePageSummary();
+            }
+
+            function renderLogisticsDynamic() {
+                const container = document.getElementById(
+                    "logistics-options-container"
+                );
+                const enabled_methods = fastConfig.enabled_methods || [];
+                const tracking_links_map = fastConfig.tracking_links_map || {};
+
+                const legacy_methods = [];
+                if (
+                    fastConfig.enable_711 &&
+                    !enabled_methods.some((m) => m.includes("7-11"))
+                )
+                    legacy_methods.push("7-11");
+                if (
+                    fastConfig.enable_fami &&
+                    !enabled_methods.some((m) => m.includes("全家"))
+                )
+                    legacy_methods.push("全家");
+                if (
+                    fastConfig.enable_home &&
+                    !enabled_methods.some(
+                        (m) =>
+                            m.includes("宅配") ||
+                            m.includes("郵寄") ||
+                            m.includes("黑貓")
+                    )
+                )
+                    legacy_methods.push("宅配");
+
+                let allMethods = [
+                    ...new Set([...enabled_methods, ...legacy_methods]),
+                ];
+
+                if (allMethods.length === 0) {
+                    document
+                        .getElementById("no-logistics-msg")
+                        .classList.remove("hidden");
+                    return;
+                }
+
+                container.innerHTML = allMethods
+                    .map((m) => {
+                        const fee = calcFastShip(m);
+                        const is711 = m.includes("7-11");
+                        const isFami = m.includes("全家");
+                        const isHome =
+                            m.includes("宅配") ||
+                            m.includes("郵寄") ||
+                            m.includes("地址") ||
+                            m.includes("寄送");
+
+                        let icon = "local_shipping";
+                        if (is711 || isFami) icon = "store";
+                        else if (isHome) icon = "home";
+
+                        const gm = globalMethods.find((x) => x.name === m);
+                        let queryLink =
+                            tracking_links_map[m] || (gm ? gm.query_url : "");
+                        if (!queryLink) {
+                            if (is711) queryLink = "https://emap.pcsc.com.tw/";
+                            else if (isFami)
+                                queryLink =
+                                    "https://www.family.com.tw/marketing/inquiry.aspx";
+                        }
+
+                        let detailHtml = "";
+                        if (is711 || isFami) {
+                            detailHtml = `
+              <div class="flex gap-2">
+                <input type="text" id="store-id-${m}" class="diy-input flex-1" placeholder="輸入6碼店號" maxlength="6" inputmode="numeric">
+                ${
+                    queryLink
+                        ? `<a href="${queryLink}" target="_blank" class="btn-outline-green">查詢店號</a>`
+                        : ""
+                }
+              </div>
+              <input type="text" id="store-note-${m}" class="diy-input" placeholder="店名備註 (例如: 科慶門市)">
+            `;
+                        } else if (isHome) {
+                            detailHtml = `<textarea id="store-addr-${m}" class="diy-input" rows="2" placeholder="請輸入完整收件地址"></textarea>`;
+                        } else {
+                            detailHtml = `<input type="text" id="store-note-${m}" class="diy-input" placeholder="備註資訊">`;
+                        }
+
+                        return `
+            <div class="logistics-card flex flex-col gap-3" data-method="${m}" id="card-${m}" onclick="selectLogistics('${m}')">
+              <div class="flex items-center justify-between pointer-events-none">
+                <div class="flex items-center gap-3">
+                  <span class="material-symbols-rounded text-gray-400 icon-active text-2xl">${icon}</span>
+                  <span class="font-bold text-gray-700">${m}</span>
+                </div>
+                <div id="price-preview-${m}" class="text-xs font-bold text-gray-400">運費 $${fee}</div>
+              </div>
+              <div id="detail-${m}" class="hidden space-y-3 pt-3 border-t border-gray-100/50 mt-1" onclick="event.stopPropagation()">
+                ${detailHtml}
+              </div>
+            </div>
+          `;
+                    })
+                    .join("");
+            }
+
+            function calcFastShip(method) {
+                if (!fastConfig) return 0;
+                if (fastConfig.is_free_shipping === true) return 0;
+                if (fastConfig.use_uniform_fee === true)
+                    return parseInt(fastConfig.uniform_fee) || 0;
+
+                const fees_map = fastConfig.fees_map || {};
+                if (fees_map[method] !== undefined && fees_map[method] !== null)
+                    return parseInt(fees_map[method]);
+
+                if (method.includes("7-11"))
+                    return parseInt(fastConfig.fee_711) || 0;
+                if (method.includes("全家"))
+                    return parseInt(fastConfig.fee_fami) || 0;
+                if (method.includes("宅配"))
+                    return parseInt(fastConfig.fee_home) || 0;
+                return 0;
+            }
+
+            window.setBtnLoading = function (btn, isLoading, text) {
+                if (isLoading) {
+                    btn.dataset.originalText = btn.innerHTML;
+                    btn.innerHTML = `<span class="material-symbols-rounded animate-spin-custom text-lg">refresh</span> ${text}`;
+                    btn.classList.add("btn-loading");
+                    btn.disabled = true;
+                } else {
+                    btn.innerHTML = btn.dataset.originalText;
+                    btn.classList.remove("btn-loading");
+                    btn.disabled = false;
+                }
+            };
+
+            window.lookupPhoneData = async function (btn) {
+                const phone = document
+                    .getElementById("input-phone")
+                    .value.trim();
+                if (!/^09\d{8}$/.test(phone))
+                    return alert("請輸入正確的 09 開頭 10 碼電話");
+
+                document.getElementById("join-member-check").checked = true;
+                setBtnLoading(btn, true, "查詢中...");
+
+                try {
+                    const db = window.FB?.db || window.firebase?.firestore();
+                    const docSnap = await db
+                        .collection("members")
+                        .doc(phone)
+                        .get();
+                    if (docSnap.exists) {
+                        fillFormWithData(docSnap.data());
+                    } else {
+                        alert("新朋友您好，請手動輸入收件資料");
+                    }
+                } catch (e) {
+                    alert("連線錯誤：" + e.message);
+                } finally {
+                    setBtnLoading(btn, false);
+                }
+            };
+
+            function fillFormWithData(u) {
+                setVal("input-name", u.name);
+                setVal("input-email", u.email);
+
+                const container = document.getElementById(
+                    "logistics-options-container"
+                );
+                if (!container) return;
+
+                container
+                    .querySelectorAll(".logistics-card")
+                    .forEach((card) => {
+                        const method = card.dataset.method;
+                        if (!method) return;
+                        if (method.includes("7-11") && u.store_711) {
+                            const idEl = document.getElementById(
+                                `store-id-${method}`
+                            );
+                            const nameEl = document.getElementById(
+                                `store-note-${method}`
+                            );
+                            if (idEl) idEl.value = u.store_711;
+                            if (nameEl) nameEl.value = u.store_711_note || "";
+                        } else if (method.includes("全家") && u.store_fami) {
+                            const idEl = document.getElementById(
+                                `store-id-${method}`
+                            );
+                            const nameEl = document.getElementById(
+                                `store-note-${method}`
+                            );
+                            if (idEl) idEl.value = u.store_fami;
+                            if (nameEl) nameEl.value = u.store_fami_note || "";
+                        } else if (
+                            (method.includes("宅配") ||
+                                method.includes("郵寄") ||
+                                method.includes("地址")) &&
+                            u.shipping_address
+                        ) {
+                            const addrEl = document.getElementById(
+                                `store-addr-${method}`
+                            );
+                            if (addrEl) addrEl.value = u.shipping_address;
+                        }
+                    });
+            }
+
+            window.selectLogistics = function (type) {
+                currentMethod = type;
+
+                document.querySelectorAll(".logistics-card").forEach((card) => {
+                    const cardMethod =
+                        card.dataset.method || card.id.replace("card-", "");
+                    const detail = document.getElementById(
+                        `detail-${cardMethod}`
+                    );
+                    const icon = card.querySelector(
+                        ".material-symbols-rounded"
+                    );
+
+                    if (cardMethod === type) {
+                        card.classList.add("active");
+                        if (detail) detail.classList.remove("hidden");
+                        if (icon) {
+                            icon.classList.add("text-[#6ea44c]");
+                            icon.classList.remove("text-gray-400");
+                        }
+                    } else {
+                        card.classList.remove("active");
+                        if (detail) detail.classList.add("hidden");
+                        if (icon) {
+                            icon.classList.remove("text-[#6ea44c]");
+                            icon.classList.add("text-gray-400");
+                        }
+                    }
+                });
+                updatePageSummary();
+            };
+
+            function updatePageSummary() {
+                const subtotal = productAmount;
+                let ship = 0;
+                let infoText = "總金額 (含運)";
+
+                if (currentMethod) {
+                    ship = calcFastShip(currentMethod);
+                    infoText = `總金額 (含運)｜${currentMethod} 運費 +${ship}`;
+                } else {
+                    infoText = "總金額 (含運)｜尚未選擇物流";
+                }
+
+                const infoEl = document.getElementById("summary-info-text");
+                if (infoEl) infoEl.innerText = infoText;
+
+                const total = subtotal + ship;
+                document.getElementById(
+                    "summary-total"
+                ).innerText = `NT$ ${total.toLocaleString()}`;
+            }
+
+            window.submitOrder = async function (btn) {
+                const db = window.FB?.db || window.firebase?.firestore();
+                const phone = getVal("input-phone");
+                const name = getVal("input-name");
+                const email = getVal("input-email");
+                const line = getVal("input-line");
+                const note = getVal("input-note");
+                const isSave =
+                    document.getElementById("join-member-check").checked;
+
+                if (!phone || !/^09\d{8}$/.test(phone))
+                    return alert("請輸入正確的手機號碼");
+                if (!name) return alert("請填寫姓名");
+                if (!email) return alert("請填寫 Email");
+                if (!line) return alert("請填寫 LINE 名稱");
+                if (!currentMethod) return alert("請選擇物流方式");
+
+                let storeData = "";
+                let storeNote = "";
+                let logisticsRaw = currentMethod;
+
+                const is711 = currentMethod.includes("7-11");
+                const isFami = currentMethod.includes("全家");
+                const isHome =
+                    currentMethod.includes("宅配") ||
+                    currentMethod.includes("郵寄") ||
+                    currentMethod.includes("地址") ||
+                    currentMethod.includes("寄送");
+
+                if (is711 || isFami) {
+                    storeData = getVal(`store-id-${currentMethod}`);
+                    storeNote = getVal(`store-note-${currentMethod}`);
+                    if (!/^\d{6}$/.test(storeData))
+                        return alert(`請輸入正確的「6碼純數字」店號`);
+                } else if (isHome) {
+                    storeData = getVal(`store-addr-${currentMethod}`);
+                    if (!storeData) return alert("請填寫地址資訊");
+                } else {
+                    storeNote = getVal(`store-note-${currentMethod}`);
+                }
+
+                const ship = calcFastShip(logisticsRaw);
+
+                let logisticsDisplay = logisticsRaw;
+                if (storeNote) {
+                    logisticsDisplay = `${logisticsRaw} ${storeNote}`;
+                }
+
+                setBtnLoading(btn, true, "處理中...");
+
+                const firestorePayload = {
+                    name: name,
+                    phone: phone,
+                    email: email,
+                    line_name: line,
+                    store_id: storeData,
+                    store_note: storeNote,
+                    shipping_address: isHome ? storeData : null,
+                    items_text: fastConfig.items_text || "快速結帳商品",
+                    items: [
+                        {
+                            name: fastConfig.items_text || "快速結帳",
+                            price: productAmount,
+                            qty: 1,
+                        },
+                    ],
+                    subtotal: productAmount,
+                    shipping_fee: ship,
+                    total: productAmount + ship,
+                    note: note,
+                    logistics_type: logisticsRaw,
+                    payment_method: "cod",
+                    status: "pending",
+                    source_token: "keicha_2025_web_auth",
+                    created_at: firebase.firestore.FieldValue.serverTimestamp(),
+                    updated_at: firebase.firestore.FieldValue.serverTimestamp(),
+                };
+
+                try {
+                    const newOrderId = await generateOrderId("F");
+                    const trackingCode = `${newOrderId}-${generateRandomSuffix()}`;
+                    firestorePayload.tracking_code = trackingCode;
+
+                    await db
+                        .collection("orders")
+                        .doc(newOrderId)
+                        .set(firestorePayload);
+                    if (isSave) {
+                        let localData = JSON.parse(
+                            localStorage.getItem("keicha_v2_user") || "{}"
+                        );
+                        localData = { ...localData, phone, name, email };
+                        if (is711) {
+                            localData.store_711 = storeData;
+                            localData.store_711_note = storeNote;
+                        } else if (isFami) {
+                            localData.store_fami = storeData;
+                            localData.store_fami_note = storeNote;
+                        } else if (isHome) {
+                            localData.shipping_address = storeData;
+                        }
+                        localStorage.setItem(
+                            "keicha_v2_user",
+                            JSON.stringify(localData)
+                        );
+
+                        const memberData = {
+                            phone: phone,
+                            name: name,
+                            email: email,
+                            source_token: "keicha_2025_web_auth",
+                            updated_at:
+                                firebase.firestore.FieldValue.serverTimestamp(),
+                        };
+                        if (is711) {
+                            memberData.store_711 = storeData;
+                            memberData.store_711_note = storeNote;
+                        } else if (isFami) {
+                            memberData.store_fami = storeData;
+                            memberData.store_fami_note = storeNote;
+                        } else if (isHome) {
+                            memberData.shipping_address = storeData;
+                        }
+
+                        await db
+                            .collection("members")
+                            .doc(phone)
+                            .set(memberData, { merge: true });
+                    }
+
+                    if (window.API && window.API.sendNotification) {
+                        window.API.sendNotification("new_matcha_order", {
+                            ...firestorePayload,
+                            order_id: newOrderId,
+                        }).catch((e) => console.error(e));
+                    }
+
+                    const displayData = {
+                        orderId: newOrderId,
+                        name: name,
+                        phone: phone,
+                        items: firestorePayload.items_text || "快速結帳商品",
+                        total: firestorePayload.total,
+                        logistics: logisticsRaw,
+                        address:
+                            storeData + (storeNote ? ` (${storeNote})` : ""),
+                    };
+                    sessionStorage.setItem(
+                        "orderResult",
+                        JSON.stringify(displayData)
+                    );
+
+                    window.location.href = "/fast-diy-result";
+                } catch (e) {
+                    console.error(e);
+                    alert("系統忙碌中，請稍後再試：" + e.message);
+                } finally {
+                    setBtnLoading(btn, false);
+                }
+            };
+
+            function getVal(id) {
+                return document.getElementById(id)?.value.trim() || "";
+            }
+            function setVal(id, v) {
+                const el = document.getElementById(id);
+                if (el) el.value = v || "";
+            }
+            function setText(id, t) {
+                const el = document.getElementById(id);
+                if (el) el.innerText = t || "";
+            }
+        </script>
+    </Fragment>
+</MainLayout>

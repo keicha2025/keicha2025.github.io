@@ -5090,7 +5090,7 @@ ${!rule.method.includes('宅配') ? `
                 const date = data.created_at?.toDate ? data.created_at.toDate() : new Date(data.created_at);
                 const dateStr = date.toLocaleString('zh-TW', { hour12: false });
                 // 映射邏輯：以前可能存為 paid，現在規一化顯示，但程式邏輯仍需兼容舊資料
-                const displayStatus = data.payment_status === 'paid' ? 'confirmed' : (data.payment_status || 'pending');
+                const displayStatus = (data.payment_status === 'paid' || data.payment_status === 'completed') ? 'confirmed' : (data.payment_status || 'pending');
                 const badgeHtml = getStatusBadge('cardorders', displayStatus);
 
                 // 物流欄位相容處理

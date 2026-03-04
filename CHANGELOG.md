@@ -2437,3 +2437,25 @@ Implemented real-time synchronization of member profile data to Firestore. As us
 
 
 
+
+## [1.3.22] - 2026-03-04T19:35:00+08:00 - Astro Migration & Final Diagnostic Fixes
+
+### Summary of changes
+Completed the comprehensive Astro framework migration for the remaining static pages and resolved routing/consistency issues logged in the Diagnostic Report (1.1, 1.2, 1.3).
+
+### Technical details of implementation
+- **Astro Migration**: Converted the remaining legacy pages (`maccha.html`, `jyoukyou.html`, `fast.html`) into Astro components (`.astro`), removing standalone `head` configurations in favor of the unified `MainLayout` while preserving Firebase dependencies where explicitly required.
+- **`admin.html` Status Badge Mapping**: Updated `loadCardOrders` payment status check to map `completed` as `confirmed` alongside the legacy `paid` label, ensuring visual consistency on the admin dashboard.
+- **`gas/firebase_handler.gs` Gateway Fallthrough Guard**: Verified ECPay fallback logic cleanly avoids overlap with successful PCHome Pay connections, finalizing the robust two-gateway routing pattern.
+- **`jyoukyou.html` Internal Consistency**: Restructured the UI to utilize `API.generateCardPayment` in `js/api.js` over hard-coded remote fetches. 
+- **`docs/STATE_MACHINE.md` Definition**: Created formal state-machine definitions with transition rules to govern Order, Setup, and Repay lifecycle phases.
+
+### Affected files or modules
+- `keicha-astro/src/pages/maccha.astro` [MIGRATED]
+- `keicha-astro/src/pages/jyoukyou.astro` [MIGRATED]
+- `keicha-astro/src/pages/fast.astro` [MIGRATED]
+- `admin.html`
+- `jyoukyou.html`
+- `docs/STATE_MACHINE.md` [NEW]
+
+**中文摘要**：完成最後階段的 Astro 框架重構與 2026-03-04 診斷報告修復。將所有靜態頁面 (`maccha`, `jyoukyou`, `fast`) 升級為 `.astro` 元件，修正了管理後台對 `completed` 狀態的徽章顯示，並將全站重啟付款功能對接到集中管理的 `js/api.js`，同時新增 `STATE_MACHINE.md` 明確化所有訂單轉換規則。

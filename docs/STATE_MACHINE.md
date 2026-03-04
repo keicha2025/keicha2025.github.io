@@ -1,61 +1,56 @@
-# KEICHA 系統狀態機定義 (State Machine Definition)
+# KEICHA 訂單狀態機定義 (Order State Machine)
 
-本文件定義 KEICHA 專案中各類型資料的合法狀態及其轉換邏輯，確保前後端行為一致。
+本文檔統一描述 KEICHA 系統中各類訂單（ Matcha, Denwa, Card Orders）的合法狀態、意義及其轉換條件。
 
-## 1. 訂單狀態 (Orders, Denwa, CardLinks)
+## 1. 抹茶代購訂單 (`orders`)
 
-適用於 `orders`, `denwa_orders`, `card_orders` 集合。
+抹茶訂單主要追蹤購買至出貨的生命週期。
 
-### 1.1 狀態定義
-
-| 狀態鍵值 (Key) | 顯示名稱 (Label) | 顏色 | 說明 |
-| :--- | :--- | :--- | :--- |
-| `pending` | 待處理 | 灰色 | 會員提交訂單後的初始狀態，等待付款或審核。 |
-| `confirmed` | 已確認 | 綠色 | 支付成功 (由 ECPay/PCHomePay 回傳) 或管理員手動確認。 |
-| `completed` | 已完成 | 綠色 | 商品已出貨或代撥服務已完成，流程結束。 |
-| `cancelled` | 已取消 | 紅色 | 使用者主動取消、或因逾期、異常被管理員作廢。 |
-
-### 1.2 狀態轉換圖
-
-```mermaid
-stateDiagram-v2
-    [*] --> pending: 使用者提交訂單
-    
-    pending --> confirmed: 金流成功回傳 (ECPay/PCHomePay Callback)
-    pending --> confirmed: 管理員手動收款 / 核對完成
-    
-    confirmed --> completed: 管理員標記出貨 / 執行完成
-    
-    pending --> cancelled: 逾期未付 / 管理員作廢
-    confirmed --> cancelled: 退款處理 / 特殊變更
-    
-    completed --> [*]
-    cancelled --> [*]
-```
+| 狀態 (Status) | 中文顯示 | 意義 | 下一步轉換 (Next Allowed) |
+|--------------|---------|-------|------------------------|
+| `pending` | 待處理 | 訂單已建立，尚未確認匯款或尚未採購 | `processing`, `confirmed`, `cancelled` |
+| `processing` | 處理中 | 已審核，商品正在採購/空運中 | `confirmed`, `shipped`, `cancelled` |
+| `confirmed` | 已確認 | 商品已備齊，準備包裝出貨 | `shipped`, `completed`, `cancelled` |
+| `shipped` | 已出貨 | 已交寄給物流業者，等待買家取貨 | `completed`, `cancelled` (特殊情況) |
+| `completed` | 已完成 | 買家已取貨，交易結束 | 無 |
+| `cancelled` | 已取消 | 買家取消或缺貨取消 | 無 |
+| `voided` | 已作廢 | （保留供未來擴充）管理員標記無效 | 無 |
 
 ---
 
-## 2. 配置與資源狀態 (Configuration States)
+## 2. 專屬連結刷卡訂單 (`card_orders`)
 
-適用於 `card_orders_links`, `matcha_products`, `matcha_brands`, `denwa_plans`。
+Card Orders 的狀態主要定義為 `payment_status`。
 
-### 2.1 狀態定義
+| 狀態 (Payment Status) | 中文顯示 | 意義 | 下一步轉換 (Next Allowed) |
+|---------------------|---------|-------|------------------------|
+| `pending` | 待處理 | 訂單建立，尚未完成支付 | `paid`, `cancelled` |
+| `paid` | 已確認 | 已透過金流服務完成支付 | `completed`, `cancelled` (退款) |
+| `completed` | 已完成 | 支付完成且服務/商品已交付 | 無 |
+| `cancelled` | 已取消 | 付款逾期、失敗或買家放棄 | 無 |
+| `voided` | 已作廢 | （供未來擴充）測試單或異常單 | 無 |
 
-| 狀態鍵值 (Key) | 顯示名稱 (Label) | 顏色 | 說明 |
-| :--- | :--- | :--- | :--- |
-| `available` / `ON` / `active` | 啟用中 | 綠色 | 資源對外公開，可被使用者查閱或下單。 |
-| `out-of-stock` | 缺貨中 | 橙色 | 資源暫時無法下單 (僅適用於商品/方案)。 |
-| `discontinued` | 已停用 | 灰色 | 資源已下架，不再顯示於前端。 |
+---
+
+## 3. 電話代撥服務訂單 (`denwa_orders`)
+
+結合服務排程與付款兩階段的特殊狀態。
+
+| 狀態 (Status) | 中文顯示 | 意義 | 下一步轉換 (Next Allowed) |
+|--------------|---------|-------|------------------------|
+| `pending` | 待處理 | 表單提交，管理員尚未報價/確認 | `quoted`, `cancelled` |
+| `quoted` | 已報價 | 已確認可執行並報價，等待付款 | `paid`, `cancelled` |
+| `paid` | 已確認 | 客戶已付款，等待執行代撥 | `processing`, `completed`, `cancelled` |
+| `processing` | 處理中 | 正在進行代撥作業 | `completed`, `failed` |
+| `completed` | 已完成 | 代撥成功並已回報結果 | 無 |
+| `failed` | 失敗 | 代撥失敗（如無位、無接聽） | `cancelled` (視為退款) |
+| `cancelled` | 已取消 | 客戶放棄或無法執行 | 無 |
 
 ---
 
-## 3. 實作規範 (Implementation Guidelines)
+## 4. 狀態機轉換規則 (Transition Rules)
 
-1.  **前端顯示**：必須透過 `js/status-config.js` 的 `getStatusBadge()` 函式生成標籤，禁止在頁面中硬編碼 (Hard-code) 狀態字串。
-2.  **後端寫入**：在 `gas/firebase_handler.gs` 中更新狀態時，應確保寫入的是上述定義的 Key 值。
-3.  **一致性映射**：
-    *   歷史資料中的 `paid` 字串應在讀取時自動映射為 `confirmed`。
-    *   `js/status-config.js` 負載所有對應關係。
-
----
-最後更新時間：2026-03-04
+設計原則與檢核：
+1. **單向推進**：一般情況下訂單狀態應向前推進，除非發生退貨或退款才可進入 `cancelled`。
+2. **只允許合法轉換**：系統（尤其是 GAS 後端與 Admin UI）在改變狀態時，應對照上表驗證來源狀態是否合法。
+3. **已付款防護**：若 `payment_status` 為 `paid` 或 `completed`，不得再次觸發 ECPay 或 PCHomePay 之付款連結產生流程。
