@@ -11,3 +11,11 @@ url: "https://keicha2025.github.io" # 您的 GitHub Pages 網址
 # 告訴 Jekyll 保持您的 images 資料夾
 include:
   - images
+
+# 排除不需要 Jekyll 編譯的資料夾，避免發生 YAML frontmatter 錯誤
+exclude:
+  - keicha-astro
+  - node_modules
+  - package.json
+  - package-lock.json
+  - git_backup
