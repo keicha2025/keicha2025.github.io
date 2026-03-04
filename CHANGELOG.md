@@ -1,6 +1,74 @@
 # Changelog
 
+## [1.3.18] - 2026-03-04T13:20:00+08:00 - Integrated Footer Scroll Experience
+
+### Summary of changes
+Improved the scroll experience on `maccha-store.html` by integrating the site footer into the scoped scrollable container. This allows users to naturally scroll into the footer while maintaining the clean, header-aware scrollbar.
+
+### Technical details of implementation
+- **`_layouts/default.html`**: Added `hide_footer` and `hide_header` frontmatter support.
+- **`maccha-store.html`**: Set `hide_footer: true` and manually included `footer.html` inside the `.maccha-scroll-container`. Removed hardcoded padding-bottom to allow the footer to serve as the natural end of the page.
+
+### Affected files or modules
+- `_layouts/default.html`, `maccha-store.html`.
+
+**中文摘要**：將頁尾整合進內容捲動區域，實現滑動到底部時自動銜接顯示頁尾的自然體驗，同時避免捲軸遮擋固定頁首。
+
+---
+
+## [1.3.17] - 2026-03-04T13:15:00+08:00 - Sophisticated Scoped Scrollbar for Maccha Store
+
+
+### Summary of changes
+Refined the custom scrollbar on the `maccha-store.html` page to be more subtle and scoped within the content area, preventing it from overlapping the fixed header and footer.
+
+### Technical details of implementation
+- **`css/global.css`**: Updated `.custom-scrollbar` to use `background-clip: padding-box` and a transparent border, making the thumb look thinner and shorter.
+- **`maccha-store.html`**: Wrapped the main content in a `.maccha-scroll-container` to isolate its scrollbar from the page-level structure. Fixed the header position relative to the scroller.
+
+### Affected files or modules
+- `css/global.css`, `maccha-store.html`.
+
+**中文摘要**：精緻化捲軸設計，縮減其寬度並透過透明邊界使其感官上更輕盈，同時將捲軸範圍限制在內容區域內，不遮擋頁首頁尾。
+
+---
+
+## [1.3.16] - 2026-03-04T13:05:00+08:00 - Custom Scrollbar for Maccha Store
+
+
+### Summary of changes
+Implemented a custom, low-profile gray scrollbar in the global design system and enabled it specifically on the `maccha-store.html` page to improve navigation on content-heavy pages.
+
+### Technical details of implementation
+- **`css/global.css`**: Added `.custom-scrollbar` class and updated global hide rules to support conditional visibility via `.show-scrollbar`.
+- **`_layouts/default.html`**: Updated layout to support dynamic HTML/Body classes from page frontmatter.
+- **`maccha-store.html`**: Added `show-scrollbar` and `custom-scrollbar` classes to frontmatter.
+
+### Affected files or modules
+- `css/global.css`, `_layouts/default.html`, `maccha-store.html`.
+
+**中文摘要**：為內容較長的「抹茶商店」頁面實作專屬的低調灰自定義捲軸，既保持品牌一致性又提供良好的位置引導。
+
+---
+
+## [1.3.15] - 2026-03-04T12:55:00+08:00 - Global Scrollbar Visibility Optimization
+
+
+### Summary of changes
+Hidden the native browser scrollbar globally across all pages to achieve a more immersive and cleaner UI, while maintaining full scroll functionality.
+
+### Technical details of implementation
+- **`css/global.css`**: Added cross-browser CSS rules (`-webkit-scrollbar`, `scrollbar-width`, `-ms-overflow-style`) to target `html` and `body` elements.
+
+### Affected files or modules
+- `css/global.css`: Global base reset styles.
+
+**中文摘要**：全域隱藏瀏覽器原生捲軸，提升網頁視覺的一體性與高級感，同時保留所有頁面的正常捲動功能。
+
+---
+
 ## [1.3.14] - 2026-03-04T12:00:00+08:00 - Visual Optimization (Yuki-Maccha Palette)
+
 
 ### Summary of changes
 Refined the visual weight of `denwa-form.html` by replacing heavy green overlays with a lighter "Yuki-Maccha" (#f9fdf7) background.
