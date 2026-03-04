@@ -1,6 +1,24 @@
 # Changelog
 
+## [1.3.19] - 2026-03-04T13:40:00+08:00 - Global Refined Scrollbar & Intelligent Visibility
+
+### Summary of changes
+Fixed an issue where the native scrollbar was visible on the homepage and other pages. Standardized the custom low-profile scrollbar globally and implemented "intelligent visibility" where the scrollbar only appears when content actually overflows.
+
+### Technical details of implementation
+- **`_layouts/default.html`**: Added `global.css` reference to ensure the global design system applies to every page using the default layout.
+- **`css/global.css`**: Updated the global `html`/`body` styles to use `overflow-y: auto` and applied the refined custom scrollbar styles globally while removing the conditional `.show-scrollbar` logic.
+- **`maccha-store.html`**: Cleaned up the `.show-scrollbar` class as it is now handled globally.
+
+### Affected files or modules
+- `_layouts/default.html`, `css/global.css`, `maccha-store.html`.
+
+**中文摘要**：修正首頁原生捲軸問題，並將「低調精緻捲軸」套用至全站。同時實作「智慧顯示」邏輯，捲軸僅在內容超過畫面高度時才會自動出現。
+
+---
+
 ## [1.3.18] - 2026-03-04T13:20:00+08:00 - Integrated Footer Scroll Experience
+
 
 ### Summary of changes
 Improved the scroll experience on `maccha-store.html` by integrating the site footer into the scoped scrollable container. This allows users to naturally scroll into the footer while maintaining the clean, header-aware scrollbar.

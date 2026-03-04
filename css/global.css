@@ -40,51 +40,48 @@ input[type=number] {
     appearance: textfield;
 }
 
-/* 隱藏原生捲軸但保持捲動功能 (Cross-browser Scrollbar Hide) */
-html:not(.show-scrollbar),
-body:not(.show-scrollbar) {
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
+/* 全域捲軸優化 (Global Scrollbar Optimization) */
+/* 預設使用低調捲軸，且僅在內容溢出時出現 (overflow: auto) */
+html,
+body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -ms-overflow-style: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #e5e7eb transparent;
 }
 
-html:not(.show-scrollbar)::-webkit-scrollbar,
-body:not(.show-scrollbar)::-webkit-scrollbar {
-    display: none;
-    /* Chrome, Safari, Edge */
-}
-
-/* 自定義低調捲軸 (Custom Low-profile Scrollbar - Refined) */
+/* Chrome, Safari, Edge 自定義樣式 */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
 .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
-    /* 增加一點點寬度以便於顯示 border 效果 */
     height: 6px;
-    display: block !important;
+    display: block;
 }
 
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
 .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
 }
 
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
 .custom-scrollbar::-webkit-scrollbar-thumb {
     background-color: #e5e7eb;
     /* gray-200 */
     background-clip: padding-box;
     border: 2px solid transparent;
-    /* 核心：透過透明邊界讓滑塊看起來變細變短 */
+    /* 核心：透過透明邊界讓滑塊看起來變細 */
     border-radius: 10px;
 }
 
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background-color: #d1d5db;
     /* gray-300 */
-}
-
-/* Firefox Support (Limited) */
-.custom-scrollbar {
-    scrollbar-width: thin !important;
-    scrollbar-color: #e5e7eb transparent !important;
 }
 
 /* --- 2. 品牌工具類 (Brand Utilities) --- */
