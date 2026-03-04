@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.3.21] - 2026-03-04T19:20:00+08:00 - API Centralization & System Documentation
+
+### Summary of changes
+Centralized card payment API logic into the shared `js/api.js` module and established formal documentation for system states. This improves code maintainability and provides a clear reference for order life-cycle logic.
+
+### Technical details of implementation
+- **`js/api.js`**: Added `generateCardPayment` to the `API` object, centralizing the interaction with the Firebase handler GAS. Cleaned up legacy/unused endpoints to reduce bundle noise.
+- **`card-order.html`**: Replaced inline `fetch` call with the new `API.generateCardPayment` method, ensuring consistent error handling and endpoint management.
+- **`docs/STATE_MACHINE.md`**: Created a comprehensive state machine definition covering all order and resource statuses (Orders, Denwa, CardLinks) with Mermaid diagrams for visual logic flow.
+
+### Affected files or modules
+- `js/api.js`, `card-order.html`, `docs/STATE_MACHINE.md`.
+
+**中文摘要**：統一 API 管理並建立系統狀態機文檔。將 `card-order.html` 的金流請求抽離至全域 `js/api.js` 模組，並新增 `docs/STATE_MACHINE.md` 明確定義訂單（Pending/Confirmed/Completed/Cancelled）的轉換路徑。
+
+---
+
 ## [1.3.20] - 2026-03-04T18:50:00+08:00 - Diagnostic Report Fixes & Infrastructure Refinement
 
 ### Summary of changes

@@ -80,6 +80,15 @@ const API = {
         return await this._post(ENDPOINTS.DENWA, formData, true);
     },
 
+    // --- CARD ORDER (Payment Links) ---
+    /**
+     * Generate payment form or URL for specialized card payment links.
+     * @param {object} payload - Order data including link_id, amounts, and customer info.
+     */
+    async generateCardPayment(payload) {
+        return await this._post(ENDPOINTS.FIREBASE_HANDLER, payload);
+    },
+
     // 自帶測試資料處理
     initTestFill: function () {
         const params = new URLSearchParams(window.location.search);
