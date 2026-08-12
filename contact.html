@@ -1,0 +1,232 @@
+---
+layout: default
+title: 聯絡我們 | KEICHA
+description: 透過 LINE 獲取您的服務進度與即時諮詢，讓日本代購與電話代撥更簡單。
+---
+
+<style>
+    body {
+        background-color: #fcfdfa;
+    }
+
+    .brand-title {
+        font-family: var(--font-brand);
+        font-weight: 700;
+    }
+
+    .brand-bg {
+        background-color: var(--brand-green);
+    }
+
+    .brand-text {
+        color: var(--brand-green);
+    }
+
+    /* ID 容器樣式 */
+    .id-group-container {
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+    }
+
+    /* 自定義輸入框樣式 */
+    .id-input {
+        background: transparent;
+        border: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-align: left;
+    }
+
+    .id-input:focus {
+        outline: none;
+    }
+
+    /* 複製按鈕樣式 */
+    .copy-trigger {
+        transition: all 0.2s ease;
+        color: #94a3b8;
+    }
+
+    .copy-trigger:hover {
+        color: var(--brand-green);
+        background: #ffffff;
+    }
+
+    .copy-trigger:active {
+        scale: 0.9;
+    }
+
+    /* 進場動畫 */
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-up {
+        animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    /* 點選縮放回饋 */
+    @keyframes tapPop {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(0.98);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    .tap-scale {
+        animation: tapPop 0.3s ease-out;
+    }
+
+    /* QR Code 平滑展開 */
+    .qr-transition {
+        transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease, margin 0.4s ease;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+    }
+
+    .qr-transition.expanded {
+        max-height: 400px;
+        opacity: 1;
+        margin-top: 1.5rem;
+    }
+</style>
+
+<main class="min-h-[70vh] flex items-center justify-center p-6 py-12 md:py-20 lg:py-24">
+    <div class="max-w-md w-full">
+        <!-- Main Card -->
+        <div class="bg-white rounded-[var(--r-lg)] shadow-xl border border-gray-100 overflow-hidden animate-fade-up">
+
+            <!-- Branding Header -->
+            <div class="p-8 text-center border-b border-gray-50">
+                <div
+                    class="w-16 h-16 bg-brandGreen rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                    <span class="material-symbols-rounded text-white text-3xl">chat_bubble</span>
+                </div>
+                <h1 class="brand-title text-2xl text-brandGreen mb-2 tracking-tight">聯絡官方客服</h1>
+                <p class="text-gray-500 text-sm">透過 LINE 獲取您的服務進度與即時諮詢</p>
+            </div>
+
+            <!-- Interaction Area -->
+            <div class="p-8 space-y-8">
+
+                <!-- ID Combined Component -->
+                <div class="space-y-3">
+                    <label class="block text-center text-xs font-bold text-gray-400 uppercase tracking-widest">官方 LINE
+                        ID</label>
+
+                    <!-- 大型組合組件 (灰色邊框) -->
+                    <div id="id-master-container" class="id-group-container flex items-center p-2 rounded-2xl">
+                        <!-- 左側：點擊全選容器 -->
+                        <div class="flex-1 pl-4 pr-2">
+                            <input type="text" value="@366qwylw" readonly="" id="line-id-input"
+                                onfocus="this.select(); document.getElementById('id-master-container').classList.add('tap-scale'); setTimeout(()=>document.getElementById('id-master-container').classList.remove('tap-scale'), 300)"
+                                class="id-input w-full py-3 text-xl font-bold tracking-wider text-gray-700"
+                                placeholder="LINE ID">
+                        </div>
+
+                        <!-- 右側：獨立複製按鈕容器 -->
+                        <div class="px-1 border-l border-gray-200">
+                            <button id="copy-btn" title="複製 ID"
+                                class="copy-trigger w-12 h-12 flex items-center justify-center rounded-xl bg-gray-50/50">
+                                <span class="material-symbols-rounded text-2xl">content_copy</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="pt-2">
+                    <a href="https://lin.ee/F3JngaC" target="_blank" rel="noopener noreferrer"
+                        class="flex items-center justify-center w-full bg-brandGreen text-white px-8 py-4 rounded-xl text-lg font-bold hover:brightness-110 shadow-md active:scale-95 transition-all">
+                        <span class="material-symbols-rounded mr-2">person_add</span>
+                        加入好友
+                    </a>
+                </div>
+
+                <!-- QR Display -->
+                <div class="pt-2 border-t border-gray-50 text-center">
+                    <button id="toggle-qr"
+                        class="text-sm font-bold text-gray-400 hover:text-brandGreen transition-colors flex items-center justify-center mx-auto mt-4">
+                        <span class="material-symbols-rounded mr-1 text-lg">qr_code_scanner</span>
+                        或是掃描 QR Code
+                    </button>
+
+                    <div id="qr-box" class="qr-transition">
+                        <div class="relative inline-block bg-white p-3 rounded-2xl border border-gray-100 shadow-sm">
+                            <img src="https://qr-official.line.me/gs/M_366qwylw_BW.png?oat_content=qr"
+                                alt="LINE QR Code" class="w-40 h-40">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Back Link -->
+        <div class="mt-10 text-center">
+            <a href="{{ site.baseurl }}/"
+                class="text-gray-400 hover:text-brandGreen text-sm transition-colors flex items-center justify-center">
+                <span class="material-symbols-rounded text-lg mr-1">arrow_back</span>
+                返回首頁
+            </a>
+        </div>
+    </div>
+</main>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggleBtn = document.getElementById('toggle-qr');
+        const qrBox = document.getElementById('qr-box');
+        const copyBtn = document.getElementById('copy-btn');
+        const idInput = document.getElementById('line-id-input');
+
+
+        // QR Toggle
+        if (toggleBtn && qrBox) {
+            toggleBtn.addEventListener('click', () => {
+                const isExpanded = qrBox.classList.contains('expanded');
+                if (!isExpanded) {
+                    qrBox.classList.add('expanded');
+                    toggleBtn.innerHTML = '<span class="material-symbols-rounded mr-1 text-lg">expand_less</span> 隱藏行動條碼';
+                    toggleBtn.classList.add('text-brandGreen');
+                } else {
+                    qrBox.classList.remove('expanded');
+                    toggleBtn.innerHTML = '<span class="material-symbols-rounded mr-1 text-lg">qr_code_scanner</span> 或是掃描 QR Code';
+                    toggleBtn.classList.remove('text-brandGreen');
+                }
+            });
+        }
+
+        // Copy Functionality
+        if (copyBtn && idInput) {
+            copyBtn.addEventListener('click', () => {
+                idInput.select();
+                try {
+                    document.execCommand('copy');
+
+                } catch (err) {
+                    console.error('無法複製', err);
+                }
+            });
+        }
+    });
+</script>

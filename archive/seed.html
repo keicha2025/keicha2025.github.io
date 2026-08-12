@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firestore Seeder (Protected) - KEICHA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
+    <style>
+        body {
+            font-family: 'Noto+Sans+TC', sans-serif;
+            background: #f4f7f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            max-width: 440px;
+            width: 90%;
+        }
+
+        h1 {
+            color: #6ea44c;
+            margin-bottom: 8px;
+            font-size: 24px;
+        }
+
+        p {
+            color: #6b7280;
+            margin-bottom: 24px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .user-status {
+            background: #f9fafb;
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+            border: 1px solid #f3f4f6;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #eee;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: #1f2937;
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .btn {
+            background: #6ea44c;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: #5d8d41;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-google {
+            background: white;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 12px;
+        }
+
+        .btn-google:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        #log {
+            margin-top: 20px;
+            text-align: left;
+            font-size: 12px;
+            color: #374151;
+            background: #2d3436;
+            color: #f9fafb;
+            padding: 16px;
+            border-radius: 12px;
+            max-height: 180px;
+            overflow-y: auto;
+            display: none;
+            font-family: monospace;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <div
+            style="width: 60px; height: 60px; background: rgba(110,164,76,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: #6ea44c;">
+            <span class="material-symbols-rounded" style="font-size: 32px;">database</span>
+        </div>
+        <h1>KEICHA Setup Tool</h1>
+        <p>此工具將初始化測試資料至您的 Firestore 資料庫。<br>必須使用管理員帳號登入後才能執行。</p>
+
+        <!-- Login Area -->
+        <div id="authArea">
+            <button id="loginBtn" class="btn btn-google" onclick="handleLogin()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google">
+                使用 Google 管理員帳號登入
+            </button>
+        </div>
+
+        <!-- Seeding Area (Hidden by default) -->
+        <div id="seedArea" class="hidden">
+            <div class="user-status">
+                <img id="userAvatar" class="user-avatar" src="" alt="">
+                <div class="user-info">
+                    <div id="userName" class="user-name">...</div>
+                    <div id="userEmail" class="user-email">...</div>
+                </div>
+                <button onclick="handleLogout()"
+                    style="background:none; border:none; color:#f87171; cursor:pointer; padding:4px;">登出</button>
+            </div>
+
+            <!-- New Options -->
+            <div
+                style="text-align: left; margin-bottom: 20px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #e5e7eb;">
+                <label
+                    style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: #4b5563; font-weight: 700;">
+                    <input type="checkbox" id="clearFirst" style="width: 16px; height: 16px;">
+                    執行前先清空現有商品與設定資料
+                </label>
+                <p style="margin: 4px 0 0 24px; font-size: 11px; color: #64748b;">(勾選後將刪除品牌、產品、運費與預約方案，不會影響訂單)</p>
+            </div>
+
+            <button id="seedBtn" class="btn" onclick="startSeeding()">
+                <span class="material-symbols-rounded">rocket_launch</span>
+                執行資料初始化 (Seed)
+            </button>
+        </div>
+
+        <div id="log"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBF50fJPE-QL3yV4KaVIWzDmDPFRAkpwT4",
+            authDomain: "keicha-membership-system.firebaseapp.com",
+            projectId: "keicha-membership-system",
+            storageBucket: "keicha-membership-system.firebasestorage.app",
+            messagingSenderId: "941650156322",
+            appId: "1:941650156322:web:5c7473aeaa184e0b94637b"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        const ALLOWED_ADMINS = ['wj209ing@gmail.com'];
+
+        // 監聽登入狀態
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                if (ALLOWED_ADMINS.includes(user.email)) {
+                    showSeedArea(user);
+                } else {
+                    alert('您的帳號沒有管理員權限');
+                    auth.signOut();
+                }
+            } else {
+                showLoginArea();
+            }
+        });
+
+        function showLoginArea() {
+            document.getElementById('authArea').classList.remove('hidden');
+            document.getElementById('seedArea').classList.add('hidden');
+        }
+
+        function showSeedArea(user) {
+            document.getElementById('authArea').classList.add('hidden');
+            document.getElementById('seedArea').classList.remove('hidden');
+            document.getElementById('userName').innerText = user.displayName;
+            document.getElementById('userEmail').innerText = user.email;
+            document.getElementById('userAvatar').src = user.photoURL || 'https://www.gravatar.com/avatar/0?d=mp';
+        }
+
+        async function handleLogin() {
+            try {
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                alert('登入失敗：' + error.message);
+            }
+        }
+
+        async function handleLogout() {
+            await auth.signOut();
+        }
+
+        function log(msg) {
+            const logEl = document.getElementById('log');
+            logEl.style.display = 'block';
+            logEl.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        async function startSeeding() {
+            const btn = document.getElementById('seedBtn');
+            const shouldClear = document.getElementById('clearFirst').checked;
+
+            if (shouldClear && !confirm('確定要清空所有商品與品牌資料嗎？此動作不可逆。')) return;
+
+            btn.disabled = true;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '正在執行初始化...';
+
+            try {
+                if (shouldClear) {
+                    log('⚠️ 正在清空舊資料...');
+                    const collectionsToClear = ['matcha_brands', 'matcha_products', 'shipping_rules', 'denwa_plans', 'denwa_orders'];
+                    for (const coll of collectionsToClear) {
+                        const snapshot = await db.collection(coll).get();
+                        const batch = db.batch();
+                        snapshot.docs.forEach(doc => batch.delete(doc.ref));
+                        await batch.commit();
+                        log(`已被整理：${coll}`);
+                    }
+                }
+
+                // 1. 品牌 (直接以品牌名稱作為 ID)
+                log('正在建立品牌...');
+                const rawBrands = [
+                    { "name": "上林春松本店", "status": "active", "display_order": 99 },
+                    { "name": "一保堂", "status": "active", "display_order": 99 },
+                    { "name": "森半", "status": "active", "display_order": 2 },
+                    { "name": "丸久小山園", "status": "inactive", "display_order": 99 },
+                    { "name": "山政小山園", "status": "inactive", "display_order": 99 },
+                    { "name": "星野製茶園", "status": "inactive", "display_order": 99 },
+                    { "name": "中村藤吉", "status": "active", "display_order": 1 },
+                    { "name": "祇園辻利", "status": "active", "display_order": 3 }
+                ];
+
+                for (const b of rawBrands) {
+                    await db.collection('matcha_brands').doc(b.name).set({
+                        name: b.name,
+                        status: b.status,
+                        display_order: b.display_order,
+                        hidden: false,
+                        created_at: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+
+                // 2. 產品
+                log('正在建立產品...');
+                const productData = {
+                    "中村藤吉": [
+                        { "product_name": "成光の昔", "spec": "30g罐裝", "price": 1950, "hidden": true },
+                        { "product_name": "塵外の昔", "spec": "30g罐裝", "price": 1950, "hidden": true },
+                        { "product_name": "初の昔", "spec": "30g罐裝", "price": 1950, "price_multi": 1700, "max_limit": 5, "hidden": true },
+                        { "product_name": "朝霧の昔", "spec": "30g罐裝", "price": 1950 },
+                        { "product_name": "祥の昔", "spec": "30g罐裝", "price": 1200, "stock": 5 },
+                        { "product_name": "夕川の白", "spec": "30g罐裝", "price": 1000, "stock": 5 },
+                        { "product_name": "廣葉の白", "spec": "30g罐裝", "price": 1000, "stock": 5 },
+                        { "product_name": "清閑の白", "spec": "30g罐裝", "price": 1000, "stock": 5 },
+                        { "product_name": "鮮雲の白", "spec": "30g罐裝", "price": 1000, "stock": 5 }
+                    ],
+                    "祇園辻利": [
+                        { "product_name": "迎春用御濃茶", "spec": "30g罐裝", "price": 1600, "tag": "期間限定" },
+                        { "product_name": "迎春用御薄茶", "spec": "30g罐裝", "price": 1200, "tag": "期間限定" },
+                        { "product_name": "建都の昔", "spec": "40g罐裝", "price": 2600 },
+                        { "product_name": "十徳", "spec": "40g罐裝", "price": 1850 }
+                    ],
+                    "丸久小山園": [
+                        { "product_name": "雲鶴", "spec": "20g", "price": 1550, "status": "out-of-stock", "hidden": true },
+                        { "product_name": "永寿", "spec": "20g", "price": 1600, "status": "out-of-stock", "hidden": true },
+                        { "product_name": "金輪", "spec": "40g", "price": 2000, "status": "out-of-stock", "hidden": true }
+                    ],
+                    "一保堂": [
+                        { "product_name": "駒昔", "spec": "20g紙盒裝", "price": 1200, "stock": 1 },
+                        { "product_name": "雲門の昔", "spec": "20g紙盒裝", "price": 1500, "stock": 1 },
+                        { "product_name": "松韻の昔", "spec": "20g紙盒裝", "price": 1300, "stock": 1 },
+                        { "product_name": "若き白", "spec": "20g", "price": 330, "tag": "現貨", "stock": 1 }
+                    ],
+                    "上林春松本店": [
+                        { "product_name": "初昔40g", "price": 2250, "stock": 1 },
+                        { "product_name": "後昔40g", "price": 2100, "stock": 2 },
+                        { "product_name": "祖母昔40g", "price": 1750, "stock": 3 }
+                    ],
+                    "森半": [
+                        { "product_name": "鳳春", "spec": "20g罐裝", "price": 1550, "note": "單一品種抹茶", "hidden": true },
+                        { "product_name": "駒影", "spec": "20g罐裝", "price": 1450, "note": "單一品種抹茶" },
+                        { "product_name": "朝霧", "spec": "20g罐裝", "price": 1450, "note": "單一品種抹茶" },
+                        { "product_name": "月輪乃白", "spec": "30g罐裝", "price": 1050 }
+                    ]
+                };
+
+                for (const brand in productData) {
+                    for (const p of productData[brand]) {
+                        if (!p.product_name) continue;
+                        await db.collection('matcha_products').add({
+                            brand_id: brand,
+                            name: p.product_name,
+                            spec: p.spec || "",
+                            price: parseInt(p.price) || 0,
+                            price_multi: parseInt(p.price_multi) || 0,
+                            status: p.status || "available",
+                            stock: parseInt(p.stock) || 0,
+                            max_limit: parseInt(p.max_limit) || 0,
+                            tag: p.tag || "",
+                            note: p.note || "",
+                            image_url: p.image_url || "",
+                            hidden: p.hidden || false,
+                            category: "日本代購",
+                            created_at: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+                }
+
+                // 3. 運費規則 (保留常用設定)
+                log('正在建立運費規則...');
+                const rules = [
+                    { category: 'A', method: '7-11 店到店', base: 60, t1: 1000, f1: 30, t3: 2000 },
+                    { category: 'B', method: '全家 店到店', base: 60, t1: 1000, f1: 30, t3: 2000 },
+                    { category: 'C', method: '宅配到府', base: 120, t1: 3000, f1: 60, t3: 5000 }
+                ];
+                for (const r of rules) {
+                    await db.collection('shipping_rules').add({ ...r, created_at: firebase.firestore.FieldValue.serverTimestamp() });
+                }
+
+                // 4. 快速結帳配置
+                log('正在建立結帳配置...');
+                await db.collection('fast_checkout_config').doc('default').set({
+                    status: '開啟',
+                    amount: 1200,
+                    items_text: '精選抹茶組合 A',
+                    enable_711: true,
+                    enable_fami: true,
+                    enable_home: true,
+                    enable_cod: true,
+                    enable_linepay: true,
+                    updated_at: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // 4.5 電話預約方案 (完整 5 筆)
+                log('正在建立電話預約方案...');
+                const realDenwaPlans = [
+                    { "name": "7分方案", "price": 160, "desc": "單次通話 7 分鐘內費率。適用一般預約、簡單諮詢。", "status": "OFF", "link": "https://pcpay.tw/ovM39", "display_order": 1 },
+                    { "name": "加長方案", "price": 200, "desc": "單次通話 10 分鐘內費率，適用遺失物詢問等較複雜需求。", "status": "OFF", "link": "https://pcpay.tw/9lkYY", "display_order": 2 },
+                    { "name": "基本方案", "price": 150, "desc": "單次通話 5 分鐘內費率。適用一般預約、簡單諮詢。", "status": "ON", "link": "https://pcpay.tw/yIurU", "display_order": 3 },
+                    { "name": "彈性方案", "price": 50, "desc": "先支付 50 元預付款，通話完成後依照實際費用結清餘額。", "status": "ON", "link": "https://pcpay.tw/EhQGv", "display_order": 4 },
+                    { "name": "急件方案", "price": 250, "desc": "基本方案+100元，下單前請務必先私訊客服。", "status": "ON", "link": "https://pcpay.tw/9ZNtk", "display_order": 5 }
+                ];
+                for (const d of realDenwaPlans) {
+                    await db.collection('denwa_plans').add({ ...d, created_at: firebase.firestore.FieldValue.serverTimestamp() });
+                }
+
+                // 4.6 電話代撥歷史訂單 (完整 10 筆)
+                log('正在建立電話代撥歷史訂單...');
+                const realDenwaOrders = [
+                    { "order_id": "denwa-25122901", "status": "已取消", "created_at": "2025-12-29T10:46:31.229Z", "customer_name": "侯辰燕", "email": "yen981212@gmail.com", "line_id": "侯辰燕", "service_type": "代撥預約", "merchant_name": "クラークホースガーデン(旭川馬場）", "service_date": "2026-02-12", "service_time": "09:00", "adults": 2, "children": 0, "total_ppl": 2, "booking_name": "HOU CHEN YEN", "phone": "0981331529", "plan_name": "基本方案", "note": "預約的課程：外乗-冬のBコース", "contact_in_japan": "飯店：Court Hotel Asahikawa" },
+                    { "order_id": "denwa-25122902", "status": "已確認", "created_at": "2025-12-29T10:53:37.087Z", "customer_name": "侯辰燕", "email": "yen981212@gmail.com", "line_id": "侯辰燕", "service_type": "代撥預約", "merchant_name": "屈斜路ecoツアーズ カヌーのりば", "service_date": "2026-02-10", "service_time": "07:00", "adults": 2, "children": 0, "total_ppl": 2, "booking_name": "HOU CHEN YEN", "phone": "0981331529", "plan_name": "基本方案", "note": "預約行程：冬季獨木舟（06:00-10:00期間的時間都可以）", "contact_in_japan": "住宿：民宿美里" },
+                    { "order_id": "denwa-26010801", "status": "已確認", "created_at": "2026-01-08T08:26:59.979Z", "customer_name": "林季樺", "email": "takasuki0810@gmail.com", "line_id": "季花🥦", "service_type": "代撥預約", "merchant_name": "Shokusai Shubo Matsumoto", "service_date": "2026-02-04", "service_time": "20:00", "adults": 2, "children": 0, "total_ppl": 2, "booking_name": "LIN CHIHUA", "phone": "0901210188", "plan_name": "基本方案", "note": "", "contact_in_japan": "" },
+                    { "order_id": "denwa-26010901", "status": "已確認", "created_at": "2026-01-09T14:20:03.097Z", "customer_name": "謝采諭", "email": "hxxjyzz@gmail.com", "line_id": "蝦皮yuantian", "service_type": "代撥預約", "merchant_name": "Shabusen Ginza Ten しゃぶせん 銀座店", "service_date": "2026-02-18", "service_time": "19:00", "adults": 3, "children": 0, "total_ppl": 3, "booking_name": "Hsieh Cai Yu", "phone": "0981275399", "plan_name": "基本方案", "note": "", "contact_in_japan": "" },
+                    { "order_id": "denwa-26013001", "status": "待確認", "created_at": "2026-01-30T07:21:06.697Z", "customer_name": "五姓名", "email": "wj209ing@gmail.com", "line_id": "五賴", "service_type": "代撥預約", "merchant_name": "五店家", "service_date": "2026-02-04", "service_time": "12:00", "adults": 2, "children": 0, "total_ppl": 2, "booking_name": "5ei", "phone": "886921370209", "plan_name": "基本方案", "note": "五備註", "contact_in_japan": "五在日" },
+                    { "order_id": "denwa-26013002", "status": "待確認", "created_at": "2026-01-30T07:25:50.472Z", "customer_name": "MING-CHING WANG", "email": "wj209ing@gmail.com", "line_id": "賴", "service_type": "代撥預約", "merchant_name": "興盛", "service_date": "2026-01-31", "service_time": "12:00", "adults": 2, "children": 0, "total_ppl": 2, "booking_name": "MING-CHING WANG", "phone": "886921370209", "plan_name": "基本方案", "note": "", "contact_in_japan": "" },
+                    { "order_id": "denwa-26013003", "status": "待確認", "created_at": "2026-01-30T12:06:42.358Z", "customer_name": "李蒔宣", "email": "kai781216@gmail.com", "line_id": "蒔宣", "service_type": "代撥預約", "merchant_name": "Yoroniku ", "service_date": "2026-03-05", "service_time": "18:00", "adults": 5, "children": 3, "total_ppl": 8, "booking_name": "Li shi xuan", "phone": "0918633668", "plan_name": "基本方案", "note": "[小孩需求]: 一位兩歲\n一位五歲\n一歲十個月\n[其他備註]: ", "contact_in_japan": "" },
+                    { "order_id": "denwa-26020301", "status": "已確認", "created_at": "2026-02-03T11:28:04.365Z", "customer_name": "柯凱傑", "email": "qcxazsszf123@gmail.com", "line_id": "柯凱傑", "service_type": "代撥預約", "merchant_name": "Makino ふぐ 牧野", "service_date": "2026-04-05", "service_time": "17:00", "adults": 2, "children": 0, "total_ppl": 2, "booking_name": "KE KAI JIE", "phone": "0988893051", "plan_name": "基本方案", "note": "17：00 - 19：00都可以\n如果2026／04／05沒有\n2026／04／09 或是 2026／04／10 也可以", "contact_in_japan": "" },
+                    { "order_id": "denwa-26020801", "status": "已確認", "created_at": "2026-02-08T06:29:49.987Z", "customer_name": "林禹如", "email": "a0981890226@gmail.com", "line_id": "a0922514765", "service_type": "代撥預約", "merchant_name": "三光舍 旭川點", "service_date": "2026-03-05", "service_time": "18:30", "adults": 2, "children": 0, "total_ppl": 2, "booking_name": "Linyuju", "phone": "0984017211", "plan_name": "基本方案", "note": "首選3/5 18:00-20:00都可以\n其他3/6、3/7、3/8同時段也可以\n", "contact_in_japan": "コートホテル旭川 166-26-0510" },
+                    { "order_id": "denwa-26021601", "status": "待確認", "created_at": "2026-02-16T09:57:48.565Z", "customer_name": "周城", "email": "CZ761112@gmail.com", "line_id": "周大俠", "service_type": "代撥預約", "merchant_name": "松龍苑", "service_date": "2026-02-22", "service_time": "19:30", "adults": 6, "children": 0, "total_ppl": 6, "booking_name": "Chou Cheng", "phone": "0981588028", "plan_name": "基本方案", "note": "", "contact_in_japan": "886981588028" }
+                ];
+                for (const o of realDenwaOrders) {
+                    await db.collection('denwa_orders').add({
+                        ...o,
+                        created_at: o.created_at ? new Date(o.created_at) : firebase.firestore.FieldValue.serverTimestamp(),
+                        platform: 'Legacy Import'
+                    });
+                }
+
+                // 5. 測試會員
+                log('正在建立測試會員...');
+                await db.collection('members').doc('test_member').set({
+                    phone: '0912345678',
+                    name: '王大明',
+                    email: 'test@example.com',
+                    line_name: 'Big Ming',
+                    store_711: '123456',
+                    store_711_note: '測試門市',
+                    created_at: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                log('✅ 正式與 Denwa 資料初始化完成！');
+                alert('寫入成功！包含正式產品與電話代撥訂單/方案。');
+
+            } catch (error) {
+                log('❌ 發生錯誤：' + error.message);
+                console.error(error);
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

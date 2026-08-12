@@ -1,0 +1,441 @@
+---
+layout: default
+title: KEICHA UI 組件展示 (Design System)
+---
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+<link rel="stylesheet" href="/css/ui-dialog.css">
+<script src="/js/ui-dialog.js"></script>
+
+<style>
+    .design-container {
+        max-width: var(--container-max);
+        margin: 0 auto;
+        padding: 40px 20px 100px;
+    }
+
+    .design-section {
+        margin-bottom: 60px;
+    }
+
+    .design-section-title {
+        font-size: var(--size-h3);
+        font-family: var(--font-brand);
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 24px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .design-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 24px;
+    }
+
+    .design-card {
+        background: white;
+        padding: 24px;
+        border-radius: var(--r-md);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+    }
+
+    .design-card-title {
+        font-size: var(--size-note);
+        font-weight: 700;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 20px;
+    }
+
+    .component-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+    }
+
+    /* Color Swatch */
+    .swatch-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 16px;
+    }
+    .swatch {
+        text-align: center;
+        background: #f8fafc;
+        padding: 8px;
+        border-radius: var(--r-sm);
+    }
+    .swatch-color {
+        height: 60px;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    .swatch-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #64748b;
+        font-family: var(--font-mono);
+    }
+
+    /* Input & Select */
+    .admin-input, .admin-select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: var(--r-md);
+        font-size: var(--size-body);
+        outline: none;
+        transition: all 0.2s;
+        background-color: white;
+    }
+    .admin-input:focus {
+        border-color: #6ea44c;
+        box-shadow: 0 0 0 3px rgba(110, 164, 76, 0.1);
+    }
+
+    /* Radio Styles (Extended from admin.html) */
+    input[type="radio"] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid #e5e7eb;
+        border-radius: 50%;
+        background: #fff;
+        cursor: pointer;
+        position: relative;
+        vertical-align: middle;
+        transition: all 0.2s;
+        margin-right: 6px;
+    }
+    input[type="radio"]:checked {
+        border-color: #6ea44c;
+    }
+    input[type="radio"]::before {
+        content: "";
+        width: 10px;
+        height: 10px;
+        background: #6ea44c;
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        transition: transform 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+    }
+    input[type="radio"]:checked::before {
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* Toggle Switch Styles */
+    .toggle-checkbox { display: none; }
+    .toggle-label {
+        display: inline-block;
+        width: 48px;
+        height: 26px;
+        background: #e2e8f0;
+        border-radius: 13px;
+        position: relative;
+        cursor: pointer;
+        transition: background 0.3s;
+        vertical-align: middle;
+    }
+    .toggle-circle {
+        width: 22px;
+        height: 22px;
+        background: white;
+        border-radius: 50%;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        transition: transform 0.3s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .toggle-checkbox:checked + .toggle-label { background: #6ea44c; }
+    .toggle-checkbox:checked + .toggle-label .toggle-circle { transform: translateX(22px); }
+
+    /* Buttons */
+    .btn {
+        padding: 10px 24px;
+        border-radius: var(--r-md);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: none;
+        font-size: var(--size-body);
+        font-family: var(--font-body);
+    }
+    .btn-primary { background: #6ea44c; color: white; }
+    .btn-primary:hover { background: #5d8d41; transform: translateY(-1px); }
+    .btn-secondary { background: #f1f5f9; color: #334155; }
+    .btn-secondary:hover { background: #e2e8f0; }
+    .btn-danger { background: #94a3b8; color: white; }
+    .btn-danger:hover { background: #64748b; }
+    .btn-outline { background: transparent; border: 1.5px solid #e2e8f0; color: #475569; }
+    .btn-outline:hover { background: #f8fafc; border-color: #cbd5e1; }
+
+    /* Status Badges */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: var(--r-full);
+        font-size: 0.85rem;
+        font-weight: 500;
+        white-space: nowrap;
+        border: none;
+    }
+    .badge-success { background: #6ea44c; color: #ffffff; }
+    .badge-gray { background: #f1f5f9; color: #64748b; }
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+    .dot-active { background: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+    .dot-inactive { background: #94a3b8; }
+
+    .animate-spin-custom {
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+</style>
+
+<div class="design-container">
+    <header class="mb-16 text-center">
+        <h1 class="text-4xl font-bold mb-4 font-brand-text text-slate-900">KEICHA Design System</h1>
+        <p class="text-slate-500 max-w-2xl mx-auto">
+            專屬品牌視覺規範與 UI 組件庫。本系統旨在確保全站（包含後台管理與前台結帳）具備一致的交互體驗與視覺語言。
+        </p>
+    </header>
+
+    <!-- 1. Foundations -->
+    <section class="design-section">
+        <h2 class="design-section-title">
+            <span class="material-symbols-rounded">palette</span>
+            視覺規範 (Foundations)
+        </h2>
+        <div class="design-grid">
+            <div class="design-card">
+                <div class="design-card-title">品牌調色盤 (Colors)</div>
+                <div class="swatch-grid">
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #6ea44c;"></div>
+                        <div class="swatch-label">Brand Green</div>
+                        <div class="text-[10px] text-slate-400">#6ea44c</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #1f2937;"></div>
+                        <div class="swatch-label">Slate 800</div>
+                        <div class="text-[10px] text-slate-400">#1f2937</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #64748b;"></div>
+                        <div class="swatch-label">Slate 500</div>
+                        <div class="text-[10px] text-slate-400">#64748b</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #f8fafc;"></div>
+                        <div class="swatch-label">Background</div>
+                        <div class="text-[10px] text-slate-400">#f8fafc</div>
+                    </div>
+                </div>
+            </div>
+            <div class="design-card">
+                <div class="design-card-title">文字系統 (Typography)</div>
+                <div class="space-y-6">
+                    <div>
+                        <div class="font-brand-text text-3xl mb-1">Zen Maru Gothic</div>
+                        <div class="text-xs text-slate-400 uppercase tracking-widest font-mono">Header / Brand Display</div>
+                    </div>
+                    <div>
+                        <div class="font-bold text-xl mb-1">Noto Sans TC Bold</div>
+                        <div class="text-xs text-slate-400 uppercase tracking-widest font-mono">System Semibold / UI Labels</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-600 leading-relaxed">
+                            Noto Sans TC Regular. 這是全站主要的閱讀文字，保持間距與清晰度。
+                        </div>
+                        <div class="text-xs text-slate-400 uppercase tracking-widest font-mono">Body Text / Content</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. Buttons -->
+    <section class="design-section" id="section-buttons">
+        <h2 class="design-section-title">
+            <span class="material-symbols-rounded">smart_button</span>
+            按鈕與交互 (Buttons & Interactions)
+        </h2>
+        <div class="design-card">
+            <div class="design-card-title">按鈕類型</div>
+            <div class="component-row">
+                <button class="btn btn-primary">主要按鈕</button>
+                <button class="btn btn-secondary">次要按鈕</button>
+                <button class="btn btn-danger">
+                    <span class="material-symbols-rounded text-lg">delete</span>
+                    危險操作
+                </button>
+                <button class="btn btn-outline">線性樣式</button>
+                <button class="btn btn-primary">
+                    <span class="material-symbols-rounded animate-spin-custom text-lg">refresh</span>
+                    處理中...
+                </button>
+                <button class="btn btn-primary" disabled>禁用狀態</button>
+            </div>
+            <div class="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                <div class="flex items-start gap-3">
+                    <span class="material-symbols-rounded text-slate-400">info</span>
+                    <div class="text-xs text-slate-500 leading-relaxed">
+                        <strong class="text-slate-700">色彩禁令：</strong> 根據全站設計規範，嚴禁使用「紅色」按鈕。危險操作（如刪除、停用）一律使用深灰色 (`#94a3b8`) 作為視覺警示，以維持品牌和諧感。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. Form Elements -->
+    <section class="design-section">
+        <h2 class="design-section-title">
+            <span class="material-symbols-rounded">check_box</span>
+            輸入與選取 (Form Elements)
+        </h2>
+        <div class="design-grid">
+            <!-- Inputs -->
+            <div class="design-card">
+                <div class="design-card-title">輸入框與下拉 (Inputs)</div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 mb-2 block">標準輸入框</label>
+                        <input type="text" class="admin-input" placeholder="請輸入關鍵字...">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 mb-2 block">KUI 下拉選單 (自定義樣式)</label>
+                        <select class="admin-select" id="demo-select">
+                            <option value="1">信用卡一次付清</option>
+                            <option value="2">虛擬帳號 (ATM)</option>
+                            <option value="3">超商代碼</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!-- Selection Controls -->
+            <div class="design-card">
+                <div class="design-card-title">狀態與選擇 (Controls)</div>
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                        <div>
+                            <div class="text-sm font-bold text-slate-700">開關切換 (Toggle)</div>
+                            <div class="text-[10px] text-slate-400">適用於即時啟用/停用設定</div>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="toggle-demo" class="toggle-checkbox" checked>
+                            <label for="toggle-demo" class="toggle-label">
+                                <span class="toggle-circle"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="flex items-center gap-3 p-3 border border-slate-100 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                            <input type="checkbox" checked>
+                            <span class="text-sm font-medium">多選框</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 border border-slate-100 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                            <input type="radio" name="radio-demo" checked>
+                            <span class="text-sm font-medium">單選鈕</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Feedback & Dialogs -->
+    <section class="design-section">
+        <h2 class="design-section-title">
+            <span class="material-symbols-rounded">notification_important</span>
+            反饋系統 (KUI Dialogs)
+        </h2>
+        <div class="design-grid">
+            <div class="design-card">
+                <div class="design-card-title">對話框交互 (Modals)</div>
+                <div class="component-row">
+                    <button class="btn btn-outline" onclick="KUI.alert('這是一個標準的系統提示。', '提醒訊息')">Alert</button>
+                    <button class="btn btn-outline" onclick="testConfirm()">Confirm</button>
+                    <button class="btn btn-outline" onclick="testPrompt()">Prompt</button>
+                </div>
+            </div>
+            <div class="design-card">
+                <div class="design-card-title">輕量提示 (Toasts & Tooltips)</div>
+                <div class="component-row">
+                    <button class="btn btn-outline" onclick="KUI.toast('資料已成功儲存！', 'success')">發送成功 Toast</button>
+                    <button class="btn btn-outline" id="v-target" onclick="KUI.validate(this, '此欄位為必填項目')">觸發驗證氣泡</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. Status Indicators -->
+    <section class="design-section">
+        <h2 class="design-section-title">
+            <span class="material-symbols-rounded">signal_cellular_alt</span>
+            狀態與佈局 (Status & Layout)
+        </h2>
+        <div class="design-grid">
+            <div class="design-card">
+                <div class="design-card-title">狀態標籤 (Badges)</div>
+                <div class="component-row">
+                    <div class="badge badge-success">
+                        啟用中
+                    </div>
+                    <div class="badge badge-gray">
+                        已停用
+                    </div>
+                </div>
+            </div>
+            <div class="design-card">
+                <div class="design-card-title">資料卡片 (Container)</div>
+                <div class="p-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-center">
+                    <span class="material-symbols-rounded text-slate-300 text-4xl mb-2">inventory_2</span>
+                    <p class="text-xs text-slate-400">目前尚無資料<br>請點擊上方按鈕新增</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    // 初始化自定義下拉選單
+    window.addEventListener('DOMContentLoaded', () => {
+        if (window.KUI && KUI.initAllSelects) {
+            KUI.initAllSelects();
+        }
+    });
+
+    async function testConfirm() {
+        const ok = await KUI.confirm('確定要執行此操作？此動作可能無法復原。', '操作確認');
+        if (ok) KUI.toast('已成功執行操作');
+    }
+
+    async function testPrompt() {
+        const val = await KUI.prompt('請輸入密碼：', '安全性驗證', '您的密碼');
+        if (val) KUI.toast(`認證中：${val}`);
+    }
+</script>

@@ -1,0 +1,92 @@
+---
+# 這是 Front Matter
+layout: default
+title: KEICHA 隱私權條款
+description: KEICHA 隱私權條款，說明我們如何蒐集、使用及保護您的個人資訊。
+keywords: KEICHA, 隱私權, 隱私權條款, 個資保護
+---
+
+<style>
+    /* 標題樣式 */
+    .privacy-content h3 {
+        font-size: 1.25rem;
+        /* text-xl */
+        font-weight: 700;
+        /* font-bold */
+        color: #1e293b;
+        /* text-slate-800 */
+        margin-bottom: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e2e8f0;
+        /* border-slate-200 */
+    }
+
+    /* 第一個標題不需上方線條 */
+    .privacy-content section:first-child h3 {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: 0;
+    }
+
+    /* 內文樣式 */
+    .privacy-content div,
+    .privacy-content p {
+        color: #334155;
+        /* text-slate-700 */
+        margin-bottom: 0.75rem;
+        line-height: 1.6;
+    }
+
+    /* 列表樣式 (對應您試算表中可能填寫的 ul/li) */
+    .privacy-content ul {
+        list-style-type: disc;
+        list-style-position: inside;
+        padding-left: 1rem;
+        color: #334155;
+        margin-bottom: 0.75rem;
+    }
+
+    /* 載入動畫 */
+    .loader {
+        border-top-color: #6ea44c;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+
+<!-- ==== 頁面主要內容 ==== -->
+<main class="py-16 md:py-24">
+    <div class="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <div class="bg-white p-8 md:p-12 rounded-[var(--r-lg)] shadow-lg">
+            <header class="text-center mb-10 pb-6 border-b border-gray-200">
+                <h1 class="text-3xl md:text-4xl font-bold text-brandGreen">隱私權條款</h1>
+                <p class="mt-4 text-lg text-gray-600">Privacy Policy</p>
+            </header>
+
+            <!-- 載入動畫 -->
+            <div id="privacy-loader" class="flex justify-center items-center h-32">
+                <div class="loader ease-linear rounded-[var(--r-full)] border-4 border-t-4 border-gray-300 h-12 w-12">
+                </div>
+            </div>
+
+            <!-- ★ 內容容器：JS 會將試算表內容填入這裡 ★ -->
+            <div id="privacy-container" class="privacy-content">
+                <!-- 內容將由 privacy-loader.js 自動生成 -->
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- 
+  ★ 載入外部 JS 引擎
+  'defer' 確保 HTML 解析完畢才執行
+  'data-cf-async="false"' 告訴 Cloudflare 不要干擾
+-->
+<script src="{{ '/assets/js/privacy-loader.js' | relative_url }}" data-cf-async="false" defer></script>

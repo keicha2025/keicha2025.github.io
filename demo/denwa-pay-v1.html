@@ -1,0 +1,154 @@
+---
+layout: default
+title: 電話代撥方案 (列表版) | KEICHA
+description: 選擇最適合您的日本代撥服務方案。
+---
+
+<style>
+    body {
+        background-color: #fcfdfa;
+    }
+
+    .brand-title {
+        font-family: var(--font-brand);
+        font-weight: 700;
+    }
+
+    .brand-bg {
+        background-color: var(--brand-green);
+    }
+
+    .brand-text {
+        color: var(--brand-green);
+    }
+
+    /* 方案卡片樣式 */
+    .plan-item {
+        border: 1px solid #f1f5f9;
+        background: #ffffff;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .plan-item:hover {
+        border-color: var(--brand-green);
+        box-shadow: 0 4px 12px rgba(110, 164, 76, 0.1);
+        transform: translateY(-2px);
+    }
+
+    /* 付款按鈕樣式 */
+    .pay-trigger {
+        background-color: var(--brand-green);
+        color: white;
+        transition: all 0.2s ease;
+    }
+
+    .pay-trigger:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 4px 10px rgba(110, 164, 76, 0.2);
+    }
+
+    .pay-trigger:active {
+        transform: scale(0.95);
+    }
+
+    /* 進場動畫 */
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-up {
+        animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    /* 置底補充區塊 */
+    .extra-pay-container {
+        border-top: 1px dashed #e2e8f0;
+        background: #f8fafc;
+    }
+</style>
+
+<main class="min-h-[70vh] flex items-center justify-center p-6 py-12 md:py-20">
+    <div class="max-w-xl w-full">
+        <!-- Main Card -->
+        <div class="bg-white rounded-[var(--r-lg)] shadow-xl border border-gray-100 overflow-hidden animate-fade-up">
+
+            <!-- Branding Header -->
+            <div class="p-8 text-center border-b border-gray-50">
+                <div
+                    class="w-16 h-16 bg-brandGreen rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                    <span class="material-symbols-rounded text-white text-3xl">payments</span>
+                </div>
+                <h1 class="brand-title text-2xl text-brandGreen mb-2 tracking-tight">電話代撥方案支付</h1>
+                <p class="text-gray-500 text-sm">請依照客服指示選擇您的支付方案，完成後我們將立即處理。</p>
+            </div>
+
+            <!-- Interaction Area -->
+            <div class="p-6 md:p-8 space-y-4">
+
+                <!-- Mock Dynamic Plans (Sorted by Price ASC) -->
+                <div class="space-y-4">
+                    <!-- Basic Plan -->
+                    <div class="plan-item p-5 rounded-2xl flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-lg font-bold text-gray-800">基本諮詢預約</span>
+                                <span
+                                    class="px-2 py-0.5 bg-brandGreen/10 text-brandGreen text-[10px] font-bold rounded-full uppercase tracking-tighter">熱門</span>
+                            </div>
+                            <p class="text-gray-400 text-xs leading-relaxed">單次代撥諮詢服務（含行政處理）</p>
+                        </div>
+                        <div class="text-right ml-4">
+                            <div class="text-xl font-bold text-brandGreen mb-2">$50</div>
+                            <a href="#" class="pay-trigger text-sm px-5 py-2 rounded-xl font-bold inline-block">支付</a>
+                        </div>
+                    </div>
+
+                    <!-- Standard Plan -->
+                    <div class="plan-item p-5 rounded-2xl flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-lg font-bold text-gray-800">全效通話方案</span>
+                            </div>
+                            <p class="text-gray-400 text-xs leading-relaxed">5 分鐘內通話與即時回報</p>
+                        </div>
+                        <div class="text-right ml-4">
+                            <div class="text-xl font-bold text-brandGreen mb-2">$150</div>
+                            <a href="#" class="pay-trigger text-sm px-5 py-2 rounded-xl font-bold inline-block">支付</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual/Extra Payment Link -->
+                <div class="extra-pay-container mt-8 p-6 rounded-2xl text-center">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-3">補款 / 尾款 /
+                        其他金額</label>
+                    <a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer"
+                        class="inline-flex items-center gap-2 text-slate-600 hover:text-brandGreen font-bold transition-colors">
+                        <span class="material-symbols-rounded text-xl">open_in_new</span>
+                        手動輸入付款連結
+                    </a>
+                    <p class="text-[10px] text-gray-400 mt-2">請進入連結後自行填寫應付總金額</p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Back Link -->
+        <div class="mt-10 text-center">
+            <a href="{{ site.baseurl }}/"
+                class="text-gray-400 hover:text-brandGreen text-sm transition-colors flex items-center justify-center">
+                <span class="material-symbols-rounded text-lg mr-1">arrow_back</span>
+                返回首頁
+            </a>
+        </div>
+    </div>
+</main>

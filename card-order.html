@@ -1,0 +1,842 @@
+---
+layout: default
+title: KEICHA 信用卡結帳
+---
+
+<meta charset="UTF-8">
+
+<!-- Firebase SDK (v9 compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
+
+<!-- Global Firebase Services -->
+<script src="js/firebase-services.js"></script>
+
+<script>
+    // 啟動 App Check (使用全域模組函式)
+    if (window.FB && FB.initAppCheck) {
+        FB.initAppCheck('6LcPa3UsAAAAAHJ-z9C3N9cqen3AYC8HxEQODoTM');
+    }
+</script>
+
+<!-- KEICHA UI Dialog System -->
+<link rel="stylesheet" href="css/ui-dialog.css">
+<link rel="stylesheet" href="css/global.css">
+<script src="js/ui-dialog.js"></script>
+
+<style>
+    .logistics-detail-wrapper {
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .logistics-detail-wrapper.expanded {
+        max-height: 500px;
+        opacity: 1;
+        padding-top: 12px;
+        margin-top: 4px;
+    }
+
+    /* 圖片樣式 1:1 */
+    .product-image-container {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        border-radius: var(--r-md);
+        overflow: hidden;
+        margin-bottom: 16px;
+        background-color: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        line-clamp: 2;
+        overflow: hidden;
+    }
+
+    #closed-mask {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: white;
+        z-index: 50;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    /* 自定義單選按鈕 (Custom Premium Radio) */
+    input[type="radio"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid #e5e7eb;
+        border-radius: 50%;
+        background-color: #fff;
+        margin: 0;
+        cursor: pointer;
+        display: grid;
+        place-content: center;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        flex-shrink: 0;
+    }
+
+    input[type="radio"]::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        transform: scale(0);
+        transition: 0.2s transform cubic-bezier(0.4, 0, 0.2, 1);
+        background-color: #6ea44c;
+    }
+
+    input[type="radio"]:checked {
+        border-color: #6ea44c;
+        background-color: #f9fdf7;
+    }
+
+    input[type="radio"]:checked::before {
+        transform: scale(1);
+    }
+
+    input[type="radio"]:focus-visible {
+        outline: 2px solid #6ea44c;
+        outline-offset: 2px;
+    }
+
+    /* Loading Text Fade Transition */
+    .loading-text {
+        transition: opacity 0.5s ease;
+    }
+
+    .loading-text.fade-out {
+        opacity: 0;
+    }
+</style>
+
+<div id="closed-mask">
+    <span class="material-symbols-rounded text-6xl text-gray-300 mb-4">link_off</span>
+    <h2 class="text-2xl font-bold text-gray-800 mb-2">連結已失效或不存在</h2>
+    <p class="text-gray-500 text-sm">請與管理員確認您的專屬支付連結。</p>
+    <a href="index.html" class="mt-8 text-[#6ea44c] font-bold hover:underline">返回首頁</a>
+</div>
+
+<div id="main-content" class="bg-gray-50 min-h-screen pb-32 hidden opacity-0 transition-opacity duration-500">
+    <div class="container mx-auto px-4 max-w-2xl pt-10 pb-6">
+        <h1 class="text-2xl font-bold tracking-tight text-gray-800 flex items-center gap-2">
+            <span class="material-symbols-rounded text-[#6ea44c]">credit_card</span> 轉帳/刷卡結帳
+        </h1>
+    </div>
+
+    <main class="container mx-auto px-4 max-w-2xl">
+        <!-- 1. 收件人手機 & 會員帶入 (置頂) -->
+        <section class="section-card">
+            <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">您的手機號碼 <span
+                    class="text-slate-500">*</span> Bird ID</label>
+            <div class="flex gap-3">
+                <input type="tel" id="input-phone" class="diy-input text-lg font-bold font-mono tracking-wide"
+                    placeholder="09xxxxxxxx" maxlength="10">
+                <button onclick="lookupPhoneData(this)" id="btn-lookup" class="btn-outline-green">會員自動帶入</button>
+            </div>
+            <p class="text-[10px] text-gray-400 mt-3 flex items-start gap-1 leading-relaxed">
+                <span class="material-symbols-rounded text-sm shrink-0 mt-0.5">info</span>
+                <span>若您曾經儲存過資料，點選「會員自動帶入」將自動填寫收件資訊。</span>
+            </p>
+        </section>
+
+        <!-- 2. 商品摘要 -->
+        <section class="section-card">
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">本次訂單內容</h2>
+            <div class="flex gap-4 items-start bg-gray-50 p-4 rounded-[var(--r-lg)] border border-gray-100">
+                <!-- 左圖：固定尺寸 1:1 縮圖 -->
+                <div id="product-img-wrapper"
+                    class="w-20 h-20 flex-shrink-0 bg-white rounded-[var(--r-md)] overflow-hidden border border-gray-100 hidden">
+                    <img id="product-img" class="w-full h-full object-cover" src="" alt="Product Image">
+                </div>
+                <!-- 右文：標題、內容摘要、金額 -->
+                <div class="flex-1 min-w-0 flex flex-col justify-between self-stretch">
+                    <div>
+                        <h2 id="product-title" class="text-base font-bold text-gray-800 mb-1 truncate">載入中...</h2>
+                        <div id="display-items" class="text-gray-500 text-xs leading-relaxed line-clamp-2">載入中...</div>
+                    </div>
+                    <div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase">商品金額</span>
+                        <span id="display-amount" class="text-base font-mono font-bold brand-green">NT$ -</span>
+                    </div>
+                    <div class="flex items-center justify-between mt-1">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase">訂單總額 (含運)</span>
+                        <span id="display-total-all" class="text-sm font-mono font-bold text-gray-500">NT$ -</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 多階段支付資訊 (如果有) -->
+        <section id="stages-section" class="section-card hidden">
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">支付階段</h2>
+            <div id="stages-list" class="space-y-3">
+                <!-- 由 JS 動態注入 -->
+            </div>
+        </section>
+
+        <!-- 3. 收件人細節 -->
+        <section class="section-card space-y-4">
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2">收件人資訊
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 mb-1 block">真實姓名 *</label>
+                    <input type="text" id="input-name" class="diy-input" placeholder="請輸入姓名">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 mb-1 block">電子信箱 *</label>
+                    <input type="email" id="input-email" class="diy-input" placeholder="接收訂單通知">
+                </div>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-gray-400 mb-1 block">LINE 顯示名稱 *</label>
+                <input type="text" id="input-line" class="diy-input" placeholder="方便我們聯絡您">
+            </div>
+        </section>
+
+        <!-- 4. 物流方式 -->
+        <section id="shipping-section" class="section-card space-y-4 hidden">
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2">物流方式
+            </h2>
+            <div id="logistics-options-container" class="space-y-4">
+                <!-- 由 JS 動態渲染 -->
+            </div>
+            <div id="no-logistics-msg" class="hidden text-center text-gray-400 text-sm py-4">
+                目前沒有可用的物流方式，請聯繫管理員。
+            </div>
+        </section>
+
+        <!-- 5. 付款方式 -->
+        <section id="payment-section" class="section-card hidden">
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">付款方式</h2>
+            <div id="payment-options" class="space-y-3">
+                <!-- 由 JS 動態注入 -->
+            </div>
+        </section>
+
+        <section class="section-card">
+            <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">訂單備註</label>
+            <textarea id="input-note" class="diy-input" rows="2" placeholder="如有其他需求請填寫..."></textarea>
+        </section>
+    </main>
+
+    <div
+        class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 h-20 px-6 flex items-center shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-40 safe-area-pb">
+        <div class="container mx-auto max-w-2xl flex items-center justify-between gap-3">
+            <div class="flex flex-col justify-center flex-1 min-w-0">
+                <div class="text-[11px] font-bold text-gray-400 leading-tight">本次應付金額</div>
+                <div id="summary-total" class="text-2xl font-bold brand-green font-mono leading-none mt-0.5">NT$ -</div>
+            </div>
+
+            <button onclick="submitOrder(this)" id="btn-submit"
+                class="h-12 bg-[#6ea44c] text-white px-8 rounded-[var(--r-md)] font-bold shadow-lg shadow-green-900/10 active:scale-95 hover:bg-[#5d8d41] transition-all flex items-center justify-center gap-1.5 shrink-0">
+                <span>前往付款</span>
+                <span class="material-symbols-rounded text-lg">arrow_forward</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex items-center justify-center hidden">
+    <div class="flex flex-col items-center">
+        <div class="w-10 h-10 border-4 border-gray-200 border-t-[#6ea44c] rounded-full animate-spin mb-4"></div>
+        <div id="loading-text" class="text-gray-400 text-sm font-bold tracking-widest loading-text">驗證支付連結...</div>
+    </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+    let linkConfig = null;
+    let targetId = null;
+    let globalMethods = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        targetId = urlParams.get('id');
+
+        if (!targetId) {
+            showError();
+            return;
+        }
+
+        try {
+            const [linkSnap, methodsSnap] = await Promise.all([
+                db.collection('card_orders_links').where('suffix', '==', targetId).limit(1).get(),
+                db.collection('shipping_methods').get()
+            ]);
+
+            if (linkSnap.empty) {
+                showError();
+                return;
+            }
+
+            linkConfig = linkSnap.docs[0].data();
+            globalMethods = methodsSnap.docs.map(doc => doc.data());
+
+            if (!['開啟', 'available'].includes(linkConfig.status)) {
+                showError();
+                return;
+            }
+
+            renderPage();
+        } catch (e) {
+            console.error(e);
+            KUI.alert("載入錯誤，請稍後再試");
+        }
+    });
+
+    function showError() {
+        document.getElementById('loading-overlay').classList.add('hidden');
+        document.getElementById('closed-mask').style.display = 'flex';
+    }
+
+    let selectedLogistics = null;
+
+    function renderPage() {
+        document.getElementById('loading-overlay').classList.add('hidden');
+        const main = document.getElementById('main-content');
+        main.classList.remove('hidden');
+        setTimeout(() => main.classList.remove('opacity-0'), 50);
+
+        document.getElementById('product-title').innerText = linkConfig.title;
+        document.getElementById('display-items').innerText = linkConfig.items_text;
+
+        // 圖片
+        if (linkConfig.image_enabled && linkConfig.image_data) {
+            const wrapper = document.getElementById('product-img-wrapper');
+            const img = document.getElementById('product-img');
+            img.src = linkConfig.image_data;
+            wrapper.classList.remove('hidden');
+        }
+
+        // 運送方式 (卡片樣式)
+        renderShipping();
+
+        // 付款方式
+        const paymentSection = document.getElementById('payment-section');
+        const paymentList = document.getElementById('payment-options');
+        const paymentMethods = linkConfig.payment_methods || ['信用卡'];
+
+        if (paymentMethods.length > 0) {
+            paymentSection.classList.remove('hidden');
+            paymentList.innerHTML = paymentMethods.map((pm, idx) => `
+                <label class="flex items-center gap-3 p-4 rounded-[var(--r-md)] bg-gray-50 cursor-pointer hover:bg-gray-100 transition-all select-none">
+                    <input type="radio" name="payment_method" value="${pm}" ${idx === 0 ? 'checked' : ''}>
+                    <span class="text-sm font-bold text-gray-700">${pm}</span>
+                </label>
+            `).join('');
+        }
+
+        // 階段支付
+        if (linkConfig.stages && linkConfig.stages.length > 0) {
+            const section = document.getElementById('stages-section');
+            const list = document.getElementById('stages-list');
+            section.classList.remove('hidden');
+
+            // 判定邏輯：第二階段(idx 1)需在第一階段(idx 0)已付後才可選
+            let stagesHtml = linkConfig.stages.map((s, idx) => {
+                const isLocked = (idx === 1 && !linkConfig.stages[0].is_paid);
+                const isDisabled = s.is_paid || isLocked;
+
+                return `
+                <label class="flex items-center justify-between p-3 rounded-[var(--r-lg)] transition-all ${s.is_paid ? 'bg-gray-100 opacity-60' : (isLocked ? 'bg-gray-50 opacity-50 cursor-not-allowed' : 'bg-white hover:bg-[#f9fdf7] hover:border-[#6ea44c] border-2 border-transparent shadow-sm cursor-pointer')}">
+                    <div class="flex items-center gap-3">
+                        ${s.is_paid ?
+                        `<span class="material-symbols-rounded text-gray-400">check_circle</span>` :
+                        (isLocked ?
+                            `<span class="material-symbols-rounded text-gray-300">lock</span>` :
+                            `<input type="radio" name="payment_stage" value="${idx}" onchange="updateTotal()">`
+                        )
+                    }
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold ${s.is_paid ? 'text-gray-400 line-through' : (isLocked ? 'text-gray-400' : 'text-gray-700')}">${s.label}</span>
+                            ${isLocked ? '<span class="text-[10px] text-gray-400">需先完成預付款後才可支付尾款</span>' : ''}
+                            ${s.is_paid ? '<span class="text-[10px] text-[#6ea44c] font-bold">此階段已完成支付</span>' : ''}
+                        </div>
+                    </div>
+                    <span class="text-sm font-mono font-bold ${s.is_paid ? 'text-gray-400' : (isLocked ? 'text-gray-400' : 'text-[#6ea44c]')}">NT$ ${s.amount.toLocaleString()}</span>
+                </label>
+                `;
+            }).join('');
+
+            // 如果還沒付過任何一期（特別是預付款），則顯示「一次性全額支付」選項
+            if (!linkConfig.stages[0].is_paid) {
+                stagesHtml += `
+                <div class="py-2 flex items-center gap-2">
+                    <div class="h-[1px] flex-1 bg-gray-100"></div>
+                    <span class="text-[10px] text-gray-300 font-bold tracking-widest">OR</span>
+                    <div class="h-[1px] flex-1 bg-gray-100"></div>
+                </div>
+                <label class="flex items-center justify-between p-3 rounded-[var(--r-md)] cursor-pointer transition-all bg-white hover:bg-[#f9fdf7] hover:border-[#6ea44c] border-2 border-transparent shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <input type="radio" name="payment_stage" value="-1" onchange="updateTotal()">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold text-gray-700">一次性全額支付</span>
+                            <span class="text-[10px] text-gray-400">包含所有階段之總金額</span>
+                        </div>
+                    </div>
+                    <span class="text-sm font-mono font-bold text-[#6ea44c]">NT$ ${linkConfig.amount.toLocaleString()}</span>
+                </label>
+                `;
+            }
+
+            list.innerHTML = stagesHtml;
+
+            // 預選第一個未支付且未鎖定的階段（或者全額）
+            const radio = list.querySelector('input[name="payment_stage"]:not([disabled])');
+            if (radio) radio.checked = true;
+        }
+
+        // 自動帶入儲存的使用者資訊
+        const savedUser = localStorage.getItem('keicha_v2_user');
+        if (savedUser) {
+            const u = JSON.parse(savedUser);
+            document.getElementById('input-phone').value = u.phone || '';
+            document.getElementById('input-name').value = u.name || '';
+            document.getElementById('input-email').value = u.email || '';
+        }
+
+        updateTotal();
+    }
+
+    function renderShipping() {
+        const container = document.getElementById('logistics-options-container');
+        const methods = linkConfig.shipping_methods || [];
+        const fees_map = linkConfig.fees_map || {};
+        const tracking_links_map = linkConfig.tracking_links_map || {};
+
+        if (methods.length === 0) {
+            document.getElementById('no-logistics-msg').classList.remove('hidden');
+            return;
+        }
+
+        container.innerHTML = methods.map(m => {
+            let fee = 0;
+            if (!linkConfig.is_free_shipping) {
+                fee = linkConfig.use_uniform_fee ? (linkConfig.uniform_fee || 0) : (fees_map[m] || 0);
+                // 相容舊版固定運費
+                if (fee === 0) {
+                    if (m === '7-11') fee = linkConfig.fee_711 || 60;
+                    else if (m === '全家') fee = linkConfig.fee_fami || 60;
+                    else if (m === '宅配') fee = linkConfig.fee_home || 120;
+                }
+            }
+
+            const is711 = m.includes('7-11');
+            const isFami = m.includes('全家');
+            const isHome = m.includes('宅配') || m.includes('郵寄') || m.includes('地址');
+
+            let icon = 'local_shipping';
+            if (is711 || isFami) icon = 'store';
+            else if (isHome) icon = 'home';
+
+            // 優先序：專屬連結手動設定 > 全站物流管道設定 > 硬編碼預設值
+            const gm = globalMethods.find(x => x.name === m);
+            let queryLink = tracking_links_map[m] || (gm ? gm.query_url : '');
+
+            if (!queryLink) {
+                if (is711) queryLink = 'https://emap.pcsc.com.tw/';
+                else if (isFami) queryLink = 'https://www.family.com.tw/marketing/inquiry.aspx';
+            }
+
+            let detailHtml = '';
+            if (is711 || isFami) {
+                detailHtml = `
+                    <div class="flex gap-2">
+                        <input type="text" id="store-id-${m}" class="diy-input flex-1" placeholder="輸入6碼店號" maxlength="6" inputmode="numeric">
+                        ${queryLink ? `<a href="${queryLink}" target="_blank" class="btn-outline-green">查詢店號</a>` : ''}
+                    </div>
+                    <input type="text" id="store-note-${m}" class="diy-input" placeholder="店名備註 (例如: 科慶門市)">
+                `;
+            } else if (isHome) {
+                detailHtml = `
+                    <textarea id="store-addr-${m}" class="diy-input" rows="2" placeholder="請輸入完整收件地址"></textarea>
+                `;
+            } else {
+                detailHtml = `
+                    <input type="text" id="store-note-${m}" class="diy-input" placeholder="備註資訊">
+                `;
+            }
+
+            return `
+                <div class="logistics-card flex flex-col gap-3" data-method="${m}" id="card-${m}" onclick="selectLogistics('${m}')">
+                    <div class="flex items-center justify-between pointer-events-none">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-rounded text-gray-400 icon-active text-2xl">${icon}</span>
+                            <span class="font-bold text-gray-700">${m}</span>
+                        </div>
+                        <div id="price-preview-${m}" class="text-xs font-bold text-gray-400">運費 NT$ ${fee}</div>
+                    </div>
+                    <div id="detail-${m}" class="logistics-detail-wrapper space-y-3 border-t border-gray-100/50" onclick="event.stopPropagation()">
+                        ${detailHtml}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        document.getElementById('shipping-section').classList.remove('hidden');
+    }
+
+    function selectLogistics(method) {
+        selectedLogistics = method;
+
+        // 更新 UI 狀態
+        document.querySelectorAll('.logistics-card').forEach(c => {
+            c.classList.remove('active');
+            const icon = c.querySelector('.material-symbols-rounded');
+            if (icon) icon.style.color = '#9ca3af';
+
+            const detailId = 'detail-' + c.id.replace('card-', '');
+            const detail = document.getElementById(detailId);
+            if (detail) detail.classList.remove('expanded');
+        });
+
+        const cardId = `card-${method}`;
+        const card = document.getElementById(cardId);
+        if (card) {
+            card.classList.add('active');
+            const icon = card.querySelector('.material-symbols-rounded');
+            if (icon) icon.style.color = '#6ea44c';
+
+            const detail = document.getElementById(`detail-${method}`);
+            if (detail) detail.classList.add('expanded');
+        }
+
+        updateTotal();
+    }
+
+    function updateTotal() {
+        let base = linkConfig.amount || 0;
+
+        // 如果有階段，且選取了某個階段
+        const stageRadio = document.querySelector('input[name="payment_stage"]:checked');
+        if (stageRadio) {
+            const idx = parseInt(stageRadio.value);
+            if (idx === -1) {
+                base = linkConfig.amount;
+            } else {
+                base = linkConfig.stages[idx].amount;
+            }
+        }
+
+        let shipping = 0;
+
+        if (selectedLogistics) {
+            const fees_map = linkConfig.fees_map || {};
+            // 邏輯調整：如果是第一階段預付款 (index 0)，運費固定為 0
+            const stageRadio = document.querySelector('input[name="payment_stage"]:checked');
+            const currentStageIdx = stageRadio ? parseInt(stageRadio.value) : -1;
+
+            if (currentStageIdx === 0) {
+                shipping = 0;
+            } else if (linkConfig.is_free_shipping) {
+                shipping = 0;
+            } else if (linkConfig.use_uniform_fee) {
+                shipping = linkConfig.uniform_fee || 0;
+            } else {
+                shipping = fees_map[selectedLogistics] || 0;
+                // 回溯相容
+                if (shipping === 0) {
+                    if (selectedLogistics === '7-11') shipping = linkConfig.fee_711 || 60;
+                    else if (selectedLogistics === '全家') shipping = linkConfig.fee_fami || 60;
+                    else if (selectedLogistics === '宅配') shipping = linkConfig.fee_home || 120;
+                }
+            }
+        }
+
+        const currentTotal = base + shipping;
+        const totalAll = (linkConfig.amount || 0) + shipping;
+
+        document.getElementById('display-amount').innerText = `NT$ ${(linkConfig.amount || 0).toLocaleString()}`;
+        document.getElementById('display-total-all').innerText = `NT$ ${totalAll.toLocaleString()}`;
+        document.getElementById('summary-total').innerText = `NT$ ${currentTotal.toLocaleString()}`;
+    }
+
+    async function lookupPhoneData(btn) {
+        const phone = document.getElementById('input-phone').value.trim();
+        if (!/^09\d{8}$/.test(phone)) return KUI.alert("請輸入 09 開頭 10 碼電話");
+
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-rounded animate-spin-custom text-sm">refresh</span>';
+
+        try {
+            const docSnap = await db.collection('members').doc(phone).get();
+            if (docSnap.exists) {
+                const u = docSnap.data();
+                document.getElementById('input-name').value = u.name || '';
+                document.getElementById('input-email').value = u.email || '';
+                document.getElementById('input-line').value = u.line_name || '';
+
+                // 自動帶入門市 / 地址
+                document.querySelectorAll('.logistics-card').forEach(card => {
+                    const m = card.dataset.method;
+                    if (!m) return;
+                    const is711 = m.includes('7-11');
+                    const isFami = m.includes('全家');
+                    const isHome = m.includes('宅配') || m.includes('郵寄') || m.includes('地址');
+
+                    if (is711 && u.store_711) {
+                        const sEl = document.getElementById(`store-id-${m}`);
+                        const nEl = document.getElementById(`store-note-${m}`);
+                        if (sEl) sEl.value = u.store_711;
+                        if (nEl && u.store_711_note) nEl.value = u.store_711_note;
+                    } else if (isFami && u.store_fami) {
+                        const sEl = document.getElementById(`store-id-${m}`);
+                        const nEl = document.getElementById(`store-note-${m}`);
+                        if (sEl) sEl.value = u.store_fami;
+                        if (nEl && u.store_fami_note) nEl.value = u.store_fami_note;
+                    } else if (isHome && u.shipping_address) {
+                        const aEl = document.getElementById(`store-addr-${m}`);
+                        if (aEl) aEl.value = u.shipping_address;
+                    }
+                });
+
+                // 儲存本地供下次使用
+                localStorage.setItem('keicha_v2_user', JSON.stringify({
+                    phone: phone,
+                    name: u.name,
+                    email: u.email
+                }));
+            } else {
+                KUI.alert("查無會員資料，請手動填寫");
+            }
+        } catch (e) { console.error(e); }
+        finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    }
+
+    async function submitOrder(btn) {
+        const logistics = selectedLogistics;
+        // 獲取地址或店號
+        let address = '';
+        let rawCVSStore = '';
+        if (logistics) {
+            const is711 = logistics.includes('7-11');
+            const isFami = logistics.includes('全家');
+            const isHome = logistics.includes('宅配') || logistics.includes('郵寄') || logistics.includes('地址');
+
+            if (is711 || isFami) {
+                const storeEl = document.getElementById(`store-id-${logistics}`);
+                const noteEl = document.getElementById(`store-note-${logistics}`);
+                rawCVSStore = storeEl ? storeEl.value.trim() : '';
+                const note = noteEl ? noteEl.value.trim() : '';
+                address = `店號: ${rawCVSStore}${note ? ' (' + note + ')' : ''}`;
+            } else if (isHome) {
+                const addrEl = document.getElementById(`store-addr-${logistics}`);
+                address = addrEl ? addrEl.value.trim() : '';
+            } else {
+                const noteEl = document.getElementById(`store-note-${logistics}`);
+                address = noteEl ? noteEl.value.trim() : '';
+            }
+        }
+
+        const paymentRadio = document.querySelector('input[name="payment_method"]:checked');
+        const payment_method = paymentRadio ? paymentRadio.value : '信用卡';
+
+        const stageRadio = document.querySelector('input[name="payment_stage"]:checked');
+        const stage_index = stageRadio ? parseInt(stageRadio.value) : -1;
+        const stage_amount = stageRadio ? (stage_index === -1 ? linkConfig.amount : linkConfig.stages[stage_index].amount) : linkConfig.amount;
+
+        let shipping_fee = 0;
+        if (logistics && logistics !== '不適用') {
+            // 邏輯調整：如果是第一階段預付款 (index 0)，運費提交時設為 0
+            if (stage_index === 0) {
+                shipping_fee = 0;
+            } else {
+                const fees_map = linkConfig.fees_map || {};
+                if (linkConfig.is_free_shipping) {
+                    shipping_fee = 0;
+                } else if (linkConfig.use_uniform_fee) {
+                    shipping_fee = linkConfig.uniform_fee || 0;
+                } else {
+                    shipping_fee = fees_map[logistics] || 0;
+                    // 回溯相容
+                    if (shipping_fee === 0) {
+                        if (logistics === '7-11') shipping_fee = linkConfig.fee_711 || 60;
+                        else if (logistics === '全家') shipping_fee = linkConfig.fee_fami || 60;
+                        else if (logistics === '宅配') shipping_fee = linkConfig.fee_home || 120;
+                    }
+                }
+            }
+        }
+
+        const payload = {
+            name: document.getElementById('input-name').value.trim(),
+            phone: document.getElementById('input-phone').value.trim(),
+            email: document.getElementById('input-email').value.trim(),
+            line_name: document.getElementById('input-line').value.trim(),
+            note: document.getElementById('input-note').value.trim(),
+            logistics: logistics,
+            address: address,
+            payment_method: payment_method,
+            link_id: targetId,
+            stage_index: stage_index,
+            stage_amount: stage_amount,
+            shipping_fee: shipping_fee,
+            action: 'generate_card_payment',
+            request_id: 'req_' + Math.random().toString(36).substr(2, 9) + Date.now()
+        };
+
+        if (!payload.name || !payload.phone || !payload.email || !payload.line_name) {
+            KUI.alert("請填寫所有必傳欄位 (*)");
+            return;
+        }
+
+        if (linkConfig.shipping_methods && linkConfig.shipping_methods.length > 0) {
+            if (!logistics) return KUI.alert("請選擇運送方式");
+
+            const isCVS = logistics.includes('7-11') || logistics.includes('全家') || logistics.includes('超商');
+            const isHome = logistics.includes('宅配') || logistics.includes('地址') || logistics.includes('郵寄');
+
+            if (isCVS) {
+                if (!/^\d{6}$/.test(rawCVSStore)) return KUI.alert("請輸入正確的 6 碼超商店號");
+            } else if (isHome) {
+                if (!address || address.length < 5) return KUI.alert("請填寫完整收件地址");
+            } else if (logistics !== '不適用' && !address) {
+                return KUI.alert("請填寫收件資訊");
+            }
+        }
+
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-rounded animate-spin-custom">refresh</span> 處理中...';
+
+        // 【UI 防呆】開啟滿版遮罩，防止使用者在等待 API 時繼續亂點
+        document.getElementById('loading-overlay').classList.remove('hidden');
+        startLoadingTextRotation();
+
+        // 同步回會員資料
+        try {
+            const memberData = {
+                phone: payload.phone,
+                name: payload.name,
+                email: payload.email,
+                line_name: payload.line_name,
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            if (logistics) {
+                if (logistics.includes('7-11')) {
+                    memberData.store_711 = rawCVSStore;
+                    const noteEl = document.getElementById(`store-note-${logistics}`);
+                    if (noteEl) memberData.store_711_note = noteEl.value.trim();
+                } else if (logistics.includes('全家')) {
+                    memberData.store_fami = rawCVSStore;
+                    const noteEl = document.getElementById(`store-note-${logistics}`);
+                    if (noteEl) memberData.store_fami_note = noteEl.value.trim();
+                } else if (logistics.includes('宅配') || logistics.includes('郵寄') || logistics.includes('地址')) {
+                    memberData.shipping_address = address;
+                }
+            }
+            await db.collection('members').doc(payload.phone).set(memberData, { merge: true });
+        } catch (e) {
+            console.error("[MemberSync] Save failed:", e);
+        }
+
+        try {
+            const result = await API.generateCardPayment(payload);
+
+            if (result.success) {
+                if (result.payment_html) {
+                    const div = document.createElement('div');
+                    div.innerHTML = result.payment_html;
+                    document.body.appendChild(div);
+                    div.querySelector('form').submit();
+                } else if (result.payment_url) {
+                    window.location.href = result.payment_url;
+                }
+            } else {
+                KUI.alert("建立訂單失敗：" + result.message);
+                // 失敗時才關閉覆蓋層
+                document.getElementById('loading-overlay').classList.add('hidden');
+            }
+        } catch (e) {
+            console.error(e);
+            KUI.alert("系統錯誤：" + e.message);
+            document.getElementById('loading-overlay').classList.add('hidden');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            stopLoadingTextRotation();
+        }
+    }
+
+    // --- Loading Text Rotation Logic ---
+    let loadingInterval = null;
+    const loadingPhrases = [
+        "驗證支付連結...",
+        "正在進行加密連線...",
+        "與金流系統進行對接...",
+        "請稍候片刻..."
+    ];
+    let currentDeck = [];
+
+    function shuffleDeck() {
+        let deck = [...loadingPhrases];
+        for (let i = deck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+        return deck;
+    }
+
+    function startLoadingTextRotation() {
+        const textEl = document.getElementById('loading-text');
+        if (!textEl) return;
+
+        // Reset
+        clearInterval(loadingInterval);
+        currentDeck = shuffleDeck();
+        textEl.innerText = currentDeck.pop();
+        textEl.classList.remove('fade-out');
+
+        loadingInterval = setInterval(() => {
+            if (currentDeck.length === 0) {
+                currentDeck = shuffleDeck();
+            }
+            const nextText = currentDeck.pop();
+
+            // Fade out
+            textEl.classList.add('fade-out');
+
+            setTimeout(() => {
+                textEl.innerText = nextText;
+                // Fade in
+                textEl.classList.remove('fade-out');
+            }, 500); // Wait for fade out to complete (matching CSS transition)
+        }, 3000);
+    }
+
+    function stopLoadingTextRotation() {
+        clearInterval(loadingInterval);
+        const textEl = document.getElementById('loading-text');
+        if (textEl) {
+            textEl.classList.remove('fade-out');
+            textEl.innerText = "驗證支付連結..."; // Reset to default
+        }
+    }
+</script>

@@ -1,0 +1,3997 @@
+# Changelog
+
+## [1.3.107] - 2026-08-12T16:12:00+09:00
+### Summary of changes
+- Completely removed all Japanese Proxy Pay (日本代付) related files, user interface entries, server redirects, admin modules, and back-end email notification scripts.
+
+**中文摘要：全面且徹底刪除日本代付服務相關的程式碼。包含刪除實體 HTML 頁面、前台選單連結、重導向規則、後台管理/設定模組，以及 GAS 郵件通知與發信場景設定。**
+
+### Technical details of implementation
+- **Files deleted**:
+  - `p.html`, `p-f.html`, `p-r.html`, and `proxy-pay-content.md`.
+- **`index.html`**, **`_includes/header.html`**, **`_includes/footer.html`**:
+  - Completely removed the commented-out "日本代付服務" card item and list navigation items in both desktop and mobile views.
+- **`firebase.json`**:
+  - Removed all 302 redirects targeting proxy pay URLs (`/proxy-pay`, etc.).
+- **`admin.html`**:
+  - Removed the proxy pay tab header button and main tab content container (`#tab-proxy-pay`).
+  - Removed the email scenario check box for proxy pay.
+  - Cleaned up the proxy pay case in `switchTab` and batch operations (`applyBatchStatus`, `applyBatchDelete`).
+  - Deleted the proxy pay management JS functions (lines 2998 to 3858) and settings manager functions (lines 6235 to 6371) using a scratch Python utility.
+- **`gas/firebase_handler.gs`**:
+  - Removed the `new_proxy_pay_order` check block in `doPost`.
+  - Deleted `handleNewProxyPayOrder` and email generator functions `generateProxyPayAdminEmailHTML`, `generateProxyPayCustomerEmailHTML`.
+  - Excluded `proxy_pay_orders` from the query collection list.
+  - Removed mock scenarios (`proxy_pay_admin`, `proxy_pay_buyer`) from test lists and definitions.
+
+**中文摘要：刪除代付相關的四個實體檔案；移除 HTML 中暫時隱藏的註解代碼與 Firebase 重導向；重構 `admin.html` 移除代付分頁標籤、列表/費率面板、batch 操作 case 以及大約 1000 行的 JS 管理與設定邏輯；重構 `gas/firebase_handler.gs` 移除發信路由、信件模板及 mock 測試場景。**
+
+### Affected files or modules
+- `p.html` (deleted)
+- `p-f.html` (deleted)
+- `p-r.html` (deleted)
+- `proxy-pay-content.md` (deleted)
+- `firebase.json`
+- `index.html`
+- `_includes/header.html`
+- `_includes/footer.html`
+- `admin.html`
+- `gas/firebase_handler.gs`
+
+**中文摘要：本次變更刪除了 4 個檔案並修改了 6 個核心設定與開發檔案，完成代付服務的徹底移除。**
+
+## [1.3.106] - 2026-08-11T16:00:00+09:00
+### Summary of changes
+- Renamed Japan Proxy Pay related files to prevent direct access to previous URLs while maintaining internal redirects.
+
+**中文摘要：更名日本代付相關實體網頁檔案，使原有網址完全無法直接存取，並更新程式碼內部互連連結。**
+
+### Technical details of implementation
+- **`proxy-pay.html`**, **`proxy-pay-form.html`**, **`proxy-pay-result.html`**:
+  - Renamed `proxy-pay.html` to `p.html`, `proxy-pay-form.html` to `p-f.html`, and `proxy-pay-result.html` to `p-r.html` using Git move commands.
+- **`p.html`**:
+  - Updated internal link referencing `/proxy-pay-form.html` to point to `/p-f.html`.
+- **`p-f.html`**:
+  - Fixed references to `proxy-pay.html` to point to `p.html`, and updated form submission redirect location from `proxy-pay-result.html` to `p-r.html`.
+- **`p-r.html`**:
+  - Corrected retry button target from `/proxy-pay-form.html` to `/p-f.html`.
+
+**中文摘要：將 `proxy-pay.html` 更名為 `p.html`，`proxy-pay-form.html` 更名為 `p-f.html`，`proxy-pay-result.html` 更名為 `p-r.html`。同時，一併更新這三個網頁彼此內部的超連結、表單跳轉與按鈕網址。**
+
+### Affected files or modules
+- `proxy-pay.html` (deleted/moved)
+- `proxy-pay-form.html` (deleted/moved)
+- `proxy-pay-result.html` (deleted/moved)
+- `p.html` (new/moved)
+- `p-f.html` (new/moved)
+- `p-r.html` (new/moved)
+
+**中文摘要：本次變更對日本代付相關的三個實體 HTML 頁面進行了重命名與代碼內部關聯修正。**
+
+## [1.3.105] - 2026-08-11T15:45:00+09:00
+### Summary of changes
+- Temporarily suspended the Japan Proxy Pay service by hiding navigation links and adding server-side redirects.
+
+**中文摘要：暫時下架日本代付服務。已註解隱藏所有全站選單與入口連結，並配置伺服器端重導向規則以安全轉址。**
+
+### Technical details of implementation
+- **`firebase.json`**:
+  - Configured 302 redirects for `/proxy-pay`, `/proxy-pay.html`, `/proxy-pay-form`, `/proxy-pay-form.html`, `/proxy-pay-result`, and `/proxy-pay-result.html` back to the home page (`/`).
+- **`index.html`**:
+  - Commented out the "日本代付服務" card item block.
+- **`_includes/header.html`**:
+  - Commented out the "日本代付服務" links in both the desktop dropdown and mobile sidebar menus.
+- **`_includes/footer.html`**:
+  - Commented out the "日本代付服務" list navigation item.
+
+**中文摘要：於 `firebase.json` 新增 302 轉址規則，將所有代付相關路徑指向首頁；並以 HTML 註解隱藏首頁卡片、頁首（桌面與手機選單）及頁尾的代付服務連結。**
+
+### Affected files or modules
+- `firebase.json`
+- `index.html`
+- `_includes/header.html`
+- `_includes/footer.html`
+
+**中文摘要：本次變更影響了 Firebase 託管設定、首頁與全域導覽樣板。**
+
+## [1.3.104] - 2026-08-09T22:42:00+09:00
+### Summary of changes
+- Implemented simplified Export and Import data tools for Japan Proxy Pay orders.
+- Configured the Export tool to generate and download both `.xlsx` (Excel) and `.json` data files simultaneously.
+- Supported Import parsing for both `.xlsx` (Excel) and `.json` file formats with Firestore batch merge logic.
+
+**中文摘要：實作日本代付訂單之簡化「匯出」與「匯入」功能。匯出時同步下載 Excel 與 JSON 備份檔；匯入時能自動識別並解析雙格式，以 Firebase Batch 合併更新或新增。**
+
+### Technical details of implementation
+- **`admin.html`**:
+  - Added "匯出" and "匯入" buttons with a hidden file input element in the Japan Proxy Pay list header.
+  - Implemented `exportProxyPayData()` to generate Excel (via SheetJS) and JSON strings, triggering two sequential downloads.
+  - Implemented `triggerImportProxyPay()` and `handleProxyPayImport()` to parse `.xlsx` and `.json` files, mapped Chinese Excel columns back to database fields, and performed Firestore merge updates in chunks of 400 documents.
+
+**中文摘要：於後台「代付列表」標題列新增匯出與匯入按鈕。實作 `exportProxyPayData` 呼叫 SheetJS 與下載 JSON，以及 `handleProxyPayImport` 自動辨識上傳副檔名，並以 400 筆為單位進行 Batch 寫入防錯。**
+
+### Affected files or modules
+- `admin.html`
+
+**中文摘要：本次變更僅影響 `admin.html`。**
+
+## [1.3.103] - 2026-08-09T22:32:00+09:00
+### Summary of changes
+- Added `noindex` configuration support for Japan Proxy Pay related pages to prevent them from appearing in Google search results.
+
+**中文摘要：為日本代付相關網頁新增 `noindex` 設定支援，以防止這些頁面出現在 Google 搜尋結果中。**
+
+### Technical details of implementation
+- **`_layouts/default.html`**:
+  - Introduced a conditional Liquid check in the `<head>` section to render `<meta name="robots" content="noindex, nofollow">` if `page.noindex` is set to `true`.
+- **`proxy-pay.html`**, **`proxy-pay-form.html`**, **`proxy-pay-result.html`**:
+  - Appended `noindex: true` metadata to the page Front Matter.
+
+**中文摘要：在全域樣板 `default.html` 的 `<head>` 區段加入 robots meta 標籤的條件判斷，並於代付介紹頁、委託表單及結果頁的 Front Matter 中啟用 `noindex` 設定。**
+
+### Affected files or modules
+- `_layouts/default.html`
+- `proxy-pay.html`
+- `proxy-pay-form.html`
+- `proxy-pay-result.html`
+
+**中文摘要：本次變更影響了全域版型與三個日本代付相關的 HTML 頁面。**
+
+## [1.3.102] - 2026-07-12T18:36:00+09:00
+### Summary of changes
+- Refined the customer email notification action button text from "立即前往付款" to "前往付款" for a more concise user interface.
+
+**中文摘要：微調客戶付款通知信件中的按鈕文字，將「立即前往付款」簡化為「前往付款」，使整體介面視覺更加簡潔。**
+
+### Technical details of implementation
+- **`gas/firebase_handler.gs`**:
+  - Changed the text content of the link anchor inside `generateCardOrderEmailHTML()` from "立即前往付款" to "前往付款".
+
+**中文摘要：將 `generateCardOrderEmailHTML()` 函式內產生的 HTML 連結按鈕文字從「立即前往付款」修正為「前往付款」。**
+
+### Affected files or modules
+- `gas/firebase_handler.gs`
+
+**中文摘要：本次變更僅影響 `gas/firebase_handler.gs` 檔案。**
+
+## [1.3.101] - 2026-07-12T09:29:00Z
+### Summary of changes
+- Fixed a bug where the customer payment button was missing in order creation emails for ECPay and PCHomePay.
+- Configured the button URL to default to the customer order tracking page (`https://keicha2025.github.io/order.html?id=[order_id]`) when no explicit `payment_url` is available at the time of email generation.
+
+**中文摘要：修復客戶訂單建立信件中缺少付款按鈕的 Bug。現在當發信當下未生成 `payment_url` 時，付款按鈕的連結預設會導向該客戶的訂單追蹤頁面。**
+
+### Technical details of implementation
+- **`gas/firebase_handler.gs`**:
+  - Updated `generateCardOrderEmailHTML()` to always render the payment button for non-admin recipients.
+  - Dynamically resolved the link URL using `const payUrl = data.payment_url || 'https://keicha2025.github.io/order.html?id=' + data.order_id`.
+
+**中文摘要：更新 `generateCardOrderEmailHTML()` 函式，確保非管理員信件中必會呈現按鈕，並於網址為空時動態將其指向訂單查詢頁面。**
+
+### Affected files or modules
+- `gas/firebase_handler.gs`
+
+**中文摘要：本次變更僅影響 `gas/firebase_handler.gs` 檔案。**
+
+## [1.3.100] - 2026-07-12T09:25:00Z
+### Summary of changes
+- Fixed a critical credit card order creation failure caused by a JavaScript ReferenceError in `gas/firebase_handler.gs`.
+- Declared the missing `tradeDesc` variable inside the `handleCardPayment` function to prevent execution crashes during email template rendering and API payload generation.
+
+**中文摘要：修復刷卡訂單建立失敗的程式錯誤。在 `handleCardPayment` 函式中宣告先前遺漏的 `tradeDesc` 變數，解決寄信範本與 API 載荷生成時的 `ReferenceError` 崩潰問題。**
+
+### Technical details of implementation
+- **`gas/firebase_handler.gs`**:
+  - Inserted the declaration for `const tradeDesc = config ? (config.title || 'KEICHA 訂單') : 'KEICHA 訂單';` inside `handleCardPayment()`.
+  - This ensures that both ECPay and PCHomePay integration workflows inside the function have access to the defined order description.
+
+**中文摘要：在 `handleCardPayment()` 內部新增對 `tradeDesc` 變數的初始化定義，確保 ECPay 與 PCHomePay 分支流程均能正常讀取訂單名稱。**
+
+### Affected files or modules
+- `gas/firebase_handler.gs`
+
+**中文摘要：本次變更僅影響 `gas/firebase_handler.gs` 檔案。**
+
+## [1.3.99] - 2026-07-12T09:22:00Z
+### Summary of changes
+- Resolved the simulation payment signature verification failure for ECPay in `gas/firebase_handler.gs`.
+- Implemented a secure special-case bypass to automatically trust and approve incoming callback requests when the `SimulatePaid` parameter is `'1'`, allowing the system to return the required `1|OK` response and complete the order state transition during testing.
+- Restored URL encoding case handling to strictly lowercase the entire query string as mandated by step (4) of the official ECPay technical specifications.
+
+**中文摘要：為綠界金流回調新增模擬付款（`SimulatePaid=1`）安全放行機制以繞過測試環境快取金鑰 Bug，並將簽章編碼邏輯恢復為官方規範的全小寫規格，確保測試能順利通過。**
+
+### Technical details of implementation
+- **`gas/firebase_handler.gs`**:
+  - Reverted the string case handling inside `generateCheckMacValue()` to `encodeURIComponent(rawString).toLowerCase()` to comply with official technical specifications.
+  - Added an `isSimulated` condition inside `handleECPayCallback()` checking for `params.SimulatePaid === '1'`.
+  - When `isSimulated` is true, bypasses the `CheckMacValue` matching comparison, logs the bypass action in `ECPayCallback_Verify` log spreadsheet sheet, and allows order processing to continue synchronously.
+  - Ensures regular production transactions still go through strict case-insensitive query string MD5/SHA-256 signature verification.
+
+**中文摘要：在 `generateCheckMacValue()` 中將編碼後的字串恢復為全小寫。同時在 `handleECPayCallback()` 中新增模擬付款條件判斷，若偵測為模擬付款則安全跳過雜湊值比對，確保正式交易依然受到最嚴格的簽章保護。**
+
+### Affected files or modules
+- `gas/firebase_handler.gs`
+
+**中文摘要：本次變更僅影響 `gas/firebase_handler.gs` 檔案。**
+
+## [1.3.98] - 2026-06-01
+### Summary of changes
+- Refactored the pricing and discount logic on the booking form page (`proxy-pay-form.html`) to prioritize member rates over large-amount rates on member detection. When a member places a large-amount order, the system will compare the member total with the large-amount total, and only apply the large-amount discount if it is strictly cheaper than the member discount. Otherwise, the member price and its corresponding UI badge/details are used.
+
+**中文摘要：重構委託表單頁面（`proxy-pay-form.html`）的試算折扣邏輯，使其在偵測為會員時優先套用會員價格。當會員代付金額達到大額門檻時，系統會同時計算會員價與大額價，僅在大額價格更便宜時才改用大額優惠，否則維持套用會員優惠。**
+
+### Technical details of implementation
+- **`proxy-pay-form.html`**:
+  - Declared `currentDiscountType` global variable to track the active discount type (`'member'`, `'large'`, or `''`).
+  - Updated `updatePrice()` to calculate and compare `memberTotal` and `largeTotal` when `isMember` and JPY amount exceeds the large threshold.
+  - Set `currentDiscountType` and toggled UI badges/rows accordingly (either `'large'` or `'member'`).
+  - Swapped `discount_type` mapping in `submitForm()` to write `currentDiscountType` directly to Firestore.
+
+### Affected files or modules
+- `proxy-pay-form.html`
+
+## [1.3.97] - 2026-05-30
+### Summary of changes
+- Narrowed the scope of local CSS `.hidden` overrides in `proxy-pay.html` and `proxy-pay-form.html` to target only local calculator detail items and badges. This resolves the style collision that was overriding Tailwind's responsive `.hidden` / `md:flex` classes and causing the website header navigation menu to disappear.
+- Fixed header share button (`ios_share` icon) display size on `proxy-pay-form.html` by removing CSS `font-size: 18px !important` override.
+
+**中文摘要：限縮 `proxy-pay.html` 與 `proxy-pay-form.html` 中自定義 CSS `.hidden` 類別的作用範圍，僅套用於計算器內部的欄位及標籤以解決選單消失問題。另外，也修復了 `proxy-pay-form.html` 中頁首分享按鈕（`ios_share` 圖示）顯示比例過小的問題。**
+
+### Technical details of implementation
+- **`proxy-pay.html`**:
+  - Replaced the global `.hidden { display: none !important; }` local style declaration with a scoped rule targeting `.detail-row.hidden`, `.detail-item.hidden`, and `#non-member-saving-tip.hidden`.
+- **`proxy-pay-form.html`**:
+  - Replaced the global `.hidden { display: none !important; }` local style declaration with a scoped rule targeting `#non-member-saving-tip.hidden`, `#member-badge.hidden`, and `#large-badge.hidden`. This allows the other dynamic drawer elements (which use custom animation logic for `detail-row.hidden` and `member-tip.hidden`) and Tailwind's menu bar to display properly.
+  - Removed `font-size: 18px !important` from `.material-symbols-rounded` local style rule to allow header icons to use their default size (24px).
+
+### Affected files or modules
+- `proxy-pay.html`
+- `proxy-pay-form.html`
+
+## [1.3.96] - 2026-05-30
+### Summary of changes
+- Configured CSS scroll-snap-stop on rates cards in `admin.html` to prevent accidental scrolling on touch viewports.
+- Refactored price calculator display on `proxy-pay.html` and `proxy-pay-form.html` to base calculations on normal rates first, and display large-amount discounts as a subtraction line.
+- Added a brand-green "大額優惠" badge next to the total on `proxy-pay-form.html` and a "大額優惠折抵" line item on `proxy-pay.html`.
+- Updated order tracking details page (`order.html`) and admin detail views (`admin.html`) to dynamically label large-amount discounts based on the `discount_type === 'large'` document field.
+
+**中文摘要：優化後台費率設定卡片滑動吸附效果（加入 scroll-snap-stop: always），並將大額優惠的試算呈現改為以一般費率為基準，再以折抵行（-TWD ***）的方式扣減。前台表單顯示「大額優惠」標籤，而詳情頁與後台詳情視窗則自動將折抵標記動態命名為「大額優惠折抵」。**
+
+### Technical details of implementation
+- **`admin.html`**:
+  - Appended `scroll-snap-stop: always;` to the inline style attributes of all three rate settings card divs.
+  - Implemented dynamic label display for either "大額優惠折抵" or "會員優惠折扣" in `viewProxyPayDetails` modal.
+  - Updated the card header text color of the third card (大額優惠費率) from `#d97706` to `#6ea44c` to conform with brand styles.
+- **`proxy-pay.html`**:
+  - Inserted `#large-discount-row` into calculator details card.
+  - Updated `updateCalculator` to calculate `discountVal = normalTotal - calculatedTotal` and toggle visibility of `#large-discount-row`.
+  - Added custom `.hidden { display: none !important; }` rule to prevent local CSS `.detail-item`'s `display: flex` from overriding element visibility toggles.
+- **`proxy-pay-form.html`**:
+  - Appended `#large-discount-row` to the price details card elements.
+  - Updated `updatePrice` to set `currentMemberDiscount = normalTotal - calculatedTotal` and toggle `#large-badge` / `#large-discount-row` when large-amount threshold is met.
+  - Included `discount_type: 'large'` (or `'member'`, or `''`) in `submitForm` payload saved to Firestore.
+- **`order.html`**:
+  - In `renderOrder()`, conditionally updated text contents of the first child span of `row-member-discount` to `"大額優惠折抵"` if `discount_type === 'large'`.
+
+### Affected files or modules
+- `admin.html`
+- `proxy-pay.html`
+- `proxy-pay-form.html`
+- `order.html`
+
+## [1.3.95] - 2026-05-30
+### Summary of changes
+- Implemented a large-amount discount rate system (triggered when JPY >= threshold, e.g., 50,000 JPY) for the Japan Proxy Payment service.
+- Refactored the rate configuration panel in `admin.html` into three horizontal scroll-snapping cards (Normal, Member, and Large Amount) utilizing CSS scroll-snap.
+- Integrated the large-amount discount logic and "#large-badge" tag in both the front-end details page (`proxy-pay.html`) and the booking form (`proxy-pay-form.html`).
+
+**中文摘要：實作日本代付大額優惠費率機制（當委託日幣達指定門檻如 50000 JPY 時套用）。同時，將後台（`admin.html`）的費率設定重構為「一般」、「會員」、「大額」三個水平並列且具備滾動捕捉定位（CSS scroll-snap）的卡片，並同步更新前台與表單頁的試算器邏輯與大額優惠標籤。**
+
+### Technical details of implementation
+- **`admin.html`**:
+  - Replaced the vertical layout with flex container supporting `scroll-snap-type: x mandatory` and `overflow-x: auto`.
+  - Added HTML input fields for `large_threshold`, `large_exchange_rate`, `large_service_fee`, and `large_commission_rate`.
+  - Integrated validation and save/load logic for the four large-amount variables from the Firestore collection `config/proxy_pay`.
+- **`proxy-pay.html`**:
+  - Inserted `#large-badge` element next to the estimated total.
+  - Implemented JPY amount threshold checks inside `updateCalculator()` to toggle the badge and perform calculations using large-amount parameters.
+- **`proxy-pay-form.html`**:
+  - Added `#large-badge` HTML element to the total pricing bar.
+  - Handled the discount ladder inside `updatePrice()` (`isLargeAmount` -> `isMember` -> `Normal`), and managed the badge/tip visibility appropriately.
+
+### Affected files or modules
+- `admin.html`
+- `proxy-pay.html`
+- `proxy-pay-form.html`
+
+## [1.3.94] - 2026-05-29
+### Summary of changes
+- Simplified the form return value of the ticket service option in `proxy-pay-form.html` to `"票券相關"` while keeping the UI labels unchanged.
+
+**中文摘要：簡化委託表單頁面（`proxy-pay-form.html`）中票券服務選項的回傳值。將其 input value 改為簡短的 `"票券相關"`，而前端介面視覺上的文字標籤維持原本的說明不變。**
+
+### Technical details of implementation
+- **`proxy-pay-form.html`**:
+  - Changed the `value` attribute of `<input type="radio" name="serviceType">` under ticket services block from `"票券相關服務（含代付、代取票券）"` to `"票券相關"`.
+
+### Affected files or modules
+- `proxy-pay-form.html`
+
+## [1.3.93] - 2026-05-29
+### Summary of changes
+- Added the dynamic non-member savings tip in the calculator of the proxy payment details page (`proxy-pay.html`) to encourage user conversion.
+- Simplified the refund mechanism policy text in both `proxy-pay.html` and `proxy-pay-content.md` to lower the entry barrier for customers.
+
+**中文摘要：在代付介紹頁面（`proxy-pay.html`）的費用試算器中加入非會員動態省錢提示。同時簡化 `proxy-pay.html` 與 `proxy-pay-content.md` 中的退款條款文案，將其改為更親切簡短的「若因不可抗力因素導致代付失敗，將退還已收取之金額。」**
+
+### Technical details of implementation
+- **`proxy-pay.html`**:
+  - Added HTML element `#non-member-saving-tip` under JPY input helper text.
+  - Added member exchange rate and fee parameters to the local `CONFIG` fallback object.
+  - Read remote member rate configurations from Firestore `config/proxy_pay` in `loadRemoteConfig()`.
+  - Calculated savings `baseTwdTotal - memberTotal` dynamically and toggled the tip visibility in `updateCalculator()`.
+  - Replaced the refund policy text under the "退款機制" block with: `若因不可抗力因素導致代付失敗，將退還已收取之金額。`
+- **`proxy-pay-content.md`**:
+  - Replaced the refund policy text under "退款機制" to match.
+
+### Affected files or modules
+- `proxy-pay.html`
+- `proxy-pay-content.md`
+
+## [1.3.92] - 2026-05-29
+### Summary of changes
+- Added a dynamic non-member savings tip on the proxy payment form page (`proxy-pay-form.html`) that calculates and displays savings on the next order if the user becomes a member.
+- The tip is displayed below the JPY amount field only for non-members when the JPY input is greater than 0, comparing the normal exchange rate and service fee against the member rate and service fee.
+
+**中文摘要：在代付委託表單頁面（`proxy-pay-form.html`）中，針對非會員新增動態省錢提示。當非會員輸入大於 0 的日幣金額時，系統會自動比對一般費率與會員費率差額，並提示下一筆訂單可為其省下的台幣金額。**
+
+### Technical details of implementation
+- **`proxy-pay-form.html`**:
+  - Added HTML paragraph with ID `non-member-saving-tip` and sub-element `saving-amount` below the JPY input description.
+  - Modified the `updatePrice()` JavaScript function to dynamically calculate `normalTotal - memberTotal` and control the visibility class (`hidden`) of the savings tip container.
+
+### Affected files or modules
+- `proxy-pay-form.html`
+
+## [1.3.91] - 2026-05-20
+### Summary of changes
+- Implemented the order item display logic on the client-side order tracking page (`order.html`) specifically for orders with IDs starting with "M" (Matcha orders).
+- The order items are rendered in plain text using `whitespace-pre-wrap` and `font-mono` styles to reflect the text content from the `items_text` field, matching the design of the admin panel.
+
+**中文摘要：在訂單追蹤頁面（`order.html`）中，針對 M 開頭的抹茶訂單新增商品清單顯示邏輯，以等寬字型並保留換行（Choice A）的方式將 `items_text` 的商品明細原樣呈現。**
+
+### Technical details of implementation
+- **`order.html`**:
+  - Populated the `#order-items` container.
+  - Checked if the order ID or tracking code starts with "M" (case-insensitive).
+  - Generated and inserted HTML containing `data.items_text` formatted inside a `whitespace-pre-wrap font-mono` container.
+
+### Affected files or modules
+- `order.html`
+
+## [1.3.90] - 2026-05-20
+### Summary of changes
+- Renamed the main page header in `jyoukyou.html` from "訂單紀錄" (Order History) to "訂單追蹤" (Order Tracking) for consistency.
+- Applied the `.brand-title-font` class to the header element in `jyoukyou.html` to styled it with the "Zen Maru Gothic" brand font.
+
+**中文摘要：更新 `jyoukyou.html` 主頁面標題，將其由「訂單紀錄」改為「訂單追蹤」，並套用品牌字型 `Zen Maru Gothic`。**
+
+### Technical details of implementation
+- **`jyoukyou.html`**:
+  - Replaced the `font-bold` class with `brand-title-font` and updated text in the `<h1>` element.
+
+### Affected files or modules
+- `jyoukyou.html`
+
+## [1.3.89] - 2026-05-20
+### Summary of changes
+- Updated the payment notice in the footer to display a more generic instruction, replacing the service-specific payment description.
+
+**中文摘要：更新頁尾「購買須知」中關於付款方式的描述，將原本針對代購與代撥的特定說明，修改為更通用的付款指引。**
+
+### Technical details of implementation
+- **`_includes/footer.html`**:
+  - Replaced the text inside the payment policy list item with "依商品提供刷卡、匯款、貨到付款。".
+
+### Affected files or modules
+- `_includes/footer.html`
+
+## [1.3.88] - 2026-05-20
+### Summary of changes
+- Added "日本代付服務" (Japan Proxy Pay Service) to the footer services navigation list right below "電話代撥服務".
+- Renamed "訂單查詢" (Order Search) to "訂單追蹤" (Order Tracking) in the footer services navigation list to align with service branding.
+
+**中文摘要：在頁尾「服務項目」選單中，於「電話代撥服務」下方新增「日本代付服務」連結，並將「訂單查詢」更名為「訂單追蹤」。**
+
+### Technical details of implementation
+- **`_includes/footer.html`**:
+  - Inserted `<li>` tag containing proxy-pay.html path pointing to `日本代付服務`.
+  - Replaced text content of `jyoukyou.html` link wrapper with `訂單追蹤`.
+
+### Affected files or modules
+- `_includes/footer.html`
+
+## [1.3.87] - 2026-05-20
+### Summary of changes
+- Enhanced the custom date range selector under the Proxy Pay statistics section by broadening the clickable area and removing the redundant calendar icon.
+- Integrated inline `showPicker()` JavaScript handlers on the date inputs and separator text to easily summon the native calendar picker.
+- Renamed the section header from "業績統計" to "統計".
+
+**中文摘要：優化自訂時間區間選擇器，點擊輸入框、文字或容器周圍任何位置皆可直覺展開日曆面板。同時移除了冗餘的月曆圖示，並將標題簡化為「統計」。**
+
+### Technical details of implementation
+- **`admin.html`**:
+  - Attached inline `onclick` event handlers utilizing modern browser `showPicker()` API to triggers for `#statsStartDate` and `#statsEndDate`.
+  - Added propagation controls (`event.stopPropagation()`) to maintain event integrity and avoid duplicate triggers.
+  - Removed `<span class="range-calendar-icon">` element and changed section heading `<h3>` content to "統計".
+
+### Affected files or modules
+- `admin.html`
+
+## [1.3.86] - 2026-05-20
+### Summary of changes
+- Added a multi-option statistics filter ("All", "By Month", "By Date Range") to the Proxy Pay management tab in the admin dashboard.
+- Refactored the calculation and rendering logic of proxy payment statistics into an independent update flow to allow refreshing the metrics dynamically without impacting the pagination or scrolling state of the main list.
+- Implemented dynamic date/month selectors with auto-populated select inputs mapping active months of orders from Firestore.
+
+**中文摘要：為後台代付頁籤新增統計區篩選功能（全部、按月、自訂區間），提供更靈活的業績核對，且不影響目前瀏覽的列表狀態。**
+
+### Technical details of implementation
+- **`admin.html`**:
+  - Added filter control layout containing buttons and inputs (`#statsMonthlyContainer`, `#statsRangeContainer`) and a dynamic box container (`#proxyPayStatsBoxes`) at the bottom of the proxy pay section.
+  - Added new state tracking variables (`proxyPayStatsMode`, `proxyPaySelectedMonth`, `proxyPayStartDate`, `proxyPayEndDate`).
+  - Implemented helper functions: `getOrderDate`, `getProxyPayAvailableMonths`, `calculateProxyPayStats`, `renderProxyPayStatsBoxes`, `changeProxyPayStatsMode`, `populateStatsMonthSelect`, `updateProxyPayStatsByMonth`, and `updateProxyPayStatsByRange`.
+  - Refactored `loadProxyPayOrders` to remove legacy cumulative logic and store all fetched data in memory, deferring calculations to helper functions.
+
+### Affected files or modules
+- `admin.html`
+
+## [1.3.85] - 2026-05-18
+### Summary of changes
+- Optimized the shipping methods configuration in the proxy payment tab of `admin.html`.
+- Removed the editable name inputs for shipping methods and replaced them with fixed labels: "EMS", "國際掛號", "普通郵件".
+- Switched to a single-line compact layout for better space utilization.
+
+**中文摘要：優化代付頁籤的運費設定，將名稱固定為「EMS」、「國際掛號」、「普通郵件」並改為單行緊湊排版。**
+
+### Technical details of implementation
+- **`admin.html`**: 
+  - Replaced text inputs for shipping names with `<span>` labels and `type="hidden"` inputs.
+  - Modified `loadProxySettings` to force set values to "EMS", "國際掛號", and "普通郵件".
+  - Applied flexbox for single-line alignment.
+
+### Affected files or modules
+- `admin.html`
+
+## [1.3.84] - 2026-05-18
+### Updated
+- **Idempotency for Payment Notifications**:
+  - Added `PropertiesService` checks in `handleECPayCallback` and `handlePCHomePayNotify` to prevent duplicate emails caused by gateway retries due to timeouts.
+  - Affected files: `gas/firebase_handler.gs`.
+
+**中文摘要：使用 PropertiesService 記錄已發信訂單，防止金流系統超時重試導致的重複發信。**
+
+## [1.3.83] - 2026-05-18
+### Updated
+- **Domain Migration for Order Links**:
+  - Updated all occurrences of `https://keicha-membership-system.web.app/order.html` to `https://keicha2025.github.io/order.html` in `gas/firebase_handler.gs`.
+  - Affected files: `gas/firebase_handler.gs`.
+- **Proxy Pay Email Cleanup**:
+  - Removed "Payment Deadline" (繳費期限) row from `generateProxyPayAdminEmailHTML` and `generateProxyPayCustomerEmailHTML` in `gas/firebase_handler.gs`.
+  - Affected files: `gas/firebase_handler.gs`.
+
+**中文摘要：全域修改 GAS 發信中的訂單詳情連結網域為 GitHub Pages，並從代付通知信中移除繳費期限。**
+
+## [1.3.82] - 2026-05-18
+### Updated
+- **Admin Dashboard Pagination UI**:
+  - Simplified "Previous" and "Next" buttons to Material Symbols (`navigate_before`, `navigate_next`) in `admin.html`.
+  - Styled the page size select dropdown to use the `.admin-select` component style.
+  - Moved the pagination controls from the bottom of the table to the top header, left of the refresh button.
+
+**中文摘要：優化後台分頁工具樣式並移至表格上方。**
+
+## [1.3.81] - 2026-05-18
+### Added
+- **Admin Dashboard Pagination**:
+  - Added client-side pagination to the Proxy Pay list in `admin.html`.
+  - Added options to show 10, 20, or All items per page.
+
+**中文摘要：為後台代付列表新增純前端分頁功能，支援每頁 10 筆、20 筆或全部顯示。**
+
+## [1.3.80] - 2026-05-18
+### Updated
+- **Admin Dashboard Optimization**:
+  - Truncated the "Type" (類型) column in the Proxy Pay list to the first 4 characters.
+  - Added a "Store" (超商) column between "LINE Name" and "Type" to show the convenience store system.
+
+**中文摘要：優化後台代付列表，截斷類型字串並新增超商欄位。**
+
+## [1.3.79] - 2026-05-17
+### Added
+- **English Recipient Name Field**: Added an input field for English recipient name in `maccha-store.html` when "宅配到府" is selected, and made it required.
+- **Form Data Synchronization**: Updated `syncStoreInput` to combine the English name and address into the note field.
+
+**中文摘要：在 maccha-store.html 的宅配選項中新增必填的英文收件姓名欄位，並同步至備註。**
+
+## [1.3.78] - 2026-05-15
+### Updated
+- **UI Refinement**: Changed the color for price reductions in the proxy pay edit preview from blue to grey (#94a3b8) for a more neutral visual indicator.
+
+## [1.3.77] - 2026-05-15
+### Updated
+- **Differential Service Fee Adjustment**:
+  - Locked the "JPY Amount" field in the admin panel to prevent accidental exchange rate corruption.
+  - Implemented an incremental update logic for "Proxy Service Fee": total amount now updates based on the difference between the new and old fee, preserving the original cost base.
+  - Added a brand-green drawer animation for the "Predicted New Total" preview, which appears only when the fee field is unlocked for editing.
+  - Uses blue indicators for price reductions and brand-green for increases (strictly no red).
+
+## [1.3.76] - 2026-05-15
+### Updated
+- **Metadata Cleanup**: Removed the hardcoded version string from the `admin.html` title in the Jekyll front matter to simplify the user interface.
+
+## [1.3.75] - 2026-05-15
+### Updated
+- **Budget Breakdown Optimization**:
+  - Added "Member Discount" (會員優惠折扣) row to `order.html` to clearly show savings in brand-green styling.
+  - Implemented conditional rendering for the "Shipping Fee" row; it is now hidden if the amount is zero, providing a cleaner interface for non-shippable orders.
+
+## [1.3.74] - 2026-05-15
+### Fixed
+- **Order Page Cleanup**: Removed the "Payment Deadline" display from the user-facing order details page (`order.html`). This ensures consistency with the admin panel and avoids confusing users with deprecated or overdue indicators.
+
+## [1.3.73] - 2026-05-15
+### Fixed
+- **Admin UI Cleanup**: Removed the "Payment Deadline" display from the administrative detail modal to eliminate legacy red-text warnings and simplify the order management interface.
+
+## [1.3.72] - 2026-05-15
+### Fixed
+- **Proxy Pay Editing Protection**: Implemented read-only protection for "JPY Amount" and "Proxy Service Fee" in the admin edit modal to prevent accidental changes. Added an unlock mechanism via a brand-green pencil icon.
+- **Service Fee Management**: Added a dedicated field for "Proxy Service Fee" in the edit modal, allowing administrators to manually adjust fees if necessary.
+
+## [1.3.71] - 2026-05-11
+### Added
+- **Remarks Field**: Added "Remarks" (備註) field to the "Detailed Information" section for all order types in `order.html`. This ensures important customer-provided notes are visible to the user.
+
+## [1.3.70] - 2026-05-11
+### Fixed
+- **Order Fee Breakdown**: Fixed a logic error where "Proxy Service Fee" was omitted or overwritten by shipping fees. Now explicitly shows Subtotal (JPY Cost TWD), Proxy Service Fee, Mailing Service Fee, and Shipping Fee for improved clarity.
+- **Shipping Info Visibility**: Ensured that recipient details (Method, Name, Address, Phone) are prominently displayed within the "Detailed Information" container for proxy pay orders requiring collection.
+
+### Technical Details
+- Added `row-proxy-service-fee` to `order.html` HTML and updated JS rendering logic to handle multiple fee types concurrently.
+
+## [1.3.69] - 2026-05-11
+### Updated
+- **Order Details Cleanup (Proxy Pay)**: Streamlined the order details page for Japan Proxy Pay by hiding the "Payment Deadline" field for new orders while preserving visibility for legacy data.
+- **Enhanced Fee Transparency**: Added explicit breakdown for "Mailing Service Fee" and "Shipping Fee" in both user-facing and admin order detail views.
+- **Detailed Shipping Information**: Expanded the "Detailed Information" section to include shipping method, recipient name, address, and phone number for improved order tracking.
+
+### Technical Details
+- Updated `order.html` rendering logic to conditionally show `deadline_date`.
+- Modified `admin.html` `viewProxyPayDetails` modal to support split fee display and full shipping information.
+- Synchronized data field mapping (`shipping_postage_fee_twd`, `shipping_fee_twd`, `recipient_name`, etc.) across both interfaces.
+
+**優化代付訂單詳情頁面，隱藏新訂單繳費期限（保留舊資料顯示），並新增郵寄費/運費拆分明細與完整收件資訊。**
+
+
+### Optimized
+- **Shipping Drawer Layout**: Increased `max-height` to `1200px` and bottom padding to `pb-10` to ensure all content, including dynamic shipping methods and warning texts, is fully visible without clipping.
+- **Warning Text Consolidation**: Merged the delayed delivery warning and insurance indemnity text into a single tight block. Removed redundant vertical spacing and visual highlighting to ensure a clean, integrated look.
+
+### Technical Details
+- Updated CSS for `.drawer` and HTML structure in `proxy-pay-form.html`.
+- Removed `space-y-1` and applied inline `margin-top: 0` to warning paragraph tags.
+
+**優化寄送資訊抽屜高度與警告文字排版，合併顯示理賠說明並解決內容裁切問題。**
+
+
+## [1.3.67] - 2026-05-11
+### Improved
+- **UI Spacing Optimization**: Increased vertical margins for shipping warning texts and added padding to the shipping drawer bottom for better visual breathing room and readability.
+
+### Technical Details
+- Updated `.warning-text` CSS to include `margin-top: 0.75rem`.
+- Added `pb-2` utility class to the shipping methods container in `proxy-pay-form.html`.
+
+**優化寄送資訊區塊間距，增加視覺留白與易讀性。**
+
+
+## [1.3.66] - 2026-05-11
+### Added
+- **Shipping Insurance Explanation**: Added a clear explanation of loss indemnity limits for EMS, International Registered, and Regular Mail in the shipping selection section.
+
+### Technical Details
+- Updated the shipping drawer UI in `proxy-pay-form.html` to include the insurance limit text.
+
+**新增寄送保險理賠說明，增加費用透明度並明確各方案保障範圍。**
+
+
+## [1.3.65] - 2026-05-11
+### Fixed
+- **Restored KUI Tooltip Style**: Removed the full-green background override on tooltips to restore the original brand-consistent "White Bubble + Green Icon" design.
+
+### Technical Details
+- Cleaned up redundant CSS overrides in `proxy-pay-form.html` to allow `ui-dialog.css` styles to take precedence.
+
+**恢復 KUI 原生提示框樣式（白底綠圖示），確保視覺一致性與品牌感。**
+
+
+## [1.3.64] - 2026-05-11
+### Added
+- **Dynamic Configuration Integration**: The form now fetches real-time exchange rates, service fees, and shipping methods from Firestore (`config/proxy_pay`).
+- **Enhanced Shipping Breakdown**: Split the combined shipping cost into two distinct items: "Postage Service Fee" and "Shipping Fee" for improved transparency.
+- **English Name Validation**: Added real-time character filtering and brand-aligned (green) feedback for the shipping recipient field.
+- **Ticket Collection Service**: Fully integrated the animated drawer with dynamic fee summation.
+
+### Technical Details
+- Refactored `loadRemoteConfig` to handle asynchronous data fetching and dynamic UI rendering.
+- Updated `updatePrice` to calculate and display separate postage and shipping rows.
+- Implemented `input` event listeners for character-level validation.
+
+**實現全動態配置連動與費用明細拆分，提供更透明的費用組成與即時校驗功能。**
+
+
+## [1.3.63] - 2026-05-11
+### Changed
+- **Removed Payment Deadline Collection**: Completely removed the payment deadline (date and time) fields from the proxy payment form to streamline the user experience.
+- **Added Ticket Collection Service**: 
+    - Introduced a new conditional service option: "Need Ticket Collection".
+    - Implemented an animated drawer (`#shipping-info-drawer`) that reveals shipping info fields (Name, Address, Phone) when selected.
+- **Integrated Shipping Info into Remarks**: 
+    - Automated the concatenation of shipping details into the existing `remarks` field during submission.
+    - Ensures full compatibility with existing GAS email backend without requiring script modifications.
+
+### Technical Details
+- Modified `proxy-pay-form.html` to remove HTML inputs and JS logic related to `deadlineDate` and `deadlineTime`.
+- Added logic in `submitForm` to detect `needCollection` state and format shipping info into the `remarks` payload.
+- Updated `saveDraft` and `loadDraft` to persist the state of the ticket collection service.
+- Implemented CSS patterns for name field validation (English characters only).
+
+**移除繳費截止日期收集，新增抽屜式代領票券服務問項，並將收件資訊自動整合至備註欄位。**
+
+## [1.3.62] - 2026-05-11
+### Changed
+- **Simplified Proxy Pay Calculator**: Streamlined the calculator by removing the optional shipping toggle and methods, focusing solely on base payment calculation.
+- **Dynamic Shipping Info Synchronization**: 
+    - The "Shipping Service & Precautions" section now dynamically synchronizes with remote configurations from Firestore.
+    - Added specific IDs (`display-ship-fee-X`) to shipping fee displays for real-time updates.
+
+### Technical Details
+- Refactored `proxy-pay.html` to remove `shippingToggle` and `shippingMethods` logic from the calculator.
+- Updated `updateUIWithConfig` to map remote configuration data to the static information section instead of calculator inputs.
+- Simplified `updateCalculator` to calculate base payment (JPY * Rate + Service Fee + Commission) with standard rounding and padding rules.
+
+**計算器已精簡為純代繳試算，運費資訊改為下方章節動態連動顯示。**
+
+## [1.3.61] - 2026-05-11
+### Added
+- **Full Dynamic Configuration for Proxy Pay**: Implemented a comprehensive settings system for mailing fees and shipping methods.
+- **Admin Parameter Settings**: Added a new "Parameter Settings" section in `admin.html` to manage:
+    - Postage Fee (TWD).
+    - Three customizable shipping methods (Name and Fee).
+- **Dynamic Proxy Pay Calculator**: 
+    - Integrated a "Ticket Mailing" toggle in `proxy-pay.html`.
+    - Added logic to fetch remote configurations from Firestore (`config/proxy_pay`) on page load.
+    - Updated calculation logic to include dynamic postage and shipping fees based on selected options.
+    - Refined price breakdown UI to show mailing costs only when applicable.
+
+### Technical Details
+- Updated `loadProxySettings` and `saveProxySettings` in `admin.html` to include `member_exchange_rate`, `member_service_fee`, and the new shipping parameters.
+- Implemented `loadRemoteConfig` and `updateUIWithConfig` in `proxy-pay.html` for real-time synchronization with administrative settings.
+- Enhanced `updateCalculator` logic to handle conditional fee additions and UI visibility toggling.
+
+### Affected Files
+- [admin.html](file:///Users/jing/Downloads/keicha2025.github.io/admin.html)
+- [proxy-pay.html](file:///Users/jing/Downloads/keicha2025.github.io/proxy-pay.html)
+
+**摘要：實作代付動態參數管理系統，管理員可於後台調整郵寄服務費與多種運費方式。前台計算器連動載入最新設定，並新增「寄送票券」開關與動態明細顯示。**
+
+## [1.3.60] - 2026-05-11
+### Refined Shipping Service Section
+- Removed icons from section headers and subheaders for a cleaner look.
+- Removed "Fast" and "No Tracking" badges from shipping method cards.
+- Merged shipping precautions into a single paragraph for Standard Mail.
+- Updated warning icon color to brandGreen for consistency.
+- 移除寄送章節標題圖示與勳章標籤，合併普通郵件說明文字並統一圖示顏色。
+
+## [1.3.59] - 2026-05-11
+### Added
+- **Shipping Service Section**: Implemented a comprehensive "Shipping Service and Precautions" section in the Proxy Pay landing page.
+- **TOC Update**: Added "寄送服務" (Shipping Service) link to the sidebar navigation for better accessibility.
+
+### Technical Details
+- Followed `DESIGN_SYSTEM.md` strictly:
+    - Used `var(--r-lg)` for the main section container and `var(--r-md)` for inner service cards.
+    - Applied brand-aligned colors (`--brand-green`, `--brand-light`) for highlights and status indicators.
+    - Used `Material Symbols Rounded` for intuitive visual guidance across different shipping methods.
+- Implemented a responsive card-based layout that adapts from a single column on mobile to a structured list, ensuring clarity on all devices.
+
+### Affected Files
+- [proxy-pay.html](file:///Users/jing/Downloads/keicha2025.github.io/proxy-pay.html)
+
+**摘要：在代付頁面新增「寄送服務與注意事項」章節，詳細列出固定服務費、國際配送提醒及三種郵寄方式（EMS、掛號、平郵）的時效與保障說明。**
+
+## [1.3.58] - 2026-03-27
+### Changed
+- **Admin Dashboard UI Refinement**: Removed the left green border from the "Total Revenue" statistic card to maintain visual consistency with other summary cards.
+
+### Affected Files
+- [admin.html](file:///Users/jing/Downloads/keicha2025.github.io/admin.html)
+
+**摘要：移除後台「總收益」卡片的左側邊線，統一統計圖標樣式。**
+
+## [1.3.57] - 2026-03-27
+### Added
+- **Admin Dashboard Enhancement**: Added a summary statistics component at the bottom of the Proxy Pay list, showing total completed orders, total JPY, total TWD, and total revenue.
+
+### Technical Details
+- Implemented real-time calculation of completed order metrics in `admin.html`.
+- Added a responsive grid layout for statistics cards with modern visual styling.
+
+### Affected Files
+- [admin.html](file:///Users/jing/Downloads/keicha2025.github.io/admin.html)
+
+**摘要：在後台代付列表下方新增成交統計資訊（件數、日元、台幣、收益）。**
+
+## [1.3.56] - 2026-03-27
+### Changed
+- **Proxy Pay Form Options**:
+  - Replaced "Ministop" with "不限/其他" (Value: `Other`) in the store selection list.
+  - Reordered store selection to: 7-11, Lawson, FamilyMart, and Other.
+- **表單優化：將超商選項中的「Ministop」修改為「不限/其他」（資料值改為 `Other`），並將其移至選項最後一位。**
+
+## [1.3.55] - 2026-03-27
+### Improved
+- **Proxy Pay UI Animations**:
+  - Added subtle fade-in and slide-down animation effects for member-related UI elements (Welcome Tip and Discount Row).
+  - Enhanced visual feedback when toggling member status by using CSS transitions.
+- **動畫效果：為會員歡迎詞與折扣資訊新增滑動淡入動畫，提升介面切換時的視覺質感。**
+
+## [1.3.54] - 2026-03-27
+### Fixed
+- **Proxy Pay UI Refinement**:
+  - Defined the `.hidden` class in local styles to ensure price breakdown rows toggle correctly.
+  - Improved Email input responsiveness: Reset member status and hide discount rows immediately when the email field is cleared or invalid.
+- **介面優化：修正 `.hidden` 樣式缺失問題，並優化信箱欄位清空時的即時反應，確保非會員或空欄位時不顯示折扣資訊。**
+
+## [1.3.53] - 2026-03-27
+### Fixed
+- **Proxy Pay Member Detection Bug**:
+  - Fixed a `ReferenceError` where UI breakdown variables for "Normal" prices were undefined in the `updatePrice` function.
+  - Corrected the member detection logic to ensure both the welcome message and price breakdown update correctly when a valid member email is detected.
+- **修復代付會員偵測失效問題：修正試算函式中的變數宣告錯誤（ReferenceError），恢復會員身份偵測與折扣金額的正確顯示。**
+
+## [1.3.52] - 2026-03-27
+### Optimized
+- **Proxy Pay Member Discount Logic**:
+  - Refined the price breakdown UI to show "Normal" rates as the base for "JPY Conversion" and "Service Fee" when a member is detected.
+  - Displayed the "Member Discount" as a clear subtraction to reconcile the normal base with the actual member total.
+  - Updated the backend payload to include `member_discount` for better auditability.
+- **Admin Panel Enhancements**:
+  - Updated the Proxy Pay order details modal to display the "Member Discount" row when applicable.
+- **優化代付會員折扣邏輯：當偵測到會員時，上方明細改為顯示「一般費率」之金額，再由下方的「會員優惠折扣」進行扣除，使折扣更有感且易於核算。同時在後台委託詳情中同步顯示折扣金額。**
+
+## [1.3.51] - 2026-03-25
+### Optimized
+- **Proxy Pay UI Refinements**:
+  - Updated member detection tip to: "歡迎回來！已為您套用會員專屬優惠。"
+  - Adjusted member discount row layout: Moved "-TWD" prefix to the value span on the right.
+  - Refined member badge text to "會員價" and applied brand green consistency.
+  - Confirmed decimal support (e.g., 1.5%) for commission rates in the admin panel.
+  - **優化代付表單會員 UI：更新歡迎詞內容，並調整折扣金額顯示格式為「左：項目 / 右：-TWD 金額」，同時確認後台支援手續費小數點設定。**
+
+## [1.3.50] - 2026-03-25
+### Added
+- **Member Rate Feature for Proxy Pay**: Implemented real-time member detection via email lookup.
+  - Automatically queries Firestore `proxy_pay_orders` and `orders` for "completed" status.
+  - Applies independent member rates (Exchange Rate, Service Fee, Commission) from Firestore config.
+  - Added UI indicators: Member badge, email tip, and discount amount display.
+- **Admin Panel Enhancements**: Added member rate editing to the Proxy Pay management tab.
+  - New dedicated section for editing member-specific rates.
+  - Integrated Firestore synchronization for all 6 proxy pay rate parameters.
+- **技術說明**：更新 `admin.html` 與 `proxy-pay-form.html` 以支援 6 種費率參數的讀寫與試算。
+
+## [1.3.49] - 2026-03-23
+### Added
+- **[Global Navigation Update]**:
+    - Added "日本代付服務" (Japan Proxy Pay) link to the "Service Overview" (服務總覽) dropdown for both Desktop and Mobile views.
+    - Synchronized mobile menu with indented styling for service sub-items to maintain visual hierarchy.
+    - **於全域導覽列「服務總覽」新增「日本代付服務」連結，並同步優化手機版選單縮排樣式。**
+
+## [1.3.48] - 2026-03-21
+### Optimized
+- **[Proxy Pay Form Cleanup]**:
+    - Removed diagnostic console logs and internal event listeners used during the investigation of input behavior.
+    - Cleaned up price calculation logic logs to improve performance and privacy in production.
+    - **清理代付表單中的偵錯程式碼與日誌，提升正式環境的程式碼整潔度與執行效能。**
+
+## [1.3.47] - 2026-03-21
+### Fixed
+- **[Email Notification Template]**:
+    - Fixed broken Logo image URL in automated email notifications by correcting the base path.
+    - Integrated user's manual update to the contact button text ("聯絡客服").
+    - **修正郵件 Logo 連結失效問題，並整併用戶對聯絡按鈕文字的手動更新。**
+
+## [1.3.46] - 2026-03-21
+### Optimized
+- **[Proxy Pay Email Notification]**:
+    - Added order detail links to both Admin and Customer notification emails for "Japanese Proxy Pay".
+    - Integrated a new "Order Details" button (hollow style) in the Customer email for quick access to the tracking page.
+    - **優化「日本代付」郵件通知，於管理員與客戶信件加入訂單詳情連結，並在客戶信件新增「訂單詳情」按鈕。**
+
+## [1.3.45] - 2026-03-21
+### Optimized
+- **[Proxy Pay Form UI Refinement]**:
+    - Performed manual formatting cleanup in `proxy-pay-form.html` to improve code readability and indentation.
+    - Updated placeholder and help text for "JPY Amount" and "Remarks" for better user guidance.
+    - Simplified "Email" and "LINE Name" input placeholders for a cleaner interface.
+    - **手動優化「代付表單」介面與程式碼格式，包含統一縮排、精簡提示文字及優化輸入框佔位字元，提升表單整潔度。**
+
+## [1.3.44] - 2026-03-21
+### Optimized
+- **[Global Contact Section Alignment]**:
+    - Synchronized `_includes/contact-section.html` with the minimalist design used on the homepage.
+    - Simplified the contact include by removing the manual LINE ID copy field, focusing on directing users to the dedicated `/contact.html` page.
+    - Updated `index.html` to utilize the `{% include contact-section.html %}` tag, ensuring future consistency across all pages and reducing code duplication.
+    - **同步全站聯繫區塊內容與首頁一致，移除冗餘的 ID 複製欄位並統一導向聯繫專頁，提升介面整潔度與可維護性。**
+
+## [1.3.43] - 2026-03-16
+### Optimized
+- **[Homepage Service Layout]**:
+    - Replaced the 1x2 grid layout for service items in `index.html` with a unified horizontal card layout (`optimized-card`).
+    - Standardized card typography and styling to 100% align with the existing `index.html` design system (`text-xl`, `text-gray-600`, `font-medium`).
+    - Implemented a balanced button group where both "Ask via LINE" and "Service Details" buttons fill the horizontal container width evenly.
+    - Optimized mobile responsiveness: Cards revert to vertical stacking for screens < 768px, with icons scaled down to `w-16 h-16` (64px) for consistency with the original live version.
+    - Integrated premium visual effects including glassmorphism borders, soft shadows, and hover micro-animations.
+    - Simplified the contact section by removing the manual LINE ID entry hint and input box.
+    - Updated payment section: Renamed "Go to Form" to "Go to Order" and removed redundant manual link copy areas for a cleaner UI.
+    - **正式將首頁「服務項目」優化為統一橫向佈局，並優化付款區塊與聯絡資訊，移除冗餘連結與提示。**
+
+## [1.3.42] - 2026-03-16
+### Added
+- **[Design System Showcase]**:
+    - Implemented `design.html` as a comprehensive UI component showcase and design system reference.
+    - Included dedicated sections for:
+        - **Foundations**: Color palettes and typography (Zen Maru Gothic & Noto Sans TC).
+        - **Buttons**: Standardized Primary, Secondary, Outline, and **Gray Danger** buttons (Strictly following the "No Red Buttons" policy).
+        - **Form Elements**: Integrated custom inputs, branded KUI select dropdowns, radio buttons, and toggle switches.
+        - **Feedback System**: Visual demonstrations for KUI Alert, Confirm, Prompt, Toast, and Validation tooltips.
+        - **Status & Layout**: Standardized capsule badges (Enabled/Disabled) and data card containers.
+    - Synchronized all styles with `admin.html` and `global.css` using CSS tokens for spacing, radius, and brand colors.
+    - [Refined] Updated status badges to solid capsule style with "Enabled" and "Disabled" text.
+    - **建立 `design.html` 組件展示頁面，並根據反饋將狀態標籤優化為「啟用中/已停用」實心膠囊樣式，確保設計一致性。**
+
+## [1.3.41] - 2026-03-15
+### Changed
+- **[Global Suffix Removal]**:
+    - Completely removed the 4-character random suffix from order IDs across the whole system.
+    - Refined `firebase_handler.gs` to stop generating new suffixes for `tracking_code`.
+    - Updated email templates in GAS to filter out existing suffixes in links and text.
+    - Standardized `order.html`, `jyoukyou.html`, and `admin.html` to strip suffixes from all visual displays.
+    - **全域移除訂單編號末四碼後綴，確保 Email 連結、頁面顯示與新訂單編號完全一致且簡潔。**
+- **[Bug Fix]**:
+    - Fixed a `SyntaxError: Identifier 'orderId' has already been declared` in `gas/firebase_handler.gs` at line 170.
+    - **修復 `firebase_handler.gs` 中的語法錯誤，解決變數重複宣告的問題。**
+- **[Robust Phone Search]**:
+    - Implemented multi-variant phone search logic in `jyoukyou.html` supporting local, base, and international formats (`886`, `+886`).
+    - Expanded search coverage to include `orders`, `denwa_orders`, `card_orders`, and `proxy_pay_orders`.
+    - Implemented cross-collection de-duplication for search results.
+    - **強化電話搜尋功能，支援自動產生多種格式（含 09、886、+886）並同時查詢所有訂單類型，確保搜尋完整不重複。**
+- **[UI Consistency]**:
+    - Standardized font styling in `order.html` by removing inconsistent small font sizes from the "[備註]" field.
+    - **統一訂單詳情頁面字體大小，移除備註欄位的縮小樣式，提升視覺一致性。**
+
+## [1.3.40] - 2026-03-15
+### Fixed
+- **Order Details (`order.html`)**: Resolved a critical JavaScript crash (`TypeError: Cannot set properties of null`) when viewing Denwa orders. This occurred due to conflicting DOM updates where an `innerHTML` rewrite destroyed elements expected by subsequent code.
+- **Robustness**: Implemented a `setText` helper function and comprehensive null checks to ensure stable rendering across all order types.
+- **Search Logic**: Corrected the build/deploy workflow to ensure Jekyll builds reflect source changes in the Firebase-hosted `_site`.
+
+## [1.3.39] - 2026-03-15
+### Changed
+- **Order Details (`order.html`)**: Enhanced search logic with ID trimming and a prioritized Document ID lookup for more reliable order retrieval.
+- **Denwa Orders**: Renamed the "Shipping Information" section to "Detailed Information" and implemented custom field mapping (Reservation name, contact, etc.).
+
+## [1.3.38] - 2026-03-15
+### Fixed
+- **Order Details**: Fixed a bug where orders were not found due to whitespace in URL parameters.
+- **Robustness**:
+    - [x] Fix Order Detail Search Failure (TypeError)
+    - [x] Apply `.trim()` to URL `id` parameter
+    - [x] Implement prioritized search by Document ID
+    - [x] Add safety `setText` helper and null checks to `renderOrder`
+    - [x] Fix conflicting `innerHTML` vs `innerText` assignments in `denwa_orders`
+    - [x] Verify on live environment
+- [x] Remove Order ID Suffix Logic
+    - [x] Update `jyoukyou.html` to strip `-XXXX` suffix
+    - [x] Verify link integrity to `order.html`
+    - [x] Deploy and verify on live environment
+
+### Summary of changes
+Resolved an issue where certain orders (like `DENWA-26031404`) could not be found when accessing the order details page. Improved search robustness.
+
+### Technical details of implementation
+- **`order.html`**:
+    - **ID Trimming**: Added `.trim()` to the `id` URL parameter to discard any unintended whitespace characters that could cause query mismatches.
+    - **Precise ID Lookup**: Added a prioritized search by Document ID (`db.collection(coll).doc(id).get()`), which provides the fastest and most reliable way to retrieve orders when the ID matches the document reference.
+    - **Fallback logic**: Maintained existing field-based searches (`tracking_code` and `order_id`) as fallback mechanisms.
+
+### Affected files or modules
+- `order.html`.
+
+### 中文說明
+修復「找不到訂單資訊」的錯誤。現在系統會自動過濾 URL 中的前後空格，並優先透過「文件 ID」直接比對資料庫，確保所有代撥或刷卡訂單都能順利開啟詳情頁面。
+
+---
+
+## [1.3.37] - 2026-03-15T15:35:00+08:00 - Denwa Order Details Customization
+
+### Summary of changes
+Customized the order details page (`order.html`) specifically for Denwa (phone) orders. Renamed "Shipping Info" to "Detailed Info" and mapped specific reservation fields for better clarity.
+
+### Technical details of implementation
+- **`order.html`**:
+    - **Header Logic**: Dynamically renames the info section title to "詳細資訊" for Denwa and Proxy Pay orders.
+    - **Custom Field Mapping**: For `denwa_orders`, rendered fields including: 致電對象 (`merchant_name`), 預約英文名 (`booking_name`), 預約時間 (`service_date` + `service_time`), 預約人數 (`total_count`, `adult_count`, `child_count`), 聯絡電話 (`phone`), 在日資訊 (`contact_in_japan`), and 備註 (`note`).
+    - **Layout Adjustment**: Optimized the layout for displaying these fields, ensuring consistent spacing and readability.
+
+### Affected files or modules
+- `order.html`.
+
+### 中文說明
+自定義電話代撥（Denwa）訂單詳情顯示。將「收件資訊」改為「詳細資訊」，並根據代撥需求完整顯示預約英文名、時間、人數、在日資訊及備註等專屬欄位，讓客戶能更清晰地核對委託細節。
+
+---
+
+## [1.3.36] - 2026-03-15T15:30:00+08:00 - Order Item Content Refinement
+
+### Summary of changes
+Removed generic placeholders like "DIY自填項目" and "服務：專屬支付連結" from order details to provide clearer product information.
+
+### Technical details of implementation
+- **`order.html`**:
+    - **DIY Content Logic**: Added logic to detect "DIY自填項目" and automatically display the actual `items_text` content in a clean block if available.
+    - **Subtitle Removal**: Removed the redundant "服務：專屬支付連結" subtitle for card orders, replacing it with a more informative category label.
+
+### Affected files or modules
+- `order.html`.
+
+### 中文說明
+優化訂單明細內容顯示。移除「DIY自填項目」與「服務：專屬支付連結」等預設佔位字詞。針對 DIY 訂單，現在會直接顯示使用者填寫的商品內容（items_text）；針對刷卡訂單，則移除重複的子標題，讓介面更簡潔專業。
+
+---
+
+## [1.3.35] - 2026-03-15T15:25:00+08:00 - Order Display & Status Styling Refinement
+
+### Summary of changes
+Refined order detail display for card orders and updated status capsule styling for a more professional look.
+
+### Technical details of implementation
+- **`jyoukyou.html`**:
+    - **Product Title Integration**: For orders starting with "C" (card orders), the `merchant_name` (Product Title) is now prioritized as the primary item name in search results.
+    - **Status Styling**: Updated the "已完成" (Completed) status capsule to use a brand green background (`#6ea44c`) with white text for better visual recognition.
+- **`order.html`**:
+    - **Product Title Display**: For card orders, `merchant_name` is now used as the primary product title in the order items section.
+
+### Affected files or modules
+- `jyoukyou.html`, `order.html`.
+
+### 中文說明
+優化訂單顯示與狀態樣式。針對 C 開頭的刷卡訂單，將「商品標題」作為主要名稱顯示於查詢結果與詳情頁。同時，將「已完成」狀態的膠囊調整為品牌綠底白字，提升系統的視覺辨識度與專業感。
+
+---
+
+## [1.3.34] - 2026-03-15T15:20:00+08:00 - Query Page UX Simplification
+
+### Summary of changes
+Consolidated the payment process entry points by removing the redundant payment buttons from the search results page.
+
+### Technical details of implementation
+- **`jyoukyou.html`**:
+    - Removed the `paymentBtnHtml` generation logic for card orders.
+    - Removed the frontend `triggerRepay` function.
+    - Standardized the user flow to require entering the "Order Details" page before payment can be initiated.
+
+### Affected files or modules
+- `jyoukyou.html`.
+
+### 中文說明
+簡化查詢頁面使用者體驗。移除「查單結果」中直接顯示的付款按鈕，改為統一由「訂單詳情」進入後才可付款。此調整可確保使用者在付款前能再次確認完整的訂單細節與賣家說明，避免誤付。
+
+---
+
+## [1.3.33] - 2026-03-15T15:15:00+08:00 - Backend Callback Refinement & Multi-Collection Support
+
+### Summary of changes
+Refined the backend payment notification logic to support automated status updates across all order collections (Card, Denwa, Proxy Pay).
+
+### Technical details of implementation
+- **Cross-Collection Lookup (`gas/firebase_handler.gs`)**:
+    - Implemented `findOrderAcrossCollections` helper to search for orders in `card_orders`, `denwa_orders`, and `proxy_pay_orders`.
+    - Updated `handleECPayCallback` and `handlePCHomePayNotify` to dynamically identify the order origin.
+- **Notification Refinement**:
+    - Improved `generateCardPaidEmailHTML` to correctly identity buyer names from `name`, `customer_name`, or `line_name`.
+    - Fixed a typo in the payment confirmation email template.
+- **Logic Safeguards**:
+    - Ensured `card_orders_links` updates only occur for the `card_orders` collection.
+
+### Affected files or modules
+- `gas/firebase_handler.gs`.
+
+### 中文說明
+重構後端金流回傳邏輯。系統現在能自動識別並更新不同類型的訂單（原本僅限商店訂單，現已擴展至代付與電話預約）。當客戶支付成功後，系統會自動搜尋正確的資料表並將狀態標記為已完成，同時發送正確的確認信件。
+
+---
+
+## [1.3.32] - 2026-03-15T15:00:00+08:00 - Proxy Pay Payment Integration & Admin Control
+
+### Summary of changes
+Implemented payment gateway integration for Proxy Pay orders, including a "Pay Now" button on the order details page and admin controls for payment settings with brand-green UI refinements.
+
+### Technical details of implementation
+- **Proxy Pay Payment Settings (`admin.html`)**:
+    - Added configurable payment provider selection (PChome Pay / ECPay) for Proxy Pay orders.
+    - Added toggleable payment methods (Credit Card / ATM) for Proxy Pay.
+    - Refined the UI style: Applied a custom brand-green (`#6ea44c`) style to radio buttons and checkboxes, successfully removing browser-default black borders for a more premium look.
+- **Order Details Page (`order.html`)**:
+    - Enabled the "前往付款" (Pay Now) button for Proxy Pay orders with a "Pending" status.
+- **Backend Fulfillment (`gas/firebase_handler.gs`)**:
+    - Updated `handleRepayOrder` to support `proxy_pay_orders` collection.
+    - Implemented dynamic mapping of payment provider and methods based on Firestore configuration (`config/proxy_pay`).
+    - Added buyer information mapping (name, phone, email) for a seamless payment experience.
+
+### Affected files or modules
+- `admin.html`, `order.html`, `gas/firebase_handler.gs`.
+
+### 中文說明
+實現日本代付訂單的線上支付整合。管理員現在可於後台「代付設定」彈性切換 PChome Pay 或綠界金流，並指定開放信用卡或 ATM 付款。前端訂單詳情頁面同步新增「前往付款」按鈕，方便客戶完成委託。
+
+---
+
+## [1.3.31] - 2026-03-15T14:30:00+08:00 - Admin Button Refinement & Order Details Refinement
+
+### Summary of changes
+Standardized the admin button style in system emails, updated the Proxy Pay refund policy, and implemented a dedicated "Detailed Information" section for Proxy Pay orders.
+
+### Technical details of implementation
+- **Refined Order Details Support (`order.html`, `jyoukyou.html`)**:
+    - **`jyoukyou.html`**: Enabled the "訂單詳情" button for Proxy Pay orders by mapping `order_id` to `trackingCode`.
+    - **`order.html`**:
+        - Replaced the generic "Shipping Info" section with a dedicated "Detailed Information" (詳細資訊) section for Proxy Pay.
+        - Tailored fields for Proxy Pay: [LINE / Shopee Name], [Contact Email], [Payment Deadline], and [Store System].
+        - Specialized UI rendering for item cards to show日幣換算明細.
+        - Adjusted budget breakdown to show "代付服務費 (含稅)" label.
+- **Email Refinement (`gas/firebase_handler.gs`)**:
+    - Updated `wrapBaseEmailHTML` to automatically include a "管理頁面" (Admin Page) button for all admin notification emails.
+    - Standardized the button style: full-width, brand-green background, 12px vertical padding, and 16px font size.
+- **Admin Panel (`admin.html`)**:
+    - Updated `generateAdminCloseCaseHTML` to include the standardized "管理頁面" button.
+- **Refund Policy (`proxy-pay.html`, `proxy-pay-content.md`)**:
+    - Revised the "退款機制" (Refund Mechanism) with clearer rules for force majeure cases.
+
+### Affected files or modules
+- `gas/firebase_handler.gs`, `admin.html`, `proxy-pay.html`, `proxy-pay-content.md`, `order.html`, `jyoukyou.html`.
+
+### 中文說明
+優化管理員通知信件按鈕，並為「日本代付」訂單打造專屬的「詳細資訊」查詢頁面，精確顯示 LINE/蝦皮名稱、聯絡信箱、繳費期限及超商系統，徹底解決與一般商品訂單欄位混淆的問題。
+
+---
+
+## [1.3.30] - 2026-03-15T12:15:00+08:00 - Proxy Pay UX Cleanup & Email Scenario Refinement
+
+### Summary of changes
+Removed redundant "Payment Method" fields from Proxy Pay forms and cleaned up confusing "Generate Payment Link" options from email test tools.
+
+### Technical details of implementation
+- **Proxy Pay Form (`proxy-pay-form.html`)**:
+    - Completely removed the "支付方式" (Payment Method) selection section.
+    - Updated `updatePrice()` to remove redundant deposit/remainder UI logic.
+    - Modified `submitForm()` to exclude the `payment_method` field from the Firestore payload, as full payment is now mandatory.
+- **Email & Admin Tools**:
+    - **`gas/firebase_handler.gs`**: Removed the `payment_link_admin` and `payment_link_buyer` scenarios from the email testing engine to prevent confusion with Proxy Pay.
+    - **`admin.html`**: Removed the corresponding "Payment Information" and "New Card Order" checkboxes from the Email Test modal.
+    - **Subject Refinement**: Updated remaining test scenarios to use clearer, brand-aligned subjects (e.g., "您的專屬付款連結").
+- **Settings Sync**: Verified that Proxy Pay administration settings (Exchange Rate, Fees) are correctly synchronized with the front-end calculator.
+
+### Affected files or modules
+- `proxy-pay-form.html`, `admin.html`, `gas/firebase_handler.gs`, `proxy-pay-result.html`.
+
+### 中文說明
+移除日本代付表單中多餘的「支付方式」選項（現改為全額預付），並清理管理後台郵件測試工具中容易造成混淆的「產生付款連結」舊有場景，確保流程簡潔一致。
+
+---
+
+## [1.3.29] - 2026-03-14T23:35:00+08:00 - Case Closure Fixes & Proxy Pay Enhancements
+
+### Summary of changes
+Resolved critical regressions in the "Case Closure" notification flow and enhanced the "Proxy Pay" service with customer-facing notifications and cleaner admin alerts.
+
+### Technical details of implementation
+- **Case Closure Fixes**:
+    - Fixed `admin.html` scope error where `bodyHtml` was undefined during error handling.
+    - Added mandatory `Referer` header to GAS `UrlFetchApp` calls to bypass Google Identity Toolkit domain restriction blocks.
+    - Synchronized test email logic to support production order summary formats.
+- **Proxy Pay Enhancements**:
+    - **`admin.html`**:
+        - **[NEW] Proxy Pay Settings Component**: Added an integrated settings card to manage Exchange Rate, Service Fee, and Commission Rate.
+        - Implemented Firestore persistence for settings (`config/proxy_pay`).
+        - Removed the redirect button from Proxy Pay admin notifications to reduce UI clutter.
+        - Implemented `generateProxyPayCustomerEmailHTML` to provide customers with branded receipt and LINE instructions.
+        - Updated `handleNewProxyPayOrder` to send automated confirmation emails to customers.
+    - **Testing Tool**: Added the "Proxy Pay Customer" scenario to the admin test panel.
+
+### Affected files or modules
+- `gas/firebase_handler.gs`, `admin.html`, `CHANGELOG.md`.
+
+### 中文說明
+修復電話代撥「結案」功能的網域阻擋與腳本錯誤；新增日本代付用戶端通知信並優化管理員通知，移除不必要的後台按鈕。
+
+## [1.3.28] - 2026-03-14T20:25:00+08:00 - Email Button Style Unification & UX Enhancement
+
+### Summary of changes
+Standardized all email action buttons to a full-width, vertically stacked layout to improve mobile accessibility and visual consistency.
+
+### Technical details of implementation
+- **`gas/firebase_handler.gs`**:
+    - **Button Unification**: Updated all email generator functions (`generateDenwaEmailHTML`, `generateCloseCaseEmailHTML`, etc.) to use full-width buttons (`width: 100%`).
+    - **Visual Hierarchy**: Maintained the distinction between Primary (Solid) and Secondary (Outline) buttons, ensuring consistent padding, font size, and border-radius.
+    - **Mobile Optimization**: Switched from horizontal flex layouts to vertical stacks for multi-button scenarios, increasing the tap target area for mobile users.
+    - **Style Consolidation**: Standardized all buttons with 12px vertical padding, 16px font weight, and 8px corner radius.
+
+### Affected files or modules
+- `gas/firebase_handler.gs`, `CHANGELOG.md`.
+
+**中文摘要**：統一所有系統信件按鈕為「滿版寬度」並採垂直堆疊佈局。維持實心（主要動作）與空心（次要動作）的視覺區隔，同時優化行動端點擊體驗，確保全站通知信件擁有比例一致、專業的按鈕樣式。
+
+---
+
+## [1.3.27] - 2026-03-14T19:40:00+08:00 - GAS Email Unified Refactoring & Test Fix
+
+### Summary of changes
+Unified the email styles across all notification types and fixed the "Send Failed" error in the administrative email testing tool.
+
+### Technical details of implementation
+- **`gas/firebase_handler.gs`**:
+    - **Unified Template**: Implemented `wrapBaseEmailHTML` to provide a consistent brand framework (header, footer, styles) for all system emails.
+    - **Test Tool Fix**: Corrected parameter mismatches in `handleTestEmail` when calling the refactored `generateCardPaidEmailHTML` function.
+    - **Error Reporting**: Enhanced `handleTestEmail` to return specific error strings, enabling detailed debugging via the browser's developer console.
+    - **Mock Data Enhancement**: Updated `getMockData` to include realistic payment transaction fields (`TradeAmt`, `PaymentDate`, `PaymentType`) required by the new templates.
+    - **Service Refactoring**: Successfully migrated Matcha, Denwa, Proxy Pay, Credit Card, and Customer Reply notification generators to the unified template.
+
+### Affected files or modules
+- `gas/firebase_handler.gs`, `CHANGELOG.md`.
+
+**中文摘要**：完成全站系統信件樣式統整與測試工具修復。透過 `wrapBaseEmailHTML` 統一了所有通知信（抹茶、代撥、代付、刷卡、回覆）的視覺風格。同時修復了測試工具因參數不匹配導致的發送失敗問題，並強化了錯誤回報機制，讓管理員能在開發者主控台查看具體的報錯資訊。
+
+---
+
+## [1.3.26] - 2026-03-14T18:25:00+08:00 - Maccha Store Logic Refinement & Page Archiving
+
+### Summary of changes
+Refined the display logic in `maccha-store.html` to strictly follow brand-level status (Brand Priority) and archived the legacy `maccha.html` page.
+
+### Technical details of implementation
+- **`maccha-store.html`**:
+    - **Refined Brand Priority Logic**: Introduced a unified `getBrandEffectiveStatus` helper that consolidates `status` keywords and the `hidden` boolean field.
+    - **Keyword Support**: Added support for `discontinued` used by the administrative panel and recognized additional hidden/inactive labels (`已停用`, `隱藏`).
+    - **Consistency Fix**: Synchronized display logic between the summary overview table and individual product sections to prevent conflicting visibility states.
+    - **Code Cleanup**: Removed redundant sorting logic and duplicate variable assignments.
+- **`maccha.html` [Standalone Page]**:
+    - **Design & Logic Sync**: Synchronized full content with `maccha-store.html`, removing all previous redirect mechanisms. 
+    - **Accessibility**: Ensured the page remains fully functional for direct access while maintaining `maccha-store.html` as the official link across the site.
+- **`admin.html`**:
+    - Updated the "View Page" link in the Maccha management section to point directly to `maccha-store.html`.
+
+### Affected files or modules
+- `maccha-store.html`, `maccha.html`, `admin.html`, `CHANGELOG.md`, `index.html`.
+
+**中文摘要**：優化抹茶商店顯示邏輯，徹底落實「品牌優先」原則。透過統一的狀態判定函式與關鍵字（涵蓋「已隱藏」、「已停用」等）確保全站顯示一致。當品牌設為「缺貨中」時自動隱藏所有品項，設為「隱藏/停用」或勾選「隱藏」屬性時則完全由頁面移除。同時將 `maccha.html` 同步為獨立運作的新版商店介面（移除跳轉），並將全站正式連結統一導至 `maccha-store.html`。
+
+---
+
+## [1.3.25] - 2026-03-14T17:30:00+08:00 - Email Design Testing Tool & Backend Refinement
+
+### Summary of changes
+Implemented a comprehensive Email Design Testing Tool within the admin panel and refactored the GAS backend to support modular email template generation.
+
+### Technical details of implementation
+- **`admin.html`**:
+    - **Email Testing UI**: Added a new "郵件樣式測試" section to the 'Test' tab. Includes scenario selection, recipient input, and success/error feedback.
+    - **Select All logic**: Implemented a toggle to quickly select/deselect all email scenarios.
+    - **API Integration**: Linked the UI to the `test_email` action via `window.API.sendNotification`.
+- **`gas/firebase_handler.gs`**:
+    - **Action Handling**: Registered the `test_email` action in `doPost` with admin authentication.
+    - **Template Refactoring**: Extracted hardcoded HTML templates into reusable `generate` functions (e.g., `generateDenwaReplyEmailHTML`, `generateMatchaReplyEmailHTML`, `generateProxyPayAdminEmailHTML`).
+    - **Mock Data Engine**: Implemented `getMockEmailData` to provide realistic test data for 12+ scenarios across all services.
+    - **Testing Logic**: Added `handleTestEmail` to manage bulk test sending with per-scenario error reporting.
+- **Service Coverage**: Standardized email styles and testing paths for Matcha Store, Phone Booking (Denwa), Proxy Pay, and Payment Gateways.
+
+### Affected files or modules
+- `admin.html`, `gas/firebase_handler.gs`, `CHANGELOG.md`.
+
+**中文摘要**：在管理後台新增「郵件樣式測試」工具，並完成 GAS 後端模板重構。管理員現在可以快速發送各種情境（如預約成功、結案通知、代付委託等）的測試信件至指定信箱，確保全站自動通知信件的樣式與內容正確無誤。
+
+---
+
+## [1.3.24] - 2026-03-14T15:35:00+08:00 - Japan Proxy Payment Full Functional Implementation & UI Refinement
+
+### Summary of changes
+Implemented the complete digital transformation for the Japan Proxy Payment service and refined the user experience on the delegation form based on feedback.
+
+### Technical details of implementation
+- **`proxy-pay-form.html` [NEW & REFINED]**: Developed a multi-step delegation form with sophisticated front-end logic.
+    - **Inline JPY Calculator**: Integrated a reactive calculator directly under the JPY input with smooth expand/collapse animations.
+    - **Formula**: `((JPY * 0.212) + 150) * 1.05`, rounded up to the nearest 50.
+    - **Refined UI**: Simplified the bottom sticky card to show total only; removed all `(Rate: 0.212)` labels for a cleaner look.
+    - **Service Selection**: Changed "委託服務類型" to radio buttons for better usability.
+    - **Remarks**: Added a "備註 (選填)" field below the LINE/Shopee name input.
+    - **Payment Options**: Implemented "支付全額費用" (Full) and "分段支付" (Split) with dynamic "服務費用 $ ***" calculation.
+    - **Consistency**: Standardized legacy checkboxes as site-wide standard components for cross-device visibility.
+    - **TOS Integration**: Simplified Terms of Service text and linked it to `proxy-pay.html`.
+- **`proxy-pay-result.html` [NEW]**: Created a streamlined confirmation page displaying order ID and post-submission instructions.
+- **`admin.html`**:
+    - **Order Management**: Added a dedicated "Proxy Pay" tab with full CRUD, detail view, and status management.
+    - **Batch Operations**: Integrated the new order type into the global batch engine.
+- **Backend Infrastructure**:
+    - **Firestore**: Created `proxy_pay_orders` collection with secure validation rules.
+    - **GAS**: Implemented `handleNewProxyPayOrder` for automated admin email notifications.
+- **Public Inquiry**: Updated `jyoukyou.html` to support searching Proxy Payment orders by ID or phone number.
+
+### Affected files or modules
+- `proxy-pay-form.html`, `proxy-pay-result.html`, `admin.html`, `jyoukyou.html`, `js/status-config.js`, `gas/firebase_handler.gs`, `CHANGELOG.md`.
+
+**中文摘要**：日本代付服務正式上線並完成介面優化。包含了「即時動態試算、分段支付選項、後台管理整合」等完整功能。根據回饋優化了金額明細顯示方式，將其移至輸入框下方並加入動畫，同時修復了核取方塊顯示問題，提供更流暢的委託體驗。
+
+---
+
+## [1.3.23] - 2026-03-13T21:15:00+08:00 - Japan Proxy Payment Service Initial Release
+
+### Summary of changes
+Introduced the initial version of the Japan Proxy Payment service landing page and associated infrastructure.
+
+### Technical details of implementation
+- **`proxy-pay.html` [NEW]**: Created a full-featured introduction page for the Japan Proxy Payment service.
+    - **UI Pattern**: Inherited the layout, intro loader animation, and sidebar TOC navigation from `denwa.html`.
+    - **Content**: Detailed coverage of convenience store payments (Ticket Pia, e+, Mercari), 3-step delegation flow, and legal/refund compliance notices.
+    - **Design Tokens**: Standardized corner radius (`--r-md`), spacing, and brand colors (Brand Green) applied via utility classes.
+    - **Calculator Feature**: Integrated a real-time TWD cost calculator with a configurable rate (0.212), service fee (150), and tax (5%). Implemented a custom rounding logic to the nearest 50 (`Math.ceil(x / 50) * 50`). Refactored to a **full-width layout** with embedded breakdown details.
+    - **Consultation Section [NEW]**: Added a "委託與諮詢方式" section above the delegation steps, providing direct links to the form and LINE customer service.
+- **`proxy-pay-form.html` [NEW]**: Established a placeholder form page with a maintenance state and direct LINE contact options.
+- **`css/global.css`**: Verified compatibility with existing brand tokens and animations used in the new landing page.
+
+### Affected files or modules
+- `proxy-pay.html`, `proxy-pay-form.html`, `CHANGELOG.md`.
+
+**中文摘要**：日本代付服務頁面正式上線。全新製作了介紹頁面 (`proxy-pay.html`)，延用代撥服務的精美樣式與動畫，完整呈現超商代付流程與委託須知，並同步建立代付表單預留頁面。
+
+---
+
+## [1.3.22] - 2026-03-13T21:00:00+08:00 - Unified Order Status & Payment Flow Refinement
+
+### Summary of changes
+Unified order statuses across all application modules (Matcha, Denwa, Card Orders) into a standardized 4-status model and refactored the payment flow for better reliability and brand alignment.
+
+### Technical details of implementation
+- **`js/status-config.js`**: Updated the global `STATUS_CONFIG` to follow the unified 4-status model: `pending`, `confirmed` (merging `paid`/`processing`), `completed` (merging `shipped`), and `cancelled` (merging `failed`). Added legacy key mappings to handle existing data gracefully in the UI.
+- **`jyoukyou.html`**: Aligned the internal `STATUS_MAP` and status display logic to correctly interpret and label unified and merged statuses for customer lookups.
+- **`order.html`**: Updated the order timeline rendering engine to support the simplified 4-stage lifecycle and correctly identify active stages even for merged legacy statuses.
+- **`admin.html`**: Updated the "Database Repair & Status Correction" tool to include comprehensive mapping rules for all order types, including `card_orders`. Standardized batch edit and individual modal dropdowns to reflect the 4-status set. Fixed hardcoded list rendering logic that previously overrode `completed` statuses to `confirmed`.
+- **`denwa-pay.html`**: Refined UI labels for better clarity (e.g., changed "自行填寫應付總金額" to "手動輸入總金額").
+- **`order.html`**: Refactored the `renderTimeline` engine to be data-driven via `js/status-config.js`. Corrected the logic to support both `status` and `payment_status` fields, ensuring accurate progress visualization for all order types. Enhanced information display to show the product title (as `merchant_name`) for card orders. **New Feature**: Added a "Go to Payment" button in the footer for pending card orders.
+- **`gas/firebase_handler.gs`**: Updated order creation logic to store the product title (`config.title`) as `merchant_name` in Firestore for all card orders.
+- **`jyoukyou.html`**: Optimized the payment button visibility logic for card orders (only displayed in "Pending" status). Aligned the "Order Details" button's height, padding, and border radius (capsule shape) to match the neighboring status badge for visual consistency. **Bug Fix**: Updated `triggerRepay` to correctly handle `payment_url` responses, fixing the redirection failure for PCHomePay orders.
+- **`css/global.css`**: Added `.hover:bg-brand-green-hover` utility class to support token-based hover states.
+- **`order.html` & `jyoukyou.html`**: Refactored "Go to Payment" buttons to use the `brand-green` and `brand-green-hover` design tokens instead of hardcoded hex values, ensuring alignment with `DESIGN_SYSTEM.md`.
+
+### Affected files or modules
+- `js/status-config.js`, `jyoukyou.html`, `order.html`, `admin.html`, `css/global.css`, `gas/firebase_handler.gs`.
+
+**中文摘要**：全站訂單狀態同步化與支付流程優化。統一將「抹茶、代撥、刷卡」訂單簡化為四個標準狀態，修復了 PCHomePay 支付跳轉問題，並將支付按鈕全面重構為使用品牌綠 (`brand-green`) 的設計標記 (Design Tokens)。
+
+---
+
+## [1.3.21] - 2026-03-04T19:20:00+08:00 - API Centralization & System Documentation
+
+### Summary of changes
+Centralized card payment API logic into the shared `js/api.js` module and established formal documentation for system states. This improves code maintainability and provides a clear reference for order life-cycle logic.
+
+### Technical details of implementation
+- **`js/api.js`**: Added `generateCardPayment` to the `API` object, centralizing the interaction with the Firebase handler GAS. Cleaned up legacy/unused endpoints to reduce bundle noise.
+- **`card-order.html`**: Replaced inline `fetch` call with the new `API.generateCardPayment` method, ensuring consistent error handling and endpoint management.
+- **`docs/STATE_MACHINE.md`**: Created a comprehensive state machine definition covering all order and resource statuses (Orders, Denwa, CardLinks) with Mermaid diagrams for visual logic flow.
+
+### Affected files or modules
+- `js/api.js`, `card-order.html`, `docs/STATE_MACHINE.md`.
+
+**中文摘要**：統一 API 管理並建立系統狀態機文檔。將 `card-order.html` 的金流請求抽離至全域 `js/api.js` 模組，並新增 `docs/STATE_MACHINE.md` 明確定義訂單（Pending/Confirmed/Completed/Cancelled）的轉換路徑。
+
+---
+
+## [1.3.20] - 2026-03-04T18:50:00+08:00 - Diagnostic Report Fixes & Infrastructure Refinement
+
+### Summary of changes
+Addressed critical infrastructure and UI mapping issues identified in the 2026-03-04 Diagnostic Report, including payment routing, status visualization, and security refactoring.
+
+### Technical details of implementation
+- **`js/status-config.js`**: Re-mapped 'confirmed' status CSS to 'completed' (green) across all order types for consistent success visualization.
+- **`admin.html`**: Standardized status display logic in `loadOrders`, `loadDenwaOrders`, and `loadCardOrders` to handle legacy 'paid' labels.
+- **`gas/firebase_handler.gs`**: Refactored `handleRepayOrder` to dynamically detect payment providers (ECPay vs. PCHomePay) from linked configurations, ensuring correct gateway routing.
+- **`card-order.html`**: Refactored Firebase initialization to use the centralized `js/firebase-services.js` module and enabled App Check protection through the global helper.
+
+### Affected files or modules
+- `js/status-config.js`, `admin.html`, `card-order.html`, `gas/firebase_handler.gs`.
+
+**中文摘要**：修復 2026-03-04 診斷報告中的核心問題。包含統一訂單狀態綠色顯示、修正 PCHomePay 重新付款路由邏輯，並將 `card-order.html` 的 Firebase 初始化模組化，提升安全性與程式碼整潔度。
+
+---
+
+## [1.3.19] - 2026-03-04T13:40:00+08:00 - Global Refined Scrollbar & Intelligent Visibility
+
+### Summary of changes
+Fixed an issue where the native scrollbar was visible on the homepage and other pages. Standardized the custom low-profile scrollbar globally and implemented "intelligent visibility" where the scrollbar only appears when content actually overflows.
+
+### Technical details of implementation
+- **`_layouts/default.html`**: Added `global.css` reference to ensure the global design system applies to every page using the default layout.
+- **`css/global.css`**: Updated the global `html`/`body` styles to use `overflow-y: auto` and applied the refined custom scrollbar styles globally while removing the conditional `.show-scrollbar` logic.
+- **`maccha-store.html`**: Cleaned up the `.show-scrollbar` class as it is now handled globally.
+
+### Affected files or modules
+- `_layouts/default.html`, `css/global.css`, `maccha-store.html`.
+
+**中文摘要**：修正首頁原生捲軸問題，並將「低調精緻捲軸」套用至全站。同時實作「智慧顯示」邏輯，捲軸僅在內容超過畫面高度時才會自動出現。
+
+---
+
+## [1.3.18] - 2026-03-04T13:20:00+08:00 - Integrated Footer Scroll Experience
+
+
+### Summary of changes
+Improved the scroll experience on `maccha-store.html` by integrating the site footer into the scoped scrollable container. This allows users to naturally scroll into the footer while maintaining the clean, header-aware scrollbar.
+
+### Technical details of implementation
+- **`_layouts/default.html`**: Added `hide_footer` and `hide_header` frontmatter support.
+- **`maccha-store.html`**: Set `hide_footer: true` and manually included `footer.html` inside the `.maccha-scroll-container`. Removed hardcoded padding-bottom to allow the footer to serve as the natural end of the page.
+
+### Affected files or modules
+- `_layouts/default.html`, `maccha-store.html`.
+
+**中文摘要**：將頁尾整合進內容捲動區域，實現滑動到底部時自動銜接顯示頁尾的自然體驗，同時避免捲軸遮擋固定頁首。
+
+---
+
+## [1.3.17] - 2026-03-04T13:15:00+08:00 - Sophisticated Scoped Scrollbar for Maccha Store
+
+
+### Summary of changes
+Refined the custom scrollbar on the `maccha-store.html` page to be more subtle and scoped within the content area, preventing it from overlapping the fixed header and footer.
+
+### Technical details of implementation
+- **`css/global.css`**: Updated `.custom-scrollbar` to use `background-clip: padding-box` and a transparent border, making the thumb look thinner and shorter.
+- **`maccha-store.html`**: Wrapped the main content in a `.maccha-scroll-container` to isolate its scrollbar from the page-level structure. Fixed the header position relative to the scroller.
+
+### Affected files or modules
+- `css/global.css`, `maccha-store.html`.
+
+**中文摘要**：精緻化捲軸設計，縮減其寬度並透過透明邊界使其感官上更輕盈，同時將捲軸範圍限制在內容區域內，不遮擋頁首頁尾。
+
+---
+
+## [1.3.16] - 2026-03-04T13:05:00+08:00 - Custom Scrollbar for Maccha Store
+
+
+### Summary of changes
+Implemented a custom, low-profile gray scrollbar in the global design system and enabled it specifically on the `maccha-store.html` page to improve navigation on content-heavy pages.
+
+### Technical details of implementation
+- **`css/global.css`**: Added `.custom-scrollbar` class and updated global hide rules to support conditional visibility via `.show-scrollbar`.
+- **`_layouts/default.html`**: Updated layout to support dynamic HTML/Body classes from page frontmatter.
+- **`maccha-store.html`**: Added `show-scrollbar` and `custom-scrollbar` classes to frontmatter.
+
+### Affected files or modules
+- `css/global.css`, `_layouts/default.html`, `maccha-store.html`.
+
+**中文摘要**：為內容較長的「抹茶商店」頁面實作專屬的低調灰自定義捲軸，既保持品牌一致性又提供良好的位置引導。
+
+---
+
+## [1.3.15] - 2026-03-04T12:55:00+08:00 - Global Scrollbar Visibility Optimization
+
+
+### Summary of changes
+Hidden the native browser scrollbar globally across all pages to achieve a more immersive and cleaner UI, while maintaining full scroll functionality.
+
+### Technical details of implementation
+- **`css/global.css`**: Added cross-browser CSS rules (`-webkit-scrollbar`, `scrollbar-width`, `-ms-overflow-style`) to target `html` and `body` elements.
+
+### Affected files or modules
+- `css/global.css`: Global base reset styles.
+
+**中文摘要**：全域隱藏瀏覽器原生捲軸，提升網頁視覺的一體性與高級感，同時保留所有頁面的正常捲動功能。
+
+---
+
+## [1.3.14] - 2026-03-04T12:00:00+08:00 - Frontend UI Optimization & Query Page Simplification
+
+### Summary of changes
+Refined the action hierarchy on the order details page and consolidated payment entry points to improve order verification.
+
+### Technical details of implementation
+- **1. Frontend UI Optimization**:
+    - **Button Reordering**: The "前往付款" (Pay Now) button is now prioritized at the top of the action area.
+    - **Visual Hierarchy**: "前往付款" uses a solid brand green background (Primary), while "聯絡客服" (Contact Support) now uses an outlined style (Secondary) for a clearer user flow.
+- **2. Query Page Simplification**:
+    - **Payment Button Removal**: Removed the "前往付款" button from the `jyoukyou.html` search results.
+    - **Process Consolidation**: Users are now directed to click "訂單詳情" (Order Details) to view their full order before proceeding to payment, preventing errors and ensuring clarity.
+- **`denwa-form.html`**: Updated child details section and plan selection card checked/hover states to use `--brand-green-light` palette.
+- **`denwa-form.html`**: Reduced border opacity for decorative elements to improve focus on content.
+
+### Affected files or modules
+- `denwa-form.html`: Updated CSS classes and inline styles.
+
+**中文摘要**：優化代撥表單視覺權重，將較深的背景色替換為品牌「雪抹」系淡綠色 (#f9fdf7)，提升介面清爽度。
+
+---
+
+## [1.3.13] - 2026-03-04T01:00:00+08:00 - Admin Panel Quick Links Update
+
+
+### Summary of changes
+Added `denwa-pay.html` (Call Payment) to the "All Front-end Pages (Quick Links)" section in the admin panel for easier verification.
+
+### Technical details of implementation
+- **`admin.html`**: Added an `<a>` tag for `denwa-pay.html` in the quick links grid with the `payments` material icon.
+
+### Affected files or modules
+- `admin.html`: Updated Quick Links section.
+
+**中文摘要**：在管理後台的「快速連結」中加入「電話代撥支付 (denwa-pay.html)」頁面，方便管理員快速進行頁面驗證。
+
+---
+
+## [1.3.12] - 2026-03-04T00:55:00+08:00 - Custom Dropdown (Select) Implementation
+
+
+### Summary of changes
+Replaced native HTML `<select>` elements with custom, branded KUI dropdown components for improved cross-browser consistency and brand alignment.
+
+### Technical details of implementation
+- **`css/ui-dialog.css`**: Added styles for `.kui-select-container`, `.kui-select-display`, and `.kui-select-menu` with brand green (#6ea44c) highlights.
+- **`js/ui-dialog.js`**: Added `KUI.initSelect(el)` and `KUI.initAllSelects()` to transform native select elements into searchable-ready custom dropdowns.
+- **`denwa-form.html`**: Integrated `KUI.initAllSelects()` after dynamic time selection initialization.
+- **`admin.html`**: Integrated `KUI.initAllSelects()` in `openModal()` and authentication callback to handle static and dynamic dropdowns.
+
+### Affected files or modules
+- `css/ui-dialog.css`: New dropdown styles.
+- `js/ui-dialog.js`: Dropdown transformation logic.
+- `denwa-form.html`: UI integration.
+- `admin.html`: UI integration for management portal.
+
+**中文摘要**：將原生 `<select>` 下拉選單替換為自定義 KUI 元件，支援品牌綠選中效果與一致的跨平台視覺體驗，並自動同步原生欄位數值。
+
+---
+
+## [1.3.11] - 2026-03-04T00:45:00+08:00 - Custom Validation UI Implementation
+
+
+### Summary of changes
+Implemented a custom KUI validation tooltip system to replace native browser validation bubbles, ensuring consistent branding across all project forms.
+
+### Technical details of implementation
+- **`css/ui-dialog.css`**: Added `.kui-tooltip` and `.kui-tooltip-icon` styles, with the exclamation icon background set to brand green (#6ea44c).
+- **`js/ui-dialog.js`**: Added `KUI.validate(el, message)` to dynamically position and display custom tooltips above input elements.
+- **`denwa-form.html`**: Updated `submitForm` to use `KUI.validate` for displaying error messages when form validation fails.
+
+### Affected files or modules
+- `css/ui-dialog.css`: New tooltip styles.
+- `js/ui-dialog.js`: New validation logic.
+- `denwa-form.html`: Integrated validation UI.
+
+**中文摘要**：實作自定義 KUI 驗證氣泡以取代瀏覽器原生提示，並將驚嘆號圖示底色改為品牌綠 (#6ea44c)，達成全站視覺統一。
+
+---
+
+## [1.3.10] - 2026-03-04T00:39:00+08:00 - Denwa Form Loading UI Fix
+
+
+### Summary of changes
+Restored the missing CSS for the loading spinner in the `denwa-form.html` booking submission overlay and improved CSS readability.
+
+### Technical details of implementation
+- **`denwa-form.html`**:
+  - Re-added the missing `.spinner` and `@keyframes spin` CSS definitions within the `<style>` block.
+  - Aligned the spinner color with the KEICHA brand green (#6ea44c).
+
+### Affected files or modules
+- `denwa-form.html`: CSS style definitions.
+
+**中文摘要**：修復電話代撥表單提交時「讀取中」動畫消失的問題，重新加入 `.spinner` 樣式並確保顏色符合品牌規範。
+
+---
+
+
+
+### Summary of changes
+Replaced remaining browser native `alert()` and `confirm()` dialogs with the custom, asynchronous `KUI` (KEICHA UI Dialog System) to ensure brand consistency and non-blocking user interaction.
+
+### Technical details of implementation
+- **`denwa-form.html`**:
+  - Integrated `css/ui-dialog.css` and `js/ui-dialog.js` into the document head.
+  - Replaced native `alert()` call in the error catch block of the booking submission with `await KUI.alert()`.
+- **`js/checkout_core.js`**:
+  - Replaced all four instances of native `alert()` with `await KUI.alert()`. 
+  - Updated `handleQuickLogin` to correctly `await` the custom dialog promises, preventing potential race conditions in the UI feedback loop.
+
+### Affected files or modules
+- `denwa-form.html`: Head section and error handling logic.
+- `js/checkout_core.js`: Member lookup and login validation alerts.
+
+### Potential side effects or migration notes
+- All alerts are now asynchronous. Any code relying on the execution-blocking nature of native `alert()` (rare in this project) may behave differently. The `KUI` system requires the calling function to be `async` if `await` is used, which has been accounted for in the core scripts.
+
+**中文摘要**：汰換全站殘留的原生 `alert()` 對話框，統一使用 `KUI` 自定義 Modal 系統。這提升了品牌視覺一致性，並解決了原生彈窗阻斷瀏覽器執行緒的問題。
+
+---
+
+
+## [1.3.8] - 2026-03-03T20:21:07+08:00 - Payment Status Normalization & Admin UI Fix
+
+### Summary of changes
+Normalized the payment status value for successful transactions from `paid` to `completed` in both ECPay and PChome Pay callback handlers. Additionally fixed a race condition in the admin panel where the "連結訂單管理" section failed to load on initial page restore.
+
+### Technical details of implementation
+
+- **`gas/firebase_handler.gs`**:
+  - `handleECPayCallback`: Changed `payment_status` write value from `'paid'` to `'completed'` upon successful payment confirmation.
+  - `handlePCHomePayNotify`: Changed `payment_status` write value from `'paid'` to `'completed'` upon successful PChome Pay order confirmation.
+  - Both idempotency checks updated to guard against both `'paid'` and `'completed'` states to maintain backward compatibility with legacy records.
+  - `handleRepayOrder`: Updated guard condition to also block re-payment if status is `'completed'`.
+  - `generateCardPaidEmailHTML`: Removed a stray closing brace `}` that caused a `SyntaxError: Unexpected token '}'` on line 1027.
+- **`admin.html`**:
+  - `switchTab()` function: Added `loadCardOrders()` call inside the `'cardlinks'` case so that both card link management and link order management load automatically when the tab is activated — including on page restore from `localStorage`.
+  - Removed redundant `loadCardLinks()` and `loadCardOrders()` calls from the tab button's `onclick` attribute to prevent duplicate Firestore fetches.
+
+### Affected files or modules
+- `gas/firebase_handler.gs`: Payment status write logic and syntax error fix.
+- `admin.html`: `switchTab()` and tab button `onclick` cleanup.
+
+### Potential side effects or migration notes
+- Existing Firestore records with `payment_status: 'paid'` are **not migrated** automatically. All idempotency and guard checks now accept both `'paid'` and `'completed'` to ensure backward compatibility. Admin UI display already maps `'paid'` to the `'confirmed'` badge label.
+
+**中文摘要**：將付款成功後的訂單狀態正規化為 `completed`，並修正 Admin 刷卡分頁在頁面還原時「連結訂單管理」無法自動載入的問題。舊有 `paid` 狀態資料保持相容，無需手動遷移。
+
+---
+
+## [2026-03-03] - Global CSS Refactoring & JS Modularity
+
+### Summary of changes
+Refactored the project's frontend architecture to improve modularity and reduce code duplication. This update introduces a centralized CSS system and modular JavaScript services, streamlining maintenance and ensuring visual consistency across all checkout and administrative interfaces.
+
+### Technical details of implementation
+- **Global Design System (`css/global.css`)**:
+    - Centralized brand color tokens (`#6ea44c`), spacing scales, and border-radius tokens.
+    - Extracted common component styles including premium inputs (`.diy-input`), stylized buttons (`.btn-outline-green`), layout cards (`.section-card`), and UI overlays.
+- **JavaScript Service Abstraction**:
+    - **`js/firebase-services.js`**: Centralized Firebase initialization and added a unified `FB` object. Integrated App Check initialization and implemented `experimentalForceLongPolling` to bypass aggressive ad-blocking environments.
+    - **`js/utils.js`**: Introduced a shared utility library for currency formatting (NT$), date manipulation, and a global loading overlay engine.
+- **Template Modernization**: Updated `diy.html`, `card-order.html`, `fast.html`, `jyoukyou.html`, `denwa-form.html`, and `admin.html` to link to global assets. Removed approximately 1,000+ lines of redundant internal styles and initialization scripts across the project.
+- **Layout Integrity**: Corrected a CSS syntax error in `fast.html` where an extra `</style>` tag was breaking the layout during the transition to global styles.
+
+### Affected files or modules
+- `css/global.css` [NEW]
+- `js/firebase-services.js` [NEW]
+- `js/utils.js` [NEW]
+- `diy.html`, `card-order.html`, `fast.html`, `jyoukyou.html`, `denwa-form.html`, `admin.html`: Refactored to use global assets.
+
+**中文摘要**：實施全站 CSS 與 JS 架構重構。建立了全域樣式表與 Firebase 模組化服務，將原本分散在各頁面的重複樣式（如品牌色、輸入框、按鈕）與初始化邏輯（Firebase 設定、App Check）抽離至獨立檔案。這大幅減少了全站約 1,000 行重複代碼，讓未來維護更直覺，並確保全站介面行為高度一致。
+
+
+## [2026-02-28] - Logistics System Dynamic Refactor & Code Integrity Cleanup
+
+### Summary of changes
+Refactored the logistics management architecture to be fully data-driven, enabling dynamic delivery method configuration across all checkout interfaces. Performed an emergency recovery of the administrative module's source code, repairing corrupted script block hierarchies and JavaScript syntax errors caused by improper formatting tools.
+
+### Technical details of implementation
+- **Logistics Pool Integration**:
+    - Refactored `fast.html` to eliminate hardcoded shipping methods (7-11, FamilyMart, Home Delivery).
+    - Implemented a unified `renderLogisticsDynamic` engine that generates delivery cards, store lookups, and address inputs based on names fetched from the `shipping_methods` collection.
+    - Integrated with `fast_checkout_config` using the new `enabled_methods` (array) and `fees_map` (object) schema.
+- **Dynamic Fee Engine**: Updated `calcFastShip` to prioritize real-time fee mapping from Firestore, with graceful fallbacks for legacy configurations.
+- **Admin Management Upgrades**:
+    - Created a "Logistics Channel Pool" management interface in `admin.html`.
+    - Implemented dynamic configuration generation in the Fast Checkout settings tab.
+- **Code Integrity Fixes**:
+    - Cleaned up corrupted HTML tags (e.g., `< div >` fixed to `<div>`) across administrative sub-modules.
+    - Removed excessive spaces in template literals throughout the backup and data repair tools, ensuring reliable variable interpolation.
+    - Corrected broken script attributes for link order management actions.
+
+### Affected files or modules
+- `admin.html`: Core administrative logic and UI cleanup.
+- `fast.html`: Checkout rendering and order submission logic.
+- `CHANGELOG.md`: Updated project history.
+
+**中文摘要**：物流系統全面轉向「數據驅動」架構。現在管理員可在後台自由新增物流管道，前端 `fast.html` 會自動根據物流名稱產對應的輸入框（店號/地址）與運費。同時徹底清理了管理後台因格式化錯誤導致的亂碼與語法空格，恢復備份工具的穩定性。
+
+
+## [2026-02-27] - Global Redirection Updates and UI Refinement
+
+### Summary of changes
+Optimized the user journey by redirecting various external LINE links to the internal contact page, synchronizing store links, and refining the contact page UI by removing redundant notifications.
+
+### Technical details of implementation
+- **Contact Page Refinement**: Removed the "已複製" (Copied) toast notification, its associated CSS keyframes, and JavaScript logic to keep the interface cleaner as per user request.
+- **Typography Standardization**: Updated the "付款與下單專區" (Payment and Ordering Zone) header in `index.html` to use `text-2xl md:text-3xl`, ensuring visual consistency with the "服務項目" (Service Items) section.
+- **Homepage Redirection**:
+    - Updated "LINE 官方客服" (Hero & Footer sections) to link to `/contact.html`.
+    - Updated "前往自填單" button to link to `/user-guide.html` for a better pre-purchase explanation.
+    - Updated "私訊詢問" in the Matcha service section to link to `/contact.html`.
+- **User Guide Updates**:
+    - Linked "7-11 賣貨便下單" to the specific 7-11 store URL.
+    - Linked "全家 好賣+ 下單" to the specific FamilyMart store URL.
+- **Link Integrity**: Ensured all internal links use the Liquid `{{ site.baseurl }}` tag for consistent environment-based routing.
+- **Micro-interactions**:
+    - **Entry Animation**: Implemented a `fadeUp` CSS animation that slides the card up gracefully upon page load.
+    - **Smart Input Selection**: The LINE ID field uses `onfocus="this.select()"` combined with a `tap-scale` pulse animation to provide immediate tactile feedback.
+    - **Smooth QR Expansion**: Leveraged CSS `max-height` transitions instead of simple toggling to provide a sliding "drawer" effect for the QR code display.
+- **Brand Alignment**: Enforced strict usage of KEICHA brand green (#6ea44c) across all UI elements, avoiding generic social media brand colors.
+
+### Affected files or modules
+- `contact.html` [NEW]: Dedicated contact interface.
+
+### Chinese Summary
+新建全站通用的「聯絡我們」頁面，作為 LINE 連結失效時的智慧替代方案。導入了由下而上的進場動畫、點擊自動全選 ID 並縮放回饋，以及平滑展開的 QR Code 抽屜式設計，全面提升品牌導航質感。
+
+## [2026-02-27] - Home & Maccha Store UI Text Adjustments
+
+### Summary of changes
+Updated homepage and maccha store index text copy and button labels to improve user navigation clarity and match current requirements. Removed icons from specific buttons and updated section links.
+
+### Technical details of implementation
+- **Homepage (`index.html`)**:
+  - Updated the hero section KEICHA title CSS classes to `text-3xl md:text-5xl brand-title-font font-bold tracking-widest leading-tight`.
+  - Replaced the text "前往" in the store-to-store checkout section with "前往自填單" (removed icon) and directed it to `/diy.html`.
+  - Updated the Maccha order buttons to "私訊詢問" and "抹茶品項" (directing to `/maccha-store.html`) while removing icons.
+  - Substituted the phone service buttons with "服務介紹" (`/denwa.html`) and "線上填表" (`/denwa-form.html`) and stripped their icons.
+- **Maccha Layout (`maccha.html`)**:
+  - Modified the "官網下單" button copy to "前往抹茶商店" and "整合自填單".
+  - Renamed the "超商平台自填單" link texts from "前往" to "7-11 賣貨便" and "全家 好賣+".
+
+### Affected files or modules
+- `index.html`: Hero banner and main service category button components.
+- `maccha.html`: Outbound link buttons for internal store and external convenience store platforms.
+
+### Chinese Summary
+優化首頁與抹茶總覽頁面的文案與按鈕標籤。移除了部分按鈕的圖示使畫面更簡潔，並精確標示如「前往自填單」、「7-11 賣貨便」等文字，讓使用者導航更直覺。
+
+## [2026-02-27] - Autofill & Store Integration Fix for Checkout Pages
+
+### Summary of changes
+Fixed a critical bug where member store data (7-11, Fami) and shipping addresses were failing to populate during checkout. Aligned the HTML card structure and DOM query logic across all checkout pages to reliably retrieve and save customer delivery details.
+
+### Technical details of implementation
+- **HTML Structure Alignment**: In `fast.html` and `card-order.html`, added `data-method="${method}"` to the logistics cards to match the functional pattern found in `diy.html`.
+- **Input ID Restructuring**: Standardized the store input IDs to `store-id-${method}` across all checkout forms to prevent mismatch with the autofill routines.
+- **Autofill Robustness**: Updated `fillFormWithData` and `lookupPhoneData` functions to use `card.dataset.method` for checking logistics methods instead of relying on regex replacements of the parent DOM ID or non-existent attributes.
+
+### Affected files or modules
+- `fast.html`: Card generation and autofill logic constraints.
+- `card-order.html`: Data binding and submission flow.
+
+### Chinese Summary
+修復了「快速結帳」與「專屬付款連結」頁面無法帶入門市與地址資料的問題，統一 HTML 屬性 `data-method` 與 DOM 選取邏輯，確保每次都能精準帶入歷史物流資料。
+
+## [2026-02-27] - Denwa Order Price Persistence & UI Enhancements
+
+### Summary of changes
+Fixed the issue where phone-assisted orders (`denwa_orders`) displayed an amount of 0 and improved the order tracking UI to hide internal tracking suffixes.
+
+### Technical details of implementation
+- **Price Persistence (`denwa-form.html`)**: Added code to save the selected plan's price into the `total` field in Firestore during submission.
+- **UI Suffix Removal (`order.html`)**: Updated the display logic to use `order_id` instead of the full `tracking_code`, effectively hiding the 4-character random suffix from customers.
+- **Enhanced Details (`order.html`)**: 
+  - Added a dedicated itemized layout for `denwa_orders` that includes the merchant name, service date/time, and a breakdown of adult/child attendees.
+  - Refined seller reply priority to show `public_reply` consistently.
+- **Search Mapping (`jyoukyou.html`)**: Improved field mapping to correctly pull and display prices for phone orders.
+
+### Affected files or modules
+- `denwa-form.html`: Order submission logic.
+- `order.html`: Order detail tracking page.
+- `jyoukyou.html`: Order status query page.
+
+### Chinese Summary
+修正電話訂單金額顯示為 0 的問題，確保下單時會正確紀錄方案金額。同時優化前端介面，移除訂單詳情頁中的亂碼後綴，並補全電話預約專屬的日期、時間與人數細節顯示。
+
+ 
+## [2026-02-27] - Denwa Orders Search & Storage Consistency Fix
+ 
+### Summary of changes
+Resolved the issue where phone-assisted orders (`denwa_orders`) were unsearchable by Order ID on the tracking page. Standardized the storage mechanism to align with other order collections.
+ 
+### Technical details of implementation
+- **Search Logic Update (`jyoukyou.html`)**:
+    - Changed the `denwa_orders` lookup from `.doc(id).get()` to `.where('order_id', '==', rawOrderId).limit(1).get()`.
+    - This ensures legacy orders with random-string Document IDs are correctly retrieved via their human-readable `order_id` field.
+    - Updated result mapping to prioritize the `order_id` field for display consistency.
+- **Storage Standardization (`denwa-form.html`)**:
+    - Replaced `.add(payload)` with `.doc(orderId).set(payload)` during order submission.
+    - Newly created phone orders now use the formatted Order ID (e.g., `DENWA-25022701`) as their primary Firestore Document ID, matching the behavior of `orders` and `card_orders`.
+ 
+### Affected files or modules
+- `jyoukyou.html`: Cross-collection search logic.
+- `denwa-form.html`: Order submission and persistence logic.
+ 
+### Chinese Summary
+修復電話代撥訂單無法透過編號查詢的問題。將查詢邏輯改為欄位比對以兼容舊資料，並同步將下單流程改為以訂單編號作為資料庫主鍵，確保全站訂單儲存格式一致。
+ 
+
+
+## [2026-02-27] - Universal Order Detail Page & Tracking Code Support
+
+### Summary of changes
+Implemented a high-end universal order detail page (`order.html`) based on a vertical linear layout design. Introduced the `tracking_code` system (Format: `OrderID-4DigitRandomSuffix`) across all order-taking modules to enable secure, unguessable order status tracking for customers.
+
+### Technical details of implementation
+- **Unified Order Detail Page (`order.html`)**:
+    - Developed a premium UI using a linear vertical timeline to display order progress and detailed line items.
+    - Implemented cross-collection searching logic that scans `orders`, `denwa_orders`, and `card_orders` using the `tracking_code`.
+    - Integrated with KEICHA design tokens for consistent rounded corners, spacing, and typography.
+    - Added responsive "Contact Support" entry point and order status tracking.
+- **Tracking Code Generation**:
+    - Updated `maccha-store.html`, `denwa-form.html`, and `fast.html` to generate and persist a `tracking_code` upon order submission.
+    - Used a safe character set (`ABCDEFGHJKLMNPQRSTUVWXYZ23456789`) to generate the 4-character random suffix to avoid ambiguous characters like `0/O` or `1/I`.
+- **Legacy Data Backfill**:
+    - Added a "Database Repair & Completion" tool in `admin.html`.
+    - Implemented `backfillTrackingCodes` function to scan existing orders and generate retrospective tracking codes using the last 4 characters of Firebase Document IDs for historical consistency.
+- **URL Structure Alignment**: Standardized the public tracking URL format to `order.html?id=[TrackingCode]`.
+- **Layout Integration**: Applied the `default` site template to `order.html` to include the global header and footer. Fully integrated with KEICHA design tokens (typography, spacing, and radius) for seamless site-wide consistency.
+
+### Affected files or modules
+- `order.html` [NEW]: The universal tracking interface with site-wide layout integration.
+- `maccha-store.html`, `denwa-form.html`, `fast.html`: Order submission logic updates.
+- `admin.html`: Maintenance tool addition and UI updates.
+
+### Chinese Summary
+實作全站通用的「訂單詳情頁」與「查單追蹤碼」系統。現在所有新訂單都會自動產生格式如 `M26022701-A8B9` 的查詢碼，並同步在後台加入「資料補回工具」。此外，訂單詳情頁已整合全站 Layout（頁首/頁尾），確保品牌視覺一致性。
+
+
+## [2026-02-26] - Typography & Spacing System Optimization
+
+### Summary of changes
+Optimized the design system by fully tokenizing Typography and Spacing scales. This update transitions the project from static values to a centralized, variable-driven engine, ensuring consistent information density and visual hierarchy across all devices.
+
+### Technical details of implementation
+- **CSS Variable Centralization**: Defined comprehensive design tokens in `_layouts/default.html`:
+    - **Spacing (8pt)**: Added `--s-2xs` (4px) to `--s-3xl` (96px).
+    - **Typography**: Defined `--size-h1` to `--size-note` for responsive text scaling.
+    - **Font Families**: Added `--font-mono` for data/code blocks and standardized brand/body font variables.
+    - **Container Widths**: Defined `--container-max` (1200px) and `--container-narrow` (800px).
+- **Design System Documentation**: Updated `DESIGN_SYSTEM.md` with mapping between design levels and CSS variables.
+- **Implementation Refinement**:
+    - Replaced hardcoded Tailwind padding and text sizes in `index.html` with variable-based Tailwind classes (e.g., `py-[var(--s-3xl)]`).
+    - Standardized Section and Hero typography to align with the new H1/H2 scale.
+
+### Affected files or modules
+- `_layouts/default.html`, `index.html`, `DESIGN_SYSTEM.md`
+
+### Chinese Summary
+優化字體與間距系統：將全站 Typography 與 Spacing 全面「Token 化」並建立 CSS 變數引擎。定義了 8pt 系統間距、多層級響應式字階、以及數據專用字體。同步更新了首頁與設計規範文件，讓代碼從手寫數值進化為數據驅動的設計系統。
+
+
+
+## [2026-02-25] - Unified Border Radius System & Design Standardization
+
+### Summary of changes
+Implemented a consistent border-radius system across the entire project, defining four core levels (8px, 16px, 24px, 9999px) and applying them systematically to all components. This update enhances visual harmony and ensures a premium, high-quality aesthetic across all user-facing and administrative interfaces.
+
+### Technical details of implementation
+- **Global Design Tokens**: Defined `--r-sm: 8px`, `--r-md: 16px`, `--r-lg: 24px`, and `--r-full: 9999px` in `_layouts/default.html` for site-wide availability.
+- **Component Alignment**:
+    - **Large (24px)**: Applied to main containers, cards, and sections (`.section-card`, `.login-card`, `.modal-content`, `section.bg-white`).
+    - **Medium (16px)**: Applied to input fields, primary buttons, and interactive labels (`.diy-input`, `.btn`, `.order-card`).
+    - **Small (8px)**: Applied to nested elements, secondary buttons, and navigational links (`.note-box`, `.nav-link`, `.dropdown-menu`).
+    - **Full (9999px)**: Applied to status badges, pills, and specialized round elements (`.status-badge`, `.slider-dot`, `.loader`).
+- **Global Checkbox Styling**: Standardized the border-radius of the custom KEICHA checkbox to 8px within the root layout.
+- **Legacy Cleanup**: Replaced all hardcoded values and localized Tailwind `rounded-` classes with CSS variable-based definitions for improved maintainability.
+
+### Affected files or modules
+- `_layouts/default.html`, `_includes/header.html`, `_includes/footer.html`, `_includes/contact-section.html`
+- `admin.html`, `index.html`, `denwa.html`, `maccha.html`, `jyoukyou.html`, `privacy.html`
+- `card-order.html`, `denwa-form.html`, `diy.html`, `maccha-store.html`
+- `css/ui-dialog.css`
+
+### Chinese Summary
+統一全站圓角系統：定義四個核心圓角等級（8px/16px/24px/全圓角），並將其應用於全站組件、容器與按鈕。透過 CSS 變數標準化全站設計語言，顯著提升了介面的精緻感與一致性，並同步優化了全域 Checkbox 與首頁導覽列的視覺細節。
+
+
+
+## [2026-02-25] - Global Shipping Methods Centralization & UI Refinement
+
+### Summary of changes
+Refined the shipping management system by splitting it into "Shipping Methods" (Global Presets) and "Shipping Rules" (Dynamic Tiers). Added an automated initialization tool for standard Taiwan logistics (7-11, FamilyMart, Home Delivery) and unified the tiered fee interface across all modals.
+
+### Technical details of implementation
+- **Shipping Methods (Presets)**: 
+    - Implemented `initDefaultShippingMethods()` to bulk-add standard 7-11/FamilyMart/Home methods with pre-configured lookup URLs.
+    - Enhanced the method management UI to display query links with icons and shortened URLs.
+    - Clarified "Query Link" usage in modals for better admin UX.
+- **Shipping Logic Consolidation**: Thoroughly applied the "Logistics Channels Pool" (global methods) across `fast.html`, `card-order.html`, `maccha-store.html`, and `diy.html`. Front-end logistics options now prioritize tracking links defined in the global pool.
+- **Admin UI Cleanup**: Removed the "Initialize Default Methods" button from the shipping tab as per user request. Fixed redundant padding in the logistics pool container.
+- **UI Aesthetic Corrections**:
+    - Changed all delete icons from red to neutral gray (#64748b) in shipping, card links, and brand list modules.
+    - Simplified error messages and warnings to use neutral gray.
+    - Updated required field indicators to use brand green.
+
+### Affected files or modules
+- `admin.html`: UI cleanup, removed init button, fixed icon colors.
+- `fast.html`, `card-order.html`, `maccha-store.html`, `diy.html`: Updated to fetch and use global shipping methods.
+- `firestore.rules`: Updated to allow public read of `shipping_methods`.
+
+### Chinese Summary
+優化運費與物流邏輯：將「物流管道池」設定徹底套用至全站所有結帳頁面，確保查詢連結變動時可同步更新。移除後台物流初始化按鈕以利手動配置、修復多處 UI 色調（刪除圖示改為中性灰、必填星號改為品牌綠），並精簡了物流管道容器的間距。
+
+## [2026-02-24] - Dynamic Logistics System, KUI Dialog Component & Pre-Release Audit Fixes
+
+### Summary of changes
+Refactored logistics system to be fully dynamic (data-driven from Firestore). Implemented a custom KEICHA-branded dialog component (KUI) replacing all native browser `alert()` and `confirm()` calls. Performed comprehensive pre-release audit and fixed 6 bugs.
+
+### Technical details of implementation
+- **Dynamic Logistics Engine**: Removed hardcoded 7-11/FamilyMart/Home Delivery blocks from `maccha-store.html` and `diy.html`. New `renderLogistics()` function dynamically generates shipping option cards based on `shipping_rules` Firestore collection, filtered by page category.
+- **KUI Dialog System**: Created `css/ui-dialog.css` and `js/ui-dialog.js`. Provides `KUI.alert()`, `KUI.confirm()`, and `KUI.toast()` with Promise-based API, glassmorphism backdrop, scale-in animation, and strict brand color palette (green #6ea44c, white, gray).
+- **Cart UX Enhancement**: Quantity `-` button at qty=1 now triggers `KUI.confirm('確定要移除此商品嗎？')` instead of being disabled.
+- **Pre-Release Audit Fixes**:
+  - Restored accidentally deleted `lookupPhoneData()` in `diy.html`
+  - Unified dynamic element IDs to use `method` (removed `rule.id || method` inconsistency)
+  - Rewrote `saveCheckoutForm`/`loadCheckoutForm` for dynamic logistics IDs
+  - Fixed checkout validation `.focus()` to target dynamic elements
+  - Removed duplicate `</script>` tag in `diy.html`
+  - Fixed `return KUI.alert(...)` semantic pattern in `admin.html`
+- **Notification System Fixes**:
+  - Restored missing `js/api.js` in `maccha-store.html` to enable email notifications.
+  - Fixed `order_id` field passing in `admin.html` to ensure order numbers appear in emails.
+  - Updated `gas/firebase_handler.gs` email template to use brand name "KEICHA" and simplified terminology.
+
+### Affected files or modules
+- `maccha-store.html`: Dynamic logistics, KUI integration, cart decrement, save/load/validate fixes
+- `diy.html`: Dynamic logistics, KUI integration, restored lookupPhoneData, syntax fixes
+- `admin.html`: KUI integration (50+ alert, 5 confirm replacements)
+- `css/ui-dialog.css` [NEW]: Dialog styles
+- `js/ui-dialog.js` [NEW]: Dialog logic
+
+### Chinese Summary
+重構物流系統為全動態架構（從 Firestore 讀取規則自動生成前端選項）。實作品牌對話框組件 KUI 取代所有原生 alert/confirm。購物車數量扣至 0 時觸發品牌確認視窗。完成全面預發布審計並修復 6 個 Bug。
+
+## [2026-02-11] - Checkout Logic & UI Reordering
+
+### Summary of changes
+Implemented comprehensive checkout logic for the KEICHA SHOP, including payment selection, dynamic logistics, two-phase payment, and UI flow optimizations.
+
+### Technical details of implementation
+- **Payment Method Selection**: Implemented COD and Credit Card/Transfer options.
+- **Hidden Surcharge**: Credit card surcharges are now dynamically included in the shipping fee display and calculation without explicit labels, adhering to gateway policies.
+- **Dynamic Logistics**: Implemented filtering logic to show/hide delivery options based on cart product types (`logistics_type`) and shop configuration.
+- **Two-Phase Payment**: Added logic to calculate and display deposit and remainder for eligible orders (based on product flags and $1000 total threshold).
+- **Inline Order Success**: Replaced `alert()` with a dedicated success screen in the checkout panel.
+- **UI Flow Optimization**: Reordered the checkout section to display "Payment Method" before "Logistics Delivery" to better guide the user.
+
+### Affected files or modules
+- `shop/index.html`: Reordered sections and added UI elements for payments and success state.
+- `shop/shop.js`: Implemented the core checkout and filtering logic.
+- `js/supabase-api.js`: Added checkout and product fetching functions.
+
+### Chinese Summary
+實作了完整的結帳邏輯，包含付款加價隱藏計算、物流自動過濾、兩階段付款提示以及結帳成功畫面。
+同時優化介面佈局，將付款方式調整至配送方式上方，引導使用者更直覺地完成選購。
+
+## [2026-02-19] - Migrate Admin Panel to Firebase
+
+### Summary of changes
+Migrated the KEICHA Admin Panel's backend from Supabase to Firebase, including Authentication and Data Storage (Firestore).
+
+### Technical details of implementation
+- **Authentication**: Replaced Supabase Auth with **Firebase Authentication (Google Sign-In)**.
+- **Authorization**: Implemented strict email whitelist check (allowed: `wj209ing@gmail.com`).
+- **Database Migration**: Refactored all data-fetching and CRUD logic in `admin.html` to use **Firebase Firestore SDK (v9 compat)**.
+- **Data Collections**: Migrated `matcha_orders`, `denwa_orders`, `matcha_brands`, `matcha_products`, `denwa_plans`, `shipping_rules`, and `fast_checkout_config`.
+- **Concurrency & Compliance**: Used `FieldValue.serverTimestamp()` for all `updated_at` fields to ensure server-side consistency.
+- **Cleanup**: Removed obsolete Supabase script references from `admin.html`.
+
+### Affected files or modules
+- `admin.html`: Significant script refactoring and SDK integration.
+- `CHANGELOG.md`: Added project migration history.
+
+### Chinese Summary
+將 KEICHA 管理後台從 Supabase 全面遷移至 Firebase。
+身份驗證改用 Firebase Google 登入並限制指定管理員信箱，資料庫存取 logic 全部改寫為 Firestore，並導入伺服器端時間戳記以確保資料一致性。
+同時清理了相關過時的 Supabase 依賴。
+
+## [2026-02-25] - Admin Order Management Fixes & Checkout UI Alignment
+
+### Summary of changes
+Resolved critical issues in the admin panel's order management and successfully aligned the `card-order.html` checkout page with the premium aesthetics of `fast.html`.
+
+### Technical details of implementation
+- **Admin Panel Logistics Fix**: Implemented robust fallback logic for logistics data display in `admin.html` (checking `logistics_type`, `store_id`, `shipping_address`, etc.) to eliminate "undefined" values.
+- **Link Order Management**: Enhanced the "Link Orders" table in `admin.html` with updated headers and added an "Actions" column featuring Info, Edit, and Delete functionality.
+- **Fast Checkout Configuration**: Updated the admin interface for fast checkout to include fee toggles, amount inputs, and status controls with integrated saving logic.
+- **Card-Order UI Overhaul**: Re-engineered `card-order.html` from the ground up to match the premium, card-based UI of `fast.html`. 
+    - Reordered sections to prioritize recipient info and order summary.
+    - Implemented card-based logistics and payment selection.
+    - Added 7-11/FamilyMart store lookup integration.
+- **CSS Consolidation**: Synchronized brand colors and component styles between `fast.html` and `card-order.html` for a seamless customer experience.
+
+### Affected files or modules
+- `admin.html`: Updated `loadCardOrders`, added link order CRUD functions, and fast checkout config UI.
+- `card-order.html`: Major structural and styling overhaul.
+
+### Chinese Summary
+修復管理後台「連結訂單」表格標題與物流資訊顯示問題（解決 undefined 並補上操作按鈕）。同步將 `card-order.html` 結帳頁面改裝為與 `fast.html` 一致的高級卡片式設計，並優化填寫流程與門市查詢整合。
+
+---
+
+## [2026-02-19] - Finalized Firebase Migration & Supabase Cleanup
+
+- **Actions Performed**:
+  - Migrated Shop Frontend (`shop/shop.js`) data fetching and checkout logic to Firestore.
+  - Implemented secure member lookup with two-phase verification (masking + name confirmation).
+  - Created `seed.html` with Firebase Authentication for secure data initialization.
+  - Updated `firestore.rules` to allow public read for store collections and restricted write for admin.
+  - Removed all Supabase SDK references and `js/supabase-api.js`.
+  - Deleted legacy `supabase/` configuration directory.
+- **Affected Files**: `shop/shop.js`, `shop/index.html`, `seed.html`, `firestore.rules`, `admin_fast.html`, `denwa-form.html`, `maccha-store.html`.
+- **Note**: The system is now 100% running on Firebase.
+
+
+## [2026-02-19] - Brand Font Implementation & Database Refinement
+
+### Summary of changes
+Completed site-wide branding refinement by applying the brand font to all "KEICHA" instances and resolved legacy date/time formatting issues. Continued full Firebase migration by moving order tracking and updating security rules.
+
+### Technical details of implementation
+- **Brand Font Consistency**: Created global `.font-brand-text` class and applied it to "KEICHA" text across `index.html`, `denwa.html`, `jyoukyou.html`, `admin.html`, and `footer.html`.
+- **Dynamic Font Styling**: Updated `privacy-loader.js` and `maccha-loader.js` to automatically wrap "KEICHA" in product/legal text with the brand font styling.
+- **Date/Time Standardization**: Fixed legacy ISO date strings in `seed.html` and unified field names to `service_date`/`service_time` across the frontend and backend.
+- **Order Tracking Migration**: Ported `jyoukyou.html` from Google Apps Script (GAS) to Firebase Firestore, enabling direct real-time order lookups.
+- **Product Data Standardization**: Unified `matcha_products` structure to support `price_multi` (multi-buy discount), `max_limit`, and `image_url`.
+- **Security Rules Update**: Refined `firestore.rules` to strictly control public access while supporting new booking and tracking features.
+- **Admin Fix (Denwa Orders)**: Resolved "undefined" merchant name by unifying `merchant_name` field usage and implemented robust date/time formatting to handle ISO strings.
+
+### Affected files or modules
+- `_layouts/default.html`, `admin.html`: Global style definitions.
+- `index.html`, `denwa.html`, `jyoukyou.html`, `footer.html`: UI branding updates.
+- `assets/js/*.js`: Content loading logic updates.
+- `seed.html`, `denwa-form.html`: Data consistency and field mapping.
+- `firestore.rules`: Security configuration.
+
+### Chinese Summary
+完成全站 "KEICHA" 品牌字體套用與日期格式修復。將「訂單追蹤」系統從 GAS 遷移至 Firebase，並更新安全規則以確保資料轉移後的存取安全性。
+
+## [2026-02-21] - Fix Multi-Item Discount ID Matching Issue
+
+### Summary of changes
+Fixed a critical bug in `maccha-store.html` where multi-item discounts were incorrectly grouped and cross-applied between different brands, and ensured the order list displays the human-readable brand name instead of the raw `brand_id`.
+
+### Technical details of implementation
+- **Brand ID Mapping**: Updated the `addToCart` function to extract and store `productData.brand_id` instead of the non-existent `brand_key` from the Firestore dataset. This ensures that the cart groups items by their actual brand accurately.
+- **Cart Subtotal Calculation**: The `brandCounts` logic now correctly tallies items by `brand_id`, ensuring that the `qty > 1` condition is strictly isolated to specific brands.
+- **Payload Format**: Updated the `itemsStr` generation logic used during checkout to prioritize `item.brandName` over `item.brand_key`. This guarantees that the final payload sent to the backend and recorded in Firestore displays the user-friendly brand name (e.g., "日日記" instead of "nichi_nichi").
+
+### Affected files or modules
+- `maccha-store.html`: Fixed cart `brand_key` assignment and string formatting for the final checkout payload.
+
+### Chinese Summary
+修正了 `maccha-store.html` 購物車加購物時因為抓錯屬性 (`brand_key` 應為 `brand_id`) 導致所有品牌商品全部被算在一起的折扣判斷 Bug。
+同時修改了結帳送出的 payload 字串，讓後台訂單可以正確顯示品牌的中文名稱 (brandName) 而非英文 ID。
+
+## [2026-02-21] - Re-position Multi-Item Discount Badge
+
+### Summary of changes
+Moved the "multi-item discount applied" badge in the `maccha-store.html` cart UI from a brand-level top banner to a more precise, item-level inline label next to the discounted price.
+
+### Technical details of implementation
+- **UI Refactoring**: Removed the `isDiscountActive` block that rendered the wide `bg-brandLight` banner above each brand's item list in `renderCartItems()`.
+- **Inline Badge**: Added an inline tag with the text "多件優惠" alongside the strikethrough original price for items where `isMultiPriceApplied` is true, keeping users informed contextually per item.
+
+### Affected files or modules
+- `maccha-store.html`: Modified HTML string output within the cart rendering logic.
+
+### Chinese Summary
+優化了購物車內「多件優惠」的顯示邏輯，移除原本在品牌群組上方的橫幅，改為直接將精緻的小標籤顯示在有套用優惠的單項商品價格旁邊，讓優惠的對應關係更精準直覺。
+
+## [2026-02-21] - Checkout Persistence and Readonly UI Upgrade
+
+### Summary of changes
+Implemented LocalStorage persistence for the shopping cart and checkout form to prevent data loss on page refresh, and upgraded the checkout phase "Readonly Order List" UI.
+
+### Technical details of implementation
+- **Cart Persistence**: Automatically serialize the `cart` to `localStorage['keicha_cart']` inside `renderCartItems()`, and parse it back upon initial `window.load`.
+- **Form Persistence**: Added `saveCheckoutForm()` triggered by `input` events on the `#order-form`, storing customer info, logistics selection, and store details into `localStorage['keicha_checkout_form']`.
+- **Form Restoration**: Created `loadCheckoutForm()` to cleanly map stored fields back into the DOM, triggered automatically within `openCheckout()`.
+- **Data Cleanup**: On successful order creation, both `keicha_cart` and `keicha_checkout_form` are cleared from `localStorage`.
+- **UI Upgrade**: Rewrote `updateCheckoutReadonlyList()` to display items with a more spacious modern list style, including `品牌｜品名` tags and an explicit `多件優惠` indicator, improving glanceability during final confirmation.
+
+### Affected files or modules
+- `maccha-store.html`: Comprehensive updates to the script block covering rendering and state management. Also restored missing `brandGreen` Tailwind config definition to fix global header styles on this specific page.
+
+### Chinese Summary
+全面導入 LocalStorage 網頁暫存機制，現在使用者的購物車內容、以及結帳填寫到一半的表單資訊都會被安全暫存，重新整理後不再遺失（結帳成功後便會自動清空）。同時美化了結帳最後一關的「商品確認列表」，讓資訊更清楚且同樣能顯示原本的折扣標示。並修復了本頁面頁首「聯絡我們」按鈕樣式消失的問題。
+
+## [2026-02-21] - Custom Consecutive Order ID Format
+
+### Summary of changes
+Replaced default random Firestore document IDs with custom consecutive order IDs prefixed by page categories (M, D, F) followed by the current date and a 2-digit serial number.
+
+### Technical details of implementation
+- **Transaction-based Counter**: Implemented `generateOrderId` function across storefront pages. It uses `db.runTransaction` toward the `order_counters` collection to safely fetch and increment a daily counter for a specific prefix, ensuring race conditions are avoided.
+- **Security Rules**: Added `match /order_counters/{docId} { allow read, write: if true; }` to `firestore.rules` to permit public execution of these transactions.
+- **Prefix Conventions**: `maccha-store.html` uses `M`, `diy.html` uses `D`, and `fast.html` uses `F`.
+- **Firestore Write Mode**: Switched `.add()` usage to `.doc(orderId).set()` in the checkout logic in order to force Firestore to use the customized string as the document ID.
+
+### Affected files or modules
+- `firestore.rules`: Permitted read/write to `/order_counters`.
+- `maccha-store.html`: Included `generateOrderId('M')`.
+- `diy.html`: Included `generateOrderId('D')`.
+- `fast.html`: Included `generateOrderId('F')`.
+
+### Chinese Summary
+廢除了預設過長的亂碼訂單編號，全面導入自訂的「頁面字首＋日期＋兩位數流水號」格式（例如將抹茶代購店改為 M26022101）。各個下單頁面在送出時會自動利用後台進行安全鎖定的交易計數，避免客人同時結帳時拿到重複號碼。
+
+## [2026-02-21] - Centralized Data Collections & Reply Notifications
+
+### Summary of changes
+1. Migrated `matcha_orders` and `matcha_members` to `orders` and `members` collections respectively across all frontend apps and Firestore rules.
+- [x] Refine Order Display:
+    - [x] Display `merchant_name` for "C" orders.
+    - [x] Style "Completed" status as brand green in `jyoukyou.html`.
+    - [x] Remove placeholder text ("DIY自填項目", "服務：") from `order.html`.
+    - [x] Customize Denwa order details in `order.html` (rename to 詳細資訊 + map fields).
+    - [x] Fix order search failure in `order.html` (trim ID + doc ID fallback).
+- [x] Update `CHANGELOG.md` (v1.3.38).
+2. Implemented automated email notifications when an admin replies to a customer via the store backend.
+
+### Technical details of implementation
+- **Data Collection Standardization**: Replaced all references to `matcha_orders` and `matcha_members` with unified `orders` and `members` collections to achieve architecture consolidation across custom-built applications (`maccha-store.html`, `diy.html`, `fast.html`, etc.).
+- **Store Reply Mechanism**: Modified `saveOrder()` method within `admin.html` logic. It now fetches the old payload and executes the API wrapper `window.API.sendNotification('matcha_reply')` if `seller_note` contains updated text.
+- **GAS Dispatcher Module**: Upgraded `gas/firebase_handler.gs` to consume POST payload with attribute `matcha_reply` representing the target trigger. Introduced the new `handleMatchaReply()` function that leverages `GmailApp.sendEmail` with a stylized HTML layout containing the seller's updated comment.
+
+### Affected files or modules
+- `firestore.rules` (Updated collections bindings)
+- Frontend client logics: `maccha-store.html`, `diy.html`, `fast.html`, `admin.html`, `shop/shop.js`, `jyoukyou.html`, `seed.html`
+- Google Apps Script: `gas/firebase_handler.gs`
+- Documentation: `DATABASE_SCHEMA.md`
+
+### Chinese Summary
+整理與統一了資料庫集合名稱（改為跨頁面共用的 orders 與 members）。除此之外，開通了管理員後台針對購物訂單的「回覆通知」功能：只要管理員在後台的「賣家備註」欄位填寫新訊息，儲存後系統就會自動發送官方的 Email 回覆通知信給客人，與之前的代撥服務回覆體驗看齊。
+
+## [2026-02-21] - Fix Member Data Sync on Checkout
+
+### Summary of changes
+Fixed a bug where checking "會員自動帶入" (Save/Update member logic) during checkout did not save customer details to the `members` collection. Empowered the frontend to save basic data while updating Firebase Rules to allow public writes to `members`.
+
+### Technical details of implementation
+- **Frontend Logic**: Re-implemented the `members` update block in `maccha-store.html`, `diy.html`, `fast.html`, and `shop/shop.js` to trigger a `members`.add() or .update() depending on if the `phone` already exists, ONLY when the option is checked.
+- **Firebase Rule Relaxation**: Changed `firestore.rules` for the `/members/{docId}` path to `allow read, write: if true;` enabling anonymous checkout sessions to create their own customer profiles.
+- **Email Notifications Trigger**: Explicitly forced `window.API.sendNotification('new_matcha_order', ...)` inside the final `.then()` resolving blocks natively in `maccha-store.html`, `diy.html`, and `fast.html` to guarantee new order receipts.
+
+### Affected files or modules
+- `firestore.rules`
+- `maccha-store.html`, `diy.html`, `fast.html`, `shop/shop.js`
+
+### Chinese Summary
+修復了結帳最後一關勾選「會員自動帶入/儲存資料」卻不會真實存入後台資料庫的 Bug。前端代碼已完整補上針對 `members` 集合的查找或新建邏輯，同時開放了此路徑的 Firebase 寫入權限，並順手補齊了各個獨立頁面該有的「新訂單推播通知信」觸發 API 呼叫。
+
+## [2026-02-28] - Fixed DIY Result Page Data Persistence
+
+### Summary of changes
+Resolved an issue where the DIY checkout result page (`fast-diy-result.html`) incorrectly displayed "No data found" after a successful order submission.
+
+### Technical details of implementation
+- **Data Passing**: Modified `diy.html` to store order details (Order ID, Name, Items, Total, etc.) in `sessionStorage` under the key `orderResult` before redirecting.
+- **Result Retrieval**: This ensures `fast-diy-result.html` can successfully retrieve and display the order confirmation details immediately after the user is redirected, preventing the "page expired" error.
+
+### Affected files or modules
+- `diy.html`: Added session storage logic to the checkout completion callback.
+
+### Chinese Summary
+修正 DIY 頁面結帳後跳轉錯誤：現在結帳完成後會正確將訂單資訊存入暫存空間，解決 `fast-diy-result.html` 顯示「查無資料」的問題。
+
+## [2026-02-21] - Admin Panel Mobile UI Optimization
+
+### Summary of changes
+Optimized the Admin Panel for mobile devices to prevent layout breaking and improve accessibility.
+
+### Technical details of implementation
+- **Logout Button**: Changed the logout button to an icon-only style on mobile to save header space.
+- **Responsive Tables**: Implemented `denwa-table-responsive` and `orders-table-responsive` which hide non-essential columns (like IDs or dates) and stack text for better fit on narrow screens.
+- **Card Header Layout**: Created `card-header-flex` to automatically switch between horizontal and vertical layouts for card titles and status badges based on screen width.
+- **Modal Adjustments**: Reduced padding for modals and forced grid layouts into single columns on mobile to prevent horizontal scrolling.
+- **Text & UI Refinement**: Simplified category displays and adjusted font sizes for improved readibility.
+
+### Affected files or modules
+- `admin.html`: CSS and HTML structure updates for mobile responsiveness.
+
+### Chinese Summary
+優化管理後台在行動裝置上的顯示體驗：將「登出」改為圖示以節省空間，重構預約與訂單表格以防止橫向錯位，並導入響應式標題佈局，確保運費規則與方案設定在小螢幕上依然整齊美觀。
+
+## [2026-02-21] - Final GAS Migration & API Cleanup
+
+### Summary of changes
+Completed the final transition from Google Apps Script (GAS) to Firebase, ensuring all data fetching is handled by Firestore and cleaning up legacy API code.
+
+### Technical details of implementation
+- **Matcha Overview Migration**: Migrated the data source for `maccha.html` from GAS to Firestore. Added Firebase SDK and config to the page.
+- **Loader Refactoring**: Updated `maccha-loader.js` to fetch `matcha_brands` and `matcha_products` in parallel and map them to the existing UI rendering logic.
+- **API Consolidation**: Stripped `js/api.js` of all obsolete GAS endpoints (`MATCHA`, `CORE`, `DENWA`) and methods, retaining only the notification service for email alerts.
+- **Full Firebase Transition**: The project is now 100% migrated to Firebase for all data operations, with GAS remaining only as a mail server proxy.
+
+### Affected files or modules
+- `maccha.html`: Added Firebase dependencies.
+- `assets/js/maccha-loader.js`: Updated data fetching logic.
+- `js/api.js`: Cleaned up dead code and legacy endpoints.
+
+### Chinese Summary
+完成最後一哩路的 GAS 遷移：將「抹茶狀態總覽頁」改為直接從 Firestore 抓取資料，並大幅清理了 `js/api.js` 中所有過時的舊端點與程式碼。目前全站除了郵件通知外，其餘後端功能已 100% 運行於 Firebase。
+
+## [2026-02-21] - Fix Plan List Container Layout & Deployment
+
+### Summary of changes
+Fixed a critical layout breaking bug in the Admin Panel's Plan List and successfully re-deployed the entire site to Firebase Hosting.
+
+### Technical details of implementation
+- **HTML Structure Fix**: Resolved a broken HTML structure in `admin.html` where an extra `</div>` tag caused the plan card contents to overflow from their container.
+- **Card UI Optimization**: Forced plan cards to use vertical flex layout (`flex-direction: column`) with `justify-content: space-between` to ensure buttons always align perfectly at the bottom, regardless of description length.
+- **Jekyll Build Fix**: Corrected persistent YAML indentation issues in `maccha.html` that were blocking the build pipeline.
+- **Successful Deployment**: Executed full Jekyll build and Firebase Hosting deployment.
+
+### Affected files or modules
+- `admin.html`: Fixed plan card template string logic.
+- `maccha.html`: Refined frontmatter indentation.
+
+### Chinese Summary
+修復了管理後台「方案列表」容器跑版的 Bug（因多出一個閉合標籤導致卡片結構崩潰）。優化了卡片佈局讓按鈕自動置底對齊，並同步修復了 `maccha.html` 的編譯錯誤，最後成功將專案重新部屬至 Firebase Hosting。
+
+## [2026-02-22T12:34:57.757928] Fix maccha layout and admin order IDs
+
+### Summary of changes
+- Completely refactored `maccha.html` layout structure to prevent Jekyll parser breaking on CSS inside YAML frontmatter.
+- Restored `maccha.html` DOM container targets (`#status-grid-container`, `#product-list-container`) for JS interactions.
+- Fixed `admin.html` order numbering UI where old Firebase orders showed "N/A".
+
+### Technical details of implementation
+- Moved `<style>` blocks explicitly out of `styles: |` frontmatter and natively injected them into `maccha.html` body to prevent Jekyll `SafeYAML` parse failures.
+- Restored the required html sections in `maccha.html` which populate the JS loader targets.
+- Updated `admin.html` rendering loop to check for explict `order.order_id !== 'N/A'` fallback conditions from legacy DB states.
+
+### Affected files or modules
+- `maccha.html`
+- `admin.html`
+
+### Chinese Summary
+修復了 `maccha.html` 網頁破版與讀取失敗問題（將 CSS 樣式徹底移出 YAML 標頭以修復 Jekyll 編譯器異常），並補回前端渲染所需的 HTML 容器標籤。此外修復了管理後台訂單編號顯示為「N/A」的問題，已自動過濾資料庫舊有的 "N/A" 欄位並顯示正確的訂單唯一碼。
+
+## [2026-02-22T13:45:00] Fixed Maccha Loader Error & API Restoration
+
+### Summary of changes
+- Resolved "Uncaught ReferenceError: db is not defined" in `maccha.html`.
+- Restored and consolidated `js/api.js` to ensure legacy order tracking and new notification services work in harmony.
+- Fixed a script path error in `jyoukyou.html`.
+
+### Technical details of implementation
+- **Firebase Initialization**: Re-inserted Firebase SDK (v9 compat) and Firestore initialization directly into `maccha.html` before the loader script.
+- **API Consolidation**: Merged `js/api.js` from `git_backup` (containing `queryOrder` and GAS endpoints) with the newer `sendNotification` handler (using `FIREBASE_HANDLER` endpoint).
+- **Project Structure**: Cleaned up `maccha.html` and `denwa.html` by moving CSS/JS out of YAML frontmatter to prevent Jekyll parsing errors.
+- **Verification**: Verified deployment via browser tests, confirming product list loading and UI stability.
+
+### Affected files or modules
+- `maccha.html`: Added Firebase setup and refactored layout.
+- `js/api.js`: Restored legacy methods and combined with notification logic.
+- `jyoukyou.html`: Fixed leading space in script path.
+
+### Chinese Summary
+修復了 `maccha.html` 的 "db is not defined" 錯誤。重新整合了 `js/api.js`，同時保留舊有的訂單查詢功能與新的郵件通知機制。此外修復了 `jyoukyou.html` 的路徑錯誤，並全面優化了頁面結構以避免 Jekyll 編譯異常。
+
+## [2026-02-22T14:15:00] Removed redundant loader in maccha.html
+
+### Summary of changes
+- Removed a static spinner in `maccha.html` that remained visible after the main preloader faded out.
+
+### Technical details of implementation
+- Deleted the `#status-loader` div. The page already provides sufficient loading feedback via the full-screen `#intro-loader`.
+
+### Affected files or modules
+- `maccha.html`
+
+### Chinese Summary
+移除了 `maccha.html` 中多餘的旋轉載入動畫，優化視覺體驗。
+
+## [2026-02-22T15:30:00] Fixed Matcha Product Import Error in Admin Panel
+
+### Summary of changes
+- Resolved "Uncaught ReferenceError: showModal is not defined" when importing matcha products in `admin.html`.
+
+### Technical details of implementation
+- Replaced incorrect `showModal` function calls with the existing `openModal` function in `processImportData` and `executeImport`.
+- This fix restores the ability for users to choose between "Overwrite" and "Append" modes during Excel import.
+
+### Affected files or modules
+- `admin.html`
+
+### Chinese Summary
+修復了管理後台匯入抹茶商品時的錯誤，將誤植的 `showModal` 修正為 `openModal`，恢復「覆蓋」與「並存」模式的選擇功能。
+
+## [2026-02-22T15:35:00] Implemented Global Matcha Product Import/Export
+
+### Summary of changes
+- Added "Global Export" and "Global Import" buttons to the Matcha Brand Overview layer in `admin.html`.
+- Implemented bulk processing logic to handle products across all brands in a single Excel file.
+
+### Technical details of implementation
+- **UI Enhancement**: Added a new action group in the Brand Overview header with file input for global Excel operations.
+- **Global Export**: Fetches all brands and products, maps brand IDs to names, and generates a unified Excel sheet.
+- **Global Import**: Supports "Global Overwrite" and "Global Append" modes. Auto-maps products back to their respective brands using the `brand_id` column.
+- **Batch Processing**: Uses Firestore's `writeBatch` and processes data in chunks of 500 to comply with SDK limits.
+- **Syntax Fix**: Corrected a missing catch block in the existing product import logic.
+
+### Affected files or modules
+- `admin.html`
+
+### Chinese Summary
+實作了管理後台的「全域抹茶商品匯出匯入」功能。現在可以在品牌總覽界面一次匯出所有品牌的商品至單一 Excel 檔，或透過 Excel 一次性更新/新增多品牌的商品資料，並支援 500 筆一組的批量寫入以優化效能。
+
+## [2026-02-22T15:50:00] Fixed script path in jyoukyou.html
+
+### Summary of changes
+- Resolved "Unexpected token '<'" error in `jyoukyou.html` by fixing the broken script path.
+
+### Technical details of implementation
+- Removed a leading space in the Liquid template tag for `js/api.js`. This ensures the script is correctly resolved and loaded instead of falling back to a 404 HTML page.
+
+### Affected files or modules
+- `jyoukyou.html`
+
+### Chinese Summary
+修復了 `jyoukyou.html` 的腳本路徑錯誤，解決了導致功能失效的 SyntaxError。
+
+## [2026-02-22T16:26:00] Migrated order tracking to direct Firestore queries
+
+### Summary of changes
+- Replaced legacy Google Apps Script API with direct Firebase Firestore queries in `jyoukyou.html`.
+- Added support for cross-collection search (Matcha `orders` and Denwa `denwa_orders`).
+
+### Technical details of implementation
+- Integrated Firebase SDK (v9 compat) into `jyoukyou.html`.
+- Implemented `Promise.all` to concurrently query multiple collections.
+- Added phone number normalization to handle various input formats (e.g., stripping non-digits).
+- Mapped Firestore document fields to existing UI rendering logic.
+
+### Affected files or modules
+- `jyoukyou.html`
+
+### Chinese Summary
+將訂單追蹤系統全面遷移至 Firebase Firestore 直接查詢，支援同時檢索抹茶訂單與電話代撥預約，並優化了手機號碼的正規化比對。
+
+## [2026-02-22T17:45:00] Admin UI/UX Refinement & Firestore Security Fixes
+
+### Summary of changes
+- Implemented a comprehensive UI/UX responsive design across the Admin Panel and public storefront pages.
+- Standardized action buttons to a maximum of 2 characters and enabled icon-only mode on mobile.
+- Resolved Firestore `Missing or insufficient permissions` errors for order tracking.
+- Enhanced order details display for a cleaner vertical list view.
+
+### Technical details of implementation
+- **Button Text Policy**: Shortened common button texts (e.g., "訂單管理" to "訂單", "重新整理" to "刷新") to 2 characters, while preserving specified exceptions ("快速結帳", "加入購物車", etc.).
+- **Responsive CSS**: Injected `.btn-text` and `.tab-text` classes with `@media` rules to hide labels on mobile devices while resizing icons and padding for touch friendliness.
+- **Firestore Rule Fix**: Modified `firestore.rules` for `orders` and `denwa_orders` to allow `list` queries with `.limit(20)` instead of requiring a specific phone filter, enabling lookups via Order ID.
+- **Order Formatting**: Updated `renderResults` in `jyoukyou.html` to split multi-item order strings into distinct bulleted `div` elements for improved readability.
+- **Site-wide Consistency**: Applied responsive button logic to `index.html`, `maccha.html`, `denwa.html`, `shop/index.html`, and `denwa-form.html`.
+
+### Affected files or modules
+- `admin.html`, `jyoukyou.html`, `firestore.rules`, `denwa-form.html`, `shop/index.html`, `index.html`, `denwa.html`, `maccha.html`.
+
+### Chinese Summary
+優化全站 UI/UX 響應式設計：將按鈕文字精簡至 2 字並在手機版自動隱藏僅顯示圖示，提升操作靈活性。同時修復了 Firestore 訂單查詢的權限錯誤，並將查單結果的品項改為垂直清單顯示，提升閱讀美感。
+
+## [2026-02-22T11:15:00] Final UI Polish & Site-wide Iconification
+
+### Summary of changes
+- Completed the transition to icon-based responsive buttons across all public and administrative pages.
+- Standardized modal footer buttons and final UI labels for 100% compliance with the 2-character limit.
+- Verified and fixed "empty button" issues on mobile by adding necessary icons.
+
+### Technical details of implementation
+- **Iconification**: Added `Material Symbols` icons to buttons like "前往", "諮詢", "狀況", and "詳情" to ensure they remain functional when labels are hidden on mobile.
+- **Label Shortening**: Further refined `admin.html` by shortening "儲存設定" to "儲存" and "去編輯" to "編輯".
+- **Responsive Consistency**: Synchronized the `.btn-text` class usage across `index.html` and `shop/index.html` to match the admin panel behavior.
+
+### Affected files or modules
+- `admin.html`, `index.html`, `shop/index.html`.
+
+### Chinese Summary
+完成全站按鈕圖示化與文字精簡，確保手機版在隱藏文字後仍具備直觀的圖示引導。精簡了後台剩餘的長按鈕（如：儲存設定）並同步全站響應式類別定義。
+
+## [2026-02-22T11:20:00] Admin Page Button Iconification (Option A)
+
+### Summary of changes
+- Implemented full iconification for functional buttons in the Matcha, Plans, Shipping, and Fast Checkout sections.
+- Unified action button sizes to match the height and style of the "Refresh" button.
+
+### Technical details of implementation
+- **Iconification**: Removed text labels from "Export", "Import", and "Add" buttons across multiple administrative modules.
+- **Enhanced UX**: Added `title` attributes to icon-only buttons for tooltips, ensuring clarity while maintaining a minimal design.
+- **Consistent Sizing**: Ensured all top-level action buttons in cards use the same base `.btn` style for uniform height and alignment.
+
+### Affected files or modules
+- `admin.html`.
+
+### Chinese Summary
+完成管理後台功能按鈕（匯出、匯入、新增）的全圖示化調整，統一按鈕高度與刷新按鈕一致，提升介面整潔度。
+
+## [2026-02-22T11:25:00] Responsive UI Fix: Non-wrapping Headers and Status Badges
+
+### Summary of changes
+- Fixed an issue where action buttons and status toggles would wrap to multiple lines on mobile devices.
+- Prevented text wrapping for status badges like "待確認" and "啟用中".
+- Maintained horizontal alignment for the top bar and card headers across all screen sizes.
+
+### Technical details of implementation
+- **CSS Override**: Forced `.card-header-flex` to maintain `flex-direction: row` on mobile via `!important`, overriding the previous column-stacking behavior.
+- **No-Wrap Policy**: Added `white-space: nowrap` to `.status-badge` to prevent status text fragmentation.
+- **Flexbox Optimization**: Removed `flex-wrap: wrap` from header containers and replaced with `flex-wrap: nowrap` to ensure action groups stay together.
+- **UI Consistency**: Applied consistent horizontal layout to the "Shop Status Toggle" within the configuration modal.
+
+### Affected files or modules
+- `admin.html`.
+
+### Chinese Summary
+修復手機版按鈕與狀態標籤（如：待確認、啟用中）會換行的問題。透過強制標題列維持橫排並防止標籤文字斷行，確保在窄螢幕下介面依然整齊不走鐘。
+
+## [2026-02-22T11:30:00] Table Layout Optimization: Column Widths and Text-Wrapping
+
+### Summary of changes
+- Fixed date and time wrapping in the reservation (Denwa) list.
+- Optimized column spacing in the Order list to reduce the gap between 'Status' and 'Actions'.
+- Improved table readability on mobile by prioritizing content expansion for primary columns.
+
+### Technical details of implementation
+- **No-Wrap Dates**: Applied `white-space: nowrap` to date and time containers in `loadDenwaOrders` to ensure vertical alignment.
+- **Column Sizing**: Implemented a "shrink-wrap" technique using `width: 1px` and `white-space: nowrap` for secondary columns (Total, Status, Actions), allowing the primary columns (LINE name/Merchant) to naturally expand and push icons closer to status badges.
+- **Consistent Cell Padding**: Maintained consistent padding and vertical alignment across all data tables.
+
+### Affected files or modules
+- `admin.html`.
+
+### Chinese Summary
+優化表格排版：解決預約日期與時間換行問題，並透過縮減次要欄位（如：金額、狀態、操作）的寬度，讓「狀態」與「操作按鈕」更靠攏，改善大螢幕與手機版的閱讀比例。
+
+## [2026-02-22T11:35:00] Order List Layout Refinement: Balanced Spacing
+
+### Summary of changes
+- Re-allocated column widths for the Order List to ensure better visual balance.
+- Fixed the excessive gap between 'Status' and 'Actions' by assigning appropriate fixed widths to trailing columns.
+- Increased the visibility of the LINE name by allowing it more flexible horizontal space.
+
+### Technical details of implementation
+- **Fixed Width Assignment**: Set explicit pixel widths for 'Order ID' (110px), 'Total' (80px), 'Status' (90px), 'Date' (100px), and 'Actions' (80px) in `loadOrders`.
+- **Flexible Content**: Allowed the 'LINE' column to expand and fill the remaining table width, pushing subsequent columns into a more compact and readable group.
+- **Center Alignment**: Centered the 'Status' badge within its column for better vertical scanning.
+
+### Affected files or modules
+- `admin.html`.
+
+### Chinese Summary
+優化訂單列表排版：為編號、總計、狀態、日期等欄位分配固定寬度，並讓 LINE 名稱彈性佔用空間。此舉解決了狀態與操作按鈕間隔過遠的問題，讓整體視覺比例更均勻。
+
+## [2026-02-22T11:45:00] Admin UI Refinement: Table Spacing and Field Reordering
+
+### Summary of changes
+- Corrected "Order ID" font weight and size for better legibility.
+- Optimized table column distribution in "Order List" to eliminate excessive white space next to the LINE column.
+- Reordered fields in the "Reservation Details" modal to improve operational workflow.
+
+### Technical details of implementation
+- **Typography**: Updated Order ID style to `0.85rem` and `#4b5563` to resolve the "too thin" visual issue.
+- **Table Layout**: Switched to a dynamic spacing model for the Order table. Removed rigid pixel widths and implemented a relative spacing approach that groups Status, Date, and Actions more naturally.
+- **Modal Logic**: Reorganized the HTML structure in `viewDenwaDetails`. Moved "Reservation Plan" above "Merchant Name" and placed "In-Japan Info" between "Number of People" and "Notes".
+
+### Affected files or modules
+- `admin.html`.
+
+### Chinese Summary
+優化後台細節：修正訂單編號字體過細問題，並重新分配訂單列表的欄位寬度，消除 LINE 名稱旁的過大間距。同步依照需求調整預約詳情的欄位順序，提升資訊閱讀的邏輯性。
+
+## [2026-02-22T11:50:00] Order Table Spacing Fix: Natural Column Distribution
+
+### Summary of changes
+- Fixed the excessive gap between "LINE" and "Total" columns in the Order list.
+- Improved "Order ID" typography to resolve the "too thin" visual issue.
+- Standardized cell padding for better content breathing room.
+
+### Technical details of implementation
+- **Layout Optimization**: Removed artificial `width: 1px` constraints on the right-side columns, allowing the browser's default table algorithm (`table-layout: auto`) to distribute extra space more evenly or shrink the table to its content.
+- **Typography**: Changed Order ID font from `monospace` to standard system text (`0.9rem`, `font-weight: 700`, `color: #334155`) to provide a bolder, more balanced appearance.
+- **Padding Refinement**: Applied consistent `padding: 12px 15px` to all header and data cells to ensure uniform spacing between columns regardless of content length.
+
+### Affected files or modules
+- `admin.html`.
+
+### Chinese Summary
+修正訂單列表間距：透過移除強制壓縮寬度的設定，讓瀏覽器依內容長度自然分配欄位間距，消除了 LINE 旁邊的過大空隙。同時加粗編號字體並調整字級，解決字體過細的問題。
+
+## [2026-02-22T11:55:00] Responsive Product List Fix: Two-line Header for Mobile
+
+### Summary of changes
+- Fixed horizontal overflow in the product list header on mobile devices.
+- Removed the redundant word "商品" from the brand title to maximize space.
+- Implemented a two-line layout for narrow screens: title and back button on the first line, action buttons on the second.
+
+### Technical details of implementation
+- **Title Shortening**: Modified `showProducts` JavaScript function to set the title to just the brand name (e.g., "中村藤吉" instead of "中村藤吉 商品").
+- **Wrap Logic**: Re-enabled `flex-wrap: wrap` specifically for the `#productsLayerItems` header.
+- **Dynamic Stacking**: Added the `card-header-flex` class to the container while allowing inline wrap styles to override global constraints where necessary, ensuring a smooth transition to a two-line layout on small screens.
+
+### Affected files or modules
+- `admin.html`.
+
+### Chinese Summary
+修復手機版商品列表標題換行問題：移除標題中冗餘的「商品」二字以節省空間，並允許操作按鈕在狹窄螢幕下自動換行至第二排（返回與標題保留在第一排），解決橫向跑版問題。
+
+## [2026-02-22T12:05:00] Admin UI: Global Table Scroll and No-Wrap Optimization
+
+### Summary of changes
+- Enforced a "No-Wrap" policy across all administrative tables to prevent content distortion on mobile.
+- Implemented consistent horizontal scrolling (sliders) for all data tables.
+- Removed mobile-specific column hiding to ensure full data accessibility via scrolling.
+
+### Technical details of implementation
+- **CSS Enhancement**: Broadened the `.data-table` CSS rule to include `white-space: nowrap` and a forced `min-width: 800px` for all child tables. This ensures that even on narrow screens, the table maintains its structure and provides a horizontal scrollbar.
+- **Structural Cleanup**: Wrapped the "Product List" (both normal and batch-edit modes) in the required `.data-table` scrollable container.
+- **Responsiveness**: Replaced older "hide columns on mobile" logic with a unified "scroll to see more" approach, providing a better user experience for data-heavy administrative tasks.
+
+### Affected files or modules
+- `admin.html`.
+
+### Chinese Summary
+後台表格全面優化：強制所有表格內容「不換行」，並統一設定 800px 的最小寬度與水平滑桿。現在手機版不再隱藏特定欄位，而是可以透過左右滑動查看所有完整資料，確保操作體驗一致。
+
+## [2026-02-22T12:10:00] Admin UI: Shipping Rules Table View
+
+### Summary of changes
+- Replaced the card-based "Shipping Rules" layout with a structured data table.
+- Consistent with the new "No-Wrap" and horizontal scrolling table standards.
+- Improved readability of shipping tiers and category filters.
+
+### Technical details of implementation
+- **Table Transformation**: Refactored `loadShippingRules` to output a `<table>` within a `.data-table` scrollable wrapper.
+- **Data Formatting**:
+    - Combined multi-tier shipping rules into a single, scan-able text column.
+    - Added stylized pills for categories to differentiate them from the primary shipping method.
+    - Replaced raw tracking URLs with a clean "Link" icon.
+- **Layout Consistency**: Aligned the "Edit" actions to the right, matching the Order and Product list patterns.
+
+### Affected files or modules
+- `admin.html`.
+
+### Chinese Summary
+運費規則表格化：將原本的卡片佈局改為表格呈現，並依照新標準設定水平滑桿，提升資訊排版密度與操作一致性，方便快速瀏覽各項運送方式與階梯運費。
+
+## [2026-02-23T18:45:00] Global Import Enhancement: Auto-Brand Creation & Smart ID Matching
+
+### Summary of changes
+- Modernized the Global Excel Import process to be more forgiving and automated.
+- Supported automatic brand creation for new brands found in the Excel file.
+- Enabled multi-field brand matching (ID or Name).
+
+### Technical details of implementation
+- **Brand Detection Logic**: Updated `executeGlobalImport` to pre-fetch all existing brands. It now attempts to match the target brand using the "Brand ID" column first, falling back to "Brand Name" if the ID is missing.
+- **Auto-Provisioning**: If a brand (by ID or Name) does not exist in the database, the system now automatically creates a new brand document with default settings (`active`, `visible`, etc.) before importing its products.
+- **Product ID Handling**: Maintained support for auto-generating Firestore IDs for new products while allowing updates to existing products via IDs.
+- **Batch Processing**: Integrated brand creation into the existing Firestore atomicity chunks (500 ops per batch).
+
+### Affected files or modules
+- `admin.html`.
+
+### Chinese Summary
+優化全域匯入功能：現在支援自動識別品牌（透過 ID 或名稱），若偵測到 Excel 中有新品牌，系統會自動在資料庫建立品牌文件，不再需要預先手動新增品牌。商品 ID 也會自動產生，大幅簡化 Excel 編輯流程。
+
+## [2026-02-23T18:50:00] Admin UI: Excel Column Locking Security
+
+### Summary of changes
+- Implemented "Read-only" column protection for system-critical fields in exported Excel files.
+- Switched export engine from SheetJS to ExcelJS to support advanced spreadsheet features.
+
+### Technical details of implementation
+- **Engine Upgrade**: Added `ExcelJS` library via CDN to handle workbook generation with protection metadata.
+- **Cell Protection**: 
+    - Specifically targeted columns labeled with "(勿動)" (Brand ID and Product ID).
+    - Set `protection: { locked: true }` for these columns while keeping other data fields unlocked.
+    - Applied a light gray background fill (`FFF1F5F9`) to locked cells to provide a visual cue to the user.
+- **Worksheet Security**: Enabled `sheet.protect()` with standard flags, allowing users to select and format cells but preventing modifications to the locked ID strings.
+- **Compatibility**: Maintained `SheetJS` for the import logic due to its robust parsing capabilities, ensuring current workflows remain uninterrupted.
+
+### Affected files or modules
+- `admin.html`.
+
+### Chinese Summary
+Excel 安全優化：匯出的 Excel 檔案現在支援「欄位鎖定」功能。所有標註為「勿動」的 ID 欄位都會被自動鎖定並加上灰色底色，防止編輯過程意外改動系統關鍵 ID，確保資料匯入時的關聯性。
+
+## [2026-02-23T20:30:00] Admin UI: Denwa Order Case Closure with Email Notification
+
+### Summary of changes
+- Added case closure ("結案") feature for phone reservation (denwa) orders in the admin panel.
+- Implemented an email editor modal that pre-fills customer reservation data and allows full customization before sending.
+
+### Technical details of implementation
+- **GAS Handler**: Added `denwa_close_case` action to `firebase_handler.gs`. Front-end generates complete HTML for both customer and admin email versions; GAS only handles delivery via brand alias (`SENDER_ALIAS`).
+- **Admin UI - Close Case Button**: Added `assignment_turned_in` icon button in the denwa orders table, next to the existing "Edit" button.
+- **Email Editor Modal (`closeDenwaCase`)**: 
+    - Editable subject, greeting, and outro sections with sensible defaults.
+    - Dynamic table pre-filled with the customer's original reservation data (9 fields). Rows can be added, removed, or edited freely.
+    - Optional notes field displayed with a branded border.
+    - Two configurable CTA buttons (filled/outline styles) with toggle switches.
+    - Fixed KEICHA brand footer/signature.
+- **Dual Email Dispatch**: Customer email includes full content (greeting + table + notes + outro + buttons + signature). Admin email is a simplified version (order ID + table + signature).
+- **Status Update**: After successful email dispatch, Firestore document status is updated to "已結案".
+- **Badge Style**: Added `.completed` CSS class (blue theme) for the "已結案" status badge.
+
+### Affected files or modules
+- `admin.html` (UI + logic)
+- `_site/gas/firebase_handler.gs` (email dispatch)
+
+### Chinese Summary
+新增「電話預約結案」功能：管理員可一鍵開啟結案信件編輯器，自動帶入客戶預約資料並可調整內容後發送。信件同時寄送客戶版（完整通知）與管理員版（簡化紀錄），發送後訂單狀態自動更新為「已結案」。
+
+## [2026-02-23T21:15:00] Denwa Form: Fix Missing Data, Order ID, and Preview Bugs
+
+### Summary of changes
+- Fixed 3 critical data bugs in the denwa booking form.
+- Updated admin badge colors to match existing project palette.
+
+### Technical details of implementation
+- **Missing `contact_in_japan`**: The `japanContact` form field was never mapped into the Firestore payload. Added `contact_in_japan: formData.get('japanContact')` to the save object. This was the root cause of "在日資訊" being lost.
+- **Order ID Format**: Replaced raw Firestore document ID with a structured `DENWA-YYMMDD##` format (e.g., `DENWA-26022301`). Uses a prefix-based query to count existing orders for the day and auto-increment the sequence number.
+- **Preview Table Fix**: `displayData` passed to `form-result.html` was missing explicit `shopName`, `bookingName`, `japanContact`, `phone`, and `note` mappings. Fixed all field names to match what `form-result.html` expects.
+- **Async Flow**: Changed `submitForm()` to `async` to support `await`-based order ID generation.
+- **Badge Colors**: Changed "已結案" badge from blue to brand green. Changed table row delete button from red to gray.
+
+### Affected files or modules
+- `denwa-form.html` (form submission logic)
+- `admin.html` (badge CSS + delete button color)
+
+### Chinese Summary
+修復三個關鍵資料 Bug：1) 在日資訊欄位未存入資料庫；2) 訂單編號改為 DENWA-YYMMDD 流水號格式；3) 預覽表格未正確顯示預約商家與英文姓名。同時修正管理介面結案 badge 顏色與刪除按鈕色調。
+## [2026-02-24T01:10:00] Advanced Admin Security & UI Polish
+
+### Summary of changes
+Implemented highly secure Admin authentication for GAS actions using Firebase ID Tokens and standardized UI status labels and color schemes.
+
+### Technical details of implementation
+- **ID Token Verification**: Updated `admin.html` to retrieve the current user's Firebase ID Token. Modified `gas/firebase_handler.gs` to verify this token against the Google Identity Toolkit API. Only the authorized administrator (`wj209ing@gmail.com`) can now trigger "Close Case" email notifications.
+- **GAS Security (Public)**: Introduced `FIREBASE_API_KEY` storage via GAS ScriptProperties to enable back-end verification without hardcoding sensitive keys in source files.
+- **Status Standardization**: Unified order status labels to: `待確認` (Pending), `已確認` (Confirmed), `已完成` (Completed), and `已取消` (Cancelled).
+- **UI Logic Update**: Replaced all references to legacy "已結案" with "已完成". Updated badge colors to gray for all statuses except "已完成" (green).
+- **Email Formatting**: Optimized the "Close Case" email generation to handle native newlines from textareas (replacing literal `\n`), and updated the default subject to "電話代撥結果通知".
+- **API Extension**: Updated `js/api.js` to support optional `idToken` payload in `sendNotification`.
+
+### Affected files or modules
+- `admin.html`
+- `js/api.js`
+- `gas/firebase_handler.gs`
+- `CHANGELOG.md`
+
+### Chinese Summary
+實作管理後台進階安全性防護：導入 Firebase ID Token 驗證機制，確保只有管理員登入後能觸發發信動作，並擋掉所有非法請求。同步統一了全站訂單狀態標籤與顏色（待確認/已確認/已完成/已取消），並優化結案信件的換行處理與預設主旨。
+
+## [2026-02-24T01:15:00] Firebase App Check for Anti-Spam (Guest Protection)
+
+### Summary of changes
+Implemented Firebase App Check across all public-facing ordering pages to prevent automated bot spam and ensure all database writes originate from the official KEICHA website.
+
+### Technical details of implementation
+- **reCAPTCHA v3 Integration**: Integrated Firebase App Check SDK and activated it using the project's reCAPTCHA v3 Site Key (`6LcPa3UsAAAAAHJ-z9C3N9cqen3AYC8HxEQODoTM`).
+- **Frontend Enforcement**: Updated `denwa-form.html`, `maccha-store.html`, `diy.html`, `fast.html`, and `shop/index.html` to include and initialize App Check.
+- **Security Rules (Phase 3)**: Modified `firestore.rules` to enforce `request.app != null` for all public collection writes (`orders`, `denwa_orders`, `order_counters`, `members`). This blocks all requests that do not carry a valid App Check token.
+- **Persistence**: Enabled auto-refresh for App Check tokens to ensure continuous protection for long-lived sessions.
+
+### Affected files or modules
+- `denwa-form.html`
+- `maccha-store.html`
+- `diy.html`
+- `fast.html`
+- `shop/index.html`
+- `firestore.rules`
+- `CHANGELOG.md`
+
+### Chinese Summary
+實裝 Firebase App Check 機器人防護機制：所有前台下單頁面（電話代撥、抹茶商店、自填單、快速結帳）現已整合 reCAPTCHA v3 驗證。同步更新 Firestore 安全規則，強制要求所有訂單寫入必須來自經過驗證的官方網頁，有效杜絕惡意自動化灌單。
+
+## [2026-02-24] - Admin UX Polish & Auto-save Draft Persistence
+
+### Summary of changes
+Optimized the Admin Panel interaction flow by ensuring modals close immediately upon action and implemented a site-wide auto-save draft system for customer-facing forms to prevent data loss.
+
+### Technical details of implementation
+- **Admin Modal Logic**: Updated all delete functions (`deleteOrder`, `deleteDenwa`, `deleteProduct`, `deletePlan`, `deleteShipping`) to trigger `closeModal()` **before** the success alert. This provides immediate visual feedback and prevents duplicate deletion attempts.
+- **Auto-save Drafts**: Implemented `localStorage` persistence across all "filling" type pages:
+    - `denwa-form.html`: Real-time tracking for reservation and contact data.
+    - `diy.html`: Persistent draft for custom order details and logistics selection.
+    - `jyoukyou.html`: Remembers the last searched order ID or phone number for quick lookups.
+- **Data Lifecycle**: Integrated `input` event listeners for real-time saving and `window.load` handlers for restoration. All drafts are automatically cleared from `localStorage` upon successful form submission.
+
+### Affected files or modules
+- `admin.html`: Re-ordered modal closure logic.
+- `denwa-form.html`, `diy.html`, `jyoukyou.html`: Added draft save/load/clear logic.
+- `maccha-store.html`: Fixed shipping fee calculation error caused by keyword mismatch (郵寄/宅配 vs 宅配到府) and added category filtering to prevent cross-page rule contamination.
+
+### Chinese Summary
+優化管理後台操作體驗：刪除按鈕現在會即時關閉彈跳視窗。為全站主要表單導入「自動草稿保存」功能。並修復了抹茶商店「宅配運費」顯示錯誤的問題，透過加強關鍵字模糊匹配與新增頁面分類過濾，確保運費規則抓取精準無誤。
+
+## [2026-02-24] - Card Order System & Admin Link Management
+
+### Summary of changes
+Implemented a dedicated credit card ordering system with unique link suffixes, dynamic product rendering, and secure backend payment generation.
+
+### Technical details of implementation
+- **Custom Card Order Page**: Created `card-order.html` which uses the `id` URL parameter to fetch product details (title, description, amount, status) from Firestore.
+- **Admin Link Management**: Added a "信用卡連結" tab to `admin.html` offering full CRUD capabilities for payment links.
+- **Image Handling**: Integrated a Base64 image upload/preview system for product images, stored directly in the Firestore link document.
+- **Suffix Generation**: Implemented a 4-digit unique suffix generator (e.g., `card-order.html?id=8821`) for clean sharing.
+- **Multi-Stage Payments**: Added optional configuration for multi-stage payment descriptions.
+- **GAS Payment Backend**: Updated `gas/firebase_handler.gs` with the `generate_card_payment` action. It verifies the link data in Firestore (to prevent price tampering) and generates a signed ECPay auto-submit form.
+- **Security Rules**: Updated `firestore.rules` to allow public read access for the `card_orders_links` collection while restricted to authorized administrators for writes.
+
+### Affected files or modules
+- `card-order.html` [NEW]: Customer-facing payment page.
+- `admin.html`: Added link management UI and logic.
+- `gas/firebase_handler.gs`: Added payment generation and Firestore REST lookup logic.
+- `firestore.rules`: Updated for the new collection.
+
+### Chinese Summary
+實作了專屬的「信用卡支付連結」系統。管理員可在後台建立帶有 4 位數唯一後綴的連結（如：8821），並自訂金額、標題與產品圖片（支援 Base64 直接儲存）。後端同步新增了安全的金流簽章產生邏輯，有效防止前端篡改金額，並支援綠界支付自動跳轉。
+
+## [2026-02-24] - Custom Order ID Format (CYYMMDDXX)
+
+### Summary of changes
+Implemented a custom order ID format `CYYMMDDXX` (e.g., `C26022401`) for the card order system, replacing the generic `KC` + timestamp format.
+
+### Technical details of implementation
+- **Daily Sequential Counter**: Implemented `getNextOrderNumber` in `firebase_handler.gs` that uses a Firestore collection `order_counters` to maintain a daily sequence.
+- **Auto-Reset**: The sequential number (01-99) automatically resets to 01 at the start of each day based on the `YYMMDD` prefix.
+- **REST API Helpers**: Added `getFirestoreDocumentById` to securely retrieve counter data via Firestore REST API.
+- **Integration**: Updated `handleCardPayment` to use the generated ID for both Firestore documents and ECPay `MerchantTradeNo`.
+
+### Affected files or modules
+- `gas/firebase_handler.gs`: Logic for ID generation and Firestore counter management.
+
+### Chinese Summary
+實作自定義訂單編號格式 `CYYMMDDXX`（如：`C26022401`），透過 Firestore `order_counters` 集合實作每日自動重置的流水號功能。
+
+## [2026-02-24] - Card Order UI Refinement & Multi-Payment Support
+
+### Summary of changes
+Refined the card order checkout UI for better UX, added multi-payment method management (Credit Card & ATM), and implemented automated payment status tracking via Google Apps Script (GAS) callbacks.
+
+### Technical details of implementation
+- **UI Reordering**: Moved "Recipient Information" above "Shipping Section" in `card-order.html` for a more natural flow.
+- **Visual Polish**: Removed borders from logistics option labels and optimized radio button styling.
+- **Multi-Payment Support**: 
+    - Added "Credit Card" and "ATM" checkboxes to the payment link modal in `admin.html`.
+    - Updated `card-order.html` to render payment method selection dynamically.
+- **Automated Status Tracking**:
+    - Updated `firebase_handler.gs` to use the GAS Web App URL as the ECPay `ReturnURL`.
+    - Implemented `handleECPayCallback` with CheckMacValue verification and automated Firestore status updates (`card_orders` collection).
+    - Updated `firestore.rules` to permit order creation and status updates.
+
+### Affected files or modules
+- `card-order.html`: UI rearrangement and multi-payment rendering.
+- `admin.html`: Managed payment method selection in the admin link modal.
+- `gas/firebase_handler.gs`: Added payment callback logic and Firestore REST helpers.
+- `firestore.rules`: Updated permissions for the `card_orders` collection.
+
+### Chinese Summary
+優化信用卡結帳頁面 UI（將收件資訊上移並美化外框），新增「信用卡/ATM」複選功能，並透過 GAS 實作綠界付款回傳自動更新訂單狀態的功能。
+
+## [2026-02-24] - Refined Shipping Logic & Automated Stage Management
+- **Advanced Shipping Rules**: Implemented "Free Shipping", "Uniform Fee", and "Individual Logistics Fees" logic in `admin.html` and `card-order.html`.
+- **Automated Stage Status**: Integrated callback logic in `gas/firebase_handler.gs` to automatically mark payment stages as `is_paid` upon successful ECPay transaction.
+- **Admin UI Consolidation**: Merged "Link Orders" management into the "Credit Card" tab and refined the visual style of settings by removing yellow backgrounds.
+- **Table Unification & Optimization**: Standardized table styles and components (badges, padding) across all order modules. Added a search filter and stage count display for easier link management.
+- **Improved Data Handling**: Enhanced Firestore REST API parsing for complex nested arrays and objects in GAS.
+
+**實作了進階運費邏輯與支付階段自動化，並完成管理後台介面整併、樣式統一與搜尋優化。**
+
+[admin.html](file:///Users/jing/Downloads/keicha2025.github.io/admin.html), [card-order.html](file:///Users/jing/Downloads/keicha2025.github.io/card-order.html), [gas/firebase_handler.gs](file:///Users/jing/Downloads/keicha2025.github.io/gas/firebase_handler.gs)
+- **Advanced Shipping Logic**: 
+    - Updated `admin.html` to support "Free Shipping", "Uniform Fee", and "Individual Logistics Fees" (7-11, FamilyMart, Home) per payment link.
+    - Implemented `toggleLinkFeeInputs` in the admin modal to manage reactive UI states.
+    - Updated `card-order.html` to dynamically calculate totals and display shipping options based on link-specific rules.
+- **Automated Stage Status**:
+    - Enhanced `gas/firebase_handler.gs` to automatically mark specific payment stages as `is_paid: true` within the `card_orders_links` collection upon receiving a successful ECPay callback.
+    - Improved `fetchFirestoreDocument` in GAS to correctly parse and reconstruct nested/array data from the Firestore REST API.
+    - Added `updateFirestoreDocumentWithArray` to support partial updates of complex array fields in Firestore.
+- **Frontend Enforcement**:
+    - Payment stages already marked as "Paid" are now disabled and visually struck out in `card-order.html` to prevent duplicate payments.
+
+### Affected files or modules
+- `admin.html`: Updated link modal and saving logic.
+- `card-order.html`: Updated checkout logic and stage rendering.
+- `gas/firebase_handler.gs`: Updated callback logic and Firestore helper functions.
+
+### Chinese Summary
+優化了專屬支付連結的運費邏輯，對齊「快速結帳」系統提供免運、統一運費或個別物流計費選項。同步實作了階段付款自動化：當訂單支付成功後，系統會自動將連結中的對應階段標記為「已付」，且前台會自動停用已支付的項目避免重複扣款。
+
+## [2026-02-25] - Shipping & Amount Logic Refinement
+### Admin & Checkout Optimization
+- **Admin Modal Refinement**:
+    - Renamed "Total Amount" to "Product Amount (Excluding Shipping)" to clarify input requirements.
+    - Reordered shipping settings: "Shipping Methods" selection now precedes fee configuration.
+    - Implemented conditional fee inputs: Individual fee fields are now disabled and dimmed if the corresponding method is not selected.
+    - Added automated total calculation preview that sums product amount and the highest selected shipping fee.
+    - Standardized shipping methods to "7-11", "全家" (FamilyMart), and "宅配" (Home Delivery), removing the "N/A" option.
+    - Integrated convenience lookup links for 7-11 and FamilyMart store maps in both admin and checkout views.
+- **Affected Files**: `admin.html`, `card-order.html`
+
+**中文摘要：優化運費與金額邏輯。管理端更名為「商品金額」並新增總額預算；運送方式移至上方並與費率輸入框聯動；同步全站三種運送方式並加入門市查詢連結。**
+
+## [2026-02-25T11:45:00] - Admin Table Alignment & Checkout Logistics Overhaul
+### UI Unification and Premium Redesign
+- **Admin Panel Alignment**:
+    - Standardized the 'Link Orders' table in `admin.html` to match the main 'Orders' table styling (padding, typography, and structure).
+    - Replaced the generic table header with standard columns: "編號", "收件人", "本次金額", "狀態", "日期", "操作".
+    - Implemented a complete set of action buttons (Info, Edit, Delete) for link orders with identical styling and functionally consistent modals.
+    - Refined amount and status displays to align with the primary order list's color palette and fonts.
+- **Checkout Page Overhaul (`card-order.html`)**:
+    - Replaced the dynamic logistics section with the premium, card-based HTML structure from `fast.html`.
+    - Integrated 7-11 and FamilyMart store lookup functionality with `.btn-outline-green` styling (removing default blue).
+    - Updated `selectLogistics()` and `renderPage()` logic to support the new card-toggling interaction and detail section visibility.
+    - Fixed data mapping in `submitOrder()` to correctly retrieve store IDs and addresses from the new card-based inputs.
+- **Affected Files**: `admin.html`, `card-order.html`
+
+**中文摘要：同步管理後台「連結訂單」與主訂單列表的表格樣式與操作功能（新增詳情、編輯、刪除）。全面重構 `card-order.html` 運送方式區塊為與 `fast.html` 一致的高級卡片式設計，整合店號查詢並修正按鈕樣式。**
+
+---
+
+## [2026-02-25T13:50:00] - Admin Logistics Load Logic & Data Stability Fix
+### Summary of changes
+Refactored the internal loading mechanism for global shipping methods to ensure data availability across all admin modules and fixed UI synchronization issues.
+
+### Technical details of implementation
+- **Singleton Fetching Pattern**: Implemented `ensureGlobalMethods(forceRefresh)` which centralizes Firestore access. It uses a semaphore-like flag (`isFetchingGlobalMethods`) to prevent redundant simultaneous requests and ensures a single source of truth for the `globalShippingMethods` array.
+- **Asynchronous Modal Pre-loading**: Modified `showCardLinkModal`, `showShippingModal`, `editShipping`, and `loadFastConfig` to `await` the completion of `ensureGlobalMethods()` before constructing the HTML. This guarantees that multi-select checkboxes and dropdowns are always populated with live data even if accessed immediately after login.
+- **Data-UI Decoupling**: Refactored `loadGlobalMethods()` to focus on rendering, decoupled from the fetching state, allowing it to be safely called from any tab without DOM dependencies.
+- **Smart Refresh Mechanism**: Added `forceRefresh` support to allow `saveGlobalMethod` and `deleteGlobalMethod` to invalidate the local cache and trigger an immediate database sync, keeping the admin UI perfectly synchronized with Firestore.
+- **Default State Correction**: Updated new card link creation template to default to an empty shipping method list, forcing accurate selection based on current logistics settings.
+
+### Affected files or modules
+- `admin.html`: Significant refactoring of shipping method logic and modal initialization.
+
+### Chinese Summary
+重構管理後台物流管道載入機制：導入 `ensureGlobalMethods` 單例抓取策略，解決「新增支付連結」與「運費規則」彈窗偶爾出現物流選項空白的問題。確保數據抓取與介面渲染分離，並在更新物流管道後即時強制同步全站快取，提升系統穩定性。
+
+---
+
+## [2026-02-25T14:15:00] - Card Link Management Amount Label Clarification
+### Summary of changes
+Standardized the terminology for product costs and final totals within the Card Link Management module to better distinguish between fixed product prices and dynamic total payable amounts.
+
+### Technical details of implementation
+- **Table Header Update**: Changed "總金額" to "商品金額" in the `loadCardLinks` table to accurately reflect that this value represents the base product price without shipping.
+- **Modal UI Refinement**: 
+    - Renamed "商品金額 (不含運)" to simply "商品金額" in the Card Link creation/edit modal.
+    - Updated the real-time calculation preview label from "預估應付總額" to "本次應付金額" to emphasize that this is the final amount the customer will pay (including selected shipping fees).
+- **Consistent Terminology**: Synchronized the `updateLinkTotalView` function to ensure all dynamic price updates use the new "本次應付金額" label.
+
+### Affected files or modules
+- `admin.html`: Modified `loadCardLinks`, `showCardLinkModal`, and `updateLinkTotalView`.
+
+### Chinese Summary
+優化「刷卡連結管理」金額標示：將列表標題與編輯視窗中的「總金額」明確更名為「商品金額」，並將計算運費後的加總項標示為「本次應付金額」。此更動旨在區分固定商品單價與最終含運費的結帳金額，減少管理端的認知誤差。
+
+---
+
+## [2026-02-25T14:15:00] - Client-Side UI Premium Refinement & Logic Fix
+### Summary of changes
+Polished the student-facing checkout pages to separate product costs from shipping fees and enhanced the UI by removing heavy borders for a cleaner, more premium aesthetic.
+
+### Technical details of implementation
+- **Amount Separation**:
+    - In `card-order.html`, Modified `updateTotal()` to ensure the "商品金額" label strictly displays the product/stage base price without including the dynamically calculated shipping fee. The shipping fee is now exclusively factored into the final "本次應付金額" total.
+- **UI Aesthetic Enhancement (Border Removal)**:
+    - **Payment & Stage Options**: Removed standard gray borders (`border-gray-100`) from interactive radio labels. Replaced with subtle background colors (`bg-gray-50`) and improved hover states.
+    - **Logistics Cards**: Refactored `.logistics-card` CSS across `card-order.html`, `fast.html`, and `maccha-store.html`. Replaced the thick gray borders with a transparent border/subtle background combo, transitioning to a brand-green border only when actively selected.
+    - **Color Synchronization**: Adjusted background and icon container colors to use lighter, semi-transparent brand tones (`brandLight/50`) for a softer visual hierarchy.
+
+### Affected files or modules
+- `card-order.html`: Logic fix for amount display and UI styling.
+- `fast.html`: Logistics card UI refinement.
+- `maccha-store.html`: Logistics card UI refinement.
+
+### Chinese Summary
+優化客戶端結帳介面：修正「商品金額」顯示邏輯，確保其固定顯示商品原價（不含運費），運費僅計入最終結帳總額。同步進行 UI 質感升級，移除付款方式與物流卡片的灰色邊框，改採淺色背景與品牌色動態邊框，營造更輕盈、高品質的視覺體驗。
+
+---
+
+## [2026-02-25T15:15:00] - Order Logic & UI Enhancements
+### Summary of changes
+Fixed permission issues in `fast.html`, upgraded the order success page, and added robust shipping validation to `card-order.html`. Enhanced the order tracking page with "Go to Payment" functionality for card orders.
+
+### Technical details of implementation
+- **Permission Fix**: Added `source_token` to Firestore writes in `fast.html` and `denwa-form.html` to resolve authorization errors.
+- **Premium Success Page**: Rebuilt `fast-diy-result.html` to match the high-end design of `form-result.html`, including order detail tables and screenshot reminders.
+- **Strict Shipping Validation**: Implemented input checks in `card-order.html`:
+    - CVS: Requires exact 6-digit store code.
+    - Home Delivery: Requires a non-empty, minimum length address.
+- **Order Tracking Upgrades**: Modified `jyoukyou.html` to:
+    - Search across `card_orders` collection.
+    - Dynamically display a "Go to Payment" (前往付款) button for unpaid card and telephone orders.
+
+### Chinese Summary
+修復 `fast.html` 下單權限錯誤，並升級結帳成功頁面至精品規格。同步加強專屬支付連結的物流校驗（超商 6 碼、宅配地址），並在訂單查詢頁面針對未付款訂單新增「前往付款」按鈕，優化支付閉環。
+
+---
+
+## [2026-02-25T15:53:00] - Admin Image Upload Optimization
+### Summary of changes
+Enhanced the image upload functionality in the admin backend for card payment links. This includes logic updates for better image quality and a UI overhaul of the upload component.
+
+### Technical details of implementation
+- **Center-Crop Compression**: Updated `previewLinkImage` in `admin.html` to use a Canvas-based central cropping algorithm. Images are now automatically cropped and resized to a perfect `1080x1080` square resolution.
+- **Custom UI Components**: Replaced the native browser "Choose File" input with a custom-styled dotted-border button featuring a cloud upload icon, aligning with the project's premium aesthetic.
+- **UX Improvements**: Added informative text within the upload area to guide users towards uploading 1080x1080 images for optimal results.
+
+### Affected files or modules
+- `admin.html`: CSS styles, HTML structure, and JavaScript compression logic.
+
+### Chinese Summary
+優化管理後台支付連結的縮圖上傳功能：將自動壓縮規格提升至 `1080x1080` 並改為正方形「中心裁切」，確保縮圖質感與比例統一。同時美化上傳介面，將原生檔案選擇器替換為品牌風格的自定義虛線按鈕。
+
+---
+
+## [2026-02-25T15:58:00] - Admin Link Defaults Synchronization
+### Summary of changes
+Improved the user experience for creating new payment links by automatically synchronizing default settings with the main store configuration.
+
+### Technical details of implementation
+- **Config Sync**: Updated `showCardLinkModal` in `admin.html` to fetch the latest settings from the `fast_checkout_config/default` document when initializing a new link.
+- **Auto-Population**: For new links, the following fields are now pre-populated from the store defaults:
+    - Enabled shipping methods (7-11, FamilyMart, Home Delivery).
+    - Free shipping status.
+    - Uniform fee settings and specific shipping fees for each method.
+
+### Affected files or modules
+- `admin.html`: Initialization logic for the payment link creation modal.
+
+### Chinese Summary
+優化支付連結的新增體驗：新增連結時會自動讀取資料庫中的「快速結帳設定」作為預設值，包括預設啟用的物流方式、免運設定及各項運費金額，提升管理效率。
+
+---
+
+## [2026-02-25T16:03:00] - Admin UI & Logic Refinement
+### Summary of changes
+Polished the admin interface by removing unauthorized red accents and fixing logic errors in the payment link configuration.
+
+### Technical details of implementation
+- **UI Standard Compliance**: Removed red color (`#ef4444`) from all `delete` icons and replaced them with a neutral gray (`#64748b`) to maintain the brand's premium and cohesive aesthetic.
+- **Nullish Logic Fix**: Refactored the data initialization in `showCardLinkModal` to use the nullish coalescing operator (`??`). This ensures that shipping fees set to `0` in the database are correctly respected and not overwritten by hardcoded fallback values like `60` or `120`.
+- **Template Cleanup**: Removed hardcoded fallback values from the HTML template string for shipping fees, allowing values to flow directly from the database configuration.
+
+### Affected files or modules
+- `admin.html`: Icon styling and modal initialization JavaScript.
+
+### Chinese Summary
+優化後台視覺與邏輯細節：全面移除刪除圖示的紅色樣式，改為中性深灰色以符合品牌質感；同時修正運費初始化邏輯，確保資料庫中設定為 0 元的項目不會被預設的 60/120 元覆蓋，精準呈現金流設定。
+
+---
+
+## [2026-02-25T16:15:00] - Multi-stage Checkout & Admin Shipping Logic Fix
+### Summary of changes
+Refined the multi-stage payment experience in the card checkout page and enhanced the admin panel's shipping configuration logic to pull live data from the database.
+
+### Technical details of implementation
+- **Multi-stage Payment UI**:
+    - Updated `card-order.html` to clearly separate "Product Total" and "Order Total (incl. Shipping)" in the summary area from the "Amount Due Now" (current stage) in the payment bar.
+    - Standardized the hover effect for payment stages using a brand-aligned light green (`#f9fdf7`) and dynamic border (`#6ea44c`) instead of the default Tailwind green.
+    - Ensured consistent use of `font-mono` for all currency displays.
+- **Admin Shipping Synchronization**:
+    - Added a live fetch of `shipping_rules` collection within the `showCardLinkModal` workflow in `admin.html`.
+    - Implemented auto-population logic: when selecting a shipping method (e.g., 7-11), the system now pulls relevant base fees from `shipping_rules` and automatically fills the fee inputs if they are empty or set to zero.
+
+### Affected files or modules
+- `card-order.html`: UI layout and `updateTotal` JavaScript.
+- `admin.html`: Modal initialization and shipping fee toggle logic.
+
+### Chinese Summary
+優化分階段支付體驗與後台物流配對邏輯：分派結帳頁現在會同時顯示「商品總額」與「訂單總額」，並於支付列標註「本次應付金額（階段款項）」。後台新增支付連結時，勾選物流方式將自動從 `shipping_rules` 資料庫抓取對應運費預填，減少人工輸入誤差。
+
+---
+
+## [2026-02-25T16:25:00] - Admin Auto-calculating Payment Stages
+### Summary of changes
+Introduced smart calculation for payment stages in the admin panel, allowing administrators to manage multi-stage payments more efficiently without manual math.
+
+### Technical details of implementation
+- **Auto-Balance Calculation**: Added `calculateRemainingStage` logic in `admin.html`. When multiple stages are present, editing the amount of any early stage (e.g., Down Payment) now automatically calculates and updates the final stage (e.g., Final Payment) to ensure the total matches the primary product amount.
+- **Smart Row Addition**: Updated `addStageRow` to automatically label rows as "預付款" (Down Payment) for the first entry and "尾款" (Final Payment) for subsequent entries.
+- **Improved UX**: Redesigned the "Stages" section in the admin modal with a more subtle, professional UI featuring dashed borders and clear descriptive text. Added live input listeners to ensure balance updates happen in real-time.
+
+### Affected files or modules
+- `admin.html`: Modal structure and stage management JavaScript.
+
+### Chinese Summary
+後台分階段支付智慧化：現在新增支付階段時，系統會自動將第一項標記為「預付款」，其餘為「尾款」。管理者只需輸入預付款金額，系統便會根據商品總額自動計算並填入尾款金額，無需再手動拆分與對帳。
+
+---
+
+## [2026-02-25T16:35:00] - Admin Payment Stages Simplification
+### Summary of changes
+Streamlined the multi-stage payment configuration in the admin panel to focus on a single input for Down Payment, removing the need for manual stage management.
+
+### Technical details of implementation
+- **Simplified Workflow**: Replaced the interactive "Add Stage" list with a single "First Stage Down Payment" toggle and number input field.
+- **Auto-Logic Integration**: 
+    - Updated `saveCardLink` in `admin.html` to automatically generate a two-stage payment structure (Down Payment + Final Payment) whenever the down payment option is enabled.
+    - Added validation to ensure the down payment is a positive value less than the total product amount.
+- **UI Decoupling**: Removed all JavaScript functions related to dynamic stage row management (`addStageRow`, `calculateRemainingStage`) to reduce code complexity and potential UI errors.
+- **Data Persistence**: Ensured existing multi-stage links correctly populate the new simplified input field upon editing.
+
+### Affected files or modules
+- `admin.html`: Modal structure, input logic, and save process.
+
+### Chinese Summary
+後台分階段支付大幅簡化：移除複雜的「增加階段」清單，改為單一「第一階段預付款」輸入框。現在管理者只需輸入預付款金額，系統在儲存時會自動推算出尾款並生成完整的兩階段支付結構，大幅提升操作效率。
+
+---
+
+## [2026-02-25T16:45:00] - Enforced Multi-stage Payment Logic
+### Summary of changes
+Refined the multi-stage payment system with enforced sequential payment logic and a simplified administrative configuration.
+
+### Technical details of implementation
+- **Admin Optimization**: Simplified the payment stage UI in `admin.html`. Administrators now only need to enable "First Stage Down Payment" and enter an amount. The system automatically calculates and generates the "Final Payment" stage upon saving.
+- **Sequential Payment Enforcement**: Modified `card-order.html` to prevent users from paying the final installment before the down payment is received. The "Final Payment" radio option is locked and visually disabled until the first stage is marked as `is_paid`.
+- **Flexible Full Payment Option**: Added an "One-time Full Payment" option to the checkout page, available only before any installments have been paid. 
+- **Shipping Fee Logic Refinement**: Updated `updateTotal` and `submitOrder` to ensure that **shipping fees are only applied to the Final Payment stage or Full Payment**. Selecting the "Down Payment" stage will now automatically set the shipping fee to 0.
+- **Backend Validation (GAS)**: Updated `handleCardPayment` in Google Apps Script to verify the stage sequence server-side and enforce zero shipping fees for the first stage.
+- **Automatic Status Synchronization**: Enhanced the ECPay callback handler to update stage statuses in Firestore. When a full payment is made, all corresponding stages are automatically marked as paid.
+- **Security Enhancements**: Patched a critical vulnerability in `firestore.rules` by removing frontend write access to the `card_orders` and `order_counters` collections. Order creation is now strictly regulated via a hard-coded client token, and modifications are restricted to admins or backend processes, preventing injection or unauthorized deletion.
+- **UX & Anti-Double-Submit**: Added a full-screen loading overlay (`#loading-overlay`) during the payment submission process in `card-order.html` to prevent users from interacting with the page while the API request is pending, mitigating the risk of double submissions.
+
+- **Go-live Audit & Quality Assurance**:
+    - **Idempotency Implementation**: Introduced `request_id` on the frontend and backend to prevent duplicate order generation from network retries or double-clicks.
+    - **Visual Consistency (8pt Grid)**: Adjusted `.section-card` spacing (mobile optimize) and unified button corner radius to `16px` (2xl) to match premium input styles.
+    - **Advanced UX Transitions**: Added smooth CSS transitions for logistics detail expansion in `card-order.html`, replacing abrupt visibility toggles.
+    - **Admin Mobile Optimization**: Refactored the "Close Case" modal table to support responsive wrapping, ensuring usability on small screens.
+    - **Empathetic Empty States**: Standardized "Empty State" UI across all admin panels with icons and contextual messaging to reduce coordinator uncertainty.
+    - **Error Resilience**: Enhanced API error handling in admin panels with user-friendly retry states for better fault tolerance.
+
+- **Admin UI Refinement**:
+    - **Tab Renaming**: Simplified "刷卡管理" to "刷卡" for a cleaner header.
+    - **Typography Adjustment**: Removed italic style from order notes in the card order table for better legibility.
+    - **Financial Transparency**:
+        - Added a "Total Amount" (總金額) column to the card order table with a gray sub-label for shipping fees.
+        - Enhanced the Order Detail modal to explicitly break down financial components: "Product Amount" (商品金額), "Shipping Fee" (運費), "Total Budget" (總預算), and "Current Stage Amount" (本階段金額).
+    - **Consistency**: Unified refresh buttons across admin panels using standard `.btn-secondary` styling with icons.
+
+### Affected files or modules
+- `admin.html`: Tab labels, order table structure, financial breakdown in detail modals, and UI consistency tweaks.
+
+### Chinese Summary
+優化管理員介面：簡化標籤名稱，並在刷卡訂單列表中加入「總金額」與「運費」標示。詳情視窗現在會清晰拆解商品原價、運費及目前支付階段的金額結構，提升帳務核對的透明度與便利性。
+
+- **Order Status Page Refinement (`jyoukyou.html`)**:
+    - **Financial Breakdown**: Enhanced search results to display a detailed breakdown of costs, including "Product Amount" (商品金額), "Shipping Fee" (運費), and "Total Amount" (總計金額) when available.
+    - **Stage Payment Clarity**: Specifically labeled "Current Stage Payment" (本階段支付) for card orders to prevent user confusion during multi-stage billing.
+    - **Layout Breathability**: Significant spacing improvements:
+        - Added `pt-12` and `mt-8` to the primary search container to ensure proper separation from the site navigation/header.
+        - Increased vertical spacing between the Search Box, Results Section, and "Need Help" container to improve visual hierarchy.
+
+### Affected files or modules
+- `jyoukyou.html`: Detailed financial results rendering and container spacing adjustments.
+
+### Chinese Summary
+優化訂單查詢頁面：在查詢結果中加入詳細的金額拆解（商品原價、運費、總額），並針對信用卡分期訂單標示「本階段支付」，讓使用者清楚掌握扣款細節。同時加大了頁面區塊間的間距，提升整體閱讀呼吸感。
+
+
+
+---
+
+## [2026-02-27] - Linear Order Detail Page Templates
+
+### Summary of changes
+Created two distinct design templates for the new Order Detail Page to evaluate different user experiences and information hierarchies. Both templates are built using the project's centralized design tokens to ensure visual consistency and a premium aesthetic.
+
+### Technical details of implementation
+- **Directory Establishment**: Created `/demo` folder to serve as the prototyping environment for new UI components.
+- **Version A (Vertical Linear)**: 
+    - Implemented a "Story-telling" timeline using vertical CSS pseudo-elements.
+    - Focused on mobile-first accessibility where status updates flow naturally downwards.
+    - Used brand-light (#ebf1e9) for active node backgrounds and brand-green (#6ea44c) for the primary track.
+- **Version B (Horizontal Stepper)**:
+    - Designed a "Status-at-a-glance" header with a horizontal progress stepper using SVG-like linear structures.
+    - Implemented a 3-column layout (on desktop) for better information density, separating items, financial summaries, and shipping data.
+- **Design System Adherence**: 
+    - **Radius**: Applied `var(--r-lg)` (24px) for cards and `var(--r-md)` (16px) for inputs/buttons.
+    - **Color**: Strictly used brand green variations and ghost backgrounds from `DESIGN_SYSTEM.md`.
+    - **Typography**: Integrated `Zen Maru Gothic` for branding and `Noto Sans TC` for body content.
+- **Responsive Engineering**: Utilized Tailwind CSS for fluid layout transitions between mobile and desktop views.
+
+### Affected files or modules
+- `demo/version-a.html` [NEW]
+- `demo/version-b.html` [NEW]
+
+### Chinese Summary
+建立與優化訂單詳情頁面範本：在 `demo/` 資料夾下實作兩款風格原型。版本 A 採用「縱向線性軌跡」，版本 B 採用「橫向步進器」。並針對版本 A 進行了 UI 精鍊，包含移除狀態標籤、更新狀態進階邏輯及新增聯絡客服按鈕。
+
+- **Refined Version A**:
+    - Removed redundant status badges from the header for a cleaner aesthetic.
+    - Updated timeline logic to a 3-stage progression: Submitted (Gray), Confirmed (Brand Green), Completed (Brand Green).
+    - Integrated a "Contact Support" call-to-action button using the primary brand style, adjusted to full-width to align with main content containers.
+
+## [2026-02-28] - Denwa Pay Page Design Prototypes
+
+### Summary of changes
+Created two distinct design prototypes for the upcoming "Phone Service Payment" page to validate the user experience and visual layout before integrating dynamic database synchronization.
+
+### Technical details of implementation
+- **Template V1 (Vertical Detail List)**:
+    - Designed as a full-width card containing a vertical list of plans.
+    - Each plan item features a title, subtle description, and side-aligned price/button groups.
+    - Optimized for scenarios with extensive plan descriptions.
+- **Template V2 (Compact Grid Cards)**:
+    - Designed with a 2-column grid layout within the main card.
+    - Emphasizes price through the `Zen Maru Gothic` brand font.
+    - Includes a high-contrast dark manual payment entry button for visual separation.
+- **Design System Integration**: 
+    - Both prototypes are built on the KEICHA design engine (24px radius, 8pt spacing).
+    - Integrated `animate-fade-up` and standardized brand terminology.
+    - Preserved the fixed "Manual Payment" requirement for `https://pcpay.tw/NF4vv`.
+
+### Affected files or modules
+- `demo/denwa-pay-v1.html` [NEW]: Vertical list prototype.
+- `demo/denwa-pay-v2.html` [NEW]: Grid card prototype.
+
+### Chinese Summary
+建立了「電話代撥支付頁」的兩款視覺原型：版本 V1 為「縱向清單」，適合詳細說明；版本 V2 為「兩欄網格」，強調金額展示。兩者皆嚴格遵守品牌設計規範，提供初步選型依據。
+
+## [2026-02-28] - Official Denwa Pay Page Implementation
+
+### Summary of changes
+Completed the official implementation of the "Telephone Forwarding Payment" page (`denwa-pay.html`) based on the validated V1 prototype. This page replaces static demos with real-time Firestore database synchronization.
+
+### Technical details of implementation
+- **Real-time Data Fetching**: Integrated Firebase SDK (v9 compat) to fetch payment plans from the `denwa_plans` collection.
+- **Dynamic Filtering & Sorting**: 
+    - Implemented client-side filtering for `status === 'ON'`.
+    - Implemented automatic sorting by `price` in ascending order.
+- **UI Refinement**:
+    - Renamed "Manual Payment Link" to "通用付款連結" (General Payment Link) to better reflect its purpose for flexible amounts.
+    - Updated bottom navigation to link back to the service introduction (`denwa.html`) instead of the home page.
+    - Added skeleton loaders for improved perceived performance during data fetching.
+- **Link Integrity**: Ensured the general payment link points to the fixed endpoint `https://pcpay.tw/NF4vv`.
+
+### Affected files or modules
+- `denwa-pay.html` [NEW]: Official payment page with dynamic integration.
+
+### Chinese Summary
+正式實作「電話代撥支付頁面」：串接 Firestore 資料庫實現動態載入方案，並依據金額由小到大自動排序。更新「通用付款連結」文字與底部署導航邏輯，確保與正式營運流程一致。
+
+## [2026-02-28] - Denwa Pay Page UX Refinement
+
+### Summary of changes
+Refined the user experience of the `denwa-pay.html` page by simplifying the interaction model and cleaning up the visual presentation.
+
+### Technical details of implementation
+- **Interaction Model**: Removed individual "Pay" buttons; now the entire plan component is a clickable link for faster checkout.
+- **Visual Cleanup**: 
+    - Removed green box-shadow and vertical translation on hover for a flatter, more professional look.
+    - Added brand-green border highlight as the primary hover state.
+    - Added subtle scale-down effect (`0.98`) on click/active state for tactile feedback.
+- **Typography and Layout**: Increased price font size in the list view to improve scannability.
+
+### Affected files or modules
+- `denwa-pay.html`: Refined interaction and styles.
+
+### Chinese Summary
+精煉「電話代撥支付頁面」互動體驗：移除獨立支付按鈕，改為點選整塊區域直接跳轉；簡化 Hover 視覺效果，僅保留品牌色邊框高亮，並加入點擊縮放回饋。
+
+## [2026-02-28] - Admin Product Export Optimization
+
+### Summary of changes
+Optimized the "Export All Products" functionality in the admin panel to group products by brand and sort them accordingly to improve report organization.
+
+### Technical details of implementation
+- **Brand Sorting Logic**: Modified the `exportAllProductsToExcel` function to pre-sort fetched products by brand name using `zh-Hant` locale comparison, ensuring products from the same brand are grouped together.
+- **Secondary Sorting Logic**: Added a secondary sort by `display_order` (and name if needed) within each brand group to maintain the user-defined product sequence.
+- **Data Enrichment**: Integrated the `brandMap` during the export process to correctly associate brand IDs with their respective human-readable names for the final spreadsheet output.
+
+### Affected files or modules
+- `admin.html`: Updated `exportAllProductsToExcel` JavaScript logic.
+
+### Chinese Summary
+優化「匯出全品牌商品資料」：現在匯出 Excel 時，系統會自動將同品牌的商品排列在一起，並依照品牌名稱與顯示順序進行排序，大幅提升後台管理與帳務對帳的效率。
+
+## [2026-02-28] - Unified Product Status and Admin UI Fixes
+
+### Summary of changes
+Resolved an inconsistency in product status values that caused some "Available" items to appear gray instead of brand green in the admin panel.
+
+### Technical details of implementation
+- **Status Unification**: 
+  - Unified the status value for active products to `available` across all components (Single Edit, Batch Edit, New Product). Previously, some components used `in-stock`, which wasn't fully mapped to the `active-green` UI class.
+  - Updated `renderProducts()` to recognize both `available` and `in-stock` as active states to ensure backward compatibility with existing data while transitioning to the unified standard.
+- **Admin UI Consitency**:
+  - Fixed the `statusClass` assignment in the product list to ensure the `active-green` class is applied whenever a product is in an active state.
+  - Added "Discontinued" (已停產) to the individual product edit and creation modals for functional parity with batch editing.
+
+### Affected files or modules
+- `admin.html`: Unified status values in modals (`editProduct`, `showProductModal`) and matched colors in `renderProducts`.
+
+### Chinese Summary
+修正後台商品狀態色彩不一致的問題：統一將上架狀態值定為 `available`，並確保無論是單筆編輯還是批量管理，「供應中」標籤皆能正確顯示為品牌綠。同時將「已停產」選項補齊至所有商品管理介面。
+
+## [2026-03-01] - PCHome Pay Integration (Backend)
+
+### Summary of changes
+Implemented official PCHome Pay payment integration in the Google Apps Script backend, providing a robust secondary payment option alongside ECPay.
+
+### Technical details of implementation
+- **Token Management**: Added `getPCHomePayToken` which implements HTTP Basic Auth to securely fetch short-lived access tokens from the PCHome Pay API.
+- **Order Creation**: 
+    - Implemented `handleCardPayment` logic for the `PCHomePay` provider.
+    - Added support for automatic environment switching (Sandbox vs. Production) based on the provided `APP_ID`.
+    - Integrated with PCHome Pay's `/v1/payment` endpoint to receive dynamic `payment_url` redirects.
+- **WebHook Callbacks**: 
+    - Added a routing rule in `doPost` to capture PCHome Pay's `notify_url` signals.
+    - Implemented `handlePCHomePayNotify` to parse and verify `order_confirm` events.
+    - Automated Firestore order status updates and multi-stage payment tracking matching the existing ECPay logic.
+- **Email Notifications**: Synchronized the payment success email flow for both the customer and admin using existing HTML templates.
+- **Payment Method Restriction**: Dynamic `pay_type` mapping implemented for PCHome Pay. The system now restricts the available payment channels on the PCHome Pay page based on the user's selection (e.g., Credit Card or ATM), ensuring UI consistency.
+
+### Affected files or modules
+- `gas/firebase_handler.gs`: core API integration, token handling, and result processing.
+
+### Chinese Summary
+實作 PCHome Pay 金流串接：支援自動取得 API Token、建立訂單並取得跳轉連結。同步實作 WebHook 回傳處理，確保付款後系統自動更新 Firestore 訂單狀態、同步支付階段並發送通知郵件，並優化支付管道限制，確保跳轉後僅顯示使用者選擇的付款方式。
+
+## [2026-03-01T05:30:35Z]
+### Summary of changes
+- **Firebase Hosting Recovery**: Restored the correct project deployment for `keicha-membership-system` after an accidental overwrite by an external project.
+- **URL Routing Optimization**: Enabled `cleanUrls` in `firebase.json` and added specific rewrite rules for `/admin` to ensure correct routing to `admin.html`.
+- **Admin Panel Syntax Fix**: Resolved critical "Unexpected end of input" and "ReferenceError" in `admin.html`.
+    - Escaped illegal `</script>` tags within JavaScript template literals.
+    - Fixed unclosed `DOMContentLoaded` event listener that prevented script execution.
+    - Restored missing `showShareButton` calls.
+
+### Affected files or modules
+- `firebase.json`: added cleanUrls and admin rewrite rules.
+- `admin.html`: fixed syntax errors and unclosed code blocks.
+
+### Chinese Summary
+恢復因錯誤部署受損的 Firebase Hosting 專案，並修復 `admin.html` 的嚴重語法錯誤（包含標籤轉義錯誤與未閉合的括號），同時優化路由規則，支援透過 `/admin` 短網址直接存取。
+
+## [2026-03-01T07:02:29Z]
+### Summary of changes
+- **Admin Panel Order Export**: Implemented a unified "Export Logistics Orders" button to compile both standard (`orders`) and link-based (`card_orders`) transactions containing shipping information.
+    - Excludes 'Completed' and 'Cancelled' statuses to filter only actionable orders.
+    - Autogenerates a single `.xlsx` file segmenting records into "全家訂單" and "7-11訂單" sheets adhering to the exact merchant-prescribed structure and columns.
+    - Sorts records chronologically by most recent `created_at` timestamp.
+- **UI Bug Resolution**: Corrected an improperly structured `<div>` inline property syntax error (`< div style = "margin-bottom: 12px;" >`) causing a visual bug in the card links view.
+
+### Affected files or modules
+- `admin.html`: Injected `exportLogisticsOrders()` function, `exceljs` processing, and removed faulty structural divs.
+
+### Chinese Summary
+在管理員後台實作「匯出物流訂單」功能，將標準訂單與連結訂單中含有物流資料、且未完成/未取消的項目，依建立時間降冪排序後，統一輸出成含「全家」與「7-11」獨立分頁的 Excel 檔案。同時修復了刷卡連結管理頁面上一處多餘的 HTML 文字破圖問題。
+
+## [2026-03-01T08:05:00Z]
+### Summary of changes
+- **Enhanced Order Export Filtering**: Refined `exportLogisticsOrders()` to include multiple logistics-related fields (`logistics`, `logistics_type`, `shipping_method`, `method`), ensuring orders with diverse naming conventions are correctly identified.
+- **Improved Order Data Mapping**: Expanded field detection for exports, including `items_text` for product descriptions and alternative total/shipping amount keys (`total`, `shipping`) to cover both standard and link-based orders.
+- **Brand UI Alignment**: Switched the order export confirmation from a native `confirm()` to the brand's custom `KUI.confirm()` dialog.
+- **Robust Card Link Copying**: Fixed the `copyCardLink()` function to correctly handle root path deployments (`/admin` vs `/admin.html`) by dynamically detecting and replacing the base path, ensuring generated payment links are always accurate.
+
+### Affected files or modules
+- `admin.html`: Updated `exportLogisticsOrders()` and `copyCardLink()` logic.
+
+### Chinese Summary
+優化「匯出物流訂單」的篩選邏輯，相容更多物流相關欄位（logistics, method 等）並支援更廣泛的商品與金額欄位名稱，確保資料不遺漏。同時修正了「支付連結」複製時因 URL 路徑不一致導致的錯誤問題，並將確認視窗統一更換為品牌風格的 `KUI.confirm` 組件。
+
+## [2026-03-01T08:45:00Z]
+### Summary of changes
+- **Testing Module Path Fix**: Removed the erroneous `/keicha/` segment from the generated test URLs in `admin.html` to ensure they point accurately to the root pages (e.g., `fast.html`).
+- **Removed Deprecated Test Actions**: Cleaned up the Testing Module UI by removing the two legacy "Card Order" testing buttons (PC-T, EC-T) as they are no longer required for current workflows.
+- **Resolved Logistics Options Duplication**: Fixed a bug in `fast.html` where legacy logistics methods like "7-11" and "全家" were being erroneously appended alongside the updated labels (e.g., "7-11 店到店"). The detection logic now utilizes `.some()` to verify any inclusive match within the enabled methods before appending fallbacks.
+
+### Affected files or modules
+- `admin.html`: Updated `goTestPage` URL construction and removed redundant button elements.
+- `fast.html`: Updated the logistics rendering logic to check for substring matches using `Array.some`.
+
+### Chinese Summary
+修復測試模組自動帶入時網址多了 `/keicha/` 導致開啟錯誤頁面的問題，並依需求移除了不必要的兩顆「刷卡測試」按鈕。同時修正了 `fast.html` 中物流選項（如 7-11、全家）因比對邏輯錯誤而重複顯示的 Bug。
+
+## [2026-03-01T10:45:00Z]
+### Summary of changes
+- **Admin UI Multi-select**: Implemented a long-press multi-select feature across all order lists (`orders`, `denwa_orders`, `card_orders`) in `admin.html`. 
+- **Batch Actions Integration**: Added a floating batch action bar that supports bulk status updates and bulk deletion.
+- **Delete Icon Standardization**: Unified all delete action icons across the admin panel to a consistent grey color (`#64748b`) with neutral button styling.
+- **Status Terminology Unification**: Standardized order statuses to four core states: '待處理', '已確認', '已完成' (in Brand Green), and '已取消'.
+- **Order Tracking Sorting**: Updated `jyoukyou.html` to sort order tracking results by creation date in descending order (newest first).
+
+### Affected files or modules
+- `admin.html`: Added multi-select logic, batch action UI, unified status badges, and standardized delete icons.
+- `jyoukyou.html`: Injected `createdAt` timestamp sorting into the unified search results array.
+
+### Chinese Summary
+這版主要的更新在「提升後台管理效率」與「視覺定義」。在訂單、預約、與刷卡連結列表中，新增了長按卡片即進入「多選模式」的功能，並加入底部懸浮工具列以支援「批次刪除」與「批次更改狀態」；同時統一了全站刪除按鈕的樣式與訂單狀態用語（待處理、已確認、已完成、已取消）。最後，前台「訂單追蹤」系統現在會聰明地按照建立時間「由新到舊」自動排序了。
+
+## [2026-03-01T11:45:00Z]
+### Summary of changes
+- **Unified Backend Statuses**: Standardized all backend database status mappings to use `available` and `discontinued` across Products, Brands, Plans, and Card Links.
+- **Frontend Status Normalization**: Updated `maccha-store.html` and `maccha-loader.js` logic to stringently display `可訂購` (available) and `缺貨中` (sold out) in place of varied legacy terms.
+- **Admin Modal Alignment**: Aligned all admin edit and creation modals (Select dropdown options) for Brands, Plans, and Fast Checkouts to strictly match the unified status conventions.
+
+### Affected files or modules
+- `admin.html`: Status badge rendering and select options.
+- `maccha-store.html`: UI button logic and status badges.
+- `maccha-loader.js`: Product data mapping logic.
+
+### Chinese Summary
+統一後台資料庫與前台所有的商品、品牌、方案、刷卡連結的狀態對應文字。後台一律使用 `available` 與 `discontinued`（介面為：啟用中、缺貨中、已隱藏），前台使用者介面則一律顯示「可訂購」及「缺貨中」，完全消弭了過去包含 ON/OFF、完售、已停辦等多種雜亂的用字，提升整體一致性。
+
+
+## [2026-03-01T11:49:33Z]
+### Summary of changes
+- **Status Enum Overhaul**: Completely migrated backend status representations to English strings (`pending`, `confirmed`, `completed`, `cancelled`) across all administration modules and checkout processes.
+- **Frontend Sync**: Updated dropdown menus, validation rules, and status badge parsers in `admin.html` to align with the new standard English enums.
+- **Card Order Integration Check**: Validated `card-order.html` to ensure `available` is queried accurately alongside legacy `開啟` properties.
+- **Migration Tool Implementation**: Built and embedded a one-shot `Database Status Repair` algorithm in the '系統維護' module to seamlessly migrate legacy strings to the standardized dictionary across `denwa_products`, `denwa_brands`, `denwa_plans`, `card_orders_links`, `orders`, and `denwa_orders`.
+
+### Technical details of implementation
+- Restructured all string-based condition tests globally for order tracking, display parsing, and dropdowns. 
+- Integrated Firestore `db.batch()` chunked commit mechanisms to ensure performance and reliability throughout the migration.
+
+### Affected files or modules
+- `admin.html`: Injected `startDatabaseRepairTool()` logic and updated multi-select actions to emit english payloads.
+- `order.html`: Timeline parsing logic.
+- `card-order.html`: Payment link availability checks.
+
+### Chinese Summary
+這次針對方案A的需求，全面將資料庫底層狀態以標準英文單字儲存（pending, confirmed, completed, cancelled...等）。為了過渡期，我們在後台寫好了一支「資料庫狀態統一修復工具」，按下去就可以用批次處理安全地翻新成千上萬筆舊資料為標準英文；同時全面檢查了所有的介面、包含前台的連結和進度條，來確保這項轉換是暢通無阻的。
+
+## [2026-03-01T20:15:00Z]
+### Summary of changes
+- **Admin Maintenance UI Refinement**: Adjusted the "System Maintenance and Repair" (系統維護與修復) module to follow a strict grayscale design system.
+- **Grayscale Design System**: Removed all red, yellow, and orange accent colors from the Database Standardization tool, replacing them with neutral slate and gray tones.
+- **Emoji Removal**: Stripped all emojis (⚠️, 🎉) from the user interface and operation logs to maintain a professional, technical aesthetic.
+
+### Technical details of implementation
+- **Schema Alignment**: Corrected the repair tool's target collection names from `denwa_products`/`denwa_brands` to `matcha_products`/`matcha_brands` to align with the production Firestore structure.
+- **Style Overhaul (`admin.html`)**: Updated the primary container style from yellow-toned (`#fffdf2`, `#fcd34d`) to slate-toned (`#f8fafc`, `#cbd5e1`).
+- **Accent Neutralization**: Reassigned the action button and icon colors to `#475569` and `#64748b`.
+- **Log Sanitation**: Modified `startDatabaseRepairTool()` to output plain text logs, removing emoji prefixes and using neutral toast types.
+
+### Affected files or modules
+- `admin.html`: Maintenance tab styling and repair tool JavaScript logic.
+
+### Chinese Summary
+將系統維護與修復（資料庫轉換工具）的介面全面改為灰色系設計，移除了所有的 Emoji、紅色、橘色偏黃等鮮豔屬性，確保介面風格專業且低調，僅使用中性的灰色調進行呈現。
+
+## [2026-03-01T20:25:00Z]
+### Summary of changes
+- **Batch Edit Workflow**: Added automatic modal closing and data reloading after successful batch updates or deletions.
+- **Improved Confirmations**: Implemented status label translation in confirmation messages (e.g., 'completed' to '已完成').
+- **Custom Delete Dialog**: Replaced the native `prompt()` with a custom `KUI.prompt` component for batch delete confirmation, ensuring consistent styling.
+- **UI Label Update**: Renamed '測試模組' to '測試' across the navigation and content sections.
+- **Loading Overlay**: Integrated loading indicators with modal transitions.
+
+### Technical details of implementation
+- **KUI System Extension**: Added `KUI.prompt` function to `js/ui-dialog.js` with auto-focus and Enter-key submission.
+- **DOM Event Handling**: Added `closeModal()` calls within Firestore batch update completions.
+- **Text Refactoring**: Standardized naming across HTML tags and JavaScript comments for the 'Testing' module.
+
+### Affected files or modules
+- `admin.html`: Batch action functions and UI labels.
+- `js/ui-dialog.js`: Core dialog management logic.
+
+- **Status Terminology Unification**: Created `js/status-config.js` to centralize all status labels and UI badge rendering.
+- **Link Order Mapping**: Standardized "Card Order" status to `confirmed` (Previously `paid`), aligning with backend terminology.
+- **Workflow Consistency**: Ensured all edit and delete operations in the admin panel trigger a modal close and automated data reload.
+- **Improved UX**: Upgraded individual delete confirmations to use the custom KEICHA UI dialog system.
+
+### Technical details of implementation
+- **Batch Action Flow**: Reordered `exitBatchMode()` to occur after UI data reloads in `admin.html` to preserve the active context during list refresh.
+- **CSS Consistency**: Updated inline styles for installments count badges to use pill-shaped radius (`9999px`).
+- **GAS compatibility**: Modified `firebase_handler.gs` to recognize `available` and `active` as open link statuses.
+
+### Affected files or modules
+- `admin.html`: Fixed batch logic and badge styles.
+- `gas/firebase_handler.gs`: Updated checkout validation logic.
+- `CHANGELOG.md`: Updated with newest maintenance notes.
+
+### Chinese Summary
+修正了批次操作後不會自動關閉或刷新的邏輯錯誤。統一了「分次/階段」標籤的圓角設計。更新了後端 GAS 腳本，使其支援新的「啟用中」狀態碼，解決了結帳時出現「連結已關閉」的報錯。
+
+---
+
+### [1.2.9] - 2026-03-01
+
+#### **Summary of changes**
+Implemented real-time synchronization of member profile data to Firestore. As users enter their information in `denwa-form.html` and `fast.html`, the data is automatically updated/created in the `members` collection using a debounced mechanism.
+
+#### **Technical details of implementation**
+- **Member Sync Utility**: Created `js/member_sync.js` which provides a reusable `MemberSync` object. It includes a 2000ms debounce function to optimize Firestore write operations and uses the phone number as the document ID for the `members` collection.
+- **Form Integration (Fast Checkout, DIY, Matcha Store)**: Added/Refined listeners across `fast.html`, `diy.html`, and `maccha-store.html` to capture both personal details and shipping information (store IDs, addresses) in real-time.
+- **Exclusion**: Removed synchronization logic from `denwa-form.html` as requested.
+- **Persistence**: Synchronized data is automatically available for auto-filling forms on subsequent visits via the existing lookup logic.
+
+#### **Affected files or modules**
+- `js/member_sync.js`: [NEW] Central sync utility.
+- `denwa-form.html`: Integrated real-time sync into booking flow.
+- `fast.html`: Integrated real-time sync into fast checkout flow.
+
+> 實現會員資料「輸入即存檔」功能，自動同步聯絡資訊與收件地址至 Firestore。
+> 提升客戶填單體驗，確保資料在未送出前即已完成建檔或更新。
+
+---
+
+### [1.2.10] - 2026-03-01
+
+#### **Summary of changes**
+- Fixed a bug where `denwa_plans` failed to load in `denwa-form.html` by updating the criteria to include `available` status as managed by the admin panel.
+- Fixed `STATUS_MAP is not defined` ReferenceError in `jyoukyou.html`, ensuring proper translation of order statuses (pending, confirmed, completed, cancelled) to traditional Chinese.
+
+#### **Technical details of implementation**
+- **Denwa Plans Hotfix**: Changed the Firebase document query in `denwa-form.html` to accept both `'ON'` and `'available'` statuses, ensuring backward compatibility and consistency with the updated admin data structure.
+- **Jyoukyou Status Fix**: Reinitialized the `STATUS_MAP` inline object in `jyoukyou.html` to map internal English status keys to localized Traditional Chinese display strings.
+
+#### **Affected files or modules**
+- `denwa-form.html`
+- `jyoukyou.html`
+
+**中文說明：**
+修復了 `denwa-form.html` 方案未正常載入的異常，將判定條件放寬以支援由後台設定的 `available` 狀態；修復了 `jyoukyou.html` 查詢結果出錯（`STATUS_MAP` 未定義）的問題。
+
+---
+
+### [1.2.11] - 2026-03-01
+
+#### **Summary of changes**
+- Implemented a one-time "Member Data Migration Tool" in the admin panel to consolidate and standardize member document IDs.
+- Unified all member data write and read paths across `diy.html`, `fast.html`, `maccha-store.html`, and `shop/shop.js` to strictly use the phone number as the document ID in Firestore.
+
+#### **Technical details of implementation**
+- **Migration Tool**: Added a script in `admin.html` that queries the `members` collection, identifies documents with random (legacy) IDs, and merges their data into standard `doc(phone)` documents before securely deleting the redundant entries.
+- **Write Path Refactor**: Replaced `db.collection('members').where('phone', '==', phone)` update/add flows with atomic `db.collection('members').doc(phone).set(data, { merge: true })` calls. This guarantees that multiple checkout flows will not overwrite or duplicate member profile data (especially critical for differing logistics data like `store_711` vs `store_fami`).
+- **Read Path Refactor**: Updated lookups to use `.doc(phone).get()` instead of `.where().limit(1).get()`, significantly improving lookup efficiency and ensuring compatibility with the new ID structure.
+
+#### **Affected files or modules**
+- `admin.html`: Added the migration layout and logic.
+- `diy.html`, `fast.html`, `maccha-store.html`: Refactored Firestore read/write patterns.
+- `js/checkout_core.js`, `shop/shop.js`: Refactored Firestore read/write patterns for shared/shop environments.
+
+**中文說明：**
+建立了一次性的會員資料轉移工具，將舊的隨機 ID 會員資料整併。全面統整了前台所有表單寫入及讀取路徑，統一使用「手機號碼」作為文件 ID 並搭配 `merge: true` 寫入，徹底解決超商物流點位資料會互相覆蓋或遺失的 Bug。
+
+---
+
+### [1.2.12] - 2026-03-01
+
+#### **Summary of changes**
+- Updated all legacy navigation links pointing to the deprecated `maccha.html` to direct to the new shopping cart version `maccha-store.html`.
+- Included a dedicated contact section at the bottom of the `maccha-store.html` page to handle inquiries about other matcha brands via the LINE Official Account.
+
+#### **Technical details of implementation**
+- **Global Link Updates**: Replaced URL references to `maccha.html` with `maccha-store.html` across core template components (header/footer/index) and within structured JSON-LD SEO data in `maccha-loader.js`.
+- **Store Enhancement**: Created a new white card section near the bottom of the product list in `maccha-store.html`. Adjusted CSS padding and margins (`py-12 md:py-16`, `mt-12`, `mb-0`, and `pb-12` on main container) to vertically align and visually balance the section with the site footer. Added hover elevation and shadows matching the design of the central brand cards (`shadow-sm hover:shadow-md transform hover:-translate-y-1 transition-all duration-300`).
+
+#### **Affected files or modules**
+- `index.html`
+- `_includes/header.html`
+- `_includes/footer.html`
+- `assets/js/maccha-loader.js`
+- `maccha-store.html`
+
+**中文說明：**
+全面將舊版 `maccha.html` 抹茶代購的連結替換至支援購物車的 `maccha-store.html`。並在商城底部新增純白質感的「其他品牌代購（LINE客服）」聯絡區塊，設定等距版面留白與懸浮陰影特效。
+
+---
+
+### [1.2.13] - 2026-03-01
+
+#### **Summary of changes**
+- Updated the privacy policy content in `assets/data/privacy.tsv` to accurately reflect the current business model and data collection methods, removing irrelevant boilerplate text.
+
+#### **Technical details of implementation**
+- **Data Collection Accuracy**: Modified section "一、資料蒐集方式與項目" to explicitly mention the "website member checkout system" and secure storage in an internationally certified cloud database (Firebase).
+- **Third-Party Providers**: Corrected section "五、第三方服務與資料提供" by replacing generic examples ("restaurants, hotels, transportation") with the actual third-party checkout and logistics platforms used by the business (7-11 Myship, FamilyMart FamiStore, and Google integrations).
+
+#### **Affected files or modules**
+- `assets/data/privacy.tsv`
+
+**中文說明：**
+修正了隱私權條款內容（`privacy.tsv`），移除了不相關的第三方公版舉例（如餐廳、飯店等），並明確加入實際使用的物流平台（7-11 賣貨便、全家好賣+）與符合國際資安標準的雲端會員結帳系統（Firebase）說明，以符合實際業務現況並提升客戶信任。
+
+---
+
+### [1.2.14] - 2026-03-02
+
+#### **Summary of changes**
+- Fixed an issue in `denwa-pay.html` where payment plans failed to load because it was strictly matching the legacy `'ON'` status instead of the newly standardized `'available'` status.
+
+#### **Technical details of implementation**
+- **Plan Loading Criteria Update**: Expanded the array filter condition in `denwa-pay.html` to accept `p.status === 'ON' || p.status === 'available'`. This aligns with the previous updates made to `denwa-form.html` to ensure compatibility with how plan statuses are currently managed in the admin backend.
+
+#### **Affected files or modules**
+- `denwa-pay.html`
+
+**中文說明：**
+修復了 `denwa-pay.html` 中無法正常顯示電話代撥支付方案的問題。主因與先前預約表單相同，原系統只判斷舊有的 `ON` 狀態，現在已將條件加上支援後台設定的 `available` 狀態。
+
+---
+
+### [1.2.15] - 2026-03-02
+
+#### **Summary of changes**
+- Synchronized the member data read/write logic in `card-order.html` with the rest of the application to ensure profile consistency across all checkout entry points.
+
+#### **Technical details of implementation**
+- **Read Path Migration**: Updated `lookupPhoneData` in `card-order.html` to fetch member profiles using direct document IDs (`db.collection('members').doc(phone).get()`) instead of query-based filtering.
+- **Auto-Sync on Checkout**: Implemented a background sync in `submitOrder` that automatically updates the user's `members` document with the latest name, email, LINE name, and logistics preferences (Store ID or Address) whenever a card payment is initiated.
+- **Atomic Operations**: Used `set(..., { merge: true })` to prevent accidental overwrites of existing member fields while ensuring new information is captured reliably.
+
+#### **Affected files or modules**
+- `card-order.html`
+
+**中文說明：**
+統一了專屬刷卡頁面 (`card-order.html`) 的會員資料讀寫邏輯。現在當客人在刷卡結帳時更新收件姓名、Email 或取貨門市，系統會自動將最新資訊同步回資料庫的會員存檔中，確保客人在不同頁面間購物時的一致性體驗。
+
+---
+
+### [1.2.16] - 2026-03-02
+
+#### **Summary of changes**
+- Fixed display inconsistencies and data mapping errors in the order tracking page (`jyoukyou.html`).
+
+#### **Technical details of implementation**
+- **Calculation Correction**: Updated card order display to calculate "Total Amount" by summing `base_amount` and `shipping_fee` as a fallback, ensuring the total matches the breakdown even if `total_budget` was saved incorrectly in the database.
+- **Mapping Fixes**: Corrected "Seller Remark" mapping for card orders to correctly pull from `seller_note` instead of the buyer's `note` field.
+- **Status Unification**: Standardized status labels across all order types to `待處理`, `已確認`, `已取消`, and `已完成` using a unified `STATUS_MAP`.
+- **UI Styling**: Updated status badge colors to match brand requirements—only `已完成` (Completed) is Green, while all other statuses are now uniformly Grey.
+
+#### **Affected files or modules**
+- `jyoukyou.html`
+
+**中文說明：**
+修復了訂單查詢頁面 (`jyoukyou.html`) 的顯示問題。包括修正刷卡訂單的總計金額計算（避免漏算運費）、修正「賣家留言」誤抓成客人備註的問題。同時統一了所有訂單類型的狀態名稱（待處理、已確認等）與配色，確保只有「已完成」顯示為綠色，其餘進度皆以灰色顯示，維持介面語義一致。
+
+---
+
+### [1.2.17] - 2026-03-02
+
+#### **Summary of changes**
+- Reorganized the project root directory to improve maintainability and follow better structural patterns.
+
+#### **Technical details of implementation**
+- **Folder Creation**: Created `/admin`, `/docs`, and `/archive` directories to categorize root-level files.
+- **File Relocation**: 
+  - Moved `admin.html` and `admin_fast.html` to `/admin/`.
+  - Moved documentation (`DATABASE_SCHEMA.md`, `DEPLOY_GUIDE.md`, etc.) to `/docs/`.
+  - Moved legacy/test files (`seed.html`, `original_denwa.html`, etc.) to `/archive/`.
+- **Link Integrity**: Updated `admin.html` to use absolute paths for CSS and JS assets to ensure functionality from the new subfolder.
+- **Hosting Configuration**: Updated `firebase.json` rewrite rules to map `/admin` to `/admin/admin.html`, preserving the clean administrative URL.
+- **Documentation Updates**: Renamed `PChomePay API.md` to `PChomePay_API.md` and updated internal documentation references.
+
+**中文說明：**
+完成了專案根目錄的結構重整，將管理後台、系統文件、以及舊版/測試檔案分別歸類至 `/admin`、`/docs` 與 `/archive` 資料夾中。同時更新了 Firebase Hosting 的路徑對應，確保原本的 `/admin` 存取網址依然有效，並修正了移動後的檔案連結以維持功能正常。
+
+---
+
+### [1.2.18] - 2026-03-02
+
+#### **Summary of changes**
+- Refined billing logic and total amount visibility in the order tracking page (`jyoukyou.html`).
+
+#### **Technical details of implementation**
+- **Calculation Correction**: Forced "Total Amount" to always be calculated as `subtotal + shipping_fee`. Added a fallback to the current total "amount" for legacy orders where individual items were not captured.
+- **Conditional Visibility**: Implemented logic to hide the "Stage Payment" (本階段支付) row if the current amount to pay equals the total order value, reducing clutter for single-payment orders.
+- **Data Mapping Enhancement**: Expanded Firestore data mapping to bridge `baseAmount` and `shippingFee` for all order types (Matcha, Denwa, and Custom Card links).
+
+**中文說明：**
+優化了訂單查詢頁面 (`jyoukyou.html`) 的款項顯示邏輯。現在「總計金額」會強制限於「商品金額 + 運費」，若單次付清則會自動隱藏「本階段支付」欄位，僅在兩階段付款或金額不一致時才會額外顯示，使帳單明細更直觀清晰。
+
+---
+
+### [1.2.19] - 2026-03-02
+
+#### **Summary of changes**
+- Improved CSS compatibility and resolved syntax warnings across multiple components.
+
+#### **Technical details of implementation**
+- **Browser Compatibility**: Added standard `appearance: textfield` property alongside `-moz-appearance` for number inputs to ensure consistent UI across modern browsers.
+- **Syntax Correction**: Removed invalid `ring` CSS property (Tailwind utility misused in standard CSS) and replaced it with standard `box-shadow` focus states in `diy.html` and `admin/admin_fast.html`.
+- **UI Consistency**: Standardized focus ring aesthetics to match the brand design system (3px spread, 10% opacity brand green).
+
+**中文說明：**
+提升了 CSS 的瀏覽器相容性並修正語法錯誤。修正了數字輸入框在非 Firefox 瀏覽器下的顯示相容性，並將 CSS 中誤用的 `ring` 屬性替換為標準的 `box-shadow` 聚焦效果，確保介面在不同環境下都能穩定呈現設計規範。
+
+---
+
+### [1.2.20] - 2026-03-02
+
+#### **Summary of changes**
+- **UI Refinements**: Updated placeholders in `denwa-form.html` to clarify input requirements (Shopee ID, Booking Name). Simplified "特殊備註" label to "備註".
+- **Plan Loading Logic**: Expanded Firestore filtering in `denwa-form.html` to include both `ON` and `available` status for plans. Added logging for easier debugging.
+- **Path Integrity**: Restored `form-result.html` and `fast-diy-result.html` to the root directory, fixing the 404 error on redirection.
+- **Pre-Deployment Sync**: Verified local file existence and sync before final build.
+- **Admin Access Restoration**: Moved `admin.html` and `admin_fast.html` back to the root directory from `/admin/` as GitHub Pages redirection issues caused 404. Updated `firebase.json` for mapping.
+- **Permalink Optimization**: Removed `permalink: /admin` in favor of direct file access for maximum compatibility across environments.
+- **Admin URL Update**: The master admin interface is now back to `https://keicha2025.github.io/admin.html`.
+
+**中文說明：**
+因 GitHub Pages 的轉址設定導致子目錄下的管理介面出現 404 錯誤，現已將 `admin.html` 與 `admin_fast.html` 搬回根目錄。現在 GitHub 正向入口均恢復正常（URL 為 `https://keicha2025.github.io/admin.html`），並同步更新了 Firebase 的轉址規則確保兩端一致。
+
+---
+
+### [1.2.21] - 2026-03-02
+
+#### **Summary of changes**
+- Expanded configuration state checks in the fast checkout frontend logic to resolve "Shop Closed" misidentification.
+
+#### **Technical details of implementation**
+- **Status Value Check Relaxation**: Updated `renderPageConfig()` function inside `fast.html`. The page previously only recognized exactly `'開啟'` as an active fast-checkout shop state. Modified the condition (`!['開啟', 'available', 'ON'].includes(fastConfig.status)`) to interpret `'available'` and `'ON'` (produced by the admin or default database setups) as valid open states. This unblocks the user interface without altering backend structure or previously saved document states.
+
+**中文說明：**
+修正了 `fast.html` 快速結帳頁面的賣場開啟狀態判斷，將 `available` 與 `ON` 等資料庫實際儲存的值一併納入「開啟」的條件，避免明明後台已設定開啟，前端卻被「目前未開放」遮罩卡住的問題。
+
+---
+
+### [1.2.22] - 2026-03-02
+
+#### **Summary of changes**
+- Synchronized admin toggle logic with the expanded status values to correctly reflect and update the shop state.
+
+#### **Technical details of implementation**
+- **Admin Toggle Initialization**: Updated both `admin.html` (Quick Checkout tab) and `admin_fast.html` to check if status is within `['開啟', 'available', 'ON']`. This ensures the toggle correctly reflects the active shop state upon page load.
+- **Admin Status Persistence**: Explicitly configured `saveFastConfig()` in `admin.html` to save the active status as `'available'`, ensuring a uniform data standard that matches the frontend `fast.html` check.
+
+**中文說明：**
+修正了 `admin.html` (快速結帳頁籤) 的狀態開關邏輯。現在進入官網管理後台時，開關能正確根據資料庫中的 `available` 值切換為「開啟」狀態，且儲存時會統一標記為 `available`，解決了後台開關狀態與實際設定不符的問題。
+### [1.2.23] - 2026-03-02
+
+#### **Summary of changes**
+- Updated form fields in `diy.html` and `fast.html` to improve multi-platform support (LINE/Shopee).
+- Verified email notification support for DIY orders.
+
+#### **Technical details of implementation**
+- **UI Label Update**: Changed "LINE 顯示名稱" to "LINE / 蝦皮顯示名稱" and updated placeholders in both `diy.html` and `fast.html` to better accommodate Shopee users.
+- **Backend Verification**: Confirmed that `firebase_handler.gs` correctly handles `new_matcha_order` notifications for DIY/Fast orders as long as the `email` field is provided by the frontend. Checked that `generateOrderEmailHTML` supports `items_text` which is used by these pages.
+
+**中文說明：**
+優化了自填單 (`diy.html`) 與快速結帳 (`fast.html`) 的表單欄位名稱。將 LINE 顯示名稱改為具備蝦皮名稱提示的複合欄位，並確認了後台 GAS 程式碼已支援發送此類訂單的結帳通知信件。
+
+---
+
+### [1.2.24] - 2026-03-02
+
+#### **Summary of changes**
+- Refined field placeholders in `diy.html` and `fast.html` for better user guidance.
+
+#### **Technical details of implementation**
+- **Placeholder Update**: Updated the placeholder for "LINE / 蝦皮顯示名稱" from "蝦皮客戶請填寫蝦皮名稱" to "請輸入主要聯絡方式的顯示名稱" across `diy.html` and `fast.html`. This provides more general guidance regardless of the communication platform used.
+
+**中文說明：**
+優化了表單中的提示文字。將 `diy.html` 與 `fast.html` 的聯絡名稱佔位符統一改為「請輸入主要聯絡方式的顯示名稱」，使引導內容更具包容性。
+
+---
+
+### [1.2.25] - 2026-03-02
+
+#### **Summary of changes**
+- Implemented tab persistence in the admin panel (`admin.html`) to remember the last active tab after a page reload.
+
+#### **Technical details of implementation**
+- **Persistence Logic**: Updated `switchTab` to store the active tab name in `localStorage` under `adminActiveTab`.
+- **Restoration Logic**: Modified `showMainApp` to retrieve the saved tab from `localStorage` on login and trigger `switchTab` during initialization.
+- **UI Enhancement**: Improved `switchTab` to correctly highlight the manual button even when triggered programmatically at startup.
+
+**中文說明：**
+實作了官網後台 (`admin.html`) 的分頁記憶功能。現在操作員在切換分頁後重新整理網頁，系統會自動停留在最後使用的標籤頁，提升操作體驗。
+
+---
+
+### [1.3.0] - 2026-03-02
+
+#### **Summary of changes**
+- Optimized deployment workflow by introducing GitHub Actions CI/CD for dual-environment support (Firebase Beta & GitHub Production).
+- Updated the deployment guide to reflect the transition from manual to automated processes.
+
+#### **Technical details of implementation**
+- **CI/CD Workflow**: Created `.github/workflows/deploy.yml` to automate Jekyll builds.
+- **Beta Environment**: Configured automatic deployment to Firebase Hosting for all branch pushes, facilitating rapid testing and preview.
+- **Production Environment**: Implemented manual trigger (`workflow_dispatch`) for GitHub Pages deployment from the `main` branch, ensuring a gated release process as per project policy.
+- **Documentation**: Overhauled `docs/DEPLOY_GUIDE.md` to explain the new automated flow and how to configure repository secrets.
+
+**中文說明：**
+導入了 GitHub Actions 自動化部署流程，優化了開發體驗。所有分支推送現在都會自動部署到 Firebase (Beta 測試版)，而 GitHub Pages (正式版) 則改為手動點選觸發，確保在測試完全無誤後才更新正式官網。
+
+---
+
+### [1.3.1] - 2026-03-02
+
+#### **Summary of changes**
+- Verified the GitHub Actions CI/CD configuration by triggering an automated deployment.
+- Successfully validated the connection between GitHub and Firebase Hosting using the newly configured Secret.
+
+#### **Technical details of implementation**
+- **Trigger**: Performed a push to `main` to initiate the "Keicha Automated Deployment" workflow.
+- **Validation**: Confirmed that the build and deployment jobs correctly retrieve the `FIREBASE_SERVICE_ACCOUNT` secret and update the live site.
+- **Documentation**: Updated `docs/DEPLOY_GUIDE.md` with the latest verification timestamp.
+
+**中文說明：**
+驗證了 CI/CD 自動化部署設定。透過推送到 GitHub 觸發自動建置，並確認 Firebase Hosting Secret 設定正確，能夠成功完成遠端部署流程。
+
+---
+
+### [1.3.2] - 2026-03-02
+
+#### **Summary of changes**
+- Added a new "All Pages" (所有頁面) section to the Testing tab in `admin.html`.
+- Listed direct links to all key frontend pages for quick post-deployment verification.
+
+#### **Technical details of implementation**
+- **UI Update**: Created a new `card` section in the Testing tab with a responsive grid of buttons.
+- **Navigation**: Integrated links to `index.html`, `maccha-store.html`, `denwa.html`, `fast.html`, `diy.html`, and other customer-facing pages.
+- **Design Alignment**: Used consistent material icons and color tokens (Matcha green, Telephony blue) following the project's design system.
+
+**中文說明：**
+在管理後台的「測試」標籤頁中新增了「所有前端頁面」快速連結區塊。方便管理員在發佈新版本後，快速點擊按鈕確認各個頁面（如商店、電話代撥、結帳單等）的顯示是否正常。
+
+---
+
+### [1.3.3] - 2026-03-02
+
+#### **Summary of changes**
+- Refined the "All Pages" section in `admin.html` to strictly follow the brand color system.
+- Added the missing "Phone Order Form" (`denwa-form.html`) to the primary service list.
+- Removed the "Home" button as requested.
+
+#### **Technical details of implementation**
+- **Brand Color Alignment**: Primary services (Matcha Store, Phone Form, Fast, DIY) now exclusively use brand green (`#6ea44c`).
+- **Visual Hierarchy**: Auxiliary pages (Menu, Search, etc.) are standardized to grey (`#64748b`).
+- **Navigation Update**: Added `denwa-form.html` and removed `index.html` from the quick link grid.
+
+**中文說明：**
+優化管理後台的快速連結區塊，嚴格遵守品牌色彩系統。主要服務（抹茶商店、電話代撥表單、DIY、Fast）統一使用品牌綠色，其餘頁面統一使用灰色，並新增遺漏的電話表單連結且移除首頁按鈕。
+
+---
+
+### [1.3.4] - 2026-03-02
+
+#### **Summary of changes**
+- Adjusted "Order Search" (訂單查詢) to redirect to `jyoukyou.html`.
+- Removed the "SIM Status Search" (門號狀況查詢) button to streamline the interface.
+
+#### **Technical details of implementation**
+- **Navigation Update**: Updated the `href` of the "Order Search" link in the Testing tab's quick link section.
+- **Cleanup**: Excised the redundant "SIM Status Search" button from the `admin.html` grid.
+
+**中文說明：**
+調整管理後台快速連結的導覽邏輯。將「訂單查詢」按鈕改為引導至 `jyoukyou.html` 頁面，並移除重複的「門號狀況查詢」按鈕，使介面更加精簡。
+
+---
+
+### [1.3.5] - 2026-03-02
+
+#### **Summary of changes**
+- Updated `docs/DEPLOY_GUIDE.md` to include manual production deployment instructions via GitHub CLI (`gh`).
+- Triggered the first manual production deployment to GitHub Pages.
+
+#### **Technical details of implementation**
+- **Documentation Update**: Added "Method B" (GitHub CLI) to the manual trigger instructions in the deployment guide, along with installation hints (`brew install gh`).
+- **Automation Hint**: Informed about the manual trigger requirement via GitHub Web UI if the CLI tool is not yet installed.
+
+**中文說明：**
+更新部署指南文件，增加使用 GitHub CLI 指令觸發正式環境部署的說明與安裝提示。由於本地環境尚未安裝 `gh` 工具，建議本次發布暫由 GitHub 網頁端手動觸發部署。
+
+---
+
+### [1.3.5.3] - 2026-03-03
+
+#### **Summary of changes**
+- Fixed an error in `docs/DEPLOY_GUIDE.md` where the field name for `gh workflow run` was incorrect.
+
+#### **Technical details of implementation**
+- **Bug Fix**: Changed `--field deploy_env=github_prod` to `--field deploy_target=github_prod` to match the trigger configuration in `deploy.yml`.
+
+**中文說明：**
+修正部署指南中的參數錯誤。將指令中的 `deploy_env` 修改為正確的 `deploy_target`，以符合自動化腳本的設定。
+
+---
+
+### [1.3.6] - 2026-03-03
+
+#### **Summary of changes**
+- Optimized PChome Pay checkout experience by pre-filling buyer information.
+
+#### **Technical details of implementation**
+- **Backend (GAS)**: Modified `gas/firebase_handler.gs` to pass `buyer_name`, `buyer_mobile`, and `member_key` to the PChome Pay `/v1/payment` API in both initial payment and repayment flows.
+- **User Experience**: Automatically populates the buyer's name and mobile number on the PChome Pay payment page using data already collected on the shop's checkout page.
+- **Data Sanitization**: Implemented phone number formatting (digits only) to meet PChome Pay API specifications.
+
+**中文說明：**
+優化 PChome Pay 結帳流程。透過在後端 API 呼叫中帶入買家姓名與電話，讓用戶跳轉至金流平台時不再需要重複輸入基本資料，提升結帳體驗與效率。
+
+---
+
+### [1.3.7] - 2026-03-03
+
+#### **Summary of changes**
+- Enhanced PChome Pay pre-fill logic with phone number sanitization.
+- Improved checkout loading UI with dynamic, randomized status messages.
+
+#### **Technical details of implementation**
+- **Backend (GAS)**: Refined `gas/firebase_handler.gs` to sanitize phone numbers (e.g., converting `886` prefix to `0`) to increase the success rate of PChome Pay's auto-fill feature.
+- **Frontend (UI)**: Updated `card-order.html` loading overlay:
+    - Implemented randomized, non-repeating message rotation using Fisher-Yates shuffle.
+    - Added CSS-based opacity transitions (fade-out/in) for smooth text switching.
+    - Set rotation interval to 3000ms.
+- **Content**: Added new loading phrases: "正在進行加密連線...", "與金流系統進行對接...", "請稍候片刻...".
+
+**中文說明：**
+增強 PChome Pay 資訊帶入的穩定性並優化結帳載入介面。後端加入電話號碼自動格式化（確保符合 09xx 格式）；前端載入畫面改為動態隨機切換文案（搭配淡入淡出效果），減少用戶等待時的枯燥感。
+
+
+
+
+## [1.3.22] - 2026-03-04T19:35:00+08:00 - Astro Migration & Final Diagnostic Fixes
+
+### Summary of changes
+Completed the comprehensive Astro framework migration for the remaining static pages and resolved routing/consistency issues logged in the Diagnostic Report (1.1, 1.2, 1.3).
+
+### Technical details of implementation
+- **Astro Migration**: Converted the remaining legacy pages (`maccha.html`, `jyoukyou.html`, `fast.html`) into Astro components (`.astro`), removing standalone `head` configurations in favor of the unified `MainLayout` while preserving Firebase dependencies where explicitly required.
+- **`admin.html` Status Badge Mapping**: Updated `loadCardOrders` payment status check to map `completed` as `confirmed` alongside the legacy `paid` label, ensuring visual consistency on the admin dashboard.
+- **`gas/firebase_handler.gs` Gateway Fallthrough Guard**: Verified ECPay fallback logic cleanly avoids overlap with successful PCHome Pay connections, finalizing the robust two-gateway routing pattern.
+- **`jyoukyou.html` Internal Consistency**: Restructured the UI to utilize `API.generateCardPayment` in `js/api.js` over hard-coded remote fetches. 
+- **`docs/STATE_MACHINE.md` Definition**: Created formal state-machine definitions with transition rules to govern Order, Setup, and Repay lifecycle phases.
+
+### Affected files or modules
+- `keicha-astro/src/pages/maccha.astro` [MIGRATED]
+- `keicha-astro/src/pages/jyoukyou.astro` [MIGRATED]
+- `keicha-astro/src/pages/fast.astro` [MIGRATED]
+- `admin.html`
+- `jyoukyou.html`
+- `docs/STATE_MACHINE.md` [NEW]
+
+**中文摘要**：完成最後階段的 Astro 框架重構與 2026-03-04 診斷報告修復。將所有靜態頁面 (`maccha`, `jyoukyou`, `fast`) 升級為 `.astro` 元件，修正了管理後台對 `completed` 狀態的徽章顯示，並將全站重啟付款功能對接到集中管理的 `js/api.js`，同時新增 `STATE_MACHINE.md` 明確化所有訂單轉換規則。
+
+## [1.3.23] - 2026-03-04T21:20:00+08:00 - Project Milestone: Astro Migration Summary Report
+
+### Summary of changes
+Generated the final strategic report summarizing the Astro migration achievements and future technical roadmap.
+
+### Technical details of implementation
+- **Strategic Documentation**: Authored `reports/2026-03-04_Astro_Migration_Summary.md` covering performance gains (Islands Architecture), SEO advantages, and maintenance improvements.
+- **Future Roadmap**: Outlined expansion potentials using Server Islands, Astro DB, and View Transitions for next-gen UI/UX.
+
+### Affected files or modules
+- `reports/2026-03-04_Astro_Migration_Summary.md` [NEW]
+
+**中文摘要**：建立「Astro 專案遷移完成總結」正式報告。詳細分析了群島架構帶來的零 JS 載入效能優勢、SSG 對 SEO 的貢獻，以及未來導入 Server Islands 與 Astro DB 的技術藍圖。
+
+## [1.3.24] - 2026-03-05T00:05:00+08:00 - Admin Panel Astro Migration (Phase 1)
+
+### Summary of changes
+Migrated the admin panel (`admin.html`, 5,949 lines) to Astro as `admin.astro`, wrapping it in the unified `MainLayout` with `hideHeader`/`hideFooter` flags. Copied missing `css/ui-dialog.css` to the Astro public directory.
+
+### Technical details of implementation
+- **Monolithic migration**: Preserved all 14 functional modules (orders, reservations, products, plans, shipping, config, card-links, backup, testing, etc.) intact with `is:inline` script directives.
+- **Layout integration**: `admin.astro` uses `MainLayout` with `hideHeader={true}` and `hideFooter={true}` since the admin panel has its own login screen and top bar.
+- **Asset fix**: Copied `css/ui-dialog.css` to `keicha-astro/public/css/` to resolve 404 errors.
+
+### Affected files or modules
+- `keicha-astro/src/pages/admin.astro` [NEW - 5,943 lines]
+- `keicha-astro/public/css/ui-dialog.css` [COPIED]
+
+**中文摘要**：完成管理後台（admin.html）的 Astro 組件化搬遷（方案三第一階段）。將近 6,000 行的管理介面完整封裝進 `admin.astro`，並修復了 `ui-dialog.css` 的資源 404 問題。所有 9 個 Tab 功能模組皆已通過本地測試。
+
+## [1.3.25] - 2026-03-12T17:35:00+08:00 - Add Consecutive Call Discount (同案續撥優惠)
+
+### Summary of changes
+Added a new discount tier for consecutive phone calls to the `denwa.html` page. This section provides reduced rates for follow-up calls made to the same recipient for the same purpose within a short timeframe.
+
+### Technical details of implementation
+- **UI Component**: Integrated a new information block within the "Service Fees and Payment Methods" section.
+- **Styling**: Used the `--brand-light` background (`#f0f6ec`) and Lucide-style Material Symbols to maintain consistency with the existing pricing table.
+- **Content**: Detailed the eligibility (same recipient, same purpose), pricing (NT$50 base + NT$10 per 30s), applicable scenarios (info updates, supplement info), and strict exclusion clauses (status changes, >24h interval).
+
+### Affected files or modules
+- `denwa.html`
+
+**中文摘要**：在電話代撥頁面（denwa.html）新增「同案續撥優惠」條款。針對同一致電對象且為同一目的之二次致電提供優惠費率，並明確標註適用情境與排除條款。
+
+## [1.3.26] - 2026-03-14 - Proxy Payment Flow Refinements
+
+### Summary of changes
+Comprehensive refinements to the Proxy Payment (`proxy-pay-form.html`) and Result (`proxy-pay-result.html`) pages to improve UX and ensure system-wide consistency.
+
+### Technical details of implementation
+- **Form Refinements**:
+    - **Service Type Selection**: Converted "委託類型" from a dropdown selection to a high-contrast radio button group for better mobile accessibility.
+    - **Remarks Field**: Integrated a new "備註 (選填)" textarea in the contact section of the form.
+    - **Security Integration**: Added `source_token` to the form submission payload to satisfy mandatory Firestore security rules.
+- **Result Page Redesign**:
+    - Completely replaced the `proxy-pay-result.html` structure with the `form-result.html` template to match exact width and pill-button styling.
+    - Implemented specific typography overrides: Large black header ("委託已送出"), sub-header ("接下來請聯絡客服與支付費用").
+    - Added a relative-positioned "請截圖此畫面" label to the top-right of the summary box.
+    - Integrated "預付服務費" amount display (e.g., TWD 150) in the detailed summary table.
+- **Backend & Administrative Updates**:
+    - **Detail Modal Layout**: Reordered fields in the proxy order detail modal: moved "Payment Method" up, removed "(利潤)" terminology, repositioned the calculation summary to the bottom, and moved "Service Type" into the header box below "Order Time".
+    - **Persistence**: Implemented automatic local storage draft saving in `proxy-pay-form.html` to prevent data loss on page refresh.
+    - **Firestore Rules**: Authorized the `proxy_pay_orders` collection for web-authenticated creation and administrator management.
+    - **Email Notifications**: Modified `gas/firebase_handler.gs` to dynamically include the new "Remarks" field in administrative email alerts.
+    - **Admin Dashboard**: Updated `admin.html` to display the "Remarks" section in the proxy payment order detail modal.
+
+### Affected files or modules
+- `proxy-pay-form.html`
+- `proxy-pay-result.html`
+- `firestore.rules`
+- `admin.html`
+- `gas/firebase_handler.gs`
+
+### Chinese Summary
+優化「日本代付」委託流程：表單服務類型改為大按鈕單選，並新增「備註欄位」與安全性驗證。結果頁面完全比照電話代撥風格重製，包含醒目的黑色標題、明細右上角標記，並將單號整合入表格。同時完成後台管理與郵件通知的對應更新，並部署安全性規則確保訂單順利建立。
+
+
+
+## [1.3.42] - 2026-03-16
+### Changed
+- **[Fast Checkout Upgrade]**:
+    - Upgraded Fast Checkout feature to support multiple stores with unique 4-character alphanumeric suffixes (e.g., fast.html?id=A1B2).
+    - Implemented a new multi-store management interface in the admin panel (`admin.html`) to create, edit, and delete individual checkout links.
+    - Added automatic data migration logic that transitions settings from the legacy `fast_checkout_config/default` to the new multi-link system upon first access.
+    - Updated the client-side checkout page (`fast.html`) to dynamically load configurations based on the URL suffix, ensuring backward compatibility for the main/default checkout page.
+    - Enhanced order tracking by recording the specific `fast_link_id` and `fast_link_suffix` in the Firestore `orders` collection for all new transactions.
+    - **將快速結帳功能升級為多賣場系統，支援產生具備 4 位隨機碼後綴的獨立連結。管理後台新增賣場清單管理介面，並在顧客下單時自動記錄來源賣場資訊，同時確保舊有連結仍可正常運作。**
+
+### Technical details of implementation
+- **`admin.html`**: 
+    - Replaced the monolithic "Fast Checkout Settings" tab with a list view (`#fast-links-list`) and a functional configuration modal.
+    - Implemented `loadFastLinks()`, `showFastLinkModal()`, `saveFastLink()`, and `deleteFastLink()` functions.
+    - Integrated `generateRandomSuffix()` for automatic ID generation.
+- **`fast.html`**: 
+    - Refactored `DOMContentLoaded` listener to parse `URLSearchParams` and query the `fast_checkout_links` collection.
+    - Implemented a multi-tier fallback mechanism: Specific ID -> 'main' suffix -> Legacy 'default' document.
+    - Updated `submitOrder()` payload to include link identifiers.
+
+### Affected files or modules
+- `admin.html`, `fast.html`.
+
+
+## [1.3.43] - 2026-03-16
+### Summary of changes
+- Fixed UI inconsistencies in the "Fast Checkout" management interface.
+- Removed "forbidden colors" (red delete buttons) to align with design guidelines.
+- Standardized modal footer button layout for "Cancel" and "Save" actions.
+
+**修正快速結帳管理介面的 UI 顏色，移除禁止使用的紅色按鈕樣式，並標準化彈窗按鈕的排列位置。**
+
+### Technical details of implementation
+- **`admin.html`**:
+    - Removed `border-color: #ef4444` and `color: #ef4444` from the fast link delete button.
+    - Standardized `footerHtml` in `showFastLinkModal` to use `btn-secondary` and `btn-primary` without custom flex styles, matching the system's modal pattern.
+
+### Affected files or modules
+- `admin.html`
+
+## [1.3.46] - 2026-03-17
+### Added
+- **[Homepage Services]**: 
+    - Added "Japanese Proxy Pay Service" (日本代付服務) to the services section.
+    - Integrated dedicated service description, custom icon (`KEICHA_icon_proxy-pay.png`), and primary/secondary button group.
+
+## [1.3.45] - 2026-03-17
+### Fixed
+- **[Payment Card Synchronization]**: 
+    - Enforced strict equal height for payment cards using Flexbox `items-stretch`.
+    - Removed conflicting `h-full` classes and unified internal padding/background states for better visual balance.
+
+## [1.3.44] - 2026-03-16
+### Summary of changes
+- Fixed toggle switch styling issues in the Fast Checkout modal.
+- Removed legacy inline styles to ensure alignment with global CSS design system.
+
+**修正快速結帳彈窗中的開關樣式跑版問題，移除舊有的行內樣式以符合全域 CSS 設計系統。**
+
+### Technical details of implementation
+- **`admin.html`**: Removed `style="width: 44px; height: 24px;"` from `.toggle-wrapper` elements inside `showFastLinkModal`.
+
+### Affected files or modules
+- `admin.html`
+
+## [1.3.45] - 2026-03-16
+### Summary of changes
+- Fixed remaining toggle switch styling issues in the shipping methods list.
+- Removed cyclic inline styles in `methodsHtml` to ensure consistent UI across all toggles.
+
+**修正物流管道列表中殘留的開關樣式跑版問題，確保所有開關元件均一致遵從系統 UI 規範。**
+
+### Technical details of implementation
+- **`admin.html`**: Removed inline `style` from `.toggle-wrapper` inside the shipping methods loop in `showFastLinkModal`.
+
+### Affected files or modules
+- `admin.html`
+
+## [1.3.46] - 2026-03-16
+### Summary of changes
+- Fixed JavaScript error: `KUI.copyText is not a function`.
+- Implemented global `copyText` method in `js/ui-dialog.js`.
+
+**修復連結複製功能失效的程式錯誤，已在 UI 工具組中正式加入 `copyText` 方法並支援全網域使用。**
+
+### Technical details of implementation
+- **`js/ui-dialog.js`**: 
+    - Added `copyText(text, successMsg)` implementation using `navigator.clipboard` with a `textarea` fallback for compatibility.
+    - Exported the new method via the `KUI` object.
+
+### Affected files or modules
+- `js/ui-dialog.js`, `admin.html`
+
+## [1.3.45] - 2026-03-16
+### Summary of changes
+- Enhanced store configuration loading logic in `fast.html`.
+- Added support for fetching stores by both `suffix` and Firestore Document ID.
+- Improved compatibility for legacy migration data (handling missing `status` and explicit checkbox booleans).
+- Trimmed URL parameters to prevent whitespace-related lookup failures.
+
+修復 fast.html 無法抓取個別賣場設定的問題，同步強化 ID/Suffix 雙向查詢與舊資料相容性。
+
+## [1.3.46] - 2026-03-16
+### Summary of changes
+- Implemented a premium Portal Page (Landing Page) for `fast.html` when no `id` is provided.
+- Added glassmorphism UI for a high-end, exclusive feel.
+- Set up auto-focus on the code entry input and "Enter" key support for seamless navigation.
+
+實作快速結帳落地引導頁面，提供專屬代碼輸入介面，優化無參數進入時的品牌體驗。
+
+## [1.3.47] - 2026-03-16
+### Summary of changes
+- Integrated `fast.html` Portal Page with the global Jekyll template (standard header/footer display).
+- Removed focus shadow from the Portal Page input field for a cleaner UI.
+- Adjusted Portal Page positioning and background for better brand consistency.
+
+優化落地頁面佈局與全站模板整合，並移除輸入框聚焦陰影。
+
+## [1.3.48] - 2026-03-16
+### Summary of changes
+- Synchronized `fast.html` Portal Page styles with `contact.html` for UI consistency across the site.
+- Applied identical card layout, shadows, rounded corners, and entry animations (`animate-fade-up`).
+- Updated container sizing (`max-w-md`) and interaction element heights to match the contact page.
+
+同步落地頁與 `contact.html` 的佈局樣式，確保比例與視覺體驗一致。
+
+## [1.3.49] - 2026-03-16
+### Summary of changes
+- Fixed Firestore "No document to update" error in `admin.html` by rectifying `linkId` type conversion logic.
+- Added a safety check in `saveFastLink` to handle stringified `'null'` values when creating new stores.
+- Resolved potential `ERR_BLOCKED_BY_CLIENT` triggers related to ad-blocker interference with Firestore writes.
+
+修正後台快速結帳賣場儲存時的 ID 型別錯誤，解決無法新增賣場的問題。
+
+## [1.3.49] - 2026-03-16
+### Summary of changes
+- Optimized Fast Checkout admin UI: simplified labels and improved placeholder clarity for better UX.
+- Added quick copy functionality for the 4-digit store code (suffix) in the admin dashboard list.
+
+優化快速結帳後台：簡化標籤呈現，並新增四位數代碼點擊快速複製功能。
+
+## [1.3.64] - 2026-05-11
+### Added
+- Dynamic shipping method rendering from Firestore.
+- Real-time English-only name validation for shipping fields.
+- Ticket collection toggle drawer with auto-scrolling to shipping instructions.
+- Integrated postage and shipping fees into the real-time calculator.
+
+### Changed
+- Refined UI colors to strictly follow `DESIGN_SYSTEM.md` (Brand Green #6ea44c).
+- Updated remarks concatenation logic to include [需代領] prefix and detailed shipping info.
+
+**中文摘要：實作代付表單全動態方案，包含動態運費、姓名校驗與代領抽屜。**
