@@ -21,3 +21,7 @@
 - Remove the project memory, admin button inventory, and five historical reports.
 
 已移除指定的專案記憶、後台按鈕清單及五份歷史報告。
+
+## 2026-11-24 — Design system palette
+
+設計系統採用 README 的六個基礎色，狀態標籤範例一併對齊色票。

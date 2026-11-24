@@ -4,17 +4,20 @@ This document defines the visual standards for the KEICHA project. It applies to
 
 ## 1. Color System
 
-The system uses specific colors for brand identity and functional status.
+以首頁 `index.html` 的視覺為準，新增或調整頁面時沿用以下品牌與中性色，避免各頁自行引入不同色票：
 
-| Token Name | Hex Code | Usage | Target Interface |
-| :--- | :--- | :--- | :--- |
-| `--brand-green` | `#6ea44c` | Primary actions and brand identity. | Both |
-| `--brand-dark` | `#5d8d41` | Hover states for primary buttons. | Both |
-| `--brand-light` | `#ebf1e9` | Backgrounds for highlighted sections. | Both |
-| `--bg-page` | `#f8fafc` | Global background for all pages. | Both |
-| `--text-main` | `#334155` | Primary readability for text. | Both |
-| `--text-muted` | `#64748b` | Secondary icons and captions. | Both |
-| `--border-std` | `#e5e7eb` | Structural borders and dividers. | Both |
+| 基礎色 | 色碼 | 用途 |
+| --- | --- | --- |
+| 品牌綠 | `#6ea44c` | 主要按鈕與品牌強調色（`brandGreen`） |
+| 白色 | `#ffffff` | 卡片、按鈕與反白文字 |
+| 淺底色 | `#f9fafb` | 區塊背景（`gray-50`） |
+| 邊框灰 | `#e5e7eb` | 分隔線與次要按鈕底色（`gray-200`） |
+| 文字灰 | `#4b5563` | 一般內文（`gray-600`）；輔助與次要文字沿用既有 `gray-500`／`gray-700` |
+| 深色 | `#1f2937` | 深色按鈕（`gray-800`） |
+
+優先使用專案既有的 CSS 變數（如 `--brand-green`、`--gray-50` 至 `--gray-800`）及 Tailwind 對應色名。表格中的六色為基礎色，灰階細分與首頁局部色沿用既有樣式；品牌綠的 hover、透明度等狀態不另造新的品牌主色。
+
+色票依據見 [README 的專案用色](../README.md#專案用色)。
 
 ## 2. Typography
 
@@ -83,8 +86,8 @@ Follow these specific dimensions for core UI components.
 This section defines the standardized terminology and visual styles for all status badges (`.status-badge`) across the User Frontend and Admin Backend interfaces.
 
 ### Core Philosophy
-- **Green (Active/Completed):** Brand Green background with White text (`background: #6ea44c; color: white;`). This signifies a positive, final, or actively running state.
-- **Grey (Pending/Inactive):** Light Grey background with Dark Grey text (`background: #f1f5f9; color: #64748b;`). This signifies a waiting, cancelled, hidden, or out-of-stock state.
+- **Green (Active/Completed):** Brand Green background with White text (`background: #6ea44c; color: #ffffff;`). This signifies a positive, final, or actively running state.
+- **Grey (Pending/Inactive):** Light background with text gray (`background: #f9fafb; color: #4b5563;`). This signifies a waiting, cancelled, hidden, or out-of-stock state.
 
 ### 6.1 Unified Terminology Mapping
 
@@ -121,9 +124,9 @@ When implementing these statuses in HTML, apply the base `.status-badge` class a
 .status-badge.cancelled,
 .status-badge.out-of-stock,
 .status-badge.hidden {
-    background: #f1f5f9;
-    color: #64748b;
-    border-color: #e2e8f0;
+    background: #f9fafb;
+    color: #4b5563;
+    border-color: #e5e7eb;
 }
 
 /* Green Theme: Completed, Active, Available */
@@ -132,6 +135,6 @@ When implementing these statuses in HTML, apply the base `.status-badge` class a
 .status-badge.available {
     background: #6ea44c; /* Brand Green */
     color: #ffffff; /* White */
-    border-color: #5d8d41; /* Brand Dark Green for subtle border */
+    border-color: #6ea44c; /* Brand Green */
 }
 ```
