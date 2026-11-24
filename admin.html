@@ -2152,7 +2152,6 @@ title: KEICHA 管理後台
                 }
 
                 currentUser = user;
-                KUI.initAllSelects();
                 showMainApp();
             } else {
                 showLoginScreen();
@@ -5066,8 +5065,6 @@ ${!rule.method.includes('宅配') ? `
         document.getElementById('modalBody').innerHTML = bodyHtml;
         document.getElementById('modalFooter').innerHTML = footerHtml || '';
         document.getElementById('editModal').classList.add('active');
-        // 初始化自定義下拉選單
-        KUI.initAllSelects(document.getElementById('modalBody'));
     }
 
     function closeModal() {

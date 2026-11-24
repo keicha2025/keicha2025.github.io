@@ -160,22 +160,6 @@
             font-weight: 700 !important;
         }
 
-        .dropdown-menu[data-state="open"] {
-            display: block;
-        }
-
-        .dropdown-menu[data-state="closed"] {
-            display: none;
-        }
-
-        .mobile-menu[data-state="open"] {
-            display: block;
-        }
-
-        .mobile-menu[data-state="closed"] {
-            display: none;
-        }
-
         /* 圖示樣式設定 */
         .material-symbols-rounded {
             font-family: 'Material Symbols Rounded' !important;
@@ -227,95 +211,9 @@
     {% include footer.html %}
     {% endunless %}
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-
-            // --- 1. 導覽列邏輯 (手機選單) ---
-            const menuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-
-            if (menuButton && mobileMenu) {
-                menuButton.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    const currentState = mobileMenu.getAttribute('data-state');
-                    if (currentState === 'closed') {
-                        mobileMenu.setAttribute('data-state', 'open');
-                    } else {
-                        mobileMenu.setAttribute('data-state', 'closed');
-                    }
-                });
-            }
-
-            // --- 2. 導覽列邏輯 (電腦版 "HOME" 下拉選單) ---
-            const dropdownButton = document.getElementById('desktop-dropdown-button');
-            const dropdownMenu = document.getElementById('desktop-dropdown-menu');
-
-            if (dropdownButton && dropdownMenu) {
-                dropdownButton.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    const currentState = dropdownMenu.getAttribute('data-state');
-                    if (currentState === 'closed') {
-                        dropdownMenu.setAttribute('data-state', 'open');
-                    } else {
-                        dropdownMenu.setAttribute('data-state', 'closed');
-                    }
-                });
-                dropdownMenu.addEventListener('click', () => {
-                    dropdownMenu.setAttribute('data-state', 'closed');
-                });
-            }
-
-            // --- 3. 全域點擊監聽 (用來關閉選單) ---
-            window.addEventListener('click', () => {
-                if (dropdownMenu) {
-                    dropdownMenu.setAttribute('data-state', 'closed');
-                }
-                if (mobileMenu && mobileMenu.getAttribute('data-state') === 'open') {
-                    mobileMenu.setAttribute('data-state', 'closed');
-                }
-            });
-
-            if (mobileMenu) {
-                mobileMenu.addEventListener('click', (event) => event.stopPropagation());
-            }
-
-            // --- 4. Web Share API 邏輯 ---
-            const desktopShareButton = document.getElementById('desktop-share-button');
-            const mobileShareButtonFixed = document.getElementById('mobile-share-button-fixed');
-
-            const shareTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content') || document.title;
-            const shareText = document.querySelector('meta[property="og:description"]')?.getAttribute('content') || '查看 KEICHA 的服務';
-            const shareUrl = document.querySelector('meta[property="og:url"]')?.getAttribute('content') || window.location.href;
-
-            const shareData = {
-                title: shareTitle,
-                text: shareText,
-                url: shareUrl
-            };
-
-            if (navigator.share) {
-                const showShareButton = (button) => {
-                    if (button) {
-                        button.classList.remove('hidden');
-                        button.addEventListener('click', async (event) => {
-                            event.stopPropagation();
-                            try {
-                                await navigator.share(shareData);
-                                console.log('網站分享成功');
-                            } catch (err) {
-                                console.error('分享失敗: ', err);
-                            }
-                        });
-                    }
-                };
-                showShareButton(desktopShareButton);
-                showShareButton(mobileShareButtonFixed);
-            } else {
-                console.log('此瀏覽器不支援 Web Share API');
-            }
-
-        });
-    </script>
+    {% unless page.hide_header %}
+    <script src="{{ '/js/site-header.js' | relative_url }}" type="module"></script>
+    {% endunless %}
 
     {{ page.scripts }}
 

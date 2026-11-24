@@ -105,6 +105,45 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
     }
 
     /* === 自定義 Radio Button 樣式 === */
+    .plan-option {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--r-md);
+        cursor: pointer;
+    }
+
+    .plan-option:hover,
+    .plan-option:has(:checked) {
+        background: #f9fdf7;
+    }
+
+    .plan-option:has(:checked) {
+        border-color: var(--brand-green);
+    }
+
+    .plan-description {
+        display: block;
+        margin-block-start: .25rem;
+        color: #64748b;
+        font-size: .875rem;
+        line-height: 1.625;
+        white-space: pre-line;
+    }
+
+    .plan-price {
+        color: var(--brand-green);
+        font-size: 1.125rem;
+    }
+
+    #booking-submit:disabled {
+        opacity: .6;
+        cursor: not-allowed;
+    }
+
     .custom-radio {
         appearance: none;
         -webkit-appearance: none;
@@ -121,27 +160,6 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
     .custom-radio:checked {
         border-color: white;
         background-image: radial-gradient(circle, #6ea44c 45%, transparent 50%);
-    }
-
-    /* 骨架屏 */
-    .skeleton {
-        height: 80px;
-        background: #e2e8f0;
-        border-radius: 0.75rem;
-        margin-bottom: 1rem;
-        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-
-    @keyframes pulse {
-
-        0%,
-        100% {
-            opacity: 1;
-        }
-
-        50% {
-            opacity: .5;
-        }
     }
 
     /* Loading Spinner */
@@ -208,7 +226,7 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
         <div class="text-slate-600 font-bold"><span class="font-brand-text">KEICHA</span> 正在處理您的預約...</div>
     </div>
 
-    <form id="booking-form" class="bg-white rounded-[var(--r-lg)] shadow-sm border border-slate-100 p-6 md:p-8">
+    <form id="booking-form" method="post" class="bg-white rounded-[var(--r-lg)] shadow-sm border border-slate-100 p-6 md:p-8">
 
         <h3 class="section-title mt-0">聯絡人資訊</h3>
 
@@ -247,8 +265,13 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
             </div>
             <div>
                 <label class="form-label" for="serviceTime">時間 <span class="text-slate-500">*</span></label>
-                <select id="serviceTime" name="serviceTime" class="form-input appearance-none bg-white cursor-pointer"
+                <select id="serviceTime" name="serviceTime" class="form-input bg-white cursor-pointer"
                     required>
+                    {% for hour in (0..23) %}
+                    {% assign hh = hour | prepend: '0' | slice: -2, 2 %}
+                    <option value="{{ hh }}:00"{% if hour == 12 %} selected{% endif %}>{{ hh }}:00</option>
+                    <option value="{{ hh }}:30">{{ hh }}:30</option>
+                    {% endfor %}
                 </select>
             </div>
         </div>
@@ -260,27 +283,31 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
 
         <div class="space-y-4 mb-6">
             <div class="flex items-center justify-between">
-                <label class="font-bold text-slate-700">大人人數</label>
+                <label for="adultCount" class="font-bold text-slate-700">大人人數</label>
                 <div class="counter-wrapper">
-                    <div class="counter-btn" onclick="updateCount('adultCount', -1)">−</div>
+                    <button type="button" class="counter-btn" aria-label="減少大人人數"
+                        onclick="updateCount('adultCount', -1)">−</button>
                     <input type="number" id="adultCount" name="adultCount" class="counter-value" value="2" readonly>
-                    <div class="counter-btn" onclick="updateCount('adultCount', 1)">+</div>
+                    <button type="button" class="counter-btn" aria-label="增加大人人數"
+                        onclick="updateCount('adultCount', 1)">+</button>
                 </div>
             </div>
 
             <div class="flex items-center justify-between">
-                <label class="font-bold text-slate-700">小孩人數</label>
+                <label for="childCount" class="font-bold text-slate-700">小孩人數</label>
                 <div class="counter-wrapper">
-                    <div class="counter-btn" onclick="updateCount('childCount', -1)">−</div>
+                    <button type="button" class="counter-btn" aria-label="減少小孩人數"
+                        onclick="updateCount('childCount', -1)">−</button>
                     <input type="number" id="childCount" name="childCount" class="counter-value" value="0" readonly>
-                    <div class="counter-btn" onclick="updateCount('childCount', 1)">+</div>
+                    <button type="button" class="counter-btn" aria-label="增加小孩人數"
+                        onclick="updateCount('childCount', 1)">+</button>
                 </div>
             </div>
 
             <div class="flex items-center justify-between pt-2 border-t border-dashed border-slate-200">
-                <label class="font-bold text-slate-900">總人數</label>
+                <label for="totalCountDisplay" class="font-bold text-slate-900">總人數</label>
                 <div class="w-[140px] text-center font-bold text-lg text-[#6ea44c]">
-                    <span id="totalCountDisplay">2</span> 人
+                    <output id="totalCountDisplay" for="adultCount childCount">2</output> 人
                     <input type="hidden" id="totalCount" name="totalCount" value="2">
                 </div>
             </div>
@@ -320,12 +347,19 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
             </div>
         </div>
 
-        <h3 class="section-title">選擇方案</h3>
-
-        <div id="plan-container" class="grid grid-cols-1 gap-4 mb-8">
-            <div class="skeleton"></div>
-            <div class="skeleton"></div>
-        </div>
+        <fieldset class="mb-8">
+            <legend class="section-title">選擇方案</legend>
+            <div id="plan-container" class="grid gap-4">
+                <p role="status" class="text-slate-500">正在載入方案…</p>
+            </div>
+        </fieldset>
+        <template id="plan-template">
+            <label class="plan-option">
+                <input type="radio" name="paymentPlan" class="custom-radio" required>
+                <span><strong class="plan-name"></strong><span class="plan-description"></span></span>
+                <strong class="plan-price"></strong>
+            </label>
+        </template>
 
         <input type="hidden" name="serviceItem" value="代撥預約">
 
@@ -338,11 +372,11 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
         <div class="flex flex-col justify-center">
             <span class="text-xs text-slate-500 leading-tight">預估費用</span>
             <div class="text-2xl font-bold text-[#6ea44c] leading-tight">
-                TWD <span id="price-display">--</span>
+                TWD <output id="price-display">--</output>
             </div>
         </div>
 
-        <button type="button" onclick="submitForm()"
+        <button type="submit" form="booking-form" id="booking-submit" disabled
             class="bg-[#6ea44c] hover:bg-[#5d8c40] text-white font-bold py-3 px-8 rounded-[var(--r-full)] shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0">
             <span class="btn-text">送出</span>
         </button>
@@ -352,7 +386,6 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
 
 <script>
 
-    let currentPlans = [];
     let currentPrice = 0;
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -361,103 +394,53 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
         tomorrow.setDate(tomorrow.getDate() + 1);
         dateInput.valueAsDate = tomorrow;
 
-        initTimeSelect();
         fetchPlans();
-        KUI.initAllSelects();
     });
 
-    function initTimeSelect() {
-        const select = document.getElementById('serviceTime');
-        const interval = 30;
+    const planContainer = document.getElementById('plan-container');
+    const planTemplate = document.getElementById('plan-template');
 
-        for (let hour = 0; hour < 24; hour++) {
-            for (let min = 0; min < 60; min += interval) {
-                const hStr = hour.toString().padStart(2, '0');
-                const mStr = min.toString().padStart(2, '0');
-                const timeStr = `${hStr}:${mStr}`;
+    async function fetchPlans() {
+        const status = planContainer.querySelector('[role="status"]');
+        try {
+            const snapshot = await db.collection('denwa_plans').get();
+            const plans = snapshot.docs
+                .map(doc => doc.data())
+                .filter(plan => plan.status === 'ON' || plan.status === 'available')
+                .sort((a, b) => (Number(a.display_order) || 99) - (Number(b.display_order) || 99));
 
-                const option = document.createElement('option');
-                option.value = timeStr;
-                option.textContent = timeStr;
-                select.appendChild(option);
+            if (!plans.length) {
+                status.textContent = '目前尚無開放的方案。';
+                return;
             }
+
+            renderPlans(plans);
+            bookingSubmit.disabled = false;
+        } catch (error) {
+            console.error('方案載入失敗', error);
+            status.textContent = '方案載入失敗，請重新整理頁面。';
         }
-        select.value = "12:00";
-    }
-
-    function fetchPlans() {
-        const container = document.getElementById('plan-container');
-
-        console.log('[fetchPlans] db defined?', typeof db !== 'undefined');
-        console.log('[fetchPlans] firebase.apps:', firebase.apps.length);
-
-        db.collection('denwa_plans')
-            .get()
-            .then(snapshot => {
-                console.log('[fetchPlans] snapshot size:', snapshot.size);
-                snapshot.docs.forEach(doc => {
-                    console.log('[fetchPlans] doc:', doc.id, 'status:', doc.data().status, 'name:', doc.data().name);
-                });
-
-                const plans = snapshot.docs
-                    .map(doc => ({ id: doc.id, ...doc.data() }))
-                    .filter(p => p.status === 'ON' || p.status === 'available');
-
-                console.log('[fetchPlans] filtered plans count:', plans.length);
-
-                if (plans.length === 0) {
-                    container.innerHTML = '<p class="text-slate-500 text-center py-4">目前尚無開放的方案。</p>';
-                    return;
-                }
-
-                plans.sort((a, b) => (Number(a.display_order) || 99) - (Number(b.display_order) || 99));
-                currentPlans = plans;
-                renderPlans(plans);
-            })
-            .catch(err => {
-                console.error("Fetch plans error:", err);
-                container.innerHTML = `<p class="text-slate-500">載入失敗: ${err.message}</p>`;
-            });
     }
 
     function renderPlans(plans) {
-        const container = document.getElementById('plan-container');
-        container.innerHTML = '';
-
-        plans.forEach((plan, index) => {
-            const isChecked = index === 0 ? 'checked' : '';
-
-            // HTML 結構修改重點：
-            // 1. input type="radio" 使用 class="custom-radio" 來套用新 CSS
-            // 2. 說明文字外層增加 <div class="pr-4"> 容器 (透明容器)
-            // 3. 說明文字 span 增加 text-justify 與左右對齊樣式
-            // 4. 金額區域增加 shrink-0 確保不被推擠
-
-            const html = `
-            <label class="relative flex items-center p-4 border rounded-[var(--r-md)] cursor-pointer hover:bg-[#f9fdf7] transition-colors border-slate-200 has-[:checked]:border-[#6ea44c] has-[:checked]:bg-[#f9fdf7]">
-                
-                <input type="radio" name="paymentPlan" value="${plan.name}" 
-                       data-link="${plan.link}" 
-                       class="custom-radio" 
-                       ${isChecked} 
-                       onchange="updatePrice(${Number(plan.price) || 0})">
-                
-                <div class="ml-4 flex-1 pr-4"> <span class="block text-slate-800 font-bold mb-1">${plan.name}</span>
-                    <div class="w-full">
-                        <span class="block text-sm text-slate-500 text-justify leading-relaxed">${plan.desc}</span>
-                    </div>
-                </div>
-                
-                <div class="text-lg font-bold text-[#6ea44c] shrink-0 text-right whitespace-nowrap pl-2">
-                    $${plan.price}
-                </div>
-            </label>
-            `;
-            container.insertAdjacentHTML('beforeend', html);
-
-            if (index === 0) updatePrice(plan.price);
-        });
+        planContainer.replaceChildren(...plans.map((plan, index) => {
+            const option = planTemplate.content.cloneNode(true);
+            const input = option.querySelector('input');
+            input.value = plan.name;
+            input.dataset.link = plan.link;
+            input.dataset.price = Number(plan.price) || 0;
+            input.checked = index === 0;
+            option.querySelector('.plan-name').textContent = plan.name;
+            option.querySelector('.plan-description').textContent = plan.desc ?? '';
+            option.querySelector('.plan-price').textContent = `$${plan.price}`;
+            return option;
+        }));
+        updatePrice(Number(plans[0].price) || 0);
     }
+
+    planContainer.addEventListener('change', ({ target }) => {
+        if (target.name === 'paymentPlan') updatePrice(Number(target.dataset.price));
+    });
 
     function updatePrice(price) {
         currentPrice = price;
@@ -504,22 +487,20 @@ description: 線上填寫代撥需求，我們將為您聯繫日本店家。
         }
     }
 
-    async function submitForm() {
-        const form = document.getElementById('booking-form');
-
-        if (!form.checkValidity()) {
-            const firstInvalid = form.querySelector(':invalid');
-            if (firstInvalid) {
-                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                KUI.validate(firstInvalid, firstInvalid.validationMessage || "此欄位為必填項目");
-            }
-            return;
-        }
-
+    const bookingForm = document.getElementById('booking-form');
+    const bookingSubmit = document.getElementById('booking-submit');
+    bookingForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (bookingSubmit.disabled) return;
+        bookingSubmit.disabled = true;
         try {
-            await generateDenwaOrderId(); // 這裡原本有日誌
-        } catch (e) { }
+            await submitForm(bookingForm);
+        } finally {
+            bookingSubmit.disabled = false;
+        }
+    });
 
+    async function submitForm(form) {
         const formData = new FormData(form);
         const noteInput = document.getElementById('note');
         const originalNote = noteInput.value;

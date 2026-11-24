@@ -422,13 +422,6 @@ title: KEICHA UI 組件展示 (Design System)
 </div>
 
 <script>
-    // 初始化自定義下拉選單
-    window.addEventListener('DOMContentLoaded', () => {
-        if (window.KUI && KUI.initAllSelects) {
-            KUI.initAllSelects();
-        }
-    });
-
     async function testConfirm() {
         const ok = await KUI.confirm('確定要執行此操作？此動作可能無法復原。', '操作確認');
         if (ok) KUI.toast('已成功執行操作');

@@ -1,0 +1,8 @@
+<div class="privacy-content {{ include.class }}">
+    {% for clause in site.data.privacy %}
+    <section>
+        <{{ include.heading }}>{{ clause.title | escape }}</{{ include.heading }}>
+        <p>{{ clause.content | escape | replace: '&lt;br&gt;', '<br>' }}</p>
+    </section>
+    {% endfor %}
+</div>

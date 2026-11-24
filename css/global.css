@@ -263,3 +263,114 @@ body::-webkit-scrollbar-thumb:hover,
     height: 100%;
     object-fit: cover;
 }
+/* Native disclosures share the same indicator without extra markup. */
+:is(.site-menu, .disclosure) > summary {
+    cursor: pointer;
+    list-style: none;
+}
+
+:is(.site-menu, .disclosure) > summary::-webkit-details-marker {
+    display: none;
+}
+
+:is(.site-menu:not(.site-menu-mobile), .disclosure) > summary::after {
+    content: "";
+    width: .5em;
+    height: .5em;
+    margin-inline: .55em .2em;
+    border: solid currentColor;
+    border-width: 0 2px 2px 0;
+    rotate: 45deg;
+}
+
+:is(.site-menu, .disclosure)[open] > summary::after {
+    rotate: 225deg;
+}
+
+.privacy-content {
+    color: #334155;
+    line-height: 1.6;
+}
+
+.privacy-content section + section {
+    margin-block-start: 2rem;
+    padding-block-start: 1.5rem;
+    border-block-start: 1px solid #e2e8f0;
+}
+
+.privacy-content :is(h2, h3) {
+    margin-block-end: .75rem;
+    color: #1e293b;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+/* Keep navigation usable before the utility stylesheet is generated. */
+.site-header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 50;
+    height: 5rem;
+    background: white;
+}
+
+.site-header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    padding-inline: 1rem;
+}
+
+.site-header-inner img {
+    height: 3.5rem;
+}
+
+.site-header-desktop {
+    display: none;
+}
+
+.site-header-mobile {
+    display: flex;
+    align-items: center;
+}
+
+.site-header [data-site-share][hidden] {
+    display: none;
+}
+
+.site-menu-links {
+    position: absolute;
+    inset-inline-start: 0;
+    background: white;
+    box-shadow: 0 8px 16px rgb(0 0 0 / 12%);
+}
+
+.site-menu-links a {
+    display: block;
+    padding: .5rem 1rem;
+}
+
+.site-menu-mobile .site-menu-links {
+    inset-block-start: 100%;
+    inset-inline-end: 0;
+}
+
+@media (min-width: 48rem) {
+    .site-header-desktop {
+        display: flex;
+        align-items: center;
+    }
+
+    .site-header-mobile {
+        display: none;
+    }
+
+    .site-menu:not(.site-menu-mobile) {
+        position: relative;
+    }
+
+    .site-menu:not(.site-menu-mobile) .site-menu-links {
+        min-width: 12rem;
+    }
+}
