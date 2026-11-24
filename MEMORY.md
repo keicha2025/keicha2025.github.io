@@ -5,3 +5,4 @@
 - KUI 的 `alert`、`confirm`、`prompt` 保持 Promise 介面。原生 `dialog` 管理焦點和 Escape，後來的對話框取代上一個時會結束上一個 Promise。管理後台及電話預約的下拉選項使用實際的 `select`，選項更新會直接反映在控制項上。
 - 電話表單的半小時時段為建置時資料。Firestore 方案以 `template` 渲染到放有原生 radio 的欄位組。可用方案載入後才開放送出，表單通過瀏覽器驗證後才進入既有寫入流程，同一次送出只分配一次訂單流水號。
 - 儲存庫的 Pages 建置來源為 GitHub Actions。`main` 推送會啟動同一份工作流程的 GitHub Pages 正式發布與 Firebase Hosting 測試站部署，兩個部署工作分別確認結果。
+- GitHub Pages 正式部署工作需指定 `github-pages` 環境與 `page_url`。網站和 Actions 都可能成功更新，但省略環境時，GitHub 的 Deployments 卡片會停留在舊紀錄。

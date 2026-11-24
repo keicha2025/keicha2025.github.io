@@ -23,7 +23,7 @@ Firebase 測試站部署使用 Hosting 的 `live` 頻道。各分支推送共用
    gh run watch <RUN_ID> --exit-status
    ```
 
-5. 開啟測試站和正式站，檢查本次改動已生效，並確認本機與遠端 `main` 指向同一提交。工作流程排隊、啟動或建置成功時，仍須等部署工作完成並核對網站。
+5. 開啟測試站和正式站，檢查本次改動已生效，確認 [github-pages 部署紀錄](https://github.com/keicha2025/keicha2025.github.io/deployments/github-pages) 的最新成功項目對應本次提交，並確認本機與遠端 `main` 指向同一提交。工作流程排隊、啟動或建置成功時，仍須等部署工作完成並核對網站。
 
 ## 重跑與手動發布
 

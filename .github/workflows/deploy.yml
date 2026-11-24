@@ -91,6 +91,9 @@ jobs:
     name: Deploy to GitHub Production
     needs: build
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     # 僅允許 main 分支推送到正式環境，且必須是手動觸發或合併
     # 註：此處根據用戶需求，若只需手動，可將 push 去除
     # 允許在推送到 main 分支或是手動觸發時執行正式部署
