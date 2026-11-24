@@ -60,15 +60,9 @@ bundle exec jekyll build
 - `firebase.json`、`firestore.rules`：Firebase Hosting 與 Cloud Firestore 設定；前台商店、訂單、會員、訂單追蹤及管理功能使用 Firestore，管理功能另使用 Firebase Authentication。
 - `docs/`：操作、維護與部署文件；`reports/`：專案分析與稽核報告；`archive/`：舊版頁面留存；`demo/`：介面示範頁。
 
-## 人工維護與發布檢查
+## 發布流程
 
-以下事項不會由網站建置流程自動完成，需由維護者處理：
-
-- **準備發布時更新變更日誌**：依 [`docs/DEPLOY_GUIDE.md`](docs/DEPLOY_GUIDE.md) 的格式，將本次內容追加到 `CHANGELOG.md` 末尾，保留既有紀錄；每次正式推送或手動部署都要有對應紀錄。
-- **檢查 Git 同步狀態**：修改前先取得遠端最新狀態並確認沒有分歧；完成變更後提交並推送到 `main`，再確認本地 `main` 與 `origin/main` 指向相同提交。若因衝突、權限或連線問題無法同步，需記錄阻礙並完成後續處理。
-- **確認自動部署結果**：推送後到 GitHub Actions 確認 `Keicha Automated Deployment` 對該提交的建置及部署工作完成；依本次發布目標確認 Firebase Hosting（`https://keicha-membership-system.web.app/`）及／或 GitHub Pages（`https://keicha2025.github.io/`）實際更新。流程啟動或排隊不代表部署完成。
-- **正式發布前檢查內容與介面**：在測試環境確認本次功能及 UI 符合 [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) 後，再依部署指南觸發 GitHub Pages 正式發布。
-- **首次設定或設定變更時檢查憑證**：確認 GitHub Actions repository secret `FIREBASE_SERVICE_ACCOUNT_KEICHA_MEMBERSHIP_SYSTEM` 可用；依 Firebase、GAS 或付款服務的設定變更，更新相應平台的設定與文件。不要把私密金鑰或憑證提交到 repository。
+每輪變更驗證通過後，追加 `CHANGELOG.md`、提交並推送至 `origin/main`。每次推送 `main` 都會觸發 GitHub Actions，同時部署 GitHub Pages 正式站與 Firebase Hosting 測試站。追蹤該提交的部署工作至結束，並檢查兩個公開網址的變更。詳細完成條件及補跑方式見 [專案工作指示](AGENTS.md) 和 [部署指南](docs/DEPLOY_GUIDE.md)。
 
 ## 後端與部署
 
