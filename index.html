@@ -1,0 +1,288 @@
+---
+layout: default
+title: 抹茶代購・日本電話代撥服務｜KEICHA
+description: KEICHA 提供日本抹茶代購與日本電話代撥服務，協助餐廳預約、聯絡日本店家，讓日本的事變得簡單。
+keywords: KEICHA, 日本茶, 日本代購, 抹茶, 抹茶代購, 上林春松, 日本電話代撥, 日本電話代打, 日文電話, 餐廳預約, 山政小山園, 代購
+---
+
+<style>
+    :root {
+        --r-sm: 8px;
+        --r-md: 16px;
+        --r-lg: 24px;
+        --r-full: 9999px;
+    }
+
+    /* 響應式按鈕文字處理 */
+    @media (max-width: 640px) {
+        .btn-text {
+            display: none;
+        }
+    }
+
+    /* 服務項目橫式佈局優化 */
+    .optimized-card {
+        background: white;
+        border-radius: var(--r-lg);
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        margin-bottom: 2rem;
+        align-items: stretch;
+    }
+
+    .optimized-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+    }
+
+    .card-image-wrap {
+        overflow: hidden;
+        position: relative;
+        background: #f8faf8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 30%;
+    }
+
+    .card-image-wrap img {
+        transition: transform 0.6s ease;
+        object-fit: contain;
+        width: 100%;
+        height: 100%;
+        max-width: 160px;
+        max-height: 160px;
+        padding: 1.5rem;
+    }
+
+    .optimized-card:hover .card-image-wrap img {
+        transform: scale(1.1);
+    }
+
+    .card-content {
+        padding: 2.5rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        width: 70%;
+        justify-content: center;
+    }
+
+    .card-content h3 {
+        font-size: 1.25rem; /* 100% 還原 index.html text-xl */
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: #1a1a1a;
+        text-align: left;
+    }
+
+    .card-content p {
+        color: #4b5563; /* 100% 還原 index.html text-gray-600 */
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+        text-align: left;
+    }
+
+    .btn-group {
+        display: flex !important;
+        gap: 0.75rem !important;
+        width: 100% !important;
+        margin-top: auto !important;
+    }
+
+    .card-btn {
+        flex: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        padding: 0.5rem 1rem !important;
+        border-radius: var(--r-full) !important;
+        font-weight: 500 !important; /* 100% 還原 font-medium */
+        text-decoration: none !important;
+        transition: all 0.3s ease !important;
+        min-height: 44px !important;
+    }
+
+    @media (max-width: 767px) {
+        .optimized-card {
+            flex-direction: column !important;
+            padding: 2.5rem 2rem !important;
+            text-align: center !important;
+            align-items: center !important;
+        }
+        .card-image-wrap {
+            background: transparent !important;
+            width: 100% !important;
+            height: auto !important;
+            margin-bottom: 1rem !important;
+            display: flex !important;
+            justify-content: center !important;
+        }
+        .card-image-wrap img {
+            width: 4rem !important; /* w-16 = 64px 還原 */
+            height: 4rem !important;
+            padding: 0 !important;
+            max-width: none !important;
+            max-height: none !important;
+            margin: 0 auto !important;
+        }
+        .card-content {
+            padding: 0 !important;
+            width: 100% !important;
+            display: block !important;
+        }
+        .card-content h3 {
+            text-align: center !important;
+        }
+        .card-content p {
+            text-align: left !important;
+            margin-bottom: 1.5rem !important;
+        }
+        .btn-group {
+            flex-direction: column !important;
+        }
+        .card-btn {
+            width: 100% !important;
+            flex: none !important;
+        }
+    }
+</style>
+
+<main>
+    <section
+        class="relative h-auto py-[var(--s-2xl)] md:py-[var(--s-3xl)] flex items-center justify-center text-center text-white px-4 bg-brandGreen">
+        <div class="relative z-10">
+
+            <h1 class="text-3xl md:text-5xl brand-title-font font-bold tracking-widest leading-tight">
+                KEICHA
+            </h1>
+
+            <p class="text-xl md:text-2xl brand-title-font font-medium tracking-wide mt-6 md:mt-8">
+                讓日本的事，變得簡單。
+            </p>
+
+            <div class="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 md:gap-x-6 mt-6 md:mt-8">
+                <a href="{{ site.baseurl }}/maccha-store.html" class="text-white font-medium hover:underline">
+                    抹茶代購
+                </a>
+                <span class="text-white opacity-50 hidden md:inline">|</span>
+                <a href="{{ site.baseurl }}/denwa.html" class="text-white font-medium hover:underline">
+                    電話代撥
+                </a>
+                <span class="text-white opacity-50 hidden md:inline">|</span>
+                <a href="#payment" class="text-white font-medium hover:underline">
+                    付款下單
+                </a>
+                <span class="text-white opacity-50 hidden md:inline">|</span>
+                <a href="#notice" class="text-white font-medium hover:underline">
+                    購買須知
+                </a>
+            </div>
+
+            <a href="{{ site.baseurl }}/contact.html"
+                class="mt-8 md:mt-10 inline-block bg-white text-brandGreen px-8 py-3 rounded-[var(--r-full)] text-lg font-semibold hover:bg-gray-100 transition duration-300 shadow-lg">
+                <span class="material-symbols-rounded align-middle mr-1">chat</span>
+                LINE 官方客服
+            </a>
+
+        </div>
+    </section>
+
+    <section id="payment" class="py-16 md:py-24 bg-gray-50 scroll-mt-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+            <h2 class="text-2xl md:text-3xl font-bold text-center mb-12">付款與下單專區</h2>
+            <p class="text-center text-gray-500 mb-8">
+                所有訂單皆先透過 LINE 確認內容與金額後再進行付款
+            </p>
+
+            <div class="flex flex-col lg:flex-row gap-8 items-stretch">
+
+                <!-- 線上刷卡 -->
+                <div class="flex-1 bg-white p-8 rounded-[var(--r-lg)] shadow-lg flex flex-col">
+                    <h3 class="text-xl md:text-2xl font-semibold text-center mb-8">線上刷卡支付</h3>
+
+                    <div class="flex flex-col items-center justify-center text-center flex-grow">
+                        <div class="w-full flex flex-col items-center">
+                            <a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer"
+                                class="inline-block hover:opacity-90 transition-opacity">
+                                <img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png"
+                                    border="0" alt="支付補款及尾款" />
+                            </a>
+                            <p class="text-sm text-gray-500 mt-4">請進入後填寫付款金額</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 店到店 -->
+                <div class="flex-1 bg-white p-8 rounded-[var(--r-lg)] shadow-lg flex flex-col">
+                    <h3 class="text-xl md:text-2xl font-semibold text-center mb-8">店到店貨到付款下單</h3>
+
+                    <div class="flex flex-col items-center justify-center text-center flex-grow">
+                        <div class="w-full flex flex-col items-center">
+                            <a href="{{ site.baseurl }}/user-guide.html"
+                                class="inline-block bg-brandGreen text-white px-10 py-3 rounded-[var(--r-full)] text-lg font-bold hover:bg-opacity-90 transition duration-300 shadow-lg transform hover:scale-105">
+                                <span>前往下單</span>
+                            </a>
+                            <p class="text-sm text-gray-500 mt-4">進入後請填寫商品名稱及價格</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="py-16 md:py-24 bg-white scroll-mt-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+            <h2 class="text-2xl md:text-3xl font-bold text-center mb-12">服務項目</h2>
+
+            <div class="space-y-8">
+
+                <div class="optimized-card">
+                    <div class="card-image-wrap">
+                        <img src="{{ site.baseurl }}/images/KEICHA_icon_maccha.png" alt="抹茶代購">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="text-xl font-semibold">抹茶代購</h3>
+                        <p>提供山政小山園、上林春松、中村藤吉、一保堂等日本抹茶品牌代購，部分品牌與品項供貨不穩，歡迎透過 LINE 私訊詢問。</p>
+                        <div class="btn-group">
+                            <a href="{{ site.baseurl }}/contact.html"
+                                class="card-btn bg-gray-200 text-gray-700 hover:bg-gray-300">私訊詢問</a>
+                            <a href="{{ site.baseurl }}/maccha-store.html"
+                                class="card-btn bg-brandGreen text-white hover:opacity-90">抹茶品項</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="optimized-card">
+                    <div class="card-image-wrap">
+                        <img src="{{ site.baseurl }}/images/KEICHA_icon_denwa.png" alt="電話代撥">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="text-xl font-semibold">日本電話代撥</h3>
+                        <p>跨越語言障礙，為您代訂日本餐廳、預約活動、或聯繫處理日本事務，讓您的日本之行游刃有餘。</p>
+                        <div class="btn-group">
+                            <a href="{{ site.baseurl }}/denwa.html"
+                                class="card-btn bg-gray-200 text-gray-700 hover:bg-gray-300">服務介紹</a>
+                            <a href="{{ site.baseurl }}/denwa-form.html"
+                                class="card-btn bg-gray-800 text-white hover:opacity-90">線上填表</a>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+    </section>
+
+    {% include contact-section.html %}
+
+</main>

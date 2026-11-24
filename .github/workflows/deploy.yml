@@ -1,0 +1,118 @@
+name: Keicha Automated Deployment
+
+# 此流程整合 Firebase Hosting (Beta / 測試環境) 與 GitHub Pages (Production / 正式環境)
+# Beta: 任何分支推送 (包含 main/develop) 都會自動部署至 Firebase，供即時預覽與測試。
+# Prod: 只有手動觸發 (Manual Dispatch) 或推送到 main 時且確認測試無誤，才發布至 GitHub 正式版。
+
+on:
+  # 任何分支推送都進入 Beta 環境測試
+  push:
+    branches: ["**"]
+  
+  # 允許在 GitHub 頁面手動按下按鈕來部署正式環境 (Production)
+  workflow_dispatch:
+    inputs:
+      deploy_target:
+        description: '選擇部署對象'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+          - firebase_beta
+          - github_prod
+          - both
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 限制同時間只能有一個正式發布流程在跑
+concurrency:
+  group: "deployment"
+  cancel-in-progress: false
+
+jobs:
+  # 1. 建置 Jekyll 靜態網站
+  build:
+    name: Build Jekyll Site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1' # 指定穩定版本
+          bundler-cache: true # 啟用快取提升速度
+
+      - name: Build with Jekyll
+        run: bundle exec jekyll build
+        env:
+          JEKYLL_ENV: production
+
+      - name: Upload Build Artifact for Hosting
+        uses: actions/upload-artifact@v4
+        with:
+          name: jekyll-build
+          path: _site/
+          retention-days: 1 # 僅保留一天用於後續部署
+
+  # 2. 部署至 Firebase Hosting (Beta)
+  deploy_to_firebase:
+    name: Deploy to Firebase Beta
+    needs: build
+    runs-on: ubuntu-latest
+    # 當是 push 或是手動選擇 firebase/both 時觸發
+    if: |
+      github.event_name == 'push' || 
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.deploy_target == 'firebase_beta' || github.event.inputs.deploy_target == 'both'))
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: jekyll-build
+          path: _site
+
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEICHA_MEMBERSHIP_SYSTEM }}"
+          projectId: keicha-membership-system
+          channelId: live # 部署到 Firebase live channel (即主域名)
+
+  # 3. 部署至 GitHub Pages (Production)
+  deploy_to_github_prod:
+    name: Deploy to GitHub Production
+    needs: build
+    runs-on: ubuntu-latest
+    # 僅允許 main 分支推送到正式環境，且必須是手動觸發或合併
+    # 註：此處根據用戶需求，若只需手動，可將 push 去除
+    # 允許在推送到 main 分支或是手動觸發時執行正式部署
+    if: |
+      (github.ref == 'refs/heads/main') && 
+      (github.event_name == 'push' || 
+       (github.event_name == 'workflow_dispatch' && (github.event.inputs.deploy_target == 'github_prod' || github.event.inputs.deploy_target == 'both')))
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: jekyll-build
+          path: _site
+
+      - name: Upload to GitHub Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

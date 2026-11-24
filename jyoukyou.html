@@ -1,0 +1,555 @@
+---
+layout: default
+title: KEICHA 訂單追蹤 | 預購商品狀態查詢
+description: KEICHA 訂單追蹤系統。輸入訂單編號或手機號碼，即時查詢訂單進度。
+keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
+
+---
+
+<!-- KEICHA Global Styles & Scripts -->
+<link rel="stylesheet" href="css/global.css">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-services.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+
+<style>
+    /* 專屬樣式 */
+    .note-box {
+        background-color: #f3f4f6;
+        /* gray-100 */
+        color: #374151;
+    }
+
+    /* 結果卡片樣式 */
+    .order-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .order-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 輸入框 Placeholder 尺寸設定 */
+    input::placeholder {
+        font-size: 0.75rem;
+        /* text-xs */
+    }
+
+    button:disabled {
+        cursor: not-allowed;
+        opacity: 0.8;
+    }
+
+    /* 響應式按鈕文字處理 */
+    @media (max-width: 640px) {
+        /* 只針對非例外按鈕進行文字隱藏，查詢已經是 2 字，暫不隱藏，但預留架構 */
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const db = FB.db;
+        const searchButton = document.getElementById('search-order-button');
+        const orderInput = document.getElementById('order-number-input');
+        const phoneInput = document.getElementById('phone-number-input');
+        const resultsContainer = document.getElementById('results-container');
+        const errorDiv = document.getElementById('search-error');
+        const resultSection = document.getElementById('order-result-section');
+
+        let originalButtonContent = "";
+
+        const STATUS_MAP = {
+            'pending': '待處理',
+            'quoted': '待處理',
+            'confirmed': '已確認',
+            'paid': '已確認',
+            'processing': '已確認',
+            'completed': '已完成',
+            'shipped': '已完成',
+            'cancelled': '已取消',
+            'failed': '已取消'
+        };
+
+        if (searchButton) searchButton.addEventListener('click', handleSearch);
+
+        [orderInput, phoneInput].forEach(input => {
+            if (input) {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') handleSearch();
+                });
+            }
+        });
+
+        async function handleSearch() {
+            const rawOrderId = orderInput.value.trim();
+            const rawPhone = phoneInput.value.trim();
+
+            if (!rawOrderId && !rawPhone) {
+                showError("請輸入「訂單編號」或「手機號碼」其中一項即可查詢。");
+                return;
+            }
+
+            showLoading(true);
+            showError(null);
+            resultSection.classList.add('hidden');
+            resultsContainer.innerHTML = '';
+
+            try {
+                // 電話正規化：移除非數字
+                const cleanPhone = rawPhone.replace(/\D/g, '');
+                const phoneVariants = [];
+                if (cleanPhone) {
+                    phoneVariants.push(cleanPhone);
+                    // 台灣手機號碼處理：09xx... or 9xx...
+                    if (cleanPhone.length === 10 && cleanPhone.startsWith('09')) {
+                        const base = cleanPhone.substring(1); // 9xx...
+                        phoneVariants.push(base);
+                        phoneVariants.push('886' + base);
+                        phoneVariants.push('+886' + base);
+                    } else if (cleanPhone.length === 9 && cleanPhone.startsWith('9')) {
+                        phoneVariants.push('0' + cleanPhone);
+                        phoneVariants.push('886' + cleanPhone);
+                        phoneVariants.push('+886' + cleanPhone);
+                    } else if (cleanPhone.startsWith('8869') && cleanPhone.length === 12) {
+                        const base = cleanPhone.substring(3);
+                        phoneVariants.push(base);
+                        phoneVariants.push('0' + base);
+                        phoneVariants.push('+886' + base);
+                    } else if (cleanPhone.startsWith('88609') && cleanPhone.length === 13) {
+                        const base = cleanPhone.substring(4);
+                        phoneVariants.push(base);
+                        phoneVariants.push('0' + base);
+                        phoneVariants.push('886' + base);
+                        phoneVariants.push('+886' + base);
+                    }
+                }
+                const uniquePhoneVariants = [...new Set(phoneVariants)];
+
+                const results = [];
+                const searchPromises = [];
+
+                // --- 1. 查詢 'orders' 集合 (抹茶) ---
+                if (rawOrderId) {
+                    searchPromises.push(db.collection('orders').doc(rawOrderId).get().then(doc => {
+                        if (doc.exists) {
+                            const data = doc.data();
+                            results.push({
+                                orderId: doc.id,
+                                item: data.items_text || data.items || '抹茶商品',
+                                amount: data.total || 0,
+                                baseAmount: data.subtotal || 0,
+                                shippingFee: data.shipping_fee || 0,
+                                status: STATUS_MAP[data.status] || data.status || '待處理',
+                                sellerNote: data.seller_note || '',
+                                createdAt: data.created_at || data.submit_time || data.created_time || 0
+                            });
+                        }
+                    }));
+                }
+                
+                uniquePhoneVariants.forEach(variant => {
+                    searchPromises.push(db.collection('orders').where('phone', '==', variant).limit(20).get().then(snap => {
+                        snap.forEach(doc => {
+                            const data = doc.data();
+                            if (!results.find(r => r.orderId === doc.id)) {
+                                results.push({
+                                    orderId: doc.id,
+                                    item: data.items_text || data.items || '抹茶商品',
+                                    amount: data.total || 0,
+                                    baseAmount: data.subtotal || 0,
+                                    shippingFee: data.shipping_fee || 0,
+                                    status: STATUS_MAP[data.status] || data.status || '待處理',
+                                    sellerNote: data.seller_note || '',
+                                    createdAt: data.created_at || data.submit_time || data.created_time || 0
+                                });
+                            }
+                        });
+                    }));
+                });
+
+                // --- 2. 查詢 'denwa_orders' 集合 (電話代撥) ---
+                if (rawOrderId) {
+                    searchPromises.push(db.collection('denwa_orders').where('order_id', '==', rawOrderId).limit(1).get().then(snap => {
+                        snap.forEach(doc => {
+                            const data = doc.data();
+                            if (!results.find(r => r.orderId === (data.order_id || doc.id))) {
+                                results.push({
+                                    orderId: data.order_id || doc.id,
+                                    item: `${data.merchant_name || '電話代撥'} - ${data.plan_name || '基本服務'}`,
+                                    amount: data.total || 0,
+                                    baseAmount: data.plan_price || data.total || 0,
+                                    shippingFee: 0,
+                                    status: STATUS_MAP[data.status] || data.status || '待處理',
+                                    paymentLink: data.payment_link || '',
+                                    paymentStatus: data.payment_status || 'pending',
+                                    sellerNote: data.public_reply || data.seller_note || '',
+                                    trackingCode: data.tracking_code || data.order_id || doc.id || '',
+                                    createdAt: data.created_at || data.submit_time || data.created_time || 0
+                                });
+                            }
+                        });
+                    }));
+                }
+                
+                uniquePhoneVariants.forEach(variant => {
+                    searchPromises.push(db.collection('denwa_orders').where('phone', '==', variant).limit(20).get().then(snap => {
+                        snap.forEach(doc => {
+                            const data = doc.data();
+                            if (!results.find(r => r.orderId === (data.order_id || doc.id))) {
+                                results.push({
+                                    orderId: data.order_id || doc.id,
+                                    item: `${data.merchant_name || '電話代撥'} - ${data.plan_name || '基本服務'}`,
+                                    amount: data.total || 0,
+                                    baseAmount: data.plan_price || data.total || 0,
+                                    shippingFee: 0,
+                                    status: STATUS_MAP[data.status] || data.status || '待處理',
+                                    paymentLink: data.payment_link || '',
+                                    paymentStatus: data.payment_status || 'pending',
+                                    sellerNote: data.public_reply || data.seller_note || '',
+                                    trackingCode: data.tracking_code || data.order_id || doc.id || '',
+                                    createdAt: data.created_at || data.submit_time || data.created_time || 0
+                                });
+                            }
+                        });
+                    }));
+                });
+
+                // --- 3. 查詢 'card_orders' 集合 (專屬支付) ---
+                if (rawOrderId) {
+                    searchPromises.push(db.collection('card_orders').where('order_id', '==', rawOrderId).limit(1).get().then(snap => {
+                        snap.forEach(doc => {
+                            const data = doc.data();
+                            if (!results.find(r => r.orderId === data.order_id)) {
+                                results.push({
+                                    orderId: data.order_id || doc.id,
+                                    item: data.items_text || data.merchant_name || "專屬支付連結訂單",
+                                    amount: data.amount || 0,
+                                    baseAmount: data.base_amount || 0,
+                                    shippingFee: data.shipping_fee || 0,
+                                    // Calculated totalAmount will be used in render
+                                    status: STATUS_MAP[data.payment_status] || (data.payment_status === 'paid' ? '已確認' : '待處理'),
+                                    merchantName: data.merchant_name || null,
+                                    paymentLink: data.payment_url || (data.link_id ? `card-order.html?id=${data.link_id}` : ''),
+                                    paymentStatus: data.payment_status || 'pending',
+                                    sellerNote: data.seller_note || '',
+                                    trackingCode: data.tracking_code || data.order_id || doc.id || '',
+                                    createdAt: data.created_at || data.submit_time || data.created_time || 0
+                                });
+                            }
+                        });
+                    }));
+                }
+                
+                uniquePhoneVariants.forEach(variant => {
+                    searchPromises.push(db.collection('card_orders').where('phone', '==', variant).limit(20).get().then(snap => {
+                        snap.forEach(doc => {
+                            const data = doc.data();
+                            if (!results.find(r => r.orderId === data.order_id)) {
+                                results.push({
+                                    orderId: data.order_id || doc.id,
+                                    item: data.items_text || data.merchant_name || "專屬支付連結訂單",
+                                    amount: data.amount || 0,
+                                    baseAmount: data.base_amount || 0,
+                                    shippingFee: data.shipping_fee || 0,
+                                    // Calculated totalAmount will be used in render
+                                    status: STATUS_MAP[data.payment_status] || (data.payment_status === 'paid' ? '已確認' : '待處理'),
+                                    merchantName: data.merchant_name || null,
+                                    paymentLink: data.payment_url || (data.link_id ? `card-order.html?id=${data.link_id}` : ''),
+                                    paymentStatus: data.payment_status || 'pending',
+                                    sellerNote: data.seller_note || '',
+                                    trackingCode: data.tracking_code || data.order_id || doc.id || '',
+                                    createdAt: data.created_at || data.submit_time || data.created_time || 0
+                                });
+                            }
+                        });
+                    }));
+                });
+
+                // --- 4. 查詢 'proxy_pay_orders' 集合 (日本代付) ---
+                if (rawOrderId) {
+                    searchPromises.push(db.collection('proxy_pay_orders').where('order_id', '==', rawOrderId).limit(1).get().then(snap => {
+                        snap.forEach(doc => {
+                            const data = doc.data();
+                            if (!results.find(r => r.orderId === data.order_id)) {
+                                results.push({
+                                    orderId: data.order_id || doc.id,
+                                    item: `日本代付 - ${data.service_type || '一般代付'}`,
+                                    amount: data.total_twd || 0,
+                                    baseAmount: data.total_twd || 0,
+                                    shippingFee: 0,
+                                    status: STATUS_MAP[data.status] || data.status || '待處理',
+                                    sellerNote: data.public_reply || data.seller_note || '',
+                                    trackingCode: data.tracking_code || data.order_id || doc.id || '',
+                                    createdAt: data.created_at || data.submit_time || data.created_time || 0
+                                });
+                            }
+                        });
+                    }));
+                }
+                
+                uniquePhoneVariants.forEach(variant => {
+                    searchPromises.push(db.collection('proxy_pay_orders').where('phone', '==', variant).limit(20).get().then(snap => {
+                        snap.forEach(doc => {
+                            const data = doc.data();
+                            if (!results.find(r => r.orderId === data.order_id)) {
+                                results.push({
+                                    orderId: data.order_id || doc.id,
+                                    item: `日本代付 - ${data.service_type || '一般代付'}`,
+                                    amount: data.total_twd || 0,
+                                    baseAmount: data.total_twd || 0,
+                                    shippingFee: 0,
+                                    status: STATUS_MAP[data.status] || data.status || '待處理',
+                                    sellerNote: data.public_reply || data.seller_note || '',
+                                    trackingCode: data.tracking_code || data.order_id || doc.id || '',
+                                    createdAt: data.created_at || data.submit_time || data.created_time || 0
+                                });
+                            }
+                        });
+                    }));
+                });
+
+                await Promise.all(searchPromises);
+
+                if (results.length > 0) {
+                    // 按時間降冪排序 (由新到舊)
+                    results.sort((a, b) => {
+                        let timeA = 0;
+                        let timeB = 0;
+                        if (a.createdAt && a.createdAt.toDate) timeA = a.createdAt.toDate().getTime();
+                        else if (a.createdAt) timeA = new Date(a.createdAt).getTime();
+
+                        if (b.createdAt && b.createdAt.toDate) timeB = b.createdAt.toDate().getTime();
+                        else if (b.createdAt) timeB = new Date(b.createdAt).getTime();
+
+                        return timeB - timeA;
+                    });
+
+                    renderResults(results);
+                    resultSection.classList.remove('hidden');
+                    resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    showError("查無此訂單資料，請檢查您的輸入是否正確。");
+                }
+            } catch (error) {
+                console.error("Firebase Search Error:", error);
+                showError("連線發生錯誤，請稍後再試或聯繫客服。");
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function renderResults(orders) {
+            resultsContainer.innerHTML = '';
+
+            orders.forEach(order => {
+                // 顏色邏輯：已完成為綠色，其餘 (待處理、已確認、已取消) 為灰色
+                const isGreen = order.status === "已完成";
+                const textColorClass = isGreen ? "text-[#6ea44c]" : "text-gray-500";
+
+                // 總計金額計算邏輯：商品 + 運費，若為 0 則回退至訂單總額 (適用於舊數據)
+                const calculatedTotal = (order.baseAmount || 0) + (order.shippingFee || 0);
+                const finalTotal = calculatedTotal > 0 ? calculatedTotal : (order.amount || 0);
+
+                // 方案 A：垂直清單化處理訂單明細
+                let itemsList = String(order.item || '').split('\n').filter(row => row.trim() !== '');
+                
+                // 特定規則：刷卡訂單 (C開頭) 若有商品標題，則優先顯示商品標題
+                if (order.orderId && order.orderId.startsWith('C') && order.merchantName) {
+                    itemsList = [order.merchantName];
+                }
+
+                const itemsHtml = itemsList.map(item => `
+                    <div class="flex items-start gap-2 mb-1.5 last:mb-0">
+                        <span class="text-[#6ea44c] shrink-0" style="font-size: 14px; margin-top: 2px;">•</span>
+                        <span class="text-gray-700 leading-snug">${item}</span>
+                    </div>
+                `).join('');
+
+                let noteHtml = '';
+                if (order.sellerNote && order.sellerNote.trim() !== "") {
+                    noteHtml = `
+                            <div class="note-box mt-4 p-4 rounded-[var(--r-sm)] text-sm">
+                                <div class="font-bold mb-1">賣家留言</div>
+                                <div class="leading-relaxed whitespace-pre-wrap">${order.sellerNote}</div>
+                            </div>
+                        `;
+                }
+
+
+                const cardHtml = `
+                        <div class="order-card bg-white border border-gray-100 rounded-[var(--r-md)] p-6 mb-6 shadow-sm relative overflow-hidden">
+                            <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-4 gap-4">
+                                <div>
+                                    <div class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">訂單編號</div>
+                                    <div class="text-xl font-mono font-bold text-gray-800">
+                                        ${order.orderId.trim().replace(/-[A-Z0-9]{4}$/, '')}
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <a href="order.html?id=${order.orderId.trim().replace(/-[A-Z0-9]{4}$/, '')}" class="text-sm font-bold text-[#6ea44c] border border-[#6ea44c] px-4 py-2 rounded-[var(--r-full)] hover:bg-[#f9fdf7] transition-all flex items-center gap-1">
+                                        <span class="material-symbols-rounded" style="font-size: 16px;">visibility</span>
+                                        訂單詳情
+                                    </a>
+                                    <div class="px-4 py-2 rounded-[var(--r-full)] text-sm font-bold ${isGreen ? 'bg-[#6ea44c] text-white' : 'bg-gray-50 ' + textColorClass}">
+                                        ${order.status}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-100 pt-4">
+                                <div>
+                                    <div class="text-xs text-gray-400 font-bold mb-2">訂單明細</div>
+                                    <div class="font-medium">${itemsHtml}</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-400 font-bold mb-2">款項資訊</div>
+                                    <div class="space-y-1.5">
+                                        ${order.baseAmount !== undefined && order.baseAmount > 0 ? `
+                                            <div class="flex justify-between text-xs text-gray-500">
+                                                <span>商品金額</span>
+                                                <span class="font-mono">NT$ ${order.baseAmount.toLocaleString()}</span>
+                                            </div>
+                                        ` : ''}
+                                        ${order.shippingFee !== undefined && order.shippingFee > 0 ? `
+                                            <div class="flex justify-between text-xs text-gray-500">
+                                                <span>運費</span>
+                                                <span class="font-mono">NT$ ${order.shippingFee.toLocaleString()}</span>
+                                            </div>
+                                        ` : ''}
+                                        <div class="flex justify-between text-sm font-bold text-gray-700 pt-1 border-t border-dashed border-gray-100">
+                                            <span>總計金額</span>
+                                            <span class="font-mono">NT$ ${finalTotal.toLocaleString()}</span>
+                                        </div>
+                                        ${(order.amount && Number(order.amount) > 0 && Number(order.amount) !== finalTotal) ? `
+                                        <div class="flex justify-between items-center pt-1">
+                                            <span class="text-xs font-bold text-[#6ea44c]">本階段支付</span>
+                                            <span class="text-lg font-bold font-mono text-[#6ea44c]">NT$ ${Number(order.amount).toLocaleString()}</span>
+                                        </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            ${noteHtml}
+                        </div>
+                    `;
+                resultsContainer.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        function showLoading(isLoading) {
+            if (isLoading) {
+                originalButtonContent = searchButton.innerHTML;
+                searchButton.disabled = true;
+                searchButton.innerHTML = `<div class="loader-white mr-2"></div> 查詢中...`;
+            } else {
+                searchButton.disabled = false;
+                if (originalButtonContent) searchButton.innerHTML = originalButtonContent;
+            }
+        }
+
+        function showError(message) {
+            if (errorDiv) {
+                if (message) {
+                    errorDiv.innerHTML = message;
+                    errorDiv.classList.remove('hidden');
+                } else {
+                    errorDiv.classList.add('hidden');
+                }
+            }
+        }
+
+        // --- 自動儲存與恢復 ---
+        function saveSearchState() {
+            const state = {
+                orderNum: orderInput.value.trim(),
+                phoneNum: phoneInput.value.trim()
+            };
+            localStorage.setItem('keicha_search_state', JSON.stringify(state));
+        }
+
+        function loadSearchState() {
+            const saved = localStorage.getItem('keicha_search_state');
+            if (saved) {
+                const state = JSON.parse(saved);
+                if (state.orderNum) orderInput.value = state.orderNum;
+                if (state.phoneNum) phoneInput.value = state.phoneNum;
+            }
+        }
+
+        // 監聽輸入與載入
+        [orderInput, phoneInput].forEach(el => {
+            el.addEventListener('input', saveSearchState);
+        });
+        loadSearchState();
+    });
+
+</script>
+
+<div class="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 pt-12">
+
+    <section class="bg-white p-8 md:p-12 rounded-[var(--r-lg)] shadow-sm border border-gray-100 mb-8 mt-8">
+        <header class="text-center mb-8 pb-6 border-b border-gray-100">
+            <h1 class="text-3xl md:text-4xl brand-title-font text-[#6ea44c]">
+                訂單追蹤
+            </h1>
+            <p class="mt-4 text-gray-500 text-sm">輸入您的訂單資訊，查詢處理進度。</p>
+        </header>
+
+        <div class="max-w-xl mx-auto space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="order-number-input" class="block text-sm font-bold text-gray-700 mb-2">訂單編號</label>
+                    <div class="relative">
+                        <span class="material-symbols-rounded absolute left-3 top-3.5 text-gray-400">tag</span>
+                        <input type="text" id="order-number-input" placeholder="訂單編號請見電子郵件"
+                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-[var(--r-md)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#6ea44c] focus:border-transparent transition-all">
+                    </div>
+                </div>
+                <div>
+                    <label for="phone-number-input" class="block text-sm font-bold text-gray-700 mb-2">手機號碼</label>
+                    <div class="relative">
+                        <span class="material-symbols-rounded absolute left-3 top-3.5 text-gray-400">smartphone</span>
+                        <input type="tel" id="phone-number-input" placeholder="手機號碼查詢歷史訂單"
+                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-[var(--r-md)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#6ea44c] focus:border-transparent transition-all">
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-xs text-gray-400 text-center">※ 請至少輸入其中一項即可查詢</p>
+
+            <button id="search-order-button"
+                class="w-full bg-[#6ea44c] text-white font-bold py-4 rounded-[var(--r-md)] hover:bg-[#5d8c40] transition-all duration-300 flex items-center justify-center gap-2">
+                <span class="material-symbols-rounded">search</span>
+                <span class="search-btn-text">查詢</span>
+            </button>
+
+            <div id="search-error"
+                class="hidden mt-4 text-center text-red-600 bg-red-50 p-4 rounded-[var(--r-md)] border border-red-100 text-sm">
+            </div>
+        </div>
+    </section>
+
+    <section id="order-result-section" class="hidden mt-16 mb-16">
+        <h2 class="text-xl font-bold text-gray-800 mb-6 px-2">查詢結果</h2>
+        <div id="results-container"></div>
+    </section>
+
+    <section class="mt-20 mb-20 text-center">
+        <div class="bg-white p-8 rounded-[var(--r-lg)] shadow-sm border border-gray-100">
+            <h2 class="text-xl font-bold text-gray-800 mb-2">需要協助嗎？</h2>
+            <p class="text-gray-500 mb-6 text-sm">
+                查詢不到訂單，或對訂單有任何疑問，請聯絡 LINE 官方客服。<br>
+                LINE ID：@366qwylw
+            </p>
+            <a href="https://lin.ee/CffHu2o" target="_blank" rel="noopener noreferrer"
+                class="inline-flex bg-[#6ea44c] text-white px-10 py-3 rounded-[var(--r-md)] font-bold hover:bg-[#5d8c40] transition duration-300 shadow-md">
+                LINE 官方客服
+            </a>
+        </div>
+    </section>
+
+</div>
+</main>

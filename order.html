@@ -1,0 +1,696 @@
+---
+layout: default
+title: 訂單詳情 | KEICHA
+---
+
+<style>
+    /* Vertical Timeline Styles */
+    .timeline-container {
+        position: relative;
+        padding-left: 2.5rem;
+    }
+
+    .timeline-container::before {
+        content: '';
+        position: absolute;
+        left: 0.75rem;
+        top: 0.5rem;
+        bottom: 0.5rem;
+        width: 2px;
+        background-color: var(--border-std, #e5e7eb);
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .timeline-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: -2.35rem;
+        top: 0.25rem;
+        width: 1.25rem;
+        height: 1.25rem;
+        background-color: #fff;
+        border: 2px solid var(--border-std, #e5e7eb);
+        border-radius: 50%;
+        z-index: 10;
+    }
+
+    /* Status Colors */
+    .timeline-item.status-gray .timeline-dot {
+        background-color: #94a3b8;
+        border-color: #94a3b8;
+    }
+
+    .timeline-item.status-green .timeline-dot {
+        background-color: #6ea44c;
+        border-color: #6ea44c;
+        box-shadow: 0 0 0 4px #ebf1e9;
+    }
+
+    .timeline-content {
+        opacity: 0.4;
+    }
+
+    .timeline-item.active .timeline-content {
+        opacity: 1;
+    }
+
+    .loader {
+        border: 3px solid #f3f4f6;
+        border-top: 3px solid #6ea44c;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+<div id="loading-state"
+    class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-300">
+    <div class="loader mb-4"></div>
+    <p class="text-sm font-bold text-gray-400 brand-title-font tracking-widest">載入訂單資料中...</p>
+</div>
+
+<main class="py-12 px-6 md:px-12 min-h-screen">
+    <div id="error-state" class="hidden max-w-2xl mx-auto text-center py-20">
+        <span class="material-symbols-rounded text-6xl text-gray-300 mb-4">search_off</span>
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">找不到訂單資訊</h1>
+        <p class="text-gray-500 text-sm mb-8">請檢查您的連結是否正確，或聯繫客服協助。</p>
+        <a href="jyoukyou.html" class="inline-flex items-center gap-2 text-[#6ea44c] font-bold hover:underline">
+            <span class="material-symbols-rounded">arrow_back</span>
+            返回查詢頁面
+        </a>
+    </div>
+
+    <div id="main-content" class="hidden max-w-2xl mx-auto pb-12">
+        <!-- Header -->
+        <header class="flex justify-between items-end mb-8">
+            <div>
+                <h1 class="text-2xl font-bold brand-title-font text-gray-800">訂單詳情</h1>
+                <p id="display-tracking-code" class="text-sm text-gray-500 font-mono mt-1"></p>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 gap-8">
+            <!-- Section 1: Progress (Linear Vertical) -->
+            <section class="bg-white p-8 rounded-[var(--r-lg)] border border-gray-100 shadow-sm">
+                <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 border-b pb-4">訂單進度軌跡</h2>
+                <div class="timeline-container" id="timeline">
+                    <!-- Dynamic Progress -->
+                </div>
+            </section>
+
+            <!-- Section 2: Order Details -->
+            <div class="bg-white rounded-[var(--r-lg)] border border-gray-100 shadow-sm overflow-hidden">
+                <div class="p-8 pb-0">
+                    <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">訂單明細</h2>
+                </div>
+                <div id="order-items" class="divide-y divide-gray-50">
+                    <!-- Dynamic Items -->
+                </div>
+                <div class="bg-gray-50 p-8">
+                    <div class="flex justify-between text-sm text-gray-500 mb-2">
+                        <span>小計</span>
+                        <span id="display-subtotal" class="font-mono">NT$ 0</span>
+                    </div>
+                    <div id="row-proxy-service-fee" class="hidden flex justify-between text-sm text-gray-500 mb-2">
+                        <span>代付服務費</span>
+                        <span id="display-proxy-service-fee" class="font-mono">NT$ 0</span>
+                    </div>
+                    <!-- 郵寄相關費用明細 (預設隱藏) -->
+                    <div id="row-postage-fee" class="hidden flex justify-between text-sm text-gray-500 mb-2">
+                        <span>郵寄服務費</span>
+                        <span id="display-postage-fee" class="font-mono">NT$ 0</span>
+                    </div>
+                    <div id="row-shipping-fee" class="flex justify-between text-sm text-gray-500 mb-2">
+                        <span id="display-shipping-type">運費</span>
+                        <span id="display-shipping-fee" class="font-mono">NT$ 0</span>
+                    </div>
+                    <!-- 會員優惠折扣 -->
+                    <div id="row-member-discount" class="hidden flex justify-between text-sm mb-4 text-[#6ea44c] font-bold">
+                        <span>會員優惠折扣</span>
+                        <span id="display-member-discount" class="font-mono">-NT$ 0</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-4 border-t border-gray-200">
+                        <span class="font-bold text-gray-800">應付總額</span>
+                        <span id="display-total" class="text-2xl font-bold font-mono text-[#6ea44c]">NT$ 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Shipping Info -->
+            <section class="bg-white p-8 rounded-[var(--r-lg)] border border-gray-100 shadow-sm">
+                <h2 id="info-section-title" class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">收件資訊</h2>
+                
+                <!-- Standard Shipping Info -->
+                <div id="standard-info" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">收件人</label>
+                        <p id="display-name" class="font-medium">-</p>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">聯絡電話</label>
+                        <p id="display-phone" class="font-medium font-mono">-</p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">收件資訊 / 商家資訊</label>
+                        <p id="display-address" class="font-medium">-</p>
+                    </div>
+                    <div id="row-standard-remarks" class="md:col-span-2 hidden">
+                        <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">備註</label>
+                        <p id="display-remarks" class="font-medium whitespace-pre-line">-</p>
+                    </div>
+                </div>
+
+                <!-- Proxy Pay Specific Info -->
+                <div id="proxy-pay-info" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">LINE / 蝦皮名稱</label>
+                        <p id="display-proxy-user" class="font-medium">-</p>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">聯絡信箱</label>
+                        <p id="display-proxy-email" class="font-medium font-mono">-</p>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">超商系統</label>
+                        <p id="display-proxy-store" class="font-medium">-</p>
+                    </div>
+                    <!-- 寄送資訊 (代付訂單專用) -->
+                    <div id="proxy-shipping-details" class="md:col-span-2 hidden grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-50">
+                        <div>
+                            <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">運送方式</label>
+                            <p id="display-proxy-method" class="font-medium">-</p>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">收件姓名</label>
+                            <p id="display-proxy-recipient" class="font-medium">-</p>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">聯絡電話</label>
+                            <p id="display-proxy-phone" class="font-medium font-mono">-</p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">收件地址</label>
+                            <p id="display-proxy-address" class="font-medium">-</p>
+                        </div>
+                    </div>
+                    <!-- 備註 (如有) -->
+                    <div id="row-proxy-remarks" class="md:col-span-2 hidden">
+                        <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">備註</label>
+                        <p id="display-proxy-remarks" class="font-medium whitespace-pre-line">-</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div id="denwa-specific-info"
+                        class="md:col-span-2 hidden grid grid-cols-2 gap-6 pt-4 border-t border-gray-50">
+                        <div>
+                            <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">預約日期時段</label>
+                            <p id="display-service-time" class="font-medium">-</p>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">預約人數</label>
+                            <p id="display-people-count" class="font-medium">-</p>
+                        </div>
+                    </div>
+                    <div id="seller-reply-container" class="md:col-span-2 hidden">
+                        <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">賣家回覆</label>
+                        <div
+                            class="bg-[#f9fdf7] border border-[#ebf1e9] p-4 rounded-[var(--r-md)] text-sm text-[#5d8d41] leading-relaxed">
+                            <p id="display-seller-reply"></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <footer class="mt-12 flex flex-col items-center gap-6">
+            <!-- 前往付款按鈕 (僅刷卡訂單待處理時顯示) -->
+            <button id="btn-repay" onclick="triggerRepayAction(this)"
+                class="hidden w-full bg-brand-green text-white px-8 py-4 rounded-[var(--r-md)] font-bold shadow-md hover:bg-brand-green-hover transition-all flex items-center justify-center gap-2 text-lg">
+                <span class="material-symbols-rounded">payments</span>
+                前往付款
+            </button>
+
+            <button onclick="contactSupport()"
+                class="w-full bg-transparent text-[#6ea44c] border-2 border-[#6ea44c] px-8 py-4 rounded-[var(--r-md)] font-bold hover:bg-[#ebf1e9] transition-all flex items-center justify-center gap-2 text-lg">
+                <span class="material-symbols-rounded">chat_bubble</span>
+                聯絡客服
+            </button>
+
+            <a href="jyoukyou.html"
+                class="inline-flex items-center gap-2 text-gray-400 hover:text-[#6ea44c] transition-colors">
+                <span class="material-symbols-rounded text-lg">arrow_back</span>
+                <span class="text-sm font-bold">返回查詢頁面</span>
+            </a>
+        </footer>
+    </div>
+</main>
+
+<!-- Firebase SDK (v9 compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/api.js"></script>
+<script src="js/status-config.js"></script>
+
+<script>
+    // Firebase Configuration (Same as original)
+    const firebaseConfig = {
+        apiKey: "AIzaSyBF50fJPE-QL3yV4KaVIWzDmDPFRAkpwT4",
+        authDomain: "keicha-membership-system.firebaseapp.com",
+        projectId: "keicha-membership-system",
+        storageBucket: "keicha-membership-system.firebasestorage.app",
+        messagingSenderId: "941650156322",
+        appId: "1:941650156322:web:5c7473aeaa184e0b94637b"
+    };
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+    let currentOrderId = null; // 全域記錄目前訂單 ID
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        let id = urlParams.get('id');
+
+        if (!id) {
+            showError();
+            return;
+        }
+        
+        id = id.trim(); // 防止空格導致搜尋失敗
+
+        try {
+            // Cross-collection search using tracking_code
+            const collections = ['orders', 'denwa_orders', 'card_orders', 'proxy_pay_orders'];
+            let orderData = null;
+            let orderType = '';
+
+            for (const coll of collections) {
+                // 1. 先嘗試用文件 ID 直接讀取 (最快且精確)
+                const docSnap = await db.collection(coll).doc(id).get();
+                if (docSnap.exists) {
+                    orderData = docSnap.data();
+                    orderType = coll;
+                    currentOrderId = docSnap.id;
+                    break;
+                }
+
+                // 2. 嘗試用 tracking_code 搜尋
+                let snap = await db.collection(coll).where('tracking_code', '==', id).limit(1).get();
+                
+                // 3. 嘗試用 order_id 搜尋
+                if (snap.empty) {
+                    snap = await db.collection(coll).where('order_id', '==', id).limit(1).get();
+                }
+
+                if (!snap.empty) {
+                    orderData = snap.docs[0].data();
+                    orderType = coll;
+                    currentOrderId = snap.docs[0].id;
+                    break;
+                }
+            }
+
+            if (!orderData) {
+                showError();
+                return;
+            }
+
+            renderOrder(orderData, id, orderType);
+            hideLoading();
+        } catch (err) {
+            console.error(err);
+            showError();
+        }
+    });
+
+    function renderOrder(data, trackingCode, type) {
+        // 安全設置文字的輔助函式
+        const setText = (id, text) => {
+            const el = document.getElementById(id);
+            if (el) el.innerText = text;
+        };
+
+        setText('display-tracking-code', `#${(data.order_id || trackingCode).trim().replace(/-[A-Z0-9]{4}$/, '')}`);
+
+        // 1. Progress Logic
+        renderTimeline(data, type);
+
+        // 2. Info Section
+        const infoSectionTitle = document.getElementById('info-section-title');
+        const standardInfo = document.getElementById('standard-info');
+        const proxyPayInfo = document.getElementById('proxy-pay-info');
+        const denwaInfo = document.getElementById('denwa-specific-info');
+
+        if (type === 'denwa_orders') {
+            if (infoSectionTitle) infoSectionTitle.innerText = '詳細資訊';
+            if (standardInfo) standardInfo.classList.add('hidden');
+            if (proxyPayInfo) proxyPayInfo.classList.add('hidden');
+            if (denwaInfo) {
+                denwaInfo.classList.remove('hidden');
+                denwaInfo.classList.remove('pt-4', 'border-t', 'border-gray-50'); // 重置樣式以適應主區域
+                denwaInfo.innerHTML = `
+                    <div>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">致電對象</label>
+                        <p class="font-medium">${data.merchant_name || '-'}</p>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">預約英文名</label>
+                        <p class="font-medium">${data.booking_name || '-'}</p>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">預約時間</label>
+                        <p class="font-medium">${data.service_date || '-'} ${data.service_time || ''}</p>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">預約人數</label>
+                        <p class="font-medium">${data.total_count || 0} 人 (${data.adult_count || 0}大 ${data.child_count || 0}小)</p>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">聯絡電話</label>
+                        <p class="font-medium font-mono">${data.phone || '-'}</p>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">在日資訊</label>
+                        <p class="font-medium">${data.contact_in_japan || '無'}</p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">備註</label>
+                        <p class="font-medium whitespace-pre-line">${data.note || '無'}</p>
+                    </div>
+                `;
+            }
+        } else if (type === 'proxy_pay_orders') {
+            if (infoSectionTitle) infoSectionTitle.innerText = '詳細資訊';
+            if (standardInfo) standardInfo.classList.add('hidden');
+            if (proxyPayInfo) proxyPayInfo.classList.remove('hidden');
+            
+            setText('display-proxy-user', data.line_name || data.shopee_name || '-');
+            setText('display-proxy-email', data.email || '-');
+            setText('display-proxy-store', data.store_system || '-');
+
+
+            // 顯示寄送細節 (若有)
+            const proxyShippingDetails = document.getElementById('proxy-shipping-details');
+            if (proxyShippingDetails && (data.shipping_method || data.recipient_name)) {
+                proxyShippingDetails.classList.remove('hidden');
+                setText('display-proxy-method', data.shipping_method || '-');
+                setText('display-proxy-recipient', data.recipient_name || '-');
+                setText('display-proxy-phone', data.recipient_phone || '-');
+                setText('display-proxy-address', data.shipping_address || '-');
+            }
+
+            // 處理備註
+            const rowRemarks = document.getElementById('row-proxy-remarks');
+            if (data.remarks && data.remarks.trim() !== '') {
+                if (rowRemarks) {
+                    rowRemarks.classList.remove('hidden');
+                    setText('display-proxy-remarks', data.remarks);
+                }
+            } else if (rowRemarks) {
+                rowRemarks.classList.add('hidden');
+            }
+        } else {
+            if (infoSectionTitle) infoSectionTitle.innerText = '收件資訊';
+            if (standardInfo) standardInfo.classList.remove('hidden');
+            if (proxyPayInfo) proxyPayInfo.classList.add('hidden');
+            if (denwaInfo) denwaInfo.classList.add('hidden');
+
+            setText('display-name', data.name || data.customer_name || '未填寫');
+            setText('display-phone', data.phone || '未填寫');
+
+            let address = '';
+            if (data.logistics_type || data.logistics) {
+                const lType = data.logistics_type || data.logistics;
+                const lVal = data.store_id || data.store || data.shipping_address || data.address || '-';
+                const lNote = data.store_note ? ` (${data.store_note})` : '';
+                address = `${lType} ${lVal}${lNote}`;
+            } else if (data.merchant_name) {
+                address = type === 'card_orders' ? data.merchant_name : `日本商家：${data.merchant_name}`;
+            } else {
+                address = '現場服務 / 其它';
+            }
+            setText('display-address', address);
+
+            // 處理備註
+            const rowStdRemarks = document.getElementById('row-standard-remarks');
+            const note = data.note || data.remarks || '';
+            if (note && note.trim() !== '') {
+                if (rowStdRemarks) {
+                    rowStdRemarks.classList.remove('hidden');
+                    setText('display-remarks', note);
+                }
+            } else if (rowStdRemarks) {
+                rowStdRemarks.classList.add('hidden');
+            }
+        }
+
+        // 3. Items Logic
+        const orderItemsContainer = document.getElementById('order-items');
+        if (orderItemsContainer) {
+            orderItemsContainer.innerHTML = '';
+            const orderIdStr = data.order_id || trackingCode || '';
+            const isMatchaOrder = orderIdStr.toUpperCase().startsWith('M');
+            
+            if (isMatchaOrder && data.items_text) {
+                const rowHtml = `
+                    <div class="p-6 md:p-8">
+                        <div class="text-sm text-gray-600 leading-relaxed font-mono whitespace-pre-wrap">${data.items_text}</div>
+                    </div>
+                `;
+                orderItemsContainer.innerHTML = rowHtml;
+            }
+        }
+
+        // 4. Budget Logic
+        const total = data.total || data.amount || data.total_twd || 0;
+        let subtotal = 0;
+        let shipping = 0;
+
+        const rowProxyFee = document.getElementById('row-proxy-service-fee');
+        const rowPostage = document.getElementById('row-postage-fee');
+
+        if (type === 'proxy_pay_orders') {
+            subtotal = data.jpy_cost_twd || 0;
+            
+            // 代付服務費
+            if (rowProxyFee) {
+                rowProxyFee.classList.remove('hidden');
+                setText('display-proxy-service-fee', `NT$ ${(data.service_fee_twd || 0).toLocaleString()}`);
+            }
+
+            // 郵寄服務費
+            if (data.shipping_postage_fee_twd > 0) {
+                if (rowPostage) rowPostage.classList.remove('hidden');
+                setText('display-postage-fee', `NT$ ${data.shipping_postage_fee_twd.toLocaleString()}`);
+            } else if (rowPostage) {
+                rowPostage.classList.add('hidden');
+            }
+
+            // 運費
+            shipping = data.shipping_fee_twd || 0;
+            setText('display-shipping-type', `運費 (${data.shipping_method || '代領寄送'})`);
+        } else {
+            // 一般訂單邏輯 (保持相容)
+            subtotal = data.subtotal || data.base_amount || (data.total - (data.shipping_fee || 0)) || 0;
+            shipping = data.shipping_fee || data.shipping || 0;
+            
+            if (rowProxyFee) rowProxyFee.classList.add('hidden');
+            if (rowPostage) rowPostage.classList.add('hidden');
+            
+            if (data.logistics_type || data.logistics) {
+                setText('display-shipping-type', `運費 (${data.logistics_type || data.logistics})`);
+            } else {
+                setText('display-shipping-type', '運費');
+            }
+        }
+
+        setText('display-subtotal', `NT$ ${subtotal.toLocaleString()}`);
+        
+        // 運費顯示邏輯：若為 0 則隱藏
+        const rowShipping = document.getElementById('row-shipping-fee');
+        if (shipping > 0) {
+            if (rowShipping) rowShipping.classList.remove('hidden');
+            setText('display-shipping-fee', `NT$ ${shipping.toLocaleString()}`);
+        } else {
+            if (rowShipping) rowShipping.classList.add('hidden');
+        }
+
+        // 會員優惠折扣顯示
+        const rowDiscount = document.getElementById('row-member-discount');
+        if (data.member_discount > 0) {
+            if (rowDiscount) {
+                rowDiscount.classList.remove('hidden');
+                const discountLabel = rowDiscount.querySelector('span:first-child');
+                if (discountLabel) {
+                    discountLabel.textContent = data.discount_type === 'large' ? '大額優惠折抵' : '會員優惠折扣';
+                }
+            }
+            setText('display-member-discount', `-NT$ ${data.member_discount.toLocaleString()}`);
+            // 若有折扣，調整應付總額上方間距
+            if (rowShipping) rowShipping.classList.replace('mb-4', 'mb-2');
+        } else {
+            if (rowDiscount) rowDiscount.classList.add('hidden');
+        }
+
+        setText('display-total', `NT$ ${total.toLocaleString()}`);
+
+        // 5. Seller Reply
+        const reply = data.public_reply || data.seller_note;
+        if (reply) {
+            const replyContainer = document.getElementById('seller-reply-container');
+            if (replyContainer) {
+                replyContainer.classList.remove('hidden');
+                setText('display-seller-reply', reply);
+            }
+        }
+
+        // 6. Repay Button Logic
+        if ((type === 'card_orders' && data.payment_status === 'pending') || 
+            (type === 'proxy_pay_orders' && data.status === 'pending')) {
+            const btnRepay = document.getElementById('btn-repay');
+            if (btnRepay) btnRepay.classList.remove('hidden');
+        }
+    }
+
+    function renderTimeline(data, type) {
+        const timeline = document.getElementById('timeline');
+        if (!timeline) return;
+        
+        // 自動判斷狀態欄位
+        const rawStatus = data.status || data.payment_status || 'pending';
+        
+        // 獲取規一化標籤 (透過 status-config.js)
+        const statusInfo = window.getStatusInfo ? window.getStatusInfo('orders', rawStatus) : { label: rawStatus };
+        const label = statusInfo.label;
+
+        let steps = [
+            { id: 'sent', label: '已送出', desc: '您的需求已成功送出。', time: formatDate(data.created_at) },
+            { id: 'confirmed', label: '已確認', desc: '系統已確認您的訂單資訊。', time: formatDate(data.updated_at || data.created_at) },
+            { id: 'completed', label: '已完成', desc: '訂單已完成，感謝您的支持。', time: '' }
+        ];
+
+        let activeIdx = 0;
+        if (['已確認'].includes(label)) activeIdx = 1;
+        if (['已完成', '已出貨'].includes(label)) activeIdx = 2;
+        if (['已取消'].includes(label)) activeIdx = -1;
+
+        timeline.innerHTML = steps.map((s, idx) => {
+            let statusClass = '';
+            let activeClass = '';
+            
+            if (activeIdx === -1) {
+                statusClass = 'status-gray';
+            } else {
+                if (idx === 0) statusClass = 'status-gray';
+                if (idx > 0 && idx <= activeIdx) statusClass = 'status-green';
+                if (idx <= activeIdx) activeClass = 'active';
+            }
+
+            let currentDesc = s.desc;
+            if (activeIdx === -1 && idx === 0) {
+                currentDesc = '訂單已取消。';
+            }
+
+            return `
+                <div class="timeline-item ${statusClass} ${activeClass}">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h3 class="font-bold ${idx <= activeIdx ? 'text-gray-800' : 'text-gray-400'}">${s.label}</h3>
+                        <p class="text-sm ${idx === activeIdx ? 'text-[#6ea44c] font-medium' : 'text-gray-400'} mt-1">${currentDesc}</p>
+                        ${s.time ? `<span class="text-[11px] font-mono text-gray-300 block mt-2">${s.time}</span>` : ''}
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    function formatDate(ts) {
+        if (!ts) return '';
+        let d = ts.toDate ? ts.toDate() : new Date(ts);
+        if (isNaN(d.getTime())) return '';
+        return d.toLocaleString('zh-TW', { hour12: false }).replace(/\//g, '-');
+    }
+
+    function showError() {
+        const loading = document.getElementById('loading-state');
+        if (loading) loading.style.opacity = '0';
+        setTimeout(() => {
+            if (loading) loading.classList.add('hidden');
+            const error = document.getElementById('error-state');
+            if (error) error.classList.remove('hidden');
+        }, 300);
+    }
+
+    function hideLoading() {
+        const loading = document.getElementById('loading-state');
+        if (loading) loading.style.opacity = '0';
+        setTimeout(() => {
+            if (loading) loading.classList.add('hidden');
+            const main = document.getElementById('main-content');
+            if (main) main.classList.remove('hidden');
+        }, 300);
+    }
+
+    function contactSupport() {
+        window.open('https://lin.ee/CffHu2o', '_blank');
+    }
+
+    async function triggerRepayAction(btn) {
+        if (!currentOrderId || btn.disabled) return;
+
+        const originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-rounded animate-spin">refresh</span> 處理中...';
+
+        try {
+            if (typeof API !== 'undefined' && API.generateCardPayment) {
+                const result = await API.generateCardPayment({
+                    action: 'generate_card_payment',
+                    repay_order_id: currentOrderId
+                });
+                
+                if (result.success) {
+                    if (result.payment_html) {
+                        const div = document.createElement('div');
+                        div.innerHTML = result.payment_html;
+                        document.body.appendChild(div);
+                        div.querySelector('form').submit();
+                    } else if (result.payment_url) {
+                        window.location.href = result.payment_url;
+                    }
+                } else {
+                    alert("重新產生支付連結失敗：" + (result.message || "請聯繫客服"));
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            } else {
+                alert('API 初始化失敗，請重新整理頁面。');
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        } catch (e) {
+            console.error(e);
+            alert("網路異常，請稍後再試");
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    }
+</script>

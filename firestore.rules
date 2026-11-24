@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 預設拒絕所有未經授權的存取
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // 1. 公開唯讀資料 (前台商店/預約需要)
+    match /matcha_brands/{docId} { allow read: if true; }
+    match /matcha_products/{docId} { allow read: if true; }
+    match /shipping_rules/{docId} { allow read: if true; }
+    match /fast_checkout_config/{docId} { allow read: if true; }
+    match /denwa_plans/{docId} { allow read: if true; }
+    match /card_orders_links/{docId} { allow read: if true; }
+    match /fast_checkout_links/{docId} { allow read: if true; }
+
+    // 2. 公開處理權限 (加上源頭金鑰驗證，防止非網頁直接寫入)
+    match /orders/{docId} { 
+      allow create: if request.resource.data.source_token == 'keicha_2025_web_auth';
+      allow get: if true;
+      allow list: if request.query.limit <= 20; // 允許查詢，但限制單次數量以防掃描
+    }
+    match /denwa_orders/{docId} { 
+      allow create: if request.resource.data.source_token == 'keicha_2025_web_auth';
+      allow get: if true;
+      allow list: if request.query.limit <= 20; 
+    }
+    match /proxy_pay_orders/{docId} { 
+      allow create: if request.resource.data.source_token == 'keicha_2025_web_auth';
+      allow get: if true;
+      allow list: if request.query.limit <= 20; 
+    }
+    match /card_orders/{docId} {
+      allow create: if request.resource.data.source_token == 'keicha_2025_web_auth';
+      allow read: if true; 
+      allow update, delete: if isAdmin();
+    }
+    // 訂單計數器 (允許前端交易更新以產生連續編號)
+    match /order_counters/{docId} {
+      allow read, write: if true;
+    }
+
+    // 3. 會員資料 lookup
+    match /members/{docId} { 
+      allow read: if true; 
+      allow write: if request.resource.data.source_token == 'keicha_2025_web_auth'; 
+      allow read, write: if isAdmin();
+    }
+
+    // 4. 管理員權限
+    match /orders/{docId} { allow read, write: if isAdmin(); }
+    match /denwa_orders/{docId} { allow read, write: if isAdmin(); }
+    match /proxy_pay_orders/{docId} { allow read, write: if isAdmin(); }
+    match /matcha_brands/{docId} { allow write: if isAdmin(); }
+    match /matcha_products/{docId} { allow write: if isAdmin(); }
+    match /denwa_plans/{docId} { allow write: if isAdmin(); }
+    match /fast_checkout_config/{docId} { allow write: if isAdmin(); }
+    match /shipping_rules/{docId} { allow write: if isAdmin(); }
+    match /card_orders_links/{docId} { allow write: if isAdmin(); }
+    match /fast_checkout_links/{docId} { allow read, write: if isAdmin(); }
+    match /shipping_methods/{docId} { allow read: if true; allow write: if isAdmin(); }
+    match /config/{docId} { allow read: if true; allow write: if isAdmin(); }
+
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == 'wj209ing@gmail.com' ||
+        request.auth.token.email == 'wj370ing@gmail.com'
+      );
+    }
+
+    // 注意：未來若開發前台 (Shop/Booking) 的 Firebase 版本，
+    // 可能需要在此針對 matcha_products 等集合開放唯讀權限：
+    // match /matcha_products/{productId} {
+    //   allow read: if true;
+    // }
+  }
+}
