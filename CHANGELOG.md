@@ -15,3 +15,9 @@
 - Verify the latest successful environment deployment against the released commit.
 
 正式部署完成後，GitHub 的 `github-pages` 環境會顯示本次發布紀錄。
+
+## 2026-11-24 — Documentation cleanup
+
+- Remove the project memory, admin button inventory, and five historical reports.
+
+已移除指定的專案記憶、後台按鈕清單及五份歷史報告。
